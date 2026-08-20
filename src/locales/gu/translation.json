@@ -1,0 +1,13 @@
+{
+  "app": { "name": "Agri AI", "tagline": "દરેક ખેત માટે સ્માર્ટ નિર્ણયો." },
+  "nav": { "home": "હોમ", "myFarm": "મારું ખેતર", "advisor": "AI સલાહકાર", "diagnose": "પાક નિદાન", "profile": "પ્રોફાઇલ", "weather": "હવામાન", "insights": "માહિતી", "history": "ઇતિહાસ", "notifications": "સૂચનાઓ", "settings": "સેટિંગ્સ" },
+  "welcome": { "headline": "વધુ સારા નિર્ણયો. સ્વસ્થ પાક.", "subheading": "તમારા ખેત માટે AI-આધારિત કૃષિ સહાય.", "cta": "શરૂ કરો", "signin": "પહેલેથી ખાતું છે? સાઇન ઇન કરો" },
+  "auth": { "google": "Google સાથે ચાલુ રાખો", "phone": "ફોન સાથે ચાલુ રાખો", "email": "ઇમેઇલ સાથે ચાલુ રાખો", "createAccount": "ખાતું બનાવો", "forgotPassword": "પાસવર્ડ ભૂલ્યા?", "emailLabel": "ઇમેઇલ સરનામું", "passwordLabel": "પાસવર્ડ", "nameLabel": "પૂરું નામ", "signingIn": "સાઇન ઇન થઈ રહ્યું છે...", "errors": { "required": "આ ફીલ્ડ જરૂરી છે.", "invalidEmail": "કૃપા કરીને માન્ય ઇમેઇલ સરનામું દાખલ કરો.", "weakPassword": "પાસવર્ડ ઓછામાં ઓછો 6 અક્ષરનો હોવો જોઈએ.", "authFailed": "સાઇન ઇન નિષ્ફળ. કૃપા કરીને ફરી પ્રયાસ કરો." } },
+  "language": { "title": "ભાષા પસંદ કરો", "subtitle": "તમારી પસંદીદા ભાષા પસંદ કરો.", "search": "ભાષા શોધો...", "continue": "ચાલુ રાખો" },
+  "country": { "title": "દેશ પસંદ કરો", "subtitle": "સ્થાનિક માહિતી માટે તમારો દેશ પસંદ કરો.", "continue": "ચાલુ રાખો" },
+  "dashboard": { "greeting": "સુપ્રભાત, {{name}} 🌱", "greetingAfternoon": "નમસ્તે, {{name}} 🌾", "greetingEvening": "શુભ સાંજ, {{name}} 🌙", "farmHealth": "ખેત આરોગ્ય", "lookingHealthy": "સ્વસ્થ દેખાય છે", "nextBestAction": "આગળ શું કરશો", "viewActionPlan": "કાર્ય યોજના જુઓ", "viewWeather": "હવામાન જુઓ", "viewInsights": "માહિતી જુઓ", "alert": "ચેતવણી", "why": "કેમ?", "demoData": "ડેમો ડેટા" },
+  "advisor": { "title": "AI સલાહકાર", "subtitle": "તમારા ખેત માટે કૃષિ સહાયક.", "inputPlaceholder": "તમારા ખેત વિશે કંઈ પણ પૂછો...", "recommendation": "ભલામણ", "why": "કેમ", "whatToDo": "શું કરવું", "listen": "સાંભળો", "saveAdvice": "સલાહ સાચવો", "saved": "સલાહ સાચવી." },
+  "diagnose": { "title": "પાક ડૉક્ટર", "subtitle": "પાકનો ફોટો લો અથવા અપલોડ કરો.", "takePhoto": "ફોટો લો", "uploadImage": "છબી અપલોડ કરો", "useSample": "નમૂના છબી વાપરો" },
+  "states": { "loading": "લોડ થઈ રહ્યું છે...", "error": "કંઈ ખોટું થઈ ગયું.", "retry": "ફરી પ્રયાસ કરો", "offline": "તમે ઑફલાઇન છો.", "reload": "એપ ફરી લોડ કરો" },
+  "units": { "acres": "એકર", "hectares": "હેક્ટર", "celsius": "°C" }
+}

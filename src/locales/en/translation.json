@@ -1,0 +1,171 @@
+{
+  "app": { "name": "Agri AI", "tagline": "Smarter decisions for every farm." },
+  "nav": { "home": "Home", "myFarm": "My Farm", "advisor": "AI Advisor", "diagnose": "Diagnose", "profile": "Profile", "weather": "Weather", "insights": "Insights", "history": "History", "notifications": "Notifications", "settings": "Settings" },
+  "welcome": {
+    "headline": "Better decisions. Healthier crops.",
+    "subheading": "AI-powered agricultural intelligence built around your farm.",
+    "cta": "Get Started",
+    "signin": "Already have an account? Sign in"
+  },
+  "auth": {
+    "google": "Continue with Google",
+    "phone": "Continue with Phone",
+    "email": "Continue with Email",
+    "createAccount": "Create Account",
+    "forgotPassword": "Forgot password?",
+    "emailLabel": "Email address",
+    "passwordLabel": "Password",
+    "nameLabel": "Full name",
+    "signingIn": "Signing in...",
+    "errors": {
+      "required": "This field is required.",
+      "invalidEmail": "Please enter a valid email address.",
+      "weakPassword": "Password must be at least 6 characters.",
+      "authFailed": "Sign in failed. Please try again."
+    }
+  },
+  "language": { "title": "Choose Language", "subtitle": "Select your preferred language.", "search": "Search language...", "continue": "Continue" },
+  "country": { "title": "Select Your Country", "subtitle": "Choose your country to get local insights.", "continue": "Continue" },
+  "profile": {
+    "title": "Your Profile",
+    "subtitle": "Tell us a bit about yourself.",
+    "name": "Full name",
+    "experience": "Farming experience",
+    "experienceOptions": { "beginner": "Beginner (0–3 years)", "intermediate": "Intermediate (3–10 years)", "expert": "Expert (10+ years)" },
+    "continue": "Continue",
+    "step": "Step {{current}} of {{total}}"
+  },
+  "farm": {
+    "location": { "title": "Where is your farm?", "subtitle": "Find your farm on the map and drop a pin.", "useMyLocation": "Use My Location", "searchPlaceholder": "Search village, city or area", "pickOnMap": "Pick on Map", "useThisLocation": "Use This Location", "locating": "Finding your location...", "locationError": "Could not find your location. Please try searching." },
+    "boundary": { "title": "Mark Your Farm Area", "subtitle": "Tap the map to outline your farm boundary.", "area": "Approx. {{value}} {{unit}}", "clear": "Clear", "edit": "Edit", "confirm": "Confirm Area" },
+    "details": { "title": "Farm Details", "subtitle": "Complete your farm setup.", "name": "Farm name", "namePlaceholder": "e.g. Rajkot Groundnut Farm", "area": "Area", "primaryCrop": "Primary crop", "soilType": "Soil type", "cropStage": "Crop stage", "plantingDate": "Planting date (optional)", "save": "Save Farm" },
+    "crop": { "title": "Select Your Crop", "subtitle": "Choose the primary crop for this farm.", "search": "Search crops...", "categories": "Categories", "popular": "Popular", "all": "All Crops", "select": "Select Crop" },
+    "soil": { "title": "Soil Type", "subtitle": "Select your farm's soil type.", "select": "Select Soil Type", "dontKnow": "I don't know" },
+    "stage": { "title": "Crop Stage", "subtitle": "What stage is your crop at?", "select": "Select Crop Stage", "plantingDate": "When did you plant?" },
+    "complete": { "title": "Farm Ready! 🌱", "subtitle": "Your farm has been set up successfully.", "goToDashboard": "Go to Dashboard" },
+    "health": "Farm Health",
+    "addNew": "+ Add New Farm",
+    "noFarms": "No farm added yet.",
+    "noFarmsHint": "Add your first farm to get started."
+  },
+  "dashboard": {
+    "greeting": "Good morning, {{name}} 🌱",
+    "greetingAfternoon": "Good afternoon, {{name}} 🌾",
+    "greetingEvening": "Good evening, {{name}} 🌙",
+    "farmHealth": "Farm Health",
+    "lookingHealthy": "Looking Healthy",
+    "needsAttention": "Needs Attention",
+    "nextBestAction": "Next Best Action",
+    "viewActionPlan": "View Action Plan",
+    "quickActions": "Quick Actions",
+    "viewWeather": "View Weather",
+    "viewInsights": "View Insights",
+    "alert": "Alert",
+    "why": "Why?",
+    "demoData": "Demo Data"
+  },
+  "advisor": {
+    "title": "AI Advisor",
+    "subtitle": "Your farm-aware agricultural assistant.",
+    "inputPlaceholder": "Ask anything about your farm...",
+    "thinking": "Understanding your farm...",
+    "preparing": "Preparing your recommendation...",
+    "recommendation": "Recommendation",
+    "why": "Why",
+    "whatToDo": "What to do",
+    "dataUsed": "Data Used",
+    "listen": "Listen",
+    "saveAdvice": "Save Advice",
+    "askFollowUp": "Ask Follow-up",
+    "saved": "Advice saved.",
+    "farmContext": "Farm Context"
+  },
+  "voice": {
+    "listening": "Listening...",
+    "understanding": "Understanding your question...",
+    "preparing": "Preparing your recommendation...",
+    "cancel": "Cancel",
+    "stop": "Stop",
+    "retry": "Try again",
+    "tapToSpeak": "Tap microphone to speak",
+    "notSupported": "Voice input is not supported on this device."
+  },
+  "diagnose": {
+    "title": "Crop Doctor",
+    "subtitle": "Take a photo of your crop or upload one.",
+    "takePhoto": "Take Photo",
+    "uploadImage": "Upload Image",
+    "useSample": "Use Sample Image",
+    "analyzing": "Analyzing image",
+    "steps": { "examining": "Examining image", "identifying": "Identifying crop", "checking": "Checking symptoms", "analyzing": "Analyzing visual patterns", "preparing": "Preparing recommendation" },
+    "result": { "title": "Diagnosis Result", "confidence": "{{value}}% Match", "possibleIssue": "Possible Issue", "symptoms": "Observed Symptoms", "actions": "Recommended Actions", "listen": "Listen", "learnMore": "Learn More", "askAI": "Ask AI", "save": "Save Diagnosis", "disclaimer": "AI diagnosis is informational and should not replace professional agricultural advice.", "demo": "Demo Diagnosis", "severity": { "mild": "Mild", "moderate": "Moderate", "severe": "Severe" } }
+  },
+  "weather": {
+    "title": "Weather Intelligence",
+    "today": "Today", "tomorrow": "Tomorrow", "sevenDay": "7 Days",
+    "farmImpact": "Farm Impact",
+    "irrigation": "Irrigation",
+    "spraying": "Spraying",
+    "diseaseRisk": "Disease Risk",
+    "status": { "delay": "Delay", "proceed": "Proceed", "monitor": "Monitor", "postpone": "Postpone", "caution": "Caution", "low": "Low", "moderate": "Moderate", "elevated": "Elevated", "high": "High" },
+    "viewDetails": "View Details",
+    "demo": "Demo Weather Data"
+  },
+  "insights": {
+    "title": "Farm Insights",
+    "cropHealth": "Crop Health", "soilHealth": "Soil Health", "satellite": "Satellite",
+    "ndvi": "NDVI Index",
+    "vegetationHealth": "Vegetation Health",
+    "demo": "Demo Data",
+    "live": "Live",
+    "unavailable": "Unavailable"
+  },
+  "action": {
+    "title": "Next Best Action",
+    "subtitle": "What should you do next?",
+    "today": "TODAY", "thisWeek": "THIS WEEK", "watchFor": "WATCH FOR",
+    "save": "Save", "setReminder": "Set Reminder"
+  },
+  "irrigation": {
+    "title": "Irrigation Intelligence",
+    "recommended": "Recommended",
+    "delay": "Delay",
+    "monitor": "Monitor",
+    "askAI": "Ask AI about Irrigation",
+    "why": "Why this recommendation?"
+  },
+  "profile": {
+    "title": "Profile & Settings",
+    "language": "Language",
+    "country": "Country",
+    "units": "Units",
+    "voiceSettings": "Voice Settings",
+    "notifications": "Notifications",
+    "privacy": "Privacy",
+    "dataManagement": "Data Management",
+    "help": "Help & Support",
+    "about": "About Agri AI",
+    "logout": "Logout",
+    "version": "Version"
+  },
+  "states": {
+    "loading": "Loading...",
+    "error": "Something went wrong.",
+    "retry": "Try Again",
+    "offline": "You are offline.",
+    "offlineHint": "Your saved farm information is still available.",
+    "empty": "Nothing here yet.",
+    "lastUpdated": "Last updated",
+    "reload": "Reload App"
+  },
+  "toast": {
+    "farmSaved": "Farm saved successfully.",
+    "locationSelected": "Location selected.",
+    "adviceSaved": "Advice saved.",
+    "diagnosisSaved": "Diagnosis saved.",
+    "weatherError": "Unable to load weather.",
+    "voiceError": "Voice input unavailable.",
+    "copied": "Copied to clipboard."
+  },
+  "units": { "acres": "acres", "hectares": "hectares", "celsius": "°C", "fahrenheit": "°F", "kmh": "km/h" }
+}

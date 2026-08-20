@@ -1,0 +1,145 @@
+@import "tailwindcss";
+
+@theme {
+  /* ── Colors ─────────────────────────────────────── */
+  /* Greens */
+  --color-green-forest:  #2E7D32;
+  --color-green-deep:    #246B38;
+  --color-green-soft:    #66B86A;
+  --color-green-pastel:  #A8D5A2;
+  --color-green-light:   #E8F5E9;
+  
+  /* Browns */
+  --color-brown-earth:   #8D6245;
+  --color-brown-deep:    #6F4E37;
+  --color-brown-soft:    #B8947A;
+  
+  /* Neutrals */
+  --color-beige-warm:    #F5EBDD;
+  --color-cream:         #FFF9F0;
+  --color-off-white:     #FAFBF8;
+  
+  /* Text */
+  --color-text-main:     #1F2937;
+  --color-text-secondary:#667085;
+  
+  /* UI States */
+  --color-muted-warning: #D8A84E;
+  --color-muted-danger:  #C96C62;
+
+  /* Semantic aliases */
+  --color-primary:    var(--color-green-forest);
+  --color-secondary:  var(--color-brown-earth);
+  --color-surface:    var(--color-cream);
+  --color-background: var(--color-off-white);
+
+  /* ── Typography ──────────────────────────────────── */
+  --font-sans: "Plus Jakarta Sans", "Inter", system-ui, sans-serif;
+
+  /* ── Border radius ───────────────────────────────── */
+  --radius-xl:  16px;
+  --radius-2xl: 20px;
+  --radius-3xl: 28px;
+  --radius-4xl: 36px;
+
+  /* ── Shadows ─────────────────────────────────────── */
+  --shadow-card:    0 2px 16px rgba(46,125,50,0.06), 0 1px 4px rgba(0,0,0,0.04);
+  --shadow-card-lg: 0 4px 32px rgba(46,125,50,0.10), 0 2px 8px rgba(0,0,0,0.06);
+  --shadow-button:  0 4px 14px rgba(46,125,50,0.25);
+  --shadow-nav:     0 -2px 16px rgba(0,0,0,0.06);
+
+  /* ── Keyframes ───────────────────────────────────── */
+  --animate-shimmer:       shimmer 1.8s infinite;
+  --animate-pulse-soft:    pulse-soft 2s ease-in-out infinite;
+  --animate-scan-line:     scan-line 2s linear infinite;
+  --animate-waveform:      waveform 1.2s ease-in-out infinite;
+  --animate-bounce-gentle: bounce-gentle 1s ease-in-out infinite;
+  --animate-fade-in:       fadeIn 0.3s ease-out;
+  --animate-slide-up:      slideUp 0.3s ease-out;
+  --animate-grow-up:       grow-up 0.4s ease-out;
+}
+
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+@keyframes pulse-soft {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50%       { opacity: 1;   transform: scale(1.04); }
+}
+@keyframes scan-line {
+  0%   { top: 0%; }
+  100% { top: 100%; }
+}
+@keyframes waveform {
+  0%, 100% { transform: scaleY(0.3); }
+  50%       { transform: scaleY(1); }
+}
+@keyframes bounce-gentle {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-6px); }
+}
+@keyframes fadeIn {
+  0%   { opacity: 0; }
+  100% { opacity: 1; }
+}
+@keyframes slideUp {
+  0%   { opacity: 0; transform: translateY(14px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes grow-up {
+  0%   { transform: scaleY(0); transform-origin: bottom; }
+  100% { transform: scaleY(1); transform-origin: bottom; }
+}
+
+/* ── Base styles ─────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-background);
+  color: var(--color-text-main);
+  margin: 0;
+  padding: 0;
+  min-height: 100dvh;
+  overflow-x: hidden;
+}
+
+/* RTL support */
+[dir="rtl"] {
+  font-family: var(--font-sans);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--color-green-pastel); border-radius: 3px; }
+
+/* Leaflet z-index fix */
+.leaflet-container { z-index: 1; }
+.leaflet-pane { z-index: 1; }
+.leaflet-tile-pane { z-index: 1; }
+.leaflet-overlay-pane { z-index: 2; }
+.leaflet-shadow-pane { z-index: 3; }
+.leaflet-marker-pane { z-index: 4; }
+.leaflet-tooltip-pane { z-index: 5; }
+.leaflet-popup-pane { z-index: 6; }
+.leaflet-top, .leaflet-bottom { z-index: 7; }
+
+/* shimmer utility */
+.shimmer-bg {
+  background: linear-gradient(
+    90deg,
+    var(--color-green-light) 25%,
+    #f0f9f0 50%,
+    var(--color-green-light) 75%
+  );
+  background-size: 800px 100%;
+  animation: shimmer 1.8s infinite;
+}
