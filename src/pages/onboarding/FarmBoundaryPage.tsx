@@ -5,9 +5,11 @@ import { Map, Trash2, Edit3 } from 'lucide-react'
 import { pageVariants } from '@/animations/variants'
 import { Button } from '@/components/ui/Button'
 import { Chip } from '@/components/ui/index'
+import { useTranslation } from 'react-i18next'
 
 const FarmBoundaryPage: React.FC = () => {
   const navigate = useNavigate()
+  const { t } = useTranslation()
   const [unit, setUnit] = useState<'acres' | 'hectares'>('acres')
   const [pointsAdded, setPointsAdded] = useState(5) // mock: boundary already drawn
 
@@ -19,8 +21,8 @@ const FarmBoundaryPage: React.FC = () => {
         <button onClick={() => navigate(-1)} className="w-10 h-10 flex items-center justify-center rounded-xl bg-brown-pastel/30 text-brown-earth mb-6 shadow-sm hover:bg-brown-pastel/50 transition-colors">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="w-5 h-5"><path d="M15 18l-6-6 6-6" /></svg>
         </button>
-        <h1 className="text-2xl font-bold text-green-forest mb-1">Mark Your Farm Area</h1>
-        <p className="text-text-secondary font-medium text-sm">Tap the map to outline your farm boundary.</p>
+        <h1 className="text-2xl font-bold text-green-forest mb-1">{t('farm.location.markArea')}</h1>
+        <p className="text-text-secondary font-medium text-sm">{t('farm.location.tapMap')}</p>
       </div>
 
       {/* Map with drawn boundary */}
@@ -56,17 +58,17 @@ const FarmBoundaryPage: React.FC = () => {
       {/* Action buttons */}
       <div className="px-6 py-4 flex gap-3">
         <button onClick={() => setPointsAdded(0)} className="flex items-center gap-1.5 px-4 py-2.5 bg-white border border-brown-pastel/50 rounded-xl text-sm font-bold text-brown-earth hover:border-muted-danger hover:text-muted-danger transition-colors shadow-sm">
-          <Trash2 className="w-4 h-4" /> Clear
+          <Trash2 className="w-4 h-4" /> {t('farm.location.clear')}
         </button>
         <button className="flex items-center gap-1.5 px-4 py-2.5 bg-white border border-brown-pastel/50 rounded-xl text-sm font-bold text-brown-earth hover:border-brown-earth transition-colors shadow-sm">
-          <Edit3 className="w-4 h-4" /> Edit
+          <Edit3 className="w-4 h-4" /> {t('farm.location.edit')}
         </button>
         <p className="flex-1 text-[11px] font-medium text-text-secondary flex items-center justify-end pr-1">Tap map to add points</p>
       </div>
 
       <div className="px-6 pb-8">
         <Button variant="primary" size="xl" fullWidth onClick={() => navigate('/onboarding/farm-details')}>
-          Confirm Area →
+          {t('farm.location.confirmArea')} →
         </Button>
       </div>
     </motion.div>

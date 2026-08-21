@@ -9,10 +9,12 @@ import { Card } from '@/components/ui/Card'
 import { IMAGES } from '@/config/images'
 import { MOCK_DIAGNOSIS_HISTORY } from '@/mock/diagnosis'
 import { timeAgo } from '@/utils/format'
+import { useTranslation } from 'react-i18next'
 
 const CropDoctorPage: React.FC = () => {
   const navigate = useNavigate()
   const fileRef = useRef<HTMLInputElement>(null)
+  const { t } = useTranslation()
   const [preview, setPreview] = useState<string | null>(null)
 
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -29,13 +31,13 @@ const CropDoctorPage: React.FC = () => {
 
   return (
     <motion.div variants={pageVariants} initial="initial" animate="animate" className="min-h-screen bg-background">
-      <MobileHeader title="Crop Doctor" subtitle="Take a photo of your crop or upload one." />
+      <MobileHeader title={t('diagnose.title')} subtitle={t('diagnose.subtitle')} />
 
       <PageLayout className="pt-4 space-y-4">
         {/* Desktop header */}
         <div className="hidden lg:block mb-4">
-          <h1 className="text-2xl font-bold text-green-forest tracking-tight">Crop Doctor</h1>
-          <p className="text-brown-earth/80 text-sm font-medium">Take a photo of your crop or upload one.</p>
+          <h1 className="text-2xl font-bold text-green-forest tracking-tight">{t('diagnose.title')}</h1>
+          <p className="text-brown-earth/80 text-sm font-medium">{t('diagnose.subtitle')}</p>
         </div>
 
         {/* Desktop 3-col layout */}
@@ -58,8 +60,8 @@ const CropDoctorPage: React.FC = () => {
                     <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-button group-hover:scale-105 transition-transform border border-brown-pastel/30">
                       <Camera className="w-8 h-8 text-green-forest" />
                     </div>
-                    <p className="font-bold text-green-forest text-lg">Tap to upload</p>
-                    <p className="text-sm text-brown-earth/80 mt-1 font-medium">or take a photo</p>
+                    <p className="font-bold text-green-forest text-lg">{t('diagnose.tapToUpload', 'Tap to upload')}</p>
+                    <p className="text-sm text-brown-earth/80 mt-1 font-medium">{t('diagnose.orTakePhoto', 'or take a photo')}</p>
                   </div>
                 </>
               )}
@@ -69,17 +71,17 @@ const CropDoctorPage: React.FC = () => {
             {/* Action buttons */}
             <div className="grid grid-cols-2 gap-3">
               <Button variant="primary" size="md" fullWidth icon={<Camera className="w-4 h-4" />} onClick={() => fileRef.current?.click()}>
-                Take Photo
+                {t('diagnose.takePhoto')}
               </Button>
               <Button variant="secondary" size="md" fullWidth icon={<Upload className="w-4 h-4" />} onClick={() => fileRef.current?.click()}>
-                Upload
+                {t('diagnose.uploadImage')}
               </Button>
             </div>
             <Button variant="outline" size="md" fullWidth icon={<FlaskConical className="w-4 h-4" />} onClick={handleSample}>
-              Use Sample Image
+              {t('diagnose.useSample')}
             </Button>
             <p className="text-xs text-center text-amber-600 bg-amber-50 px-3 py-2 rounded-xl">
-              💡 Sample image lets you demo the full diagnosis without a camera.
+              💡 {t('diagnose.sampleHint', 'Sample image lets you demo the full diagnosis without a camera.')}
             </p>
           </div>
 
@@ -88,15 +90,15 @@ const CropDoctorPage: React.FC = () => {
             {/* Tips */}
             <Card padding="md" className="border-brown-pastel/30 bg-cream">
               <h3 className="font-bold text-brown-earth mb-3 flex items-center gap-2">
-                <span className="text-lg">📸</span> Tips for best results
+                <span className="text-lg">📸</span> {t('diagnose.tips.title', 'Tips for best results')}
               </h3>
               <ul className="space-y-2 text-sm text-text-secondary font-medium">
                 {[
-                  'Use natural daylight — avoid harsh shadows.',
-                  'Photograph the affected leaf clearly.',
-                  'Include 2–3 leaves showing symptoms.',
-                  'Keep the camera steady and focused.',
-                  'Include both sides of the leaf if possible.',
+                  t('diagnose.tips.tip1', 'Use natural daylight — avoid harsh shadows.'),
+                  t('diagnose.tips.tip2', 'Photograph the affected leaf clearly.'),
+                  t('diagnose.tips.tip3', 'Include 2–3 leaves showing symptoms.'),
+                  t('diagnose.tips.tip4', 'Keep the camera steady and focused.'),
+                  t('diagnose.tips.tip5', 'Include both sides of the leaf if possible.'),
                 ].map(tip => (
                   <li key={tip} className="flex gap-2.5">
                     <span className="text-green-forest font-bold shrink-0">✓</span>
@@ -109,7 +111,7 @@ const CropDoctorPage: React.FC = () => {
             {/* Recent diagnoses */}
             <Card padding="md" className="border-brown-pastel/30 bg-off-white shadow-sm">
               <h3 className="font-bold text-brown-earth mb-3 flex items-center gap-2">
-                <span className="text-lg">📋</span> Recent Diagnoses
+                <span className="text-lg">📋</span> {t('diagnose.recentTitle', 'Recent Diagnoses')}
               </h3>
               <div className="space-y-3">
                 {MOCK_DIAGNOSIS_HISTORY.map(d => (
@@ -121,7 +123,7 @@ const CropDoctorPage: React.FC = () => {
                     <img src={d.imageUrl} alt={d.disease} className="w-14 h-14 rounded-xl object-cover border border-brown-pastel/20" />
                     <div className="flex-1 min-w-0">
                       <p className="font-bold text-text-main text-sm truncate">{d.disease}</p>
-                      <p className="text-xs text-text-secondary font-medium mt-0.5">{d.crop} · <span className="text-green-forest">{d.confidence}% match</span></p>
+                      <p className="text-xs text-text-secondary font-medium mt-0.5">{d.crop} · <span className="text-green-forest">{d.confidence}% {t('diagnosis.match', 'match')}</span></p>
                       <p className="text-xs text-brown-earth/60 mt-0.5">{d.date}</p>
                     </div>
                     <span className="w-8 h-8 rounded-full bg-green-pastel/20 flex items-center justify-center shrink-0">

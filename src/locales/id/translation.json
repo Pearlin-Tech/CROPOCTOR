@@ -1,0 +1,12 @@
+{
+  "app": { "name": "Cropoctor", "tagline": "Keputusan yang lebih cerdas untuk setiap lahan pertanian." },
+  "nav": { "home": "Beranda", "myFarm": "Lahan Saya", "advisor": "Penasihat AI", "diagnose": "Diagnosa", "profile": "Profil", "weather": "Cuaca", "insights": "Wawasan", "history": "Riwayat", "notifications": "Notifikasi", "settings": "Pengaturan" },
+  "welcome": {
+    "headline": "Keputusan yang lebih baik. Tanaman yang lebih sehat.",
+    "subheading": "Kecerdasan pertanian bertenaga AI yang dibangun di sekitar lahan pertanian Anda.",
+    "cta": "Mulai",
+    "signin": "Sudah memiliki akun? Masuk"
+  },
+  "language": { "title": "Pilih Bahasa", "subtitle": "Pilih bahasa pilihan Anda.", "search": "Cari bahasa...", "continue": "Lanjutkan" },
+  "country": { "title": "Pilih Negara Anda", "subtitle": "Pilih negara Anda untuk mendapatkan wawasan lokal.", "continue": "Lanjutkan" }
+}

@@ -5,9 +5,11 @@ import { MapPin, Search, Navigation, Map } from 'lucide-react'
 import { pageVariants } from '@/animations/variants'
 import { Button } from '@/components/ui/Button'
 import { locationService } from '@/services'
+import { useTranslation } from 'react-i18next'
 
 const FarmLocationPage: React.FC = () => {
   const navigate = useNavigate()
+  const { t } = useTranslation()
   const [query, setQuery]       = useState('')
   const [locating, setLocating] = useState(false)
   const [results, setResults]   = useState<Array<{ name: string; lat: number; lng: number }>>([])
@@ -43,8 +45,8 @@ const FarmLocationPage: React.FC = () => {
         <div className="flex gap-1.5 mb-6">
           {[1,2,3].map(s => <div key={s} className={`h-1.5 flex-1 rounded-full ${s <= 2 ? 'bg-green-forest' : 'bg-brown-pastel/40'}`} />)}
         </div>
-        <h1 className="text-2xl font-bold text-green-forest mb-1">Where is your farm?</h1>
-        <p className="text-text-secondary font-medium text-sm">Find your farm on the map and drop a pin.</p>
+        <h1 className="text-2xl font-bold text-green-forest mb-1">{t('farm.location.title')}</h1>
+        <p className="text-text-secondary font-medium text-sm">{t('farm.location.subtitle')}</p>
       </div>
 
       {/* Map placeholder */}
@@ -72,7 +74,7 @@ const FarmLocationPage: React.FC = () => {
           className="w-full flex items-center gap-3 px-5 py-4 bg-brown-earth text-white rounded-2xl font-semibold shadow-button hover:bg-brown-deep transition-all disabled:opacity-60"
         >
           <Navigation className="w-5 h-5 shrink-0" />
-          {locating ? 'Finding your location…' : 'Use My Location'}
+          {locating ? t('farm.location.locating') : t('farm.location.useMyLocation')}
         </button>
 
         {/* Search */}
@@ -80,7 +82,7 @@ const FarmLocationPage: React.FC = () => {
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-brown-earth/60" />
           <input
             type="text"
-            placeholder="Search village, city or area"
+            placeholder={t('farm.location.searchPlaceholder')}
             value={query}
             onChange={e => { setQuery(e.target.value); if (!e.target.value) setResults([]) }}
             onKeyDown={e => e.key === 'Enter' && handleSearch()}
@@ -110,7 +112,7 @@ const FarmLocationPage: React.FC = () => {
           className="w-full flex items-center justify-center gap-3 px-4 py-4 bg-white border border-brown-pastel/50 rounded-2xl text-brown-earth font-bold hover:border-brown-earth transition-all shadow-sm"
         >
           <Map className="w-5 h-5 text-brown-earth shrink-0" />
-          Pick on Map
+          {t('farm.location.pickOnMap')}
         </button>
       </div>
 
@@ -120,7 +122,7 @@ const FarmLocationPage: React.FC = () => {
           onClick={() => navigate('/onboarding/boundary')}
           disabled={!selected && !locating}
         >
-          Use This Location →
+          {t('farm.location.useThisLocation')} →
         </Button>
       </div>
     </motion.div>

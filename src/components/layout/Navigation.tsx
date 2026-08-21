@@ -4,36 +4,40 @@ import { Home, Leaf, Bot, Stethoscope, User, CloudSun, BarChart2, Bell, History,
 import { cn } from '@/utils/cn'
 import { useApp } from '@/store/AppContext'
 
+import { useTranslation } from 'react-i18next'
+
 const MOBILE_NAV = [
-  { to: '/home',    icon: Home,         label: 'Home'     },
-  { to: '/farms',   icon: Leaf,         label: 'My Farm'  },
-  { to: '/advisor', icon: Bot,          label: 'Advisor'  },
-  { to: '/diagnose',icon: Stethoscope,  label: 'Diagnose' },
-  { to: '/profile', icon: User,         label: 'Profile'  },
+  { to: '/home',    icon: Home,         labelKey: 'nav.home'     },
+  { to: '/farms',   icon: Leaf,         labelKey: 'nav.myFarm'  },
+  { to: '/advisor', icon: Bot,          labelKey: 'nav.advisor'  },
+  { to: '/diagnose',icon: Stethoscope,  labelKey: 'nav.diagnose' },
+  { to: '/profile', icon: User,         labelKey: 'nav.profile'  },
 ]
 
 const DESKTOP_NAV = [
-  { to: '/home',      icon: Home,        label: 'Home'      },
-  { to: '/farms',     icon: Leaf,        label: 'My Farm'   },
-  { to: '/advisor',   icon: Bot,         label: 'AI Advisor'},
-  { to: '/diagnose',  icon: Stethoscope, label: 'Crop Doctor'},
-  { to: '/weather',   icon: CloudSun,    label: 'Weather'   },
-  { to: '/insights',  icon: BarChart2,   label: 'Insights'  },
-  { to: '/history',   icon: History,     label: 'History'   },
-  { to: '/notifications', icon: Bell,    label: 'Notifications'},
+  { to: '/home',      icon: Home,        labelKey: 'nav.home'      },
+  { to: '/farms',     icon: Leaf,        labelKey: 'nav.myFarm'   },
+  { to: '/advisor',   icon: Bot,         labelKey: 'nav.advisor'},
+  { to: '/diagnose',  icon: Stethoscope, labelKey: 'nav.diagnose'},
+  { to: '/weather',   icon: CloudSun,    labelKey: 'nav.weather'   },
+  { to: '/insights',  icon: BarChart2,   labelKey: 'nav.insights'  },
+  { to: '/history',   icon: History,     labelKey: 'nav.history'   },
+  { to: '/notifications', icon: Bell,    labelKey: 'nav.notifications'},
 ]
 
 // ─── Bottom Nav (Mobile) ──────────────────────────────────────────────────────
 export const BottomNav: React.FC = () => {
   const location = useLocation()
+  const { t } = useTranslation()
   return (
     <nav
       className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-sm border-t border-gray-100 shadow-nav md:hidden"
       aria-label="Main navigation"
     >
       <div className="flex items-center justify-around h-[68px] px-1 safe-area-inset-bottom">
-        {MOBILE_NAV.map(({ to, icon: Icon, label }) => {
+        {MOBILE_NAV.map(({ to, icon: Icon, labelKey }) => {
           const active = location.pathname.startsWith(to)
+          const label = t(labelKey)
           return (
             <NavLink
               key={to}
@@ -75,6 +79,7 @@ export const BottomNav: React.FC = () => {
 // ─── Sidebar (Desktop) ────────────────────────────────────────────────────────
 export const Sidebar: React.FC = () => {
   const location = useLocation()
+  const { t } = useTranslation()
   return (
     <aside
       className="hidden lg:flex flex-col w-64 min-h-screen bg-off-white border-r border-green-pastel/20 fixed left-0 top-0 bottom-0 z-40"
@@ -85,16 +90,17 @@ export const Sidebar: React.FC = () => {
         <div className="flex items-center gap-3">
           <img src="/images/logo.jpg" alt="Cropoctor Logo" className="w-10 h-10 rounded-xl object-cover border border-brown-pastel/30 shadow-sm" />
           <div>
-            <h1 className="font-bold text-xl text-green-forest leading-none tracking-tight">Cropoctor</h1>
-            <p className="text-[11px] text-brown-earth mt-1 font-medium">Farm Intelligence</p>
+            <h1 className="font-bold text-xl text-green-forest leading-none tracking-tight">{t('app.name')}</h1>
+            <p className="text-[11px] text-brown-earth mt-1 font-medium">{t('app.tagline')}</p>
           </div>
         </div>
       </div>
 
       {/* Nav links */}
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-        {DESKTOP_NAV.map(({ to, icon: Icon, label }) => {
+        {DESKTOP_NAV.map(({ to, icon: Icon, labelKey }) => {
           const active = location.pathname.startsWith(to)
+          const label = t(labelKey)
           return (
             <NavLink
               key={to}
@@ -118,10 +124,11 @@ export const Sidebar: React.FC = () => {
       {/* Bottom links */}
       <div className="px-3 py-4 border-t border-brown-pastel/40 space-y-1">
         {[
-          { to: '/profile',  icon: User,     label: 'Profile'  },
-          { to: '/settings', icon: Settings, label: 'Settings' },
-        ].map(({ to, icon: Icon, label }) => {
+          { to: '/profile',  icon: User,     labelKey: 'nav.profile'  },
+          { to: '/settings', icon: Settings, labelKey: 'nav.settings' },
+        ].map(({ to, icon: Icon, labelKey }) => {
           const active = location.pathname.startsWith(to)
+          const label = t(labelKey)
           return (
             <NavLink
               key={to}
@@ -144,6 +151,7 @@ export const Sidebar: React.FC = () => {
 // ─── Top Nav (Tablet — md only) ───────────────────────────────────────────────
 export const TopNav: React.FC = () => {
   const location = useLocation()
+  const { t } = useTranslation()
   return (
     <nav
       className="hidden md:flex lg:hidden items-center justify-between px-4 py-3 bg-off-white border-b border-brown-pastel/40 sticky top-0 z-40 shadow-sm"
@@ -151,11 +159,12 @@ export const TopNav: React.FC = () => {
     >
       <div className="flex items-center gap-3">
         <img src="/images/logo.jpg" alt="Cropoctor Logo" className="w-8 h-8 rounded-lg object-cover border border-brown-pastel/30" />
-        <span className="font-bold text-lg text-green-forest tracking-tight">Cropoctor</span>
+        <span className="font-bold text-lg text-green-forest tracking-tight">{t('app.name')}</span>
       </div>
       <div className="flex items-center gap-1">
-        {MOBILE_NAV.map(({ to, icon: Icon, label }) => {
+        {MOBILE_NAV.map(({ to, icon: Icon, labelKey }) => {
           const active = location.pathname.startsWith(to)
+          const label = t(labelKey)
           return (
             <NavLink
               key={to}

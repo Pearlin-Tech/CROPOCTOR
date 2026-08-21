@@ -6,9 +6,11 @@ import { Button } from '@/components/ui/Button'
 import { SearchableSelect } from '@/components/ui/SearchableSelect'
 import { CROP_STAGES } from '@/config/soils'
 import { Input } from '@/components/ui/Input'
+import { useTranslation } from 'react-i18next'
 
 const CropStagePage: React.FC = () => {
   const navigate = useNavigate()
+  const { t } = useTranslation()
   const [stage, setStage] = useState('flowering')
   const [date, setDate]   = useState('')
   const stageOptions = CROP_STAGES.map(s => ({ id: s.id, name: s.name }))
@@ -18,30 +20,30 @@ const CropStagePage: React.FC = () => {
       <button onClick={() => navigate(-1)} className="w-9 h-9 flex items-center justify-center rounded-xl bg-green-light text-green-forest mb-6">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="w-4 h-4"><path d="M15 18l-6-6 6-6" /></svg>
       </button>
-      <h1 className="text-2xl font-bold text-gray-800 mb-1">Crop Stage</h1>
-      <p className="text-gray-500 text-sm mb-8">What stage is your crop at?</p>
+      <h1 className="text-2xl font-bold text-gray-800 mb-1">{t('farm.location.stageTitle', 'Crop Stage')}</h1>
+      <p className="text-gray-500 text-sm mb-8">{t('farm.location.stageSubtitle', 'What stage is your crop at?')}</p>
 
       <div className="flex-1 space-y-5">
         <SearchableSelect
-          label="Crop Stage"
+          label={t('farm.location.stageTitle', 'Crop Stage')}
           options={stageOptions}
           value={stage}
           onChange={setStage}
-          placeholder="Select Crop Stage"
-          searchPlaceholder="Search stages..."
+          placeholder={t('farm.location.selectStage', 'Select Crop Stage')}
+          searchPlaceholder={t('farm.location.searchStages', 'Search stages...')}
         />
         <Input
-          label="When did you plant? (optional)"
+          label={t('farm.location.plantingDate', 'When did you plant? (optional)')}
           type="date"
           value={date}
           onChange={e => setDate(e.target.value)}
-          hint="This helps us calculate fertilizer and irrigation timing."
+          hint={t('farm.location.plantingHint', 'This helps us calculate fertilizer and irrigation timing.')}
         />
       </div>
 
       <div className="mt-10">
         <Button variant="primary" size="xl" fullWidth onClick={() => navigate('/onboarding/complete')}>
-          Almost Done →
+          {t('farm.location.almostDone', 'Almost Done')} →
         </Button>
       </div>
     </motion.div>

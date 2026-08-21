@@ -9,6 +9,7 @@ import { notificationService } from '@/services'
 import type { AppNotification } from '@/types'
 import { timeAgo } from '@/utils/format'
 import { useNavigate as useNav } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 
 const typeIcon: Record<string, string> = {
   weather: '🌧️', 'ai-advice': '🤖', disease: '🔬', irrigation: '💧', 'crop-health': '🌱',
@@ -17,6 +18,7 @@ const priorityVariant = { high: 'danger', medium: 'warning', low: 'gray' } as co
 
 const NotificationsPage: React.FC = () => {
   const navigate = useNavigate()
+  const { t } = useTranslation()
   const [notifications, setNotifications] = useState<AppNotification[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -28,20 +30,20 @@ const NotificationsPage: React.FC = () => {
 
   return (
     <motion.div variants={pageVariants} initial="initial" animate="animate" className="min-h-screen bg-background">
-      <MobileHeader title="Notifications" subtitle={unread > 0 ? `${unread} unread` : 'All caught up!'} />
+      <MobileHeader title={t('dashboard.actions.notifications', 'Notifications')} subtitle={unread > 0 ? `${unread} ${t('notifications.unread', 'unread')}` : t('notifications.caughtUp', 'All caught up!')} />
 
       <PageLayout className="pt-4 pb-8 space-y-4">
         <div className="hidden lg:flex items-center justify-between mb-4">
           <div>
-            <h1 className="text-2xl font-bold text-gray-800">Notifications</h1>
-            <p className="text-sm text-gray-500">{unread > 0 ? `${unread} unread alerts` : 'All caught up!'}</p>
+            <h1 className="text-2xl font-bold text-gray-800">{t('dashboard.actions.notifications', 'Notifications')}</h1>
+            <p className="text-sm text-gray-500">{unread > 0 ? `${unread} ${t('notifications.unread', 'unread alerts')}` : t('notifications.caughtUp', 'All caught up!')}</p>
           </div>
           {unread > 0 && (
             <button
               onClick={() => setNotifications(prev => prev.map(n => ({ ...n, read: true })))}
               className="text-sm text-green-forest font-semibold hover:underline"
             >
-              Mark all read
+              {t('notifications.markAllRead', 'Mark all read')}
             </button>
           )}
         </div>

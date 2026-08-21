@@ -8,21 +8,23 @@ import { Button } from '@/components/ui/Button'
 import { Badge } from '@/components/ui/index'
 import { MOCK_NEXT_BEST_ACTIONS } from '@/mock/insights'
 import { useApp } from '@/store/AppContext'
+import { useTranslation } from 'react-i18next'
 
 const priorityColor = { high: 'danger', medium: 'warning', low: 'green' } as const
 
 const NextBestActionPage: React.FC = () => {
   const navigate = useNavigate()
   const { toast } = useApp()
+  const { t } = useTranslation()
 
   return (
     <motion.div variants={pageVariants} initial="initial" animate="animate" className="min-h-screen bg-background">
-      <MobileHeader title="Next Best Action" subtitle="What should you do next?" onBack={() => navigate(-1)} />
+      <MobileHeader title={t('dashboard.actions.nba', 'Next Best Action')} subtitle={t('nba.subtitle', 'What should you do next?')} onBack={() => navigate(-1)} />
 
       <PageLayout className="pt-4 pb-8 space-y-4">
         <div className="hidden lg:block mb-4">
-          <h1 className="text-2xl font-bold text-gray-800">Next Best Action</h1>
-          <p className="text-sm text-gray-500">Personalized recommendations for your farm today.</p>
+          <h1 className="text-2xl font-bold text-gray-800">{t('dashboard.actions.nba', 'Next Best Action')}</h1>
+          <p className="text-sm text-gray-500">{t('nba.description', 'Personalized recommendations for your farm today.')}</p>
         </div>
 
         <motion.div variants={listVariants} animate="animate" className="space-y-4">
@@ -34,7 +36,7 @@ const NextBestActionPage: React.FC = () => {
                     <div className="flex items-center gap-2 mb-1.5">
                       <Badge variant="gray" size="sm">{action.label}</Badge>
                       <Badge variant={priorityColor[action.priority as keyof typeof priorityColor]} size="sm" dot>
-                        {action.priority.charAt(0).toUpperCase() + action.priority.slice(1)} Priority
+                        {action.priority.charAt(0).toUpperCase() + action.priority.slice(1)} {t('nba.priority', 'Priority')}
                       </Badge>
                     </div>
                     <h3 className="font-semibold text-gray-800">{action.title}</h3>
@@ -42,23 +44,23 @@ const NextBestActionPage: React.FC = () => {
                 </div>
                 <div className="space-y-2 mb-4">
                   <div className="flex gap-2">
-                    <span className="text-xs font-bold text-gray-400 w-16 shrink-0">Why?</span>
+                    <span className="text-xs font-bold text-gray-400 w-16 shrink-0">{t('nba.why', 'Why?')}</span>
                     <span className="text-xs text-gray-600">{action.reason}</span>
                   </div>
                   <div className="flex gap-2">
-                    <span className="text-xs font-bold text-gray-400 w-16 shrink-0">Benefit</span>
+                    <span className="text-xs font-bold text-gray-400 w-16 shrink-0">{t('nba.benefit', 'Benefit')}</span>
                     <span className="text-xs text-gray-600">{action.benefit}</span>
                   </div>
                 </div>
                 <div className="flex gap-2">
                   <button onClick={() => toast.success('Action saved to farm log.')} className="text-xs font-semibold text-green-forest bg-green-light px-3 py-1.5 rounded-xl hover:bg-green-pastel/50 transition-colors">
-                    💾 Save
+                    💾 {t('nba.save', 'Save')}
                   </button>
                   <button onClick={() => toast.info('Reminder set.')} className="text-xs font-semibold text-brown-earth bg-beige-warm px-3 py-1.5 rounded-xl hover:bg-brown-soft/20 transition-colors">
-                    🔔 Remind me
+                    🔔 {t('nba.remind', 'Remind me')}
                   </button>
                   <button onClick={() => navigate('/advisor')} className="text-xs font-semibold text-gray-600 bg-gray-100 px-3 py-1.5 rounded-xl hover:bg-gray-200 transition-colors">
-                    💬 Ask AI
+                    💬 {t('nba.askAi', 'Ask AI')}
                   </button>
                 </div>
               </Card>

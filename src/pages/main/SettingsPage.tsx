@@ -7,6 +7,7 @@ import { PageLayout, MobileHeader } from '@/components/layout/AppShell'
 import { Card } from '@/components/ui/Card'
 import { useApp } from '@/store/AppContext'
 import { useUser } from '@/store/UserContext'
+import { useTranslation } from 'react-i18next'
 
 interface ToggleProps {
   checked: boolean
@@ -30,6 +31,7 @@ const SettingsPage: React.FC = () => {
   const navigate = useNavigate()
   const { toast } = useApp()
   const { logout } = useUser()
+  const { t } = useTranslation()
   const [notifWeather, setNotifWeather]     = useState(true)
   const [notifDisease, setNotifDisease]     = useState(true)
   const [notifIrrigation, setNotifIrrigation] = useState(false)
@@ -46,10 +48,10 @@ const SettingsPage: React.FC = () => {
 
   return (
     <motion.div variants={pageVariants} initial="initial" animate="animate" className="min-h-screen bg-background">
-      <MobileHeader title="Settings" onBack={() => navigate(-1)} />
+      <MobileHeader title={t('nav.settings')} onBack={() => navigate(-1)} />
 
       <PageLayout className="pt-4 pb-8 space-y-6">
-        <h1 className="hidden lg:block text-2xl font-bold text-green-forest tracking-tight mb-2">Settings</h1>
+        <h1 className="hidden lg:block text-2xl font-bold text-green-forest tracking-tight mb-2">{t('nav.settings')}</h1>
 
         {/* Language & Region */}
         <div>
@@ -58,7 +60,7 @@ const SettingsPage: React.FC = () => {
             <button onClick={() => navigate('/settings/language')} className="w-full flex items-center gap-3 px-4 py-3.5 hover:bg-green-pastel/10 transition-colors text-left">
               <Globe className="w-5 h-5 text-brown-earth/70 shrink-0" strokeWidth={1.8} />
               <div className="flex-1">
-                <p className="text-sm font-bold text-text-main">App Language</p>
+                <p className="text-sm font-bold text-text-main">{t('profile.language')}</p>
                 <p className="text-xs text-text-secondary font-medium">English</p>
               </div>
               <ChevronRight className="w-4 h-4 text-brown-earth/40" />
@@ -178,7 +180,7 @@ const SettingsPage: React.FC = () => {
           className="w-full flex items-center justify-center gap-2 py-3.5 bg-red-50 border border-red-100 rounded-2xl text-muted-danger font-bold hover:bg-red-100 transition-colors"
         >
           <LogOut className="w-4 h-4" />
-          Sign Out
+          {t('profile.logout')}
         </button>
       </PageLayout>
     </motion.div>

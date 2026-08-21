@@ -13,6 +13,7 @@ import { useUser } from '@/store/UserContext'
 import { MOCK_FARMER } from '@/mock/farmer'
 import { useApp } from '@/store/AppContext'
 import { IMAGES } from '@/config/images'
+import { useTranslation } from 'react-i18next'
 
 const schema = z.object({
   name:     z.string().min(2, 'Please enter your full name.'),
@@ -25,6 +26,7 @@ const SignUpPage: React.FC = () => {
   const navigate = useNavigate()
   const { login } = useUser()
   const { toast } = useApp()
+  const { t } = useTranslation()
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormData>({ resolver: zodResolver(schema) })
 
   const onSubmit = async () => {
@@ -42,7 +44,7 @@ const SignUpPage: React.FC = () => {
         <div className="absolute inset-0 bg-gradient-to-l from-black/20 via-transparent to-cream" />
         <div className="absolute bottom-12 right-12 text-right">
           <h2 className="text-4xl font-bold text-white mb-2 drop-shadow-md">Join Cropoctor.</h2>
-          <p className="text-white/90 text-lg drop-shadow-md">Unlock the potential of your farm.</p>
+          <p className="text-white/90 text-lg drop-shadow-md">{t('welcome.subtitle')}</p>
         </div>
       </div>
 
@@ -56,19 +58,19 @@ const SignUpPage: React.FC = () => {
           <span className="text-xl font-bold text-green-forest">Cropoctor</span>
         </div>
 
-        <h1 className="text-2xl font-bold text-gray-800 mb-1">Create Account</h1>
+        <h1 className="text-2xl font-bold text-gray-800 mb-1">{t('auth.createAccount')}</h1>
         <p className="text-gray-500 text-sm mb-8">Join Cropoctor to get personalized farm insights.</p>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 mb-6">
           <Input label="Full name" placeholder="Rahul Patel" icon={<User className="w-4 h-4" />} error={errors.name?.message} {...register('name')} />
-          <Input label="Email address" type="email" placeholder="you@example.com" icon={<Mail className="w-4 h-4" />} error={errors.email?.message} {...register('email')} />
-          <Input label="Password" type="password" placeholder="••••••••" icon={<Lock className="w-4 h-4" />} error={errors.password?.message} {...register('password')} />
-          <Button type="submit" variant="primary" size="lg" fullWidth loading={isSubmitting}>Create Account</Button>
+          <Input label={t('auth.emailLabel')} type="email" placeholder="you@example.com" icon={<Mail className="w-4 h-4" />} error={errors.email?.message} {...register('email')} />
+          <Input label={t('auth.passwordLabel')} type="password" placeholder="••••••••" icon={<Lock className="w-4 h-4" />} error={errors.password?.message} {...register('password')} />
+          <Button type="submit" variant="primary" size="lg" fullWidth loading={isSubmitting}>{t('auth.createAccount')}</Button>
         </form>
 
         <p className="text-center text-sm text-gray-500">
           Already have an account?{' '}
-          <button onClick={() => navigate('/login')} className="text-green-forest font-semibold hover:underline">Sign in</button>
+          <button onClick={() => navigate('/login')} className="text-green-forest font-semibold hover:underline">{t('welcome.signin').split('?')[1]?.trim() || 'Sign In'}</button>
         </p>
 
         <p className="text-center text-xs text-gray-400 mt-4 px-4">

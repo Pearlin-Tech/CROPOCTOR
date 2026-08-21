@@ -1,0 +1,29 @@
+{
+  "app": { "name": "Cropoctor", "tagline": "Decisões mais inteligentes para cada fazenda." },
+  "nav": { "home": "Início", "myFarm": "Minha Fazenda", "advisor": "Consultor IA", "diagnose": "Diagnosticar", "profile": "Perfil", "weather": "Clima", "insights": "Visões", "history": "Histórico", "notifications": "Notificações", "settings": "Configurações" },
+  "welcome": {
+    "headline": "Melhores decisões. Cultivos mais saudáveis.",
+    "subheading": "Inteligência agrícola baseada em IA construída em torno da sua fazenda.",
+    "cta": "Começar",
+    "signin": "Já tem uma conta? Entrar"
+  },
+  "auth": {
+    "google": "Continuar com Google",
+    "phone": "Continuar com Telefone",
+    "email": "Continuar com Email",
+    "createAccount": "Criar Conta",
+    "forgotPassword": "Esqueceu a senha?",
+    "emailLabel": "Endereço de email",
+    "passwordLabel": "Senha",
+    "nameLabel": "Nome completo",
+    "signingIn": "Entrando...",
+    "errors": {
+      "required": "Este campo é obrigatório.",
+      "invalidEmail": "Insira um endereço de email válido.",
+      "weakPassword": "A senha deve ter pelo menos 6 caracteres.",
+      "authFailed": "Falha no login. Tente novamente."
+    }
+  },
+  "language": { "title": "Escolher Idioma", "subtitle": "Selecione o seu idioma preferido.", "search": "Pesquisar idioma...", "continue": "Continuar" },
+  "country": { "title": "Selecione Seu País", "subtitle": "Escolha o seu país para obter informações locais.", "continue": "Continuar" }
+}

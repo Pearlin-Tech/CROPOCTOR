@@ -6,6 +6,7 @@ import { pageVariants, listVariants, cardVariants } from '@/animations/variants'
 import { PageLayout, MobileHeader } from '@/components/layout/AppShell'
 import { Card } from '@/components/ui/Card'
 import { useApp } from '@/store/AppContext'
+import { useTranslation } from 'react-i18next'
 
 const FAQS = [
   {
@@ -44,6 +45,7 @@ const GUIDES = [
 const HelpPage: React.FC = () => {
   const navigate = useNavigate()
   const { toast } = useApp()
+  const { t } = useTranslation()
   const [openFaq, setOpenFaq] = useState<number | null>(null)
   const [search, setSearch] = useState('')
 
@@ -53,12 +55,12 @@ const HelpPage: React.FC = () => {
 
   return (
     <motion.div variants={pageVariants} initial="initial" animate="animate" className="min-h-screen bg-background">
-      <MobileHeader title="Help & Support" onBack={() => navigate(-1)} />
+      <MobileHeader title={t('settings.items.help', 'Help & Support')} onBack={() => navigate(-1)} />
 
       <PageLayout className="pt-4 pb-8 space-y-6">
         <div className="hidden lg:block mb-2">
-          <h1 className="text-2xl font-bold text-gray-800">Help & Support</h1>
-          <p className="text-sm text-gray-500 mt-1">Answers, guides, and ways to reach us.</p>
+          <h1 className="text-2xl font-bold text-gray-800">{t('settings.items.help', 'Help & Support')}</h1>
+          <p className="text-sm text-gray-500 mt-1">{t('help.subtitle', 'Answers, guides, and ways to reach us.')}</p>
         </div>
 
         {/* Search */}
@@ -68,7 +70,7 @@ const HelpPage: React.FC = () => {
             type="text"
             value={search}
             onChange={e => setSearch(e.target.value)}
-            placeholder="Search help articles…"
+            placeholder={t('help.searchPlaceholder', 'Search help articles…')}
             className="w-full pl-11 pr-4 py-3 bg-white rounded-2xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-forest/30 focus:border-green-forest"
           />
         </div>
@@ -76,7 +78,7 @@ const HelpPage: React.FC = () => {
         {/* Quick guides */}
         {!search && (
           <div>
-            <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Quick Guides</p>
+            <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">{t('help.quickGuides', 'Quick Guides')}</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {GUIDES.map(guide => (
                 <button key={guide.title} onClick={() => toast.info('Full guide coming soon!')}
@@ -95,10 +97,10 @@ const HelpPage: React.FC = () => {
 
         {/* FAQ */}
         <div>
-          <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Frequently Asked Questions</p>
+          <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">{t('help.faqTitle', 'Frequently Asked Questions')}</p>
           {filteredFaqs.length === 0 ? (
             <Card padding="md" className="text-center">
-              <p className="text-gray-400 text-sm">No results found for "{search}"</p>
+              <p className="text-gray-400 text-sm">{t('help.noResults', 'No results found for')} "{search}"</p>
             </Card>
           ) : (
             <div className="space-y-2">
@@ -132,7 +134,7 @@ const HelpPage: React.FC = () => {
         {/* Contact options */}
         {!search && (
           <div>
-            <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Contact Support</p>
+            <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">{t('help.contactSupport', 'Contact Support')}</p>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {[
                 { icon: MessageCircle, label: 'Chat', desc: 'Talk to support', color: 'bg-green-light text-green-forest', action: () => toast.info('Opening chat…') },
@@ -158,8 +160,8 @@ const HelpPage: React.FC = () => {
             className="w-full flex items-center gap-3 px-4 py-4 bg-gradient-to-r from-amber-50 to-amber-100 rounded-2xl border border-amber-200 hover:opacity-90 transition-opacity">
             <Star className="w-5 h-5 text-amber-500 fill-amber-500" />
             <div className="text-left">
-              <p className="font-semibold text-amber-800">Rate CropDoctor</p>
-              <p className="text-xs text-amber-600">Your feedback helps us improve for farmers.</p>
+              <p className="font-semibold text-amber-800">{t('help.rateApp', 'Rate CropDoctor')}</p>
+              <p className="text-xs text-amber-600">{t('help.rateFeedback', 'Your feedback helps us improve for farmers.')}</p>
             </div>
             <ChevronRight className="w-4 h-4 text-amber-400 ml-auto" />
           </button>
@@ -170,7 +172,7 @@ const HelpPage: React.FC = () => {
           <button onClick={() => toast.info('Bug report submitted. Thank you!')}
             className="w-full flex items-center gap-3 px-4 py-3.5 bg-white rounded-2xl border border-gray-100 shadow-sm hover:bg-red-50 transition-colors">
             <Bug className="w-5 h-5 text-muted-danger" strokeWidth={1.8} />
-            <span className="flex-1 text-sm font-medium text-gray-700 text-left">Report a Bug</span>
+            <span className="flex-1 text-sm font-medium text-gray-700 text-left">{t('help.reportBug', 'Report a Bug')}</span>
             <ChevronRight className="w-4 h-4 text-gray-300" />
           </button>
         )}

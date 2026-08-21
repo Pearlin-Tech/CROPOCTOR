@@ -12,11 +12,13 @@ import { weatherService } from '@/services'
 import type { WeatherData } from '@/types'
 import { WeatherSkeleton } from '@/components/skeletons'
 import { useApp } from '@/store/AppContext'
+import { useTranslation } from 'react-i18next'
 
 const IrrigationPage: React.FC = () => {
   const navigate = useNavigate()
   const { activeFarm } = useFarm()
   const { toast } = useApp()
+  const { t } = useTranslation()
   const [weather, setWeather] = useState<WeatherData | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -70,17 +72,17 @@ const IrrigationPage: React.FC = () => {
 
   return (
     <motion.div variants={pageVariants} initial="initial" animate="animate" className="min-h-screen bg-background">
-      <MobileHeader title="Irrigation Intelligence" subtitle="AI-powered scheduling for your farm" onBack={() => navigate(-1)} />
+      <MobileHeader title={t('dashboard.actions.irrigation', 'Irrigation Intelligence')} subtitle="AI-powered scheduling for your farm" onBack={() => navigate(-1)} />
 
       <PageLayout className="pt-4 pb-8 space-y-5">
         <div className="hidden lg:flex items-center justify-between mb-2">
           <div>
-            <h1 className="text-2xl font-bold text-gray-800">Irrigation Intelligence</h1>
+            <h1 className="text-2xl font-bold text-gray-800">{t('dashboard.actions.irrigation', 'Irrigation Intelligence')}</h1>
             <p className="text-sm text-gray-500 mt-1">AI-powered smart irrigation scheduling based on weather & soil data.</p>
           </div>
           <button onClick={() => { setLoading(true); weatherService.getWeather(activeFarm?.id || '').then(w => { setWeather(w); setLoading(false); toast.success('Updated!') }) }}
             className="flex items-center gap-2 px-4 py-2 bg-green-light text-green-forest rounded-xl text-sm font-semibold hover:bg-green-pastel/50 transition-colors">
-            <RefreshCcw className="w-4 h-4" /> Refresh
+            <RefreshCcw className="w-4 h-4" /> {t('common.refresh', 'Refresh')}
           </button>
         </div>
 
@@ -166,10 +168,10 @@ const IrrigationPage: React.FC = () => {
         {/* CTA */}
         <div className="flex flex-col sm:flex-row gap-3">
           <Button variant="primary" fullWidth onClick={() => navigate('/advisor')} icon={<Zap className="w-4 h-4" />}>
-            Ask AI about Irrigation
+            {t('dashboard.actions.askAdvisor', 'Ask AI')}
           </Button>
           <Button variant="outline" fullWidth onClick={() => navigate('/weather')} icon={<Sun className="w-4 h-4" />}>
-            View Full Weather
+            {t('nav.weather', 'View Weather')}
           </Button>
         </div>
       </PageLayout>

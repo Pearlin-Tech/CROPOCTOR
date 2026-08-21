@@ -1,0 +1,12 @@
+{
+  "app": { "name": "Cropoctor", "tagline": "为每个农场提供更明智的决策。" },
+  "nav": { "home": "主页", "myFarm": "我的农场", "advisor": "AI 顾问", "diagnose": "诊断", "profile": "个人资料", "weather": "天气", "insights": "见解", "history": "历史记录", "notifications": "通知", "settings": "设置" },
+  "welcome": {
+    "headline": "更好的决策。更健康的作物。",
+    "subheading": "围绕您的农场构建的 AI 农业智能。",
+    "cta": "开始",
+    "signin": "已有账号？ 登录"
+  },
+  "language": { "title": "选择语言", "subtitle": "选择您喜欢的语言。", "search": "搜索语言...", "continue": "继续" },
+  "country": { "title": "选择您的国家", "subtitle": "选择您的国家以获取本地见解。", "continue": "继续" }
+}

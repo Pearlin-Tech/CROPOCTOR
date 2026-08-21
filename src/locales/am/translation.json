@@ -1,0 +1,12 @@
+{
+  "app": { "name": "Cropoctor", "tagline": "ለእያንዳንዱ እርሻ ብልህ ውሳኔዎች።" },
+  "nav": { "home": "መነሻ", "myFarm": "የእኔ እርሻ", "advisor": "የ AI አማካሪ", "diagnose": "ምርመራ", "profile": "መገለጫ", "weather": "የአየር ሁኔታ", "insights": "ግንዛቤዎች", "history": "ታሪክ", "notifications": "ማሳወቂያዎች", "settings": "ቅንብሮች" },
+  "welcome": {
+    "headline": "የተሻሉ ውሳኔዎች። ጤናማ ሰብሎች።",
+    "subheading": "በእርሻዎ ዙሪያ የተገነባ በ AI የተጎላበተ የእርሻ ብልህነት።",
+    "cta": "ጀምር",
+    "signin": "አካውንት አለዎት? ይግቡ"
+  },
+  "language": { "title": "ቋንቋ ይምረጡ", "subtitle": "ተመራጭ ቋንቋዎን ይምረጡ።", "search": "ቋንቋ ይፈልጉ...", "continue": "ቀጥል" },
+  "country": { "title": "አገርዎን ይምረጡ", "subtitle": "አካባቢያዊ ግንዛቤዎችን ለማግኘት አገርዎን ይምረጡ።", "continue": "ቀጥል" }
+}

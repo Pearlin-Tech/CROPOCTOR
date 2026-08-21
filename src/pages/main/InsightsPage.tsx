@@ -9,12 +9,14 @@ import { ProgressBar } from '@/components/ui/index'
 import { Chip } from '@/components/ui/index'
 import { InsightSkeleton } from '@/components/skeletons'
 import { insightsService } from '@/services'
-import type { FarmInsights } from '@/types'
 import { useFarm } from '@/store/FarmContext'
 import { IMAGES } from '@/config/images'
+import type { FarmInsights } from '@/types'
+import { useTranslation } from 'react-i18next'
 
 const InsightsPage: React.FC = () => {
   const { activeFarm } = useFarm()
+  const { t } = useTranslation()
   const [insights, setInsights] = useState<FarmInsights | null>(null)
   const [loading, setLoading] = useState(true)
   const [tab, setTab] = useState<'crop' | 'soil' | 'satellite'>('crop')
@@ -25,10 +27,10 @@ const InsightsPage: React.FC = () => {
 
   return (
     <motion.div variants={pageVariants} initial="initial" animate="animate" className="min-h-screen bg-background">
-      <MobileHeader title="Farm Insights" />
+      <MobileHeader title={t('nav.insights')} />
       <PageLayout className="pt-4 pb-8 space-y-4">
         <div className="hidden lg:block mb-4">
-          <h1 className="text-2xl font-bold text-green-forest tracking-tight">Farm Insights</h1>
+          <h1 className="text-2xl font-bold text-green-forest tracking-tight">{t('nav.insights')}</h1>
           <p className="text-sm text-brown-earth/80 font-medium">Crop health, soil health, and satellite intelligence.</p>
         </div>
 
@@ -57,7 +59,7 @@ const InsightsPage: React.FC = () => {
                   <div className="mt-4 pt-4 border-t border-brown-pastel/20">
                     <p className="text-[10px] font-bold text-brown-earth uppercase tracking-widest mb-2">Contributing Factors</p>
                     <div className="space-y-2">
-                      {insights.cropHealth.factors.map(f => (
+                      {insights.cropHealth.factors.map((f: string) => (
                         <div key={f} className="flex items-center gap-2.5 text-sm text-text-main font-medium">
                           <span className="text-green-forest shrink-0">✓</span>{f}
                         </div>

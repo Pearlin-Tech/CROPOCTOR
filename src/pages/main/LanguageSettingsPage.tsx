@@ -7,10 +7,24 @@ import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { useApp } from '@/store/AppContext'
 import i18n from '@/locales/i18n'
+import { useTranslation } from 'react-i18next'
+
+const LANGUAGES = [
+  { code: 'en', name: 'English', native: 'English' },
+  { code: 'pt-BR', name: 'Portuguese', native: 'Português' },
+  { code: 'ru', name: 'Russian', native: 'Русский' },
+  { code: 'hi', name: 'Hindi', native: 'हिन्दी' },
+  { code: 'zh-CN', name: 'Chinese', native: '简体中文' },
+  { code: 'ar', name: 'Arabic', native: 'العربية (Egypt/UAE/Saudi Arabia)' },
+  { code: 'am', name: 'Amharic', native: 'አማርኛ' },
+  { code: 'fa', name: 'Persian', native: 'فارسی' },
+  { code: 'id', name: 'Indonesian', native: 'Bahasa Indonesia' },
+]
 
 const LanguageSettingsPage: React.FC = () => {
   const navigate = useNavigate()
   const { language, setLanguage } = useApp()
+  const { t } = useTranslation()
 
   const handleLang = (code: string) => {
     setLanguage(code)
@@ -20,14 +34,14 @@ const LanguageSettingsPage: React.FC = () => {
 
   return (
     <motion.div variants={pageVariants} initial="initial" animate="animate" className="min-h-screen bg-background">
-      <MobileHeader title="Language" onBack={() => navigate(-1)} />
+      <MobileHeader title={t('profile.language')} onBack={() => navigate(-1)} />
       <PageLayout className="pt-4 pb-8 space-y-4">
-        <h1 className="hidden lg:block text-2xl font-bold text-gray-800 mb-6">Language</h1>
+        <h1 className="hidden lg:block text-2xl font-bold text-gray-800 mb-6">{t('profile.language')}</h1>
         <Card padding="md">
            <div className="space-y-2">
-             {['en', 'hi', 'gu'].map(l => (
-               <Button key={l} variant={language === l ? 'primary' : 'outline'} fullWidth onClick={() => handleLang(l)}>
-                 {l === 'en' ? 'English' : l === 'hi' ? 'हिन्दी (Hindi)' : 'ગુજરાતી (Gujarati)'}
+             {LANGUAGES.map(l => (
+               <Button key={l.code} variant={language === l.code ? 'primary' : 'outline'} fullWidth onClick={() => handleLang(l.code)}>
+                 {l.native}
                </Button>
              ))}
            </div>

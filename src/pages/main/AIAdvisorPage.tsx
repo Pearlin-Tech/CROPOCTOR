@@ -13,11 +13,13 @@ import { aiService } from '@/services'
 import type { AIMessage } from '@/types'
 import { QUICK_QUESTIONS } from '@/mock/aiResponses'
 import { useApp } from '@/store/AppContext'
+import { useTranslation } from 'react-i18next'
 
 const AIAdvisorPage: React.FC = () => {
   const navigate = useNavigate()
   const { activeFarm } = useFarm()
   const { toast } = useApp()
+  const { t } = useTranslation()
   const [messages, setMessages] = useState<AIMessage[]>([])
   const [input, setInput]       = useState('')
   const [loading, setLoading]   = useState(false)
@@ -41,7 +43,7 @@ const AIAdvisorPage: React.FC = () => {
 
   return (
     <motion.div variants={pageVariants} initial="initial" animate="animate" className="min-h-screen bg-background flex flex-col">
-      <MobileHeader title="AI Advisor" subtitle="Your farm-aware agricultural assistant." />
+      <MobileHeader title={t('nav.advisor')} subtitle={t('advisor.subtitle', 'Your farm-aware agricultural assistant.')} />
 
       <div className="flex-1 flex flex-col lg:flex-row">
         {/* ── Chat area ── */}
@@ -55,8 +57,8 @@ const AIAdvisorPage: React.FC = () => {
                   <img src="/images/logo.jpg" alt="Cropoctor Logo" className="w-8 h-8 object-cover rounded-lg" />
                 </div>
                 <div>
-                  <h1 className="text-2xl font-bold text-green-forest tracking-tight">AI Advisor</h1>
-                  <p className="text-sm text-brown-earth/80 font-medium mt-0.5">Your farm-aware agricultural assistant.</p>
+                  <h1 className="text-2xl font-bold text-green-forest tracking-tight">{t('nav.advisor')}</h1>
+                  <p className="text-sm text-brown-earth/80 font-medium mt-0.5">{t('advisor.subtitle', 'Your farm-aware agricultural assistant.')}</p>
                 </div>
               </div>
             </div>
@@ -64,7 +66,7 @@ const AIAdvisorPage: React.FC = () => {
             {/* Empty state / quick questions */}
             {messages.length === 0 && !loading && (
               <motion.div variants={listVariants} animate="animate" className="space-y-3">
-                <p className="text-[11px] font-bold text-brown-earth uppercase tracking-wider mb-2">Quick Questions</p>
+                <p className="text-[11px] font-bold text-brown-earth uppercase tracking-wider mb-2">{t('advisor.quickQuestions', 'Quick Questions')}</p>
                 {QUICK_QUESTIONS.map(q => (
                   <motion.button
                     key={q}
@@ -178,7 +180,7 @@ const AIAdvisorPage: React.FC = () => {
                   value={input}
                   onChange={e => setInput(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && askQuestion(input)}
-                  placeholder="Ask anything about your farm…"
+                  placeholder={t('advisor.askPlaceholder', 'Ask anything about your farm…')}
                   className="flex-1 bg-transparent text-sm text-text-main placeholder:text-brown-earth/40 focus:outline-none font-medium"
                 />
               </div>
@@ -208,7 +210,7 @@ const AIAdvisorPage: React.FC = () => {
 
         {/* ── Desktop: Farm Context Panel ── */}
         <div className="hidden lg:flex lg:w-72 xl:w-80 flex-col bg-cream border-l border-brown-pastel/30 p-5 space-y-4">
-          <h3 className="font-bold text-brown-earth text-[11px] uppercase tracking-widest">Farm Context</h3>
+          <h3 className="font-bold text-brown-earth text-[11px] uppercase tracking-widest">{t('farm.context', 'Farm Context')}</h3>
           <Card variant="flat" padding="sm" className="space-y-3 bg-white/60 border border-brown-pastel/30 shadow-sm">
             {[
               { label: 'Crop',     value: activeFarm?.primaryCrop || 'Groundnut', icon: '🌱' },

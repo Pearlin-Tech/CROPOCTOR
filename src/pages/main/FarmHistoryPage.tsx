@@ -6,6 +6,7 @@ import { PageLayout, MobileHeader } from '@/components/layout/AppShell'
 import { Card } from '@/components/ui/Card'
 import { MOCK_HISTORY } from '@/mock/insights'
 import { timeAgo } from '@/utils/format'
+import { useTranslation } from 'react-i18next'
 
 const typeIcon: Record<string, string> = {
   'ai-advice':    '🤖',
@@ -17,15 +18,16 @@ const typeIcon: Record<string, string> = {
 
 const FarmHistoryPage: React.FC = () => {
   const navigate = useNavigate()
+  const { t } = useTranslation()
 
   return (
     <motion.div variants={pageVariants} initial="initial" animate="animate" className="min-h-screen bg-background">
-      <MobileHeader title="Farm History" subtitle="Your activity log." />
+      <MobileHeader title={t('dashboard.actions.history', 'Farm History')} subtitle={t('farm.history.subtitle', 'Your activity log.')} />
 
       <PageLayout className="pt-4 pb-8 space-y-4">
         <div className="hidden lg:block mb-4">
-          <h1 className="text-2xl font-bold text-green-forest tracking-tight">Farm History</h1>
-          <p className="text-sm text-brown-earth/80 font-medium">A log of all AI advice, diagnoses, and farm actions.</p>
+          <h1 className="text-2xl font-bold text-green-forest tracking-tight">{t('dashboard.actions.history', 'Farm History')}</h1>
+          <p className="text-sm text-brown-earth/80 font-medium">{t('farm.history.description', 'A log of all AI advice, diagnoses, and farm actions.')}</p>
         </div>
 
         <motion.div variants={listVariants} animate="animate" className="space-y-2">

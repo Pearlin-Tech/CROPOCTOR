@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/Button'
 import { Chip } from '@/components/ui/index'
 import { useFarm } from '@/store/FarmContext'
 import { useApp } from '@/store/AppContext'
+import { useTranslation } from 'react-i18next'
 
 interface CropRec {
   id: string
@@ -88,6 +89,7 @@ const CropRecommendationPage: React.FC = () => {
   const navigate = useNavigate()
   const { activeFarm } = useFarm()
   const { toast } = useApp()
+  const { t } = useTranslation()
   const [filter, setFilter] = useState<'all' | 'kharif' | 'rabi'>('all')
   const [selected, setSelected] = useState<string | null>(null)
 
@@ -99,12 +101,12 @@ const CropRecommendationPage: React.FC = () => {
 
   return (
     <motion.div variants={pageVariants} initial="initial" animate="animate" className="min-h-screen bg-background">
-      <MobileHeader title="Crop Recommendation" subtitle="AI picks for your soil & climate" onBack={() => navigate(-1)} />
+      <MobileHeader title={t('dashboard.actions.recommendation', 'Crop Recommendation')} subtitle={t('cropRec.subtitle', 'AI picks for your soil & climate')} onBack={() => navigate(-1)} />
 
       <PageLayout className="pt-4 pb-8 space-y-5">
         <div className="hidden lg:block mb-2">
-          <h1 className="text-2xl font-bold text-gray-800">Crop Recommendation</h1>
-          <p className="text-sm text-gray-500 mt-1">AI-powered crop suggestions based on your soil type, location, and local climate.</p>
+          <h1 className="text-2xl font-bold text-gray-800">{t('dashboard.actions.recommendation', 'Crop Recommendation')}</h1>
+          <p className="text-sm text-gray-500 mt-1">{t('cropRec.description', 'AI-powered crop suggestions based on your soil type, location, and local climate.')}</p>
         </div>
 
         {/* Farm context chip */}
@@ -113,15 +115,15 @@ const CropRecommendationPage: React.FC = () => {
             <span className="text-xl">🏡</span>
             <div className="flex-1 min-w-0">
               <p className="font-semibold text-gray-700 text-sm truncate">{activeFarm.name}</p>
-              <p className="text-xs text-gray-400">{activeFarm.soilType} soil · {activeFarm.location.displayName}</p>
+              <p className="text-xs text-gray-400">{activeFarm.soilType} {t('farm.location.soilTitle', 'soil')} · {activeFarm.location.displayName}</p>
             </div>
-            <Badge variant="earth" size="sm">AI Analyzed</Badge>
+            <Badge variant="earth" size="sm">{t('cropRec.aiAnalyzed', 'AI Analyzed')}</Badge>
           </div>
         )}
 
         {/* Season filter */}
         <div className="flex gap-2">
-          <Chip selected={filter === 'all'}    onClick={() => setFilter('all')}>All Seasons</Chip>
+          <Chip selected={filter === 'all'}    onClick={() => setFilter('all')}>{t('cropRec.allSeasons', 'All Seasons')}</Chip>
           <Chip selected={filter === 'kharif'} onClick={() => setFilter('kharif')}>Kharif</Chip>
           <Chip selected={filter === 'rabi'}   onClick={() => setFilter('rabi')}>Rabi</Chip>
         </div>
@@ -162,7 +164,7 @@ const CropRecommendationPage: React.FC = () => {
                           style={{ width: `${rec.suitability}%` }}
                         />
                       </div>
-                      <span className="text-xs font-bold text-green-forest shrink-0">{rec.suitability}% match</span>
+                      <span className="text-xs font-bold text-green-forest shrink-0">{rec.suitability}% {t('cropRec.match', 'match')}</span>
                     </div>
                   </div>
                 </div>
@@ -178,13 +180,13 @@ const CropRecommendationPage: React.FC = () => {
                     <p className="text-sm text-gray-700">{rec.reason}</p>
                     <div className="grid grid-cols-2 gap-2">
                       <div className="bg-off-white rounded-xl p-3">
-                        <p className="text-xs text-gray-400 mb-1">Profit Potential</p>
+                        <p className="text-xs text-gray-400 mb-1">{t('cropRec.profitPotential', 'Profit Potential')}</p>
                         <Badge variant={profitColors[rec.profitPotential]} size="sm" dot>
                           {rec.profitPotential.charAt(0).toUpperCase() + rec.profitPotential.slice(1)}
                         </Badge>
                       </div>
                       <div className="bg-off-white rounded-xl p-3">
-                        <p className="text-xs text-gray-400 mb-1">Water Need</p>
+                        <p className="text-xs text-gray-400 mb-1">{t('cropRec.waterNeed', 'Water Need')}</p>
                         <Badge variant={waterColors[rec.waterNeed]} size="sm" dot>
                           {rec.waterNeed.charAt(0).toUpperCase() + rec.waterNeed.slice(1)}
                         </Badge>
@@ -195,13 +197,13 @@ const CropRecommendationPage: React.FC = () => {
                         onClick={e => { e.stopPropagation(); toast.success(`${rec.name} saved to your crop plan.`) }}
                         className="flex-1 py-2 bg-green-light text-green-forest text-sm font-semibold rounded-xl hover:bg-green-pastel/50 transition-colors flex items-center justify-center gap-1"
                       >
-                        <CheckCircle2 className="w-3.5 h-3.5" /> Save to Plan
+                        <CheckCircle2 className="w-3.5 h-3.5" /> {t('cropRec.saveToPlan', 'Save to Plan')}
                       </button>
                       <button
                         onClick={e => { e.stopPropagation(); navigate('/advisor') }}
                         className="flex-1 py-2 bg-beige-warm text-brown-earth text-sm font-semibold rounded-xl hover:bg-brown-soft/20 transition-colors flex items-center justify-center gap-1"
                       >
-                        <Bot className="w-3.5 h-3.5" /> Ask AI More
+                        <Bot className="w-3.5 h-3.5" /> {t('cropRec.askAiMore', 'Ask AI More')}
                       </button>
                     </div>
                   </motion.div>
@@ -216,13 +218,13 @@ const CropRecommendationPage: React.FC = () => {
           <div className="flex gap-2">
             <Sparkles className="w-4 h-4 text-green-forest shrink-0 mt-0.5" />
             <p className="text-xs text-gray-500">
-              AI recommendations are based on your soil type, location climate, and crop history. Always consult local agricultural extension officers before switching crops.
+              {t('cropRec.disclaimer', 'AI recommendations are based on your soil type, location climate, and crop history. Always consult local agricultural extension officers before switching crops.')}
             </p>
           </div>
         </Card>
 
         <Button variant="primary" fullWidth onClick={() => navigate('/advisor')} icon={<Bot className="w-4 h-4" />}>
-          Ask AI for Custom Advice
+          {t('cropRec.askCustom', 'Ask AI for Custom Advice')}
         </Button>
       </PageLayout>
     </motion.div>

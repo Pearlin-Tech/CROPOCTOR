@@ -2,9 +2,11 @@ import React, { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { splashLeafVariants, splashTextVariants } from '@/animations/variants'
+import { useTranslation } from 'react-i18next'
 
 const SplashPage: React.FC = () => {
   const navigate = useNavigate()
+  const { t } = useTranslation()
 
   useEffect(() => {
     const timer = setTimeout(() => navigate('/welcome'), 3000)
@@ -34,7 +36,7 @@ const SplashPage: React.FC = () => {
         className="text-center"
       >
         <h1 className="text-4xl font-bold text-white tracking-tight mb-2">Cropoctor</h1>
-        <p className="text-green-pastel text-base font-medium">Smarter decisions for every farm.</p>
+        <p className="text-green-pastel text-base font-medium">{t('welcome.subtitle', 'Smarter decisions for every farm.')}</p>
       </motion.div>
 
       {/* Loading dots */}

@@ -15,11 +15,13 @@ import { weatherService } from '@/services'
 import type { WeatherData } from '@/types'
 import { getGreeting } from '@/utils/format'
 import { IMAGES } from '@/config/images'
+import { useTranslation } from 'react-i18next'
 
 const HomePage: React.FC = () => {
   const navigate = useNavigate()
   const { activeFarm } = useFarm()
   const { farmer } = useUser()
+  const { t } = useTranslation()
   const [weather, setWeather] = useState<WeatherData | null>(null)
   const [loadingWeather, setLoadingWeather] = useState(true)
 
@@ -29,9 +31,10 @@ const HomePage: React.FC = () => {
   }, [activeFarm])
 
   const greeting = getGreeting()
-  const greetingText = greeting === 'morning' ? `Good morning, ${farmer?.name?.split(' ')[0] || 'Rahul'} 🌱`
-    : greeting === 'afternoon' ? `Good afternoon, ${farmer?.name?.split(' ')[0] || 'Rahul'} 🌾`
-    : `Good evening, ${farmer?.name?.split(' ')[0] || 'Rahul'} 🌙`
+  const name = farmer?.name?.split(' ')[0] || 'Rahul'
+  const greetingText = greeting === 'morning' ? t('dashboard.greeting', { name })
+    : greeting === 'afternoon' ? t('dashboard.greetingAfternoon', { name })
+    : t('dashboard.greetingEvening', { name })
 
   const health = activeFarm?.healthScore ?? 82
   const healthColor = health >= 70 ? 'green' : health >= 50 ? 'warning' : 'danger'
@@ -46,7 +49,7 @@ const HomePage: React.FC = () => {
           {/* Top header elements */}
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-2 bg-white/25 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/20">
-              <span className="text-white text-xs font-bold uppercase tracking-wider">Cropoctor Dashboard</span>
+              <span className="text-white text-xs font-bold uppercase tracking-wider">{t('dashboard.title', 'Cropoctor Dashboard')}</span>
             </div>
             <button onClick={() => navigate('/notifications')} className="w-10 h-10 bg-white/25 backdrop-blur-md rounded-full flex items-center justify-center border border-white/20 relative hover:scale-105 active:scale-95 transition-transform">
               <Bell className="w-5 h-5 text-white" />
@@ -104,7 +107,7 @@ const HomePage: React.FC = () => {
                   
                   <div className="relative z-10 flex items-start justify-between mb-4">
                     <div>
-                      <p className="text-brown-earth text-xs font-bold uppercase tracking-wider mb-1">Current Weather</p>
+                      <p className="text-brown-earth text-xs font-bold uppercase tracking-wider mb-1">{t('dashboard.currentWeather', 'Current Weather')}</p>
                       <div className="flex items-baseline gap-2">
                         <span className="text-5xl font-black text-text-main">{weather.temperature}°</span>
                         <span className="text-text-secondary text-sm font-semibold capitalize">{weather.description}</span>
@@ -117,9 +120,9 @@ const HomePage: React.FC = () => {
 
                   <div className="relative z-10 grid grid-cols-3 gap-2.5 mb-4 mt-2">
                     {[
-                      { icon: Droplets, label: `Rain ${weather.rainChance}%` },
-                      { icon: Droplets, label: `Humidity ${weather.humidity}%` },
-                      { icon: Wind, label: `Wind ${weather.windSpeed} km/h` }
+                      { icon: Droplets, label: `${t('dashboard.weatherCard.rain', 'Rain')} ${weather.rainChance}%` },
+                      { icon: Droplets, label: `${t('dashboard.weatherCard.humidity', 'Humidity')} ${weather.humidity}%` },
+                      { icon: Wind, label: `${t('dashboard.weatherCard.wind', 'Wind')} ${weather.windSpeed} km/h` }
                     ].map(({ icon: Icon, label }) => (
                       <div key={label} className="bg-white/50 border border-brown-pastel/30 rounded-xl p-2 flex items-center gap-1.5 shadow-sm">
                         <Icon className="w-4 h-4 text-green-forest shrink-0" />
@@ -128,13 +131,13 @@ const HomePage: React.FC = () => {
                     ))}
                   </div>
 
-                  {weather.isDemo && <div className="mb-3"><Badge variant="demo" size="sm">Demo Data</Badge></div>}
+                  {weather.isDemo && <div className="mb-3"><Badge variant="demo" size="sm">{t('dashboard.demoData')}</Badge></div>}
                   
                   <button 
                     onClick={() => navigate('/weather')} 
                     className="relative z-10 w-full py-3 bg-white rounded-xl border border-brown-pastel/55 flex items-center justify-center gap-1 text-brown-earth text-xs font-bold hover:bg-beige-warm transition-colors shadow-sm"
                   >
-                    View Weather Intelligence <ChevronRight className="w-4 h-4" />
+                    {t('dashboard.viewWeather')} <ChevronRight className="w-4 h-4" />
                   </button>
                 </Card>
               </motion.div>
@@ -146,11 +149,11 @@ const HomePage: React.FC = () => {
                 <div className="flex gap-3">
                   <AlertTriangle className="w-5 h-5 text-brown-earth shrink-0 mt-0.5" />
                   <div className="flex-1">
-                    <p className="font-bold text-text-main text-sm">Heavy rain expected tomorrow.</p>
-                    <p className="text-text-secondary text-xs mt-0.5 font-medium">Consider delaying irrigation and checking drainage channels.</p>
+                    <p className="font-bold text-text-main text-sm">{t('dashboard.demoAlert.title', 'Heavy rain expected tomorrow.')}</p>
+                    <p className="text-text-secondary text-xs mt-0.5 font-medium">{t('dashboard.demoAlert.desc', 'Consider delaying irrigation and checking drainage channels.')}</p>
                   </div>
                   <button onClick={() => navigate('/advisor')} className="text-xs text-brown-earth font-bold shrink-0 hover:underline">
-                    Why?
+                    {t('dashboard.demoAlert.why', 'Why?')}
                   </button>
                 </div>
               </Card>
@@ -162,10 +165,10 @@ const HomePage: React.FC = () => {
                 <Card variant="pastelGreen" className="border-green-pastel/55 shadow-card" padding="md">
                   <div className="flex items-center justify-between mb-4">
                     <div>
-                      <p className="text-[10px] font-bold text-green-forest uppercase tracking-widest mb-1">Farm Health Index</p>
+                      <p className="text-[10px] font-bold text-green-forest uppercase tracking-widest mb-1">{t('dashboard.farmHealth')}</p>
                       <h2 className="text-4xl font-extrabold text-green-forest tracking-tight">{health}<span className="text-xl text-green-forest/60 font-medium">/100</span></h2>
                       <Badge variant="green" dot className="mt-2">
-                        {health >= 70 ? 'Looking Healthy' : health >= 50 ? 'Needs Attention' : 'At Risk'}
+                        {health >= 70 ? t('dashboard.lookingHealthy') : health >= 50 ? t('dashboard.needsAttention') : t('dashboard.atRisk', 'At Risk')}
                       </Badge>
                     </div>
                     {/* Circular progress with dark green indicator */}
@@ -180,7 +183,7 @@ const HomePage: React.FC = () => {
                   </div>
                   <ProgressBar value={health} color="green" size="sm" />
                   <button onClick={() => navigate('/insights')} className="mt-4 flex items-center gap-1 text-green-forest text-xs font-bold hover:underline">
-                    View Health Insights <ChevronRight className="w-4 h-4" />
+                    {t('dashboard.viewInsights')} <ChevronRight className="w-4 h-4" />
                   </button>
                 </Card>
               </motion.div>
@@ -198,12 +201,12 @@ const HomePage: React.FC = () => {
                     <Lightbulb className="w-5 h-5 text-cream animate-pulse" />
                   </div>
                   <div>
-                    <p className="text-[10px] text-cream/80 font-bold uppercase tracking-[0.2em] mb-1">Next Best Action</p>
-                    <p className="font-bold text-white text-base leading-snug">Check soil moisture before irrigation.</p>
+                    <p className="text-[10px] text-cream/80 font-bold uppercase tracking-[0.2em] mb-1">{t('dashboard.nextBestAction')}</p>
+                    <p className="font-bold text-white text-base leading-snug">{t('dashboard.nba.action', 'Check soil moisture before irrigation.')}</p>
                   </div>
                 </div>
                 <Button variant="outline" size="sm" fullWidth className="relative z-10 bg-white/10 border-white/20 text-white hover:bg-white/20 hover:border-white/30 backdrop-blur-sm shadow-sm font-bold" onClick={() => navigate('/next-action')}>
-                  View Action Plan <ChevronRight className="w-4 h-4 ml-1 opacity-80" />
+                  {t('dashboard.viewActionPlan')} <ChevronRight className="w-4 h-4 ml-1 opacity-80" />
                 </Button>
               </Card>
             </motion.div>
@@ -211,14 +214,14 @@ const HomePage: React.FC = () => {
             {/* Quick Actions - Balanced Pastel Green, Cream, Pastel Brown */}
             <motion.div variants={cardVariants}>
               <Card padding="md" className="border-brown-pastel/30 bg-cream shadow-sm">
-                <p className="text-[10px] font-bold text-brown-earth uppercase tracking-widest mb-3 pl-1">Quick Actions</p>
+                <p className="text-[10px] font-bold text-brown-earth uppercase tracking-widest mb-3 pl-1">{t('dashboard.quickActions')}</p>
                 <div className="grid grid-cols-2 gap-2.5">
                   {[
-                    { icon: Bot,         label: 'Ask AI',   route: '/advisor',    bg: 'bg-green-pastel/30 border border-green-pastel/50 hover:bg-green-pastel/40', color: 'text-green-forest' },
-                    { icon: Stethoscope, label: 'Diagnose', route: '/crop-doctor',   bg: 'bg-white border border-brown-pastel/40 hover:bg-off-white',         color: 'text-brown-earth' },
-                    { icon: Cloud,       label: 'Weather',  route: '/weather',    bg: 'bg-green-light/40 border border-green-pastel/30 hover:bg-green-light/60', color: 'text-green-forest' },
-                    { icon: BarChart2,   label: 'Insights', route: '/insights',   bg: 'bg-brown-pastel/30 border border-brown-pastel/40 hover:bg-brown-pastel/40', color: 'text-brown-earth' },
-                    { icon: Plus,        label: 'Add Farm', route: '/onboarding/location', bg: 'bg-white border border-brown-pastel/35 hover:bg-off-white col-span-2 py-3', color: 'text-green-forest' },
+                    { icon: Bot,         label: t('nav.advisor'),   route: '/advisor',    bg: 'bg-green-pastel/30 border border-green-pastel/50 hover:bg-green-pastel/40', color: 'text-green-forest' },
+                    { icon: Stethoscope, label: t('nav.diagnose'), route: '/crop-doctor',   bg: 'bg-white border border-brown-pastel/40 hover:bg-off-white',         color: 'text-brown-earth' },
+                    { icon: Cloud,       label: t('nav.weather'),  route: '/weather',    bg: 'bg-green-light/40 border border-green-pastel/30 hover:bg-green-light/60', color: 'text-green-forest' },
+                    { icon: BarChart2,   label: t('nav.insights'), route: '/insights',   bg: 'bg-brown-pastel/30 border border-brown-pastel/40 hover:bg-brown-pastel/40', color: 'text-brown-earth' },
+                    { icon: Plus,        label: t('farm.addNew'), route: '/onboarding/location', bg: 'bg-white border border-brown-pastel/35 hover:bg-off-white col-span-2 py-3', color: 'text-green-forest' },
                   ].map(({ icon: Icon, label, route, bg, color }) => (
                     <button
                       key={label}

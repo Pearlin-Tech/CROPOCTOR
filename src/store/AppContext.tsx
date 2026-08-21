@@ -29,7 +29,7 @@ const AppContext = createContext<AppContextValue | null>(null)
 
 export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [language, setLangState] = useState<string>(
-    () => localStorage.getItem('agri-ai-lang') || 'en'
+    () => localStorage.getItem('agri_ai_language') || 'en'
   )
   const [isOnline, setIsOnline] = useState(navigator.onLine)
   const [toasts, setToasts] = useState<Toast[]>([])
@@ -53,7 +53,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
   const setLanguage = useCallback((lang: string) => {
     setLangState(lang)
-    localStorage.setItem('agri-ai-lang', lang)
+    localStorage.setItem('agri_ai_language', lang)
   }, [])
 
   const addToast = useCallback((type: ToastType, message: string) => {

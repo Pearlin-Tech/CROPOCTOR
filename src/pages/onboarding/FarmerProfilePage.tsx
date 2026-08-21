@@ -5,9 +5,11 @@ import { pageVariants } from '@/animations/variants'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Chip } from '@/components/ui/index'
+import { useTranslation } from 'react-i18next'
 
 const FarmerProfilePage: React.FC = () => {
   const navigate = useNavigate()
+  const { t } = useTranslation()
   const [name, setName] = useState('')
   const [experience, setExperience] = useState<string>('intermediate')
 
@@ -24,8 +26,8 @@ const FarmerProfilePage: React.FC = () => {
       </div>
       <p className="text-xs text-gray-400 font-medium mb-2">Step 1 of 3</p>
 
-      <h1 className="text-2xl font-bold text-gray-800 mb-1">Your Profile</h1>
-      <p className="text-gray-500 text-sm mb-8">Tell us a bit about yourself.</p>
+      <h1 className="text-2xl font-bold text-gray-800 mb-1">{t('profile.title')}</h1>
+      <p className="text-gray-500 text-sm mb-8">{t('profile.subtitle')}</p>
 
       {/* Avatar */}
       <div className="flex justify-center mb-8">
@@ -39,7 +41,7 @@ const FarmerProfilePage: React.FC = () => {
 
       <div className="space-y-6 flex-1">
         <Input
-          label="Full name"
+          label={t('profile.fullName')}
           placeholder="e.g. Rahul Patel"
           value={name}
           onChange={e => setName(e.target.value)}
@@ -47,12 +49,12 @@ const FarmerProfilePage: React.FC = () => {
         />
 
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-3">Farming experience</label>
+          <label className="block text-sm font-semibold text-gray-700 mb-3">{t('profile.experience')}</label>
           <div className="flex gap-2 flex-wrap">
             {[
-              { id: 'beginner', label: 'Beginner' },
-              { id: 'intermediate', label: 'Intermediate' },
-              { id: 'expert', label: 'Expert' },
+              { id: 'beginner', label: t('profile.expBeginner') },
+              { id: 'intermediate', label: t('profile.expIntermediate') },
+              { id: 'expert', label: t('profile.expExpert') },
             ].map(opt => (
               <Chip key={opt.id} selected={experience === opt.id} onClick={() => setExperience(opt.id)}>
                 {opt.label}
@@ -68,7 +70,7 @@ const FarmerProfilePage: React.FC = () => {
           onClick={() => navigate('/onboarding/location')}
           disabled={!name.trim()}
         >
-          Continue →
+          {t('farm.complete.goToDashboard').replace('Go to Dashboard', 'Continue')} →
         </Button>
       </div>
     </motion.div>

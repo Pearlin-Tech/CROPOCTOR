@@ -10,14 +10,16 @@ import { Badge } from '@/components/ui/index'
 import { ProgressBar } from '@/components/ui/index'
 import { FarmCardSkeleton } from '@/components/skeletons'
 import { useFarm } from '@/store/FarmContext'
+import { useTranslation } from 'react-i18next'
 
 const MyFarmsPage: React.FC = () => {
   const navigate = useNavigate()
   const { farms, activeFarm, setActiveFarm } = useFarm()
+  const { t } = useTranslation()
 
   return (
     <motion.div variants={pageVariants} initial="initial" animate="animate" className="min-h-screen bg-background">
-      <MobileHeader title="My Farms" action={
+      <MobileHeader title={t('nav.myFarm')} action={
         <button onClick={() => navigate('/onboarding/location')} className="w-9 h-9 bg-green-forest rounded-full flex items-center justify-center shadow-button">
           <Plus className="w-5 h-5 text-white" />
         </button>
@@ -26,11 +28,11 @@ const MyFarmsPage: React.FC = () => {
       <PageLayout className="pt-4 pb-8 space-y-4">
         <div className="hidden lg:flex items-center justify-between mb-4">
           <div>
-            <h1 className="text-2xl font-bold text-gray-800">My Farms</h1>
-            <p className="text-sm text-gray-500">{farms.length} farm{farms.length !== 1 ? 's' : ''} registered</p>
+            <h1 className="text-2xl font-bold text-gray-800">{t('nav.myFarm', 'My Farms')}</h1>
+            <p className="text-sm text-gray-500">{t('dashboard.overview.totalFarms', { count: farms.length, defaultValue: '{{count}} farm(s) registered' })}</p>
           </div>
           <Button variant="primary" size="md" icon={<Plus className="w-4 h-4" />} onClick={() => navigate('/onboarding/location')}>
-            Add New Farm
+            {t('farm.addNew')}
           </Button>
         </div>
 
@@ -47,7 +49,7 @@ const MyFarmsPage: React.FC = () => {
                     <div className="absolute inset-0 bg-gradient-hero" />
                     {activeFarm?.id === farm.id && (
                       <div className="absolute top-3 left-3">
-                        <Badge variant="green" size="sm">Active Farm</Badge>
+                        <Badge variant="green" size="sm">{t('farm.details.setActive', 'Active Farm')}</Badge>
                       </div>
                     )}
                     <div className="absolute bottom-3 left-3 right-3">
@@ -58,14 +60,14 @@ const MyFarmsPage: React.FC = () => {
                   <div className="p-4">
                     <div className="flex items-center gap-2 flex-wrap mb-3">
                       <Badge variant="green" size="sm">🌱 {farm.primaryCrop}</Badge>
-                      <Badge variant="earth" size="sm">📐 {farm.area} acres</Badge>
+                      <Badge variant="earth" size="sm">📐 {farm.area} {t('dashboard.overview.acres', 'acres')}</Badge>
                       <Badge variant="gray" size="sm">🌸 {farm.cropStage}</Badge>
                     </div>
                     <div className="flex items-center gap-2">
                       <ProgressBar value={farm.healthScore} color="green" size="sm" />
                       <span className="text-xs font-bold text-green-forest shrink-0">{farm.healthScore}%</span>
                     </div>
-                    <p className="text-xs text-gray-400 mt-1">Farm health</p>
+                    <p className="text-xs text-gray-400 mt-1">{t('farm.health')}</p>
                   </div>
                 </Card>
               </button>
@@ -81,8 +83,8 @@ const MyFarmsPage: React.FC = () => {
               <div className="w-14 h-14 bg-green-light rounded-full flex items-center justify-center">
                 <Plus className="w-7 h-7" />
               </div>
-              <p className="font-semibold">Add New Farm</p>
-              <p className="text-xs text-gray-400 text-center">Add another farm to get personalized insights.</p>
+              <p className="font-semibold">{t('farm.addNew')}</p>
+              <p className="text-xs text-gray-400 text-center">{t('dashboard.overview.addAnother', 'Add another farm to get personalized insights.')}</p>
             </button>
           </motion.div>
         </motion.div>

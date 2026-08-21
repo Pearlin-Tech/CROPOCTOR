@@ -9,14 +9,16 @@ import { ProgressBar } from '@/components/ui/index'
 import { Button } from '@/components/ui/Button'
 import { useFarm } from '@/store/FarmContext'
 import { useNavigate as useNav } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 
 const FarmDetailPage: React.FC = () => {
   const navigate = useNavigate()
   const { id } = useParams()
   const { farms, setActiveFarm } = useFarm()
+  const { t } = useTranslation()
   const farm = farms.find(f => f.id === id) || farms[0]
 
-  if (!farm) return <div className="p-8 text-center text-gray-500">Farm not found.</div>
+  if (!farm) return <div className="p-8 text-center text-gray-500">{t('farm.notFound', 'Farm not found.')}</div>
 
   return (
     <motion.div variants={pageVariants} initial="initial" animate="animate" className="min-h-screen bg-background">
@@ -40,7 +42,7 @@ const FarmDetailPage: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {/* Health */}
           <Card padding="md">
-            <h3 className="font-bold text-gray-800 mb-3">Farm Health</h3>
+            <h3 className="font-bold text-gray-800 mb-3">{t('farm.details.health', 'Farm Health')}</h3>
             <div className="flex items-center gap-4 mb-3">
               <div className="relative w-16 h-16">
                 <svg viewBox="0 0 36 36" className="w-16 h-16 -rotate-90">
@@ -52,7 +54,7 @@ const FarmDetailPage: React.FC = () => {
               </div>
               <div>
                 <p className="text-2xl font-bold text-gray-800">{farm.healthScore}<span className="text-lg text-gray-400">/100</span></p>
-                <Badge variant="green" dot>Looking Healthy</Badge>
+                <Badge variant="green" dot>{t('farm.details.healthy', 'Looking Healthy')}</Badge>
               </div>
             </div>
             <ProgressBar value={farm.healthScore} color="green" />
@@ -60,14 +62,14 @@ const FarmDetailPage: React.FC = () => {
 
           {/* Details */}
           <Card padding="md">
-            <h3 className="font-bold text-gray-800 mb-3">Farm Details</h3>
+            <h3 className="font-bold text-gray-800 mb-3">{t('farm.details.title', 'Farm Details')}</h3>
             <div className="space-y-2">
               {[
-                { label: 'Location', value: farm.location.displayName, icon: '📍' },
-                { label: 'Crop', value: farm.primaryCrop, icon: '🌱' },
-                { label: 'Soil', value: farm.soilType, icon: '🪨' },
-                { label: 'Stage', value: farm.cropStage, icon: '🌸' },
-                { label: 'Area', value: `${farm.area} acres`, icon: '📐' },
+                { label: t('farm.location.locationLabel', 'Location'), value: farm.location.displayName, icon: '📍' },
+                { label: t('farm.location.primaryCrop', 'Crop'), value: farm.primaryCrop, icon: '🌱' },
+                { label: t('farm.location.soilTitle', 'Soil'), value: farm.soilType, icon: '🪨' },
+                { label: t('farm.location.stageTitle', 'Stage'), value: farm.cropStage, icon: '🌸' },
+                { label: t('farm.location.areaLabel', 'Area'), value: `${farm.area} ${t('dashboard.overview.acres', 'acres')}`, icon: '📐' },
               ].map(({ label, value, icon }) => (
                 <div key={label} className="flex items-center gap-2.5 py-1.5 border-b border-gray-50 last:border-0">
                   <span className="text-base w-6">{icon}</span>
@@ -81,14 +83,14 @@ const FarmDetailPage: React.FC = () => {
 
         {/* Actions */}
         <div className="grid grid-cols-2 gap-3">
-          <Button variant="primary" onClick={() => navigate('/advisor')}>Ask AI Advisor</Button>
-          <Button variant="secondary" onClick={() => navigate('/diagnose')}>Diagnose Crop</Button>
-          <Button variant="outline" onClick={() => navigate('/weather')}>View Weather</Button>
-          <Button variant="outline" onClick={() => navigate('/insights')}>View Insights</Button>
+          <Button variant="primary" onClick={() => navigate('/advisor')}>{t('dashboard.actions.askAdvisor', 'Ask AI Advisor')}</Button>
+          <Button variant="secondary" onClick={() => navigate('/diagnose')}>{t('dashboard.actions.diagnose', 'Diagnose Crop')}</Button>
+          <Button variant="outline" onClick={() => navigate('/weather')}>{t('nav.weather', 'View Weather')}</Button>
+          <Button variant="outline" onClick={() => navigate('/insights')}>{t('nav.insights', 'View Insights')}</Button>
         </div>
 
         <Button variant="ghost" fullWidth onClick={() => { setActiveFarm(farm); navigate('/home') }}>
-          Set as Active Farm
+          {t('farm.details.setActive', 'Set as Active Farm')}
         </Button>
       </PageLayout>
     </motion.div>

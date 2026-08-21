@@ -10,6 +10,7 @@ import { WeatherSkeleton } from '@/components/skeletons'
 import { weatherService } from '@/services'
 import type { WeatherData } from '@/types'
 import { useFarm } from '@/store/FarmContext'
+import { useTranslation } from 'react-i18next'
 
 const WEATHER_ICONS: Record<string, string> = {
   'sunny': '☀️', 'partly-cloudy': '⛅', 'cloudy': '☁️', 'rainy': '🌧️', 'stormy': '⛈️',
@@ -17,6 +18,7 @@ const WEATHER_ICONS: Record<string, string> = {
 
 const WeatherPage: React.FC = () => {
   const { activeFarm } = useFarm()
+  const { t } = useTranslation()
   const [weather, setWeather] = useState<WeatherData | null>(null)
   const [loading, setLoading] = useState(true)
   const [tab, setTab] = useState<'today' | '7day'>('today')
@@ -30,11 +32,11 @@ const WeatherPage: React.FC = () => {
 
   return (
     <motion.div variants={pageVariants} initial="initial" animate="animate" className="min-h-screen bg-background">
-      <MobileHeader title="Weather Intelligence" />
+      <MobileHeader title={t('nav.weather')} />
 
       <PageLayout className="pt-4 pb-8 space-y-4">
         <div className="hidden lg:block mb-4">
-          <h1 className="text-2xl font-bold text-green-forest tracking-tight">Weather Intelligence</h1>
+          <h1 className="text-2xl font-bold text-green-forest tracking-tight">{t('nav.weather')}</h1>
           <p className="text-brown-earth/80 text-sm font-medium">AI-interpreted weather for your farm.</p>
         </div>
 

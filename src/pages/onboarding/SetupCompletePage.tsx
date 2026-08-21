@@ -4,10 +4,12 @@ import { motion } from 'framer-motion'
 import { pageVariants, listVariants, cardVariants } from '@/animations/variants'
 import { Button } from '@/components/ui/Button'
 import { useUser } from '@/store/UserContext'
+import { useTranslation } from 'react-i18next'
 
 const SetupCompletePage: React.FC = () => {
   const navigate = useNavigate()
   const { setOnboarded } = useUser()
+  const { t } = useTranslation()
 
   const handleGoToDashboard = () => {
     setOnboarded(true)
@@ -31,13 +33,13 @@ const SetupCompletePage: React.FC = () => {
         initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}
         className="text-3xl font-bold text-white mb-3"
       >
-        Farm Ready!
+        {t('farm.complete.title')}
       </motion.h1>
       <motion.p
         initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }}
         className="text-green-pastel text-base mb-10"
       >
-        Your farm has been set up successfully.<br />Let's start making smarter decisions.
+        {t('farm.complete.subtitle')}
       </motion.p>
 
       {/* Summary */}
@@ -66,7 +68,7 @@ const SetupCompletePage: React.FC = () => {
         className="w-full max-w-sm"
       >
         <Button variant="secondary" size="xl" fullWidth onClick={handleGoToDashboard}>
-          🏠 Go to Dashboard
+          🏠 {t('farm.complete.goToDashboard')}
         </Button>
       </motion.div>
     </motion.div>

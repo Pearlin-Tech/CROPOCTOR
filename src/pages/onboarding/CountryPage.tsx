@@ -2,12 +2,14 @@ import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Check } from 'lucide-react'
-import { pageVariants, cardVariants, listVariants } from '@/animations/variants'
+import { listVariants, cardVariants, pageVariants } from '@/animations/variants'
 import { Button } from '@/components/ui/Button'
 import { COUNTRIES } from '@/config/countries'
+import { useTranslation } from 'react-i18next'
 
 const CountryPage: React.FC = () => {
   const navigate = useNavigate()
+  const { t } = useTranslation()
   const [selected, setSelected] = useState('IN')
 
   return (
@@ -17,8 +19,8 @@ const CountryPage: React.FC = () => {
           <span className="text-2xl">🌿</span>
           <span className="text-xl font-bold text-green-forest">Cropoctor</span>
         </div>
-        <h1 className="text-2xl font-bold text-gray-800 mb-1">Select Your Country</h1>
-        <p className="text-gray-500 text-sm">Choose your country to get local insights.</p>
+        <h1 className="text-2xl font-bold text-gray-800 mb-1">{t('country.title')}</h1>
+        <p className="text-gray-500 text-sm">{t('country.subtitle')}</p>
       </div>
 
       <motion.div
@@ -56,7 +58,7 @@ const CountryPage: React.FC = () => {
 
       <div className="fixed bottom-0 left-0 right-0 px-6 py-6 bg-cream/95 backdrop-blur-sm border-t border-gray-100">
         <Button variant="primary" size="xl" fullWidth onClick={() => navigate('/login')}>
-          Continue
+          {t('country.continue')}
         </Button>
       </div>
     </motion.div>

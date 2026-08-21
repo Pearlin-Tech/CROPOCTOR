@@ -4,9 +4,11 @@ import { motion } from 'framer-motion'
 import { pageVariants } from '@/animations/variants'
 import { Button } from '@/components/ui/Button'
 import { IMAGES } from '@/config/images'
+import { useTranslation } from 'react-i18next'
 
 const WelcomePage: React.FC = () => {
   const navigate = useNavigate()
+  const { t } = useTranslation()
 
   return (
     <motion.div
@@ -34,11 +36,10 @@ const WelcomePage: React.FC = () => {
 
         {/* Headline */}
         <div className="absolute bottom-0 left-0 right-0 px-6 pb-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 leading-tight mb-2 drop-shadow-sm">
-            Better decisions.<br />Healthier crops.
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 leading-tight mb-2 drop-shadow-sm" dangerouslySetInnerHTML={{ __html: t('welcome.headline') }}>
           </h1>
           <p className="text-brown-deep font-medium text-base max-w-sm drop-shadow-sm">
-            AI-powered agricultural intelligence built around your farm.
+            {t('welcome.subheading')}
           </p>
         </div>
       </div>
@@ -51,14 +52,14 @@ const WelcomePage: React.FC = () => {
           fullWidth
           onClick={() => navigate('/language')}
         >
-          🌱 Get Started
+          🌱 {t('welcome.cta')}
         </Button>
 
         <button
           onClick={() => navigate('/login')}
           className="w-full py-3 text-center text-green-forest font-semibold text-base hover:text-green-soft transition-colors"
         >
-          Already have an account? Sign in
+          {t('welcome.signin')}
         </button>
 
         {/* Language hint */}
@@ -68,7 +69,7 @@ const WelcomePage: React.FC = () => {
             onClick={() => navigate('/language')}
             className="text-xs text-gray-400 hover:text-green-forest transition-colors"
           >
-            English · हिन्दी · ગુજરાતી · + more
+            English · Português · Русский · 中文 · हिन्दी · + more
           </button>
         </div>
       </div>

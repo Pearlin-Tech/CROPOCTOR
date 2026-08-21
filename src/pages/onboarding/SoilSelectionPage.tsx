@@ -5,9 +5,11 @@ import { pageVariants } from '@/animations/variants'
 import { Button } from '@/components/ui/Button'
 import { SearchableSelect } from '@/components/ui/SearchableSelect'
 import { SOILS } from '@/config/soils'
+import { useTranslation } from 'react-i18next'
 
 const SoilSelectionPage: React.FC = () => {
   const navigate = useNavigate()
+  const { t } = useTranslation()
   const [soilId, setSoilId] = useState('loamy')
   const soilOptions = SOILS.map(s => ({ id: s.id, name: s.name, description: s.description }))
   const selectedSoil = SOILS.find(s => s.id === soilId)
@@ -17,20 +19,20 @@ const SoilSelectionPage: React.FC = () => {
       <button onClick={() => navigate(-1)} className="w-10 h-10 flex items-center justify-center rounded-xl bg-brown-pastel/30 text-brown-earth hover:bg-brown-pastel/50 transition-colors mb-6 shadow-sm">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="w-5 h-5"><path d="M15 18l-6-6 6-6" /></svg>
       </button>
-      <h1 className="text-2xl font-bold text-green-forest mb-1">Soil Type</h1>
-      <p className="text-brown-earth/80 text-sm mb-2 font-medium">Select your farm's soil type.</p>
+      <h1 className="text-2xl font-bold text-green-forest mb-1">{t('farm.location.soilTitle', 'Soil Type')}</h1>
+      <p className="text-brown-earth/80 text-sm mb-2 font-medium">{t('farm.location.soilSubtitle', 'Select your farm\'s soil type.')}</p>
       <div className="bg-white/60 border border-brown-pastel/40 p-3 rounded-xl mb-6 shadow-sm">
-        <p className="text-[11px] text-brown-earth/90 font-medium">💡 Not sure? Select "Unknown" — the AI can still help you.</p>
+        <p className="text-[11px] text-brown-earth/90 font-medium">💡 {t('farm.location.soilHint', 'Not sure? Select "Unknown" — the AI can still help you.')}</p>
       </div>
 
       <div className="flex-1">
         <SearchableSelect
-          label="Soil Type"
+          label={t('farm.location.soilTitle', 'Soil Type')}
           options={soilOptions}
           value={soilId}
           onChange={setSoilId}
-          placeholder="Select Soil Type"
-          searchPlaceholder="Search soil types..."
+          placeholder={t('farm.location.selectSoil', 'Select Soil Type')}
+          searchPlaceholder={t('farm.location.searchSoils', 'Search soil types...')}
         />
 
         {selectedSoil && soilId !== 'unknown' && (
@@ -49,7 +51,7 @@ const SoilSelectionPage: React.FC = () => {
 
       <div className="mt-10">
         <Button variant="primary" size="xl" fullWidth onClick={() => navigate('/onboarding/stage')}>
-          Continue →
+          {t('country.continue')} →
         </Button>
       </div>
     </motion.div>
