@@ -3,10 +3,19 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AppShell } from '@/components/layout/AppShell'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { AppProvider } from '@/store/AppContext'
-import { UserProvider } from '@/store/UserContext'
+import { UserProvider, useUser } from '@/store/UserContext'
 import { FarmProvider } from '@/store/FarmContext'
 import { PageSkeleton } from '@/components/skeletons'
 import '@/locales/i18n'
+
+const Fallback = () => <div className="min-h-screen bg-background flex items-center justify-center"><PageSkeleton /></div>
+
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const { isAuthenticated, isAuthLoading } = useUser()
+  if (isAuthLoading) return <Fallback />
+  if (!isAuthenticated) return <Navigate to="/welcome" replace />
+  return <>{children}</>
+}
 
 // ─── Lazy-loaded pages ────────────────────────────────────────────────────────
 const SplashPage          = lazy(() => import('@/pages/onboarding/SplashPage'))
@@ -47,7 +56,7 @@ const HelpPage              = lazy(() => import('@/pages/main/HelpPage'))
 const AboutPage             = lazy(() => import('@/pages/main/AboutPage'))
 const HistoryPage           = lazy(() => import('@/pages/main/FarmHistoryPage'))
 
-const Fallback = () => <div className="min-h-screen bg-background flex items-center justify-center"><PageSkeleton /></div>
+
 
 const App: React.FC = () => (
   <ErrorBoundary>
@@ -76,7 +85,7 @@ const App: React.FC = () => (
                 </Route>
 
                 {/* Main App (with nav shell) */}
-                <Route element={<AppShell />}>
+                <Route element={<ProtectedRoute><AppShell /></ProtectedRoute>}>
                   <Route path="/home"       element={<HomePage />} />
                   <Route path="/advisor"    element={<AIAdvisorPage />} />
                   <Route path="/voice"      element={<VoicePage />} />
