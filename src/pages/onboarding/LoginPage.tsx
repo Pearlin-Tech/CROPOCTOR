@@ -1,13 +1,14 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { Mail, Lock, Eye, EyeOff, Sprout, ShieldCheck, TrendingUp, Smartphone } from 'lucide-react'
+import { Mail, Lock, Eye, EyeOff, Sprout, ShieldCheck, TrendingUp, Smartphone, ArrowLeft } from 'lucide-react'
 import { pageVariants } from '@/animations/variants'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
+import { PhoneInput } from '@/components/ui/PhoneInput'
 import { Divider } from '@/components/ui/index'
 import { IMAGES } from '@/config/images'
 
@@ -15,6 +16,7 @@ import { MOCK_FARMER } from '@/mock/farmer'
 import { useApp } from '@/store/AppContext'
 import { useUser } from '@/store/UserContext'
 import { useTranslation } from 'react-i18next'
+import { authService } from '@/services/authService'
 
 const schema = z.object({
   email:    z.string().min(1, 'This field is required.').email('Please enter a valid email address.'),
@@ -29,32 +31,97 @@ const LoginPage: React.FC = () => {
   const { t } = useTranslation()
   const [showPw, setShowPw] = useState(false)
   const [loading, setLoading] = useState(false)
+  // phone auth state
+  const [phoneMode, setPhoneMode] = useState(false)
+  const [phone, setPhone] = useState('')
+  const [otp, setOtp] = useState('')
+  const [confirmationResult, setConfirmationResult] = useState<any>(null)
+  // forgot password state
+  const [forgotMode, setForgotMode] = useState(false)
+  const [forgotEmail, setForgotEmail] = useState('')
+  const [forgotSent, setForgotSent] = useState(false)
+  const recaptchaContainerRef = useRef<HTMLDivElement>(null)
 
-  const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
+  const { register, handleSubmit, getValues, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
   })
 
+  // Cleanup recaptcha when leaving phone mode or unmounting
+  useEffect(() => {
+    return () => {
+      if ((window as any).recaptchaVerifier) {
+        try { (window as any).recaptchaVerifier.clear() } catch {}
+        delete (window as any).recaptchaVerifier
+      }
+    }
+  }, [])
+
   const onSubmit = async (data: FormData) => {
     setLoading(true)
-    await new Promise(r => setTimeout(r, 1200))
+    const { user, error } = await authService.loginWithEmail(data.email, data.password)
     setLoading(false)
-    
-    if (data.email === 'test@cropoctor.com' && data.password === 'test') {
-      login(MOCK_FARMER)
-      navigate('/home')
-      toast.success('Successfully logged in!')
-    } else {
-      toast.error('Invalid credentials. Use test@cropoctor.com / test')
-    }
+    if (error) { toast.error(error); return }
+    login({ ...MOCK_FARMER, name: user!.displayName || MOCK_FARMER.name, email: user!.email || MOCK_FARMER.email })
+    navigate('/home')
+    toast.success('Successfully logged in!')
   }
 
-  const mockOAuth = async (provider: string) => {
+  const handleGoogleAuth = async () => {
     setLoading(true)
-    await new Promise(r => setTimeout(r, 1000))
+    const { user, error } = await authService.signInWithGoogle()
     setLoading(false)
-    login(MOCK_FARMER)
+    if (error || !user) { toast.error(error || 'Failed to sign in with Google'); return }
+    login({ ...MOCK_FARMER, name: user.displayName || MOCK_FARMER.name, email: user.email || MOCK_FARMER.email })
     navigate('/home')
-    toast.success(`Successfully logged in with ${provider}!`)
+    toast.success('Logged in with Google!')
+  }
+
+  const handleSendOtp = async () => {
+    if (!phone) { toast.error('Please enter a phone number.'); return }
+    setLoading(true)
+    // Initialize reCAPTCHA here — div is guaranteed in DOM at this point
+    let appVerifier = (window as any).recaptchaVerifier
+    if (!appVerifier) {
+      appVerifier = authService.setupRecaptcha('recaptcha-login')
+    }
+    if (!appVerifier) {
+      setLoading(false)
+      toast.error('reCAPTCHA failed to initialize. Please refresh and try again.')
+      return
+    }
+    const { confirmationResult: res, error } = await authService.signInWithPhone(phone, appVerifier)
+    setLoading(false)
+    if (error || !res) {
+      toast.error(error || 'Failed to send OTP')
+      // Reset recaptcha on failure so next attempt gets a fresh one
+      if ((window as any).recaptchaVerifier) {
+        try { (window as any).recaptchaVerifier.clear() } catch {}
+        delete (window as any).recaptchaVerifier
+      }
+      return
+    }
+    setConfirmationResult(res)
+    toast.success('OTP sent to your phone!')
+  }
+
+  const handleVerifyOtp = async () => {
+    if (!otp) { toast.error('Please enter the OTP.'); return }
+    setLoading(true)
+    const { user, error } = await authService.verifyPhoneOtp(confirmationResult, otp)
+    setLoading(false)
+    if (error || !user) { toast.error(error || 'Failed to verify OTP'); return }
+    login({ ...MOCK_FARMER, phone: user.phoneNumber || MOCK_FARMER.phone })
+    navigate('/home')
+    toast.success('Logged in with Phone!')
+  }
+
+  const handleForgotPassword = async () => {
+    if (!forgotEmail) { toast.error('Please enter your email address.'); return }
+    setLoading(true)
+    const { error } = await authService.sendPasswordReset(forgotEmail)
+    setLoading(false)
+    if (error) { toast.error(error); return }
+    setForgotSent(true)
   }
 
   return (
@@ -138,25 +205,27 @@ const LoginPage: React.FC = () => {
           <div className="text-center mb-8">
             <h2 className="text-2xl font-bold text-gray-900 tracking-tight mb-1">Welcome Back!</h2>
             <p className="text-gray-500 text-sm font-medium">
-              Sign in to continue. For testing use <strong className="text-gray-800">test@cropoctor.com</strong> / <strong className="text-gray-800">test</strong>
+              Sign in to continue.
             </p>
           </div>
 
           {/* OAuth Buttons (Ghost / Outline Style) */}
           <div className="space-y-3 mb-6">
             <button
-              onClick={() => mockOAuth('google')}
+              onClick={handleGoogleAuth}
               type="button"
-              className="w-full flex items-center justify-center gap-3 px-5 py-3 bg-white border border-gray-200 rounded-xl font-medium text-sm text-gray-700 shadow-sm hover:bg-gray-50 hover:border-gray-300 transition-all"
+              disabled={loading}
+              className="w-full flex items-center justify-center gap-3 px-5 py-3 bg-white border border-gray-200 rounded-xl font-medium text-sm text-gray-700 shadow-sm hover:bg-gray-50 hover:border-gray-300 transition-all disabled:opacity-60"
             >
               <svg viewBox="0 0 24 24" className="w-5 h-5"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
               {t('auth.google')}
             </button>
 
             <button
-              onClick={() => mockOAuth('phone')}
+              onClick={() => setPhoneMode(true)}
               type="button"
-              className="w-full flex items-center justify-center gap-3 px-5 py-3 bg-white border border-gray-200 rounded-xl font-medium text-sm text-gray-700 shadow-sm hover:bg-gray-50 hover:border-gray-300 transition-all"
+              disabled={loading}
+              className="w-full flex items-center justify-center gap-3 px-5 py-3 bg-white border border-gray-200 rounded-xl font-medium text-sm text-gray-700 shadow-sm hover:bg-gray-50 hover:border-gray-300 transition-all disabled:opacity-60"
             >
               <Smartphone className="w-4 h-4 text-gray-500" />
               {t('auth.phone')}
@@ -165,45 +234,101 @@ const LoginPage: React.FC = () => {
 
           <Divider label="or" />
 
-          {/* Email Form */}
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 mb-6">
-            <Input
-              label={t('auth.emailLabel')}
-              type="email"
-              placeholder="you@example.com"
-              icon={<Mail className="w-4 h-4" />}
-              error={errors.email?.message}
-              {...register('email')}
-            />
-            <Input
-              label={t('auth.passwordLabel')}
-              type={showPw ? 'text' : 'password'}
-              placeholder="••••••••"
-              icon={<Lock className="w-4 h-4" />}
-              iconRight={
-                <button type="button" onClick={() => setShowPw(v => !v)} aria-label="Toggle password" className="text-gray-400 hover:text-gray-600">
-                  {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+          {/* Phone Login Mode */}
+          {phoneMode ? (
+            <div className="space-y-4 mb-6">
+              <div className="flex items-center gap-2 mb-2">
+                <button type="button" onClick={() => { setPhoneMode(false); setConfirmationResult(null); setOtp(''); setPhone('') }} className="text-gray-500 hover:text-gray-700">
+                  <ArrowLeft className="w-4 h-4" />
                 </button>
-              }
-              error={errors.password?.message}
-              {...register('password')}
-            />
-            <div className="text-right">
-              <button type="button" className="text-xs font-semibold text-[#2E7D32] hover:underline">
-                {t('auth.forgotPassword')}
-              </button>
+                <span className="text-sm font-semibold text-gray-700">
+                  {confirmationResult ? 'Enter OTP' : 'Phone Login'}
+                </span>
+              </div>
+              {!confirmationResult ? (
+                <>
+                  <PhoneInput label="Phone Number" value={phone} onChange={setPhone} />
+                  <Button onClick={handleSendOtp} variant="primary" size="lg" fullWidth loading={loading} className="bg-[#2E7D32] hover:bg-[#256629] text-white py-3.5 rounded-xl font-semibold text-base shadow-md transition-colors">
+                    Send OTP
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Input label="Verification Code" placeholder="123456" value={otp} onChange={(e) => setOtp(e.target.value)} />
+                  <Button onClick={handleVerifyOtp} variant="primary" size="lg" fullWidth loading={loading} className="bg-[#2E7D32] hover:bg-[#256629] text-white py-3.5 rounded-xl font-semibold text-base shadow-md transition-colors">
+                    Verify & Sign In
+                  </Button>
+                </>
+              )}
+              <div id="recaptcha-login"></div>
             </div>
-            <Button
-              type="submit"
-              variant="primary"
-              size="lg"
-              fullWidth
-              loading={loading}
-              className="bg-[#2E7D32] hover:bg-[#256629] text-white py-3.5 rounded-xl font-semibold text-base shadow-md transition-colors"
-            >
-              {loading ? t('auth.signingIn') : 'Sign In'}
-            </Button>
-          </form>
+          ) : forgotMode ? (
+            /* Forgot Password Mode */
+            <div className="space-y-4 mb-6">
+              <div className="flex items-center gap-2 mb-2">
+                <button type="button" onClick={() => { setForgotMode(false); setForgotSent(false); setForgotEmail('') }} className="text-gray-500 hover:text-gray-700">
+                  <ArrowLeft className="w-4 h-4" />
+                </button>
+                <span className="text-sm font-semibold text-gray-700">Reset Password</span>
+              </div>
+              {forgotSent ? (
+                <div className="text-center py-4 space-y-3">
+                  <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto">
+                    <Mail className="w-6 h-6 text-[#2E7D32]" />
+                  </div>
+                  <p className="text-sm text-gray-600">Password reset email sent to <strong>{forgotEmail}</strong>. Check your inbox.</p>
+                  <button type="button" onClick={() => { setForgotMode(false); setForgotSent(false) }} className="text-sm text-[#2E7D32] font-semibold hover:underline">Back to Sign In</button>
+                </div>
+              ) : (
+                <>
+                  <Input label="Email Address" type="email" placeholder="you@example.com" icon={<Mail className="w-4 h-4" />} value={forgotEmail} onChange={(e) => setForgotEmail(e.target.value)} />
+                  <Button onClick={handleForgotPassword} variant="primary" size="lg" fullWidth loading={loading} className="bg-[#2E7D32] hover:bg-[#256629] text-white py-3.5 rounded-xl font-semibold text-base shadow-md transition-colors">
+                    Send Reset Email
+                  </Button>
+                </>
+              )}
+            </div>
+          ) : (
+            /* Email Form */
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 mb-6">
+              <Input
+                label={t('auth.emailLabel')}
+                type="email"
+                placeholder="you@example.com"
+                icon={<Mail className="w-4 h-4" />}
+                error={errors.email?.message}
+                {...register('email')}
+              />
+              <Input
+                label={t('auth.passwordLabel')}
+                type={showPw ? 'text' : 'password'}
+                placeholder="••••••••"
+                icon={<Lock className="w-4 h-4" />}
+                iconRight={
+                  <button type="button" onClick={() => setShowPw(v => !v)} aria-label="Toggle password" className="text-gray-400 hover:text-gray-600">
+                    {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                }
+                error={errors.password?.message}
+                {...register('password')}
+              />
+              <div className="text-right">
+                <button type="button" onClick={() => { setForgotMode(true); setForgotEmail(getValues('email') || '') }} className="text-xs font-semibold text-[#2E7D32] hover:underline">
+                  {t('auth.forgotPassword')}
+                </button>
+              </div>
+              <Button
+                type="submit"
+                variant="primary"
+                size="lg"
+                fullWidth
+                loading={loading}
+                className="bg-[#2E7D32] hover:bg-[#256629] text-white py-3.5 rounded-xl font-semibold text-base shadow-md transition-colors"
+              >
+                {loading ? t('auth.signingIn') : 'Sign In'}
+              </Button>
+            </form>
+          )}
 
           <p className="text-center text-sm text-gray-500">
             Don't have an account?{' '}
