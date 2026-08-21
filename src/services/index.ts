@@ -31,13 +31,59 @@ class MockAIService implements IAIService {
 
 // ─── Weather Service ──────────────────────────────────────────────────────────
 export interface IWeatherService {
-  getWeather(farmId: string): Promise<WeatherData>
+  getWeather(farmId: string, farm?: Farm): Promise<WeatherData>
 }
 
-class MockWeatherService implements IWeatherService {
-  async getWeather(_farmId: string): Promise<WeatherData> {
-    await delay(1000)
-    return MOCK_WEATHER
+class ApiWeatherService implements IWeatherService {
+  async getWeather(farmId: string, farm?: Farm): Promise<WeatherData> {
+    try {
+      let query = `farmId=${encodeURIComponent(farmId || 'farm-001')}`
+      if (farm) {
+        query += `&lat=${farm.location.lat}&lng=${farm.location.lng}&crop=${encodeURIComponent(farm.primaryCrop)}&cropStage=${encodeURIComponent(farm.cropStage)}&soilType=${encodeURIComponent(farm.soilType)}`
+      }
+      const res = await fetch(`/api/weather?${query}`)
+      if (!res.ok) throw new Error(`HTTP error ${res.status}`)
+      const data = await res.json()
+
+      return {
+        farmId: data.farmId || farmId,
+        updatedAt: data.updatedAt || new Date().toISOString(),
+        location: data.location,
+        temperature: data.current.temperature,
+        feelsLike: data.current.feelsLike ?? data.current.temperature,
+        humidity: data.current.humidity,
+        rainChance: data.current.rainProbability,
+        windSpeed: data.current.windSpeed,
+        windDirection: data.current.windDirection ?? 'SW',
+        description: data.current.condition,
+        icon: data.current.icon ?? 'partly-cloudy',
+        uvIndex: data.current.uvIndex ?? 5,
+        isDemo: data.isDemo ?? false,
+        forecast: data.forecast || [],
+        farmImpact: {
+          irrigation: {
+            status: data.farmImpact.irrigation.status,
+            reason: data.farmImpact.irrigation.reason
+          },
+          spraying: {
+            status: data.farmImpact.spraying.status,
+            reason: data.farmImpact.spraying.reason
+          },
+          diseaseRisk: {
+            level: data.farmImpact.diseaseRisk.level,
+            reason: data.farmImpact.diseaseRisk.reason
+          }
+        }
+      }
+    } catch (err) {
+      console.warn('Backend weather API call failed, using cached fallback data:', err)
+      return {
+        ...MOCK_WEATHER,
+        farmId: farmId || 'farm-001',
+        updatedAt: new Date().toISOString(),
+        location: farm ? { displayName: farm.location.displayName, city: farm.location.village || farm.name, state: farm.location.state || '', country: farm.location.country } : undefined
+      }
+    }
   }
 }
 
@@ -177,7 +223,7 @@ class MockVoiceService implements IVoiceService {
 
 // ─── Export singletons (swap class to change implementation) ──────────────────
 export const aiService: IAIService               = new MockAIService()
-export const weatherService: IWeatherService     = new MockWeatherService()
+export const weatherService: IWeatherService     = new ApiWeatherService()
 export const farmService: IFarmService           = new MockFarmService()
 export const diagnosisService: IDiagnosisService = new MockDiagnosisService()
 export const notificationService: INotificationService = new MockNotificationService()

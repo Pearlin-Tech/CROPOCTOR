@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { motion } from 'framer-motion'
-import { pageVariants, listVariants, cardVariants } from '@/animations/variants'
+import { pageVariants } from '@/animations/variants'
 import { PageLayout, MobileHeader } from '@/components/layout/AppShell'
 import { Card } from '@/components/ui/Card'
-import { Badge } from '@/components/ui/index'
-import { Chip } from '@/components/ui/index'
+import { Button } from '@/components/ui/Button'
+import { Badge, Chip } from '@/components/ui/index'
 import { WeatherSkeleton } from '@/components/skeletons'
 import { weatherService } from '@/services'
 import type { WeatherData } from '@/types'
@@ -15,18 +14,78 @@ const WEATHER_ICONS: Record<string, string> = {
   'sunny': '☀️', 'partly-cloudy': '⛅', 'cloudy': '☁️', 'rainy': '🌧️', 'stormy': '⛈️',
 }
 
+function formatUpdatedTime(isoString?: string): string {
+  if (!isoString) return 'Updated just now'
+  try {
+    const d = new Date(isoString)
+    const now = new Date()
+    const diffMins = Math.floor((now.getTime() - d.getTime()) / 60000)
+    if (diffMins < 1) return 'Updated just now'
+    if (diffMins < 60) return `Updated ${diffMins} min ago`
+    return `Updated at ${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
+  } catch {
+    return 'Updated just now'
+  }
+}
+
 const WeatherPage: React.FC = () => {
   const { activeFarm } = useFarm()
   const [weather, setWeather] = useState<WeatherData | null>(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [tab, setTab] = useState<'today' | '7day'>('today')
 
-  useEffect(() => {
-    weatherService.getWeather(activeFarm?.id || '').then(w => { setWeather(w); setLoading(false) })
+  const fetchIdRef = useRef<number>(0)
+
+  const fetchWeather = useCallback(async () => {
+    if (!activeFarm) return
+    const currentFetchId = ++fetchIdRef.current
+    setLoading(true)
+    setError(null)
+
+    try {
+      const data = await weatherService.getWeather(activeFarm.id, activeFarm)
+      // Ignore stale response if farm changed mid-flight
+      if (currentFetchId !== fetchIdRef.current) return
+
+      setWeather(data)
+      setLoading(false)
+    } catch (err: any) {
+      if (currentFetchId !== fetchIdRef.current) return
+      setError(`Weather data temporarily unavailable for ${activeFarm.name}.`)
+      setLoading(false)
+    }
   }, [activeFarm])
+
+  // Fetch when active farm changes or on initial mount
+  useEffect(() => {
+    fetchWeather()
+  }, [fetchWeather])
+
+  // Periodic refresh (15 mins) & window focus re-fetch
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchWeather()
+    }, 15 * 60 * 1000)
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        fetchWeather()
+      }
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+
+    return () => {
+      clearInterval(interval)
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+    }
+  }, [fetchWeather])
 
   const impact = weather?.farmImpact
   const statusColor = { delay: 'warning', postpone: 'warning', caution: 'warning', proceed: 'green', monitor: 'gray', low: 'green', moderate: 'warning', elevated: 'warning', high: 'danger' } as const
+
+  const locationDisplay = activeFarm?.location.displayName || weather?.location?.displayName || 'Farm Location'
 
   return (
     <motion.div variants={pageVariants} initial="initial" animate="animate" className="min-h-screen bg-background">
@@ -38,7 +97,15 @@ const WeatherPage: React.FC = () => {
           <p className="text-brown-earth/80 text-sm font-medium">AI-interpreted weather for your farm.</p>
         </div>
 
-        {loading ? <WeatherSkeleton /> : weather && (
+        {loading ? (
+          <WeatherSkeleton />
+        ) : error ? (
+          <Card padding="lg" className="border-brown-pastel/30 bg-cream text-center py-8 space-y-4">
+            <span className="text-4xl">🌦️</span>
+            <p className="text-sm font-bold text-brown-earth">{error}</p>
+            <Button variant="outline" size="sm" onClick={fetchWeather}>Retry</Button>
+          </Card>
+        ) : weather && (
           <>
             {/* Tab switcher */}
             <div className="flex gap-2">
@@ -55,7 +122,7 @@ const WeatherPage: React.FC = () => {
                 
                 <div className="relative z-10 flex items-start justify-between mb-4">
                   <div>
-                    <p className="text-brown-earth font-bold uppercase tracking-wider text-[11px] mb-2">{activeFarm?.location.displayName || 'Rajkot, Gujarat'}</p>
+                    <p className="text-brown-earth font-bold uppercase tracking-wider text-[11px] mb-2">{locationDisplay}</p>
                     <div className="flex items-end gap-2">
                       <span className="text-6xl font-bold text-text-main">{weather.temperature}°</span>
                       <span className="text-text-secondary text-xl pb-2 font-medium">C</span>
@@ -80,7 +147,14 @@ const WeatherPage: React.FC = () => {
                     </div>
                   ))}
                 </div>
-                {weather.isDemo && <div className="mt-4"><Badge variant="demo">Demo Weather Data</Badge></div>}
+                <div className="mt-4 flex items-center justify-between">
+                  <Badge variant={weather.isDemo ? "demo" : "green"}>
+                    {weather.isDemo ? "Demo Weather Data" : "Live Weather Data"}
+                  </Badge>
+                  <span className="text-[11px] font-medium text-text-secondary">
+                    {formatUpdatedTime(weather.updatedAt)}
+                  </span>
+                </div>
               </Card>
             ) : (
               <Card padding="md" className="border-brown-pastel/30 bg-off-white shadow-sm">
@@ -103,7 +177,7 @@ const WeatherPage: React.FC = () => {
             {impact && (
               <Card padding="md" className="border-brown-pastel/30 bg-cream shadow-sm">
                 <h3 className="font-bold text-brown-earth mb-3 flex items-center gap-2">
-                  <span className="text-lg">🌾</span> Farm Impact
+                  <span className="text-lg">🌾</span> Farm Impact ({activeFarm?.name})
                 </h3>
                 <div className="space-y-3">
                   {[
