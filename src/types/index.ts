@@ -48,6 +48,14 @@ export interface LatLng {
 
 // ─── Weather ──────────────────────────────────────────────────────────────────
 export interface WeatherData {
+  farmId?: string
+  updatedAt?: string
+  location?: {
+    displayName: string
+    city: string
+    state: string
+    country: string
+  }
   temperature: number
   feelsLike: number
   humidity: number
