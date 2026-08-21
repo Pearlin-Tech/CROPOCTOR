@@ -15,7 +15,7 @@ const CountryPage: React.FC = () => {
       <div className="px-6 pt-12 pb-6">
         <div className="flex items-center gap-2 mb-6">
           <span className="text-2xl">🌿</span>
-          <span className="text-xl font-bold text-green-forest">Agri AI</span>
+          <span className="text-xl font-bold text-green-forest">Cropoctor</span>
         </div>
         <h1 className="text-2xl font-bold text-gray-800 mb-1">Select Your Country</h1>
         <p className="text-gray-500 text-sm">Choose your country to get local insights.</p>
@@ -50,7 +50,7 @@ const CountryPage: React.FC = () => {
         </div>
 
         <p className="mt-6 text-xs text-center text-gray-400 px-4">
-          🌍 Agri AI supports all 11 BRICS countries with localized crop, soil, and weather insights.
+          🌍 Cropoctor supports all 11 BRICS countries with localized crop, soil, and weather insights.
         </p>
       </motion.div>
 

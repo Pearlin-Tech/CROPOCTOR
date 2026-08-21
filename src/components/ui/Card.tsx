@@ -2,16 +2,21 @@ import React from 'react'
 import { cn } from '@/utils/cn'
 
 interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
-  variant?: 'default' | 'elevated' | 'flat' | 'green' | 'earth'
+  variant?: 'default' | 'elevated' | 'flat' | 'green' | 'earth' | 'primary' | 'secondary' | 'pastelGreen' | 'pastelBrown' | 'cream'
   padding?: 'none' | 'sm' | 'md' | 'lg'
 }
 
 const variantStyles = {
-  default:  'bg-off-white shadow-card border border-green-pastel/20',
-  elevated: 'bg-white shadow-card-lg border border-green-pastel/15',
+  default:  'bg-off-white shadow-card border border-brown-pastel/30',
+  elevated: 'bg-white shadow-card-lg border border-brown-pastel/20',
   flat:     'bg-green-light border border-green-pastel/30',
-  green:    'bg-gradient-to-br from-green-forest to-green-soft text-white',
-  earth:    'bg-gradient-to-br from-brown-earth to-brown-soft text-white',
+  green:    'bg-gradient-to-br from-green-forest to-green-deep text-white shadow-card border border-green-forest/20',
+  earth:    'bg-gradient-to-br from-brown-earth to-brown-secondary text-white shadow-card border border-brown-earth/20',
+  primary:  'bg-gradient-to-br from-green-forest to-green-deep text-white shadow-card border border-green-forest/20',
+  secondary:'bg-beige-warm border border-brown-pastel/40 text-brown-earth',
+  pastelGreen: 'bg-green-pastel/25 border border-green-pastel/40 text-green-forest',
+  pastelBrown: 'bg-brown-pastel/25 border border-brown-pastel/45 text-brown-earth',
+  cream:    'bg-cream border border-brown-pastel/35 text-text-main shadow-card',
 }
 
 const paddingStyles = {

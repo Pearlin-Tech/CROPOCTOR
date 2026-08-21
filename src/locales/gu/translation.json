@@ -1,5 +1,5 @@
 {
-  "app": { "name": "Agri AI", "tagline": "દરેક ખેત માટે સ્માર્ટ નિર્ણયો." },
+  "app": { "name": "Cropoctor", "tagline": "દરેક ખેત માટે સ્માર્ટ નિર્ણયો." },
   "nav": { "home": "હોમ", "myFarm": "મારું ખેતર", "advisor": "AI સલાહકાર", "diagnose": "પાક નિદાન", "profile": "પ્રોફાઇલ", "weather": "હવામાન", "insights": "માહિતી", "history": "ઇતિહાસ", "notifications": "સૂચનાઓ", "settings": "સેટિંગ્સ" },
   "welcome": { "headline": "વધુ સારા નિર્ણયો. સ્વસ્થ પાક.", "subheading": "તમારા ખેત માટે AI-આધારિત કૃષિ સહાય.", "cta": "શરૂ કરો", "signin": "પહેલેથી ખાતું છે? સાઇન ઇન કરો" },
   "auth": { "google": "Google સાથે ચાલુ રાખો", "phone": "ફોન સાથે ચાલુ રાખો", "email": "ઇમેઇલ સાથે ચાલુ રાખો", "createAccount": "ખાતું બનાવો", "forgotPassword": "પાસવર્ડ ભૂલ્યા?", "emailLabel": "ઇમેઇલ સરનામું", "passwordLabel": "પાસવર્ડ", "nameLabel": "પૂરું નામ", "signingIn": "સાઇન ઇન થઈ રહ્યું છે...", "errors": { "required": "આ ફીલ્ડ જરૂરી છે.", "invalidEmail": "કૃપા કરીને માન્ય ઇમેઇલ સરનામું દાખલ કરો.", "weakPassword": "પાસવર્ડ ઓછામાં ઓછો 6 અક્ષરનો હોવો જોઈએ.", "authFailed": "સાઇન ઇન નિષ્ફળ. કૃપા કરીને ફરી પ્રયાસ કરો." } },

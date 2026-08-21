@@ -34,8 +34,8 @@ const CropDoctorPage: React.FC = () => {
       <PageLayout className="pt-4 space-y-4">
         {/* Desktop header */}
         <div className="hidden lg:block mb-4">
-          <h1 className="text-2xl font-bold text-gray-800">Crop Doctor</h1>
-          <p className="text-gray-500 text-sm">Take a photo of your crop or upload one.</p>
+          <h1 className="text-2xl font-bold text-green-forest tracking-tight">Crop Doctor</h1>
+          <p className="text-brown-earth/80 text-sm font-medium">Take a photo of your crop or upload one.</p>
         </div>
 
         {/* Desktop 3-col layout */}
@@ -46,20 +46,20 @@ const CropDoctorPage: React.FC = () => {
             {/* Large upload zone */}
             <div
               onClick={() => fileRef.current?.click()}
-              className="relative w-full aspect-square lg:aspect-[4/3] rounded-3xl overflow-hidden border-2 border-dashed border-green-pastel bg-gradient-to-br from-green-light to-cream flex flex-col items-center justify-center cursor-pointer hover:border-green-forest shadow-sm transition-all group"
+              className="relative w-full aspect-square lg:aspect-[4/3] rounded-3xl overflow-hidden border-2 border-dashed border-brown-pastel/50 bg-gradient-to-br from-green-pastel/20 to-cream flex flex-col items-center justify-center cursor-pointer hover:border-green-forest shadow-sm transition-all group"
             >
               {preview ? (
                 <img src={preview} alt="Selected crop" className="absolute inset-0 w-full h-full object-cover" />
               ) : (
                 <>
-                  <div className="absolute inset-4 border border-green-pastel/50 rounded-2xl pointer-events-none" />
-                  <img src={IMAGES.diagnosis.uploadPlaceholder} alt="Crop" className="absolute inset-0 w-full h-full object-cover opacity-10 mix-blend-multiply" />
+                  <div className="absolute inset-4 border border-brown-pastel/30 rounded-2xl pointer-events-none" />
+                  <img src={IMAGES.diagnosis.uploadPlaceholder} alt="Crop" className="absolute inset-0 w-full h-full object-cover opacity-[0.03] mix-blend-multiply" />
                   <div className="relative text-center p-6 z-10">
-                    <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-button group-hover:scale-105 transition-transform">
+                    <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-button group-hover:scale-105 transition-transform border border-brown-pastel/30">
                       <Camera className="w-8 h-8 text-green-forest" />
                     </div>
-                    <p className="font-semibold text-green-forest text-lg">Tap to upload</p>
-                    <p className="text-sm text-green-forest/70 mt-1 font-medium">or take a photo</p>
+                    <p className="font-bold text-green-forest text-lg">Tap to upload</p>
+                    <p className="text-sm text-brown-earth/80 mt-1 font-medium">or take a photo</p>
                   </div>
                 </>
               )}
@@ -86,9 +86,11 @@ const CropDoctorPage: React.FC = () => {
           {/* Tips + History */}
           <div className="lg:col-span-2 space-y-4">
             {/* Tips */}
-            <Card padding="md">
-              <h3 className="font-bold text-gray-700 mb-3">📸 Tips for best results</h3>
-              <ul className="space-y-2 text-sm text-gray-600">
+            <Card padding="md" className="border-brown-pastel/30 bg-cream">
+              <h3 className="font-bold text-brown-earth mb-3 flex items-center gap-2">
+                <span className="text-lg">📸</span> Tips for best results
+              </h3>
+              <ul className="space-y-2 text-sm text-text-secondary font-medium">
                 {[
                   'Use natural daylight — avoid harsh shadows.',
                   'Photograph the affected leaf clearly.',
@@ -96,8 +98,8 @@ const CropDoctorPage: React.FC = () => {
                   'Keep the camera steady and focused.',
                   'Include both sides of the leaf if possible.',
                 ].map(tip => (
-                  <li key={tip} className="flex gap-2">
-                    <span className="text-green-forest mt-0.5">✓</span>
+                  <li key={tip} className="flex gap-2.5">
+                    <span className="text-green-forest font-bold shrink-0">✓</span>
                     {tip}
                   </li>
                 ))}
@@ -105,7 +107,7 @@ const CropDoctorPage: React.FC = () => {
             </Card>
 
             {/* Recent diagnoses */}
-            <Card padding="md" className="border-brown-pastel/20 shadow-sm">
+            <Card padding="md" className="border-brown-pastel/30 bg-off-white shadow-sm">
               <h3 className="font-bold text-brown-earth mb-3 flex items-center gap-2">
                 <span className="text-lg">📋</span> Recent Diagnoses
               </h3>
@@ -114,15 +116,15 @@ const CropDoctorPage: React.FC = () => {
                   <button
                     key={d.id}
                     onClick={() => navigate('/diagnosis-result')}
-                    className="w-full flex items-center gap-4 p-3 bg-white border border-gray-100 rounded-2xl shadow-sm hover:border-green-pastel hover:bg-green-50 transition-all text-left"
+                    className="w-full flex items-center gap-4 p-3 bg-white border border-brown-pastel/30 rounded-2xl shadow-sm hover:border-green-pastel hover:bg-green-pastel/10 transition-all text-left"
                   >
-                    <img src={d.imageUrl} alt={d.disease} className="w-14 h-14 rounded-xl object-cover" />
+                    <img src={d.imageUrl} alt={d.disease} className="w-14 h-14 rounded-xl object-cover border border-brown-pastel/20" />
                     <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-gray-800 text-sm truncate">{d.disease}</p>
-                      <p className="text-xs text-gray-500 font-medium mt-0.5">{d.crop} · <span className="text-green-forest">{d.confidence}% match</span></p>
-                      <p className="text-xs text-gray-400 mt-0.5">{d.date}</p>
+                      <p className="font-bold text-text-main text-sm truncate">{d.disease}</p>
+                      <p className="text-xs text-text-secondary font-medium mt-0.5">{d.crop} · <span className="text-green-forest">{d.confidence}% match</span></p>
+                      <p className="text-xs text-brown-earth/60 mt-0.5">{d.date}</p>
                     </div>
-                    <span className="w-8 h-8 rounded-full bg-green-light flex items-center justify-center shrink-0">
+                    <span className="w-8 h-8 rounded-full bg-green-pastel/20 flex items-center justify-center shrink-0">
                       <ChevronRight className="w-4 h-4 text-green-forest" />
                     </span>
                   </button>

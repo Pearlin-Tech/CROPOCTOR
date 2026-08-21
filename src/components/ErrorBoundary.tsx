@@ -10,7 +10,7 @@ export class ErrorBoundary extends React.Component<{ children: React.ReactNode }
   }
 
   componentDidCatch(error: Error, info: React.ErrorInfo) {
-    console.error('[Agri AI Error Boundary]', error, info)
+    console.error('[Cropoctor Error Boundary]', error, info)
   }
 
   render() {

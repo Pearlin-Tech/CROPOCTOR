@@ -3,25 +3,28 @@
 @theme {
   /* ── Colors ─────────────────────────────────────── */
   /* Greens */
-  --color-green-forest:  #2E7D32;
-  --color-green-deep:    #246B38;
-  --color-green-soft:    #66B86A;
-  --color-green-pastel:  #A8D5A2;
-  --color-green-light:   #E8F5E9;
+  --color-green-forest:  #245C3A; /* Primary Dark Forest Green */
+  --color-green-deep:    #2E6B45; /* Secondary Forest Green */
+  --color-green-pastel:  #DCEEDB; /* Pastel Green */
+  --color-green-light:   #E7F3E4; /* Light Pastel Green */
+  --color-green-soft:    #C9E2C6;
   
   /* Browns */
-  --color-brown-earth:   #8D6245;
-  --color-brown-deep:    #6F4E37;
-  --color-brown-soft:    #B8947A;
+  --color-brown-earth:   #7A5138; /* Earth Brown */
+  --color-brown-secondary:#8D6245; /* Secondary Brown */
+  --color-brown-pastel:  #EADBCB; /* Pastel Brown */
+  --color-brown-soft:    #EADBCB; /* Alias for compatibility */
+  --color-brown-deep:    #7A5138; /* Alias for compatibility */
   
-  /* Neutrals */
-  --color-beige-warm:    #F5EBDD;
-  --color-cream:         #FFF9F0;
-  --color-off-white:     #FAFBF8;
+  /* Neutrals / Backgrounds */
+  --color-beige-warm:    #F5EBDD; /* Warm Beige */
+  --color-cream:         #FFF9F0; /* Cream */
+  --color-off-white:     #FAF8F3; /* Off-white */
+  --color-agri-bg:       #F1F7EE; /* Pastel agricultural sections */
   
   /* Text */
-  --color-text-main:     #1F2937;
-  --color-text-secondary:#667085;
+  --color-text-main:     #24332A; /* Text */
+  --color-text-secondary:#718078; /* Muted Text */
   
   /* UI States */
   --color-muted-warning: #D8A84E;

@@ -2,7 +2,7 @@ import React from 'react'
 import { motion } from 'framer-motion'
 import { cn } from '@/utils/cn'
 
-type Variant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'outline'
+type Variant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'outline' | 'earth' | 'pastelGreen' | 'pastelBrown' | 'cream'
 type Size    = 'sm' | 'md' | 'lg' | 'xl'
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -15,11 +15,15 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variantStyles: Record<Variant, string> = {
-  primary:   'bg-green-forest text-white hover:bg-[#256427] active:bg-[#1e5222] shadow-[0_4px_14px_rgba(46,125,50,0.3)]',
-  secondary: 'bg-beige-warm text-brown-earth hover:bg-[#ede0cf] active:bg-[#e3d4be] border border-brown-soft/30',
-  ghost:     'bg-transparent text-green-forest hover:bg-green-light active:bg-[#d4ecda]',
+  primary:   'bg-green-forest text-white hover:bg-green-deep active:bg-green-deep/90 shadow-[0_4px_14px_rgba(36,92,58,0.25)]',
+  secondary: 'bg-beige-warm text-brown-earth hover:bg-[#ebdcc8] active:bg-[#dfcfbb] border border-brown-pastel/50',
+  ghost:     'bg-transparent text-green-forest hover:bg-green-light active:bg-green-soft/50',
   danger:    'bg-muted-danger text-white hover:bg-[#b85f56] active:bg-[#a3544c]',
   outline:   'bg-transparent border-2 border-green-forest text-green-forest hover:bg-green-light',
+  earth:     'bg-brown-earth text-white hover:bg-brown-secondary active:bg-brown-secondary/90 shadow-[0_4px_14px_rgba(122,81,56,0.25)]',
+  pastelGreen: 'bg-green-pastel text-green-forest border border-green-pastel/50 hover:bg-green-light active:bg-green-light/80',
+  pastelBrown: 'bg-brown-pastel text-brown-earth border border-brown-pastel/50 hover:bg-beige-warm active:bg-beige-warm/80',
+  cream:     'bg-cream text-brown-earth border border-brown-pastel/40 hover:bg-off-white active:bg-off-white/80',
 }
 
 const sizeStyles: Record<Size, string> = {

@@ -1,12 +1,22 @@
 import React from 'react'
 import { cn } from '@/utils/cn'
 
+type InputVariant = 'default' | 'earth' | 'green' | 'cream'
+
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string
   error?: string
   hint?: string
   icon?: React.ReactNode
   iconRight?: React.ReactNode
+  variant?: InputVariant
+}
+
+const variantStyles: Record<InputVariant, string> = {
+  default: 'bg-white border-brown-pastel/40 text-text-main placeholder:text-muted-text/50 focus:ring-green-forest/30 focus:border-green-forest',
+  earth:   'bg-cream border-brown-pastel/50 text-brown-earth placeholder:text-brown-earth/40 focus:ring-brown-earth/30 focus:border-brown-earth',
+  green:   'bg-green-light/30 border-green-pastel/40 text-green-forest placeholder:text-green-forest/40 focus:ring-green-forest/30 focus:border-green-forest',
+  cream:   'bg-cream border-brown-pastel/40 text-text-main placeholder:text-muted-text/50 focus:ring-green-forest/30 focus:border-green-forest',
 }
 
 export const Input = React.forwardRef<HTMLInputElement, InputProps>(({
@@ -15,6 +25,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(({
   hint,
   icon,
   iconRight,
+  variant = 'default',
   className,
   id,
   ...props
@@ -38,13 +49,11 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(({
           ref={ref}
           id={inputId}
           className={cn(
-            'w-full bg-white border rounded-xl px-4 py-3 text-base text-gray-800',
-            'placeholder:text-gray-400 transition-all duration-150',
-            'focus:outline-none focus:ring-2 focus:ring-green-forest/30 focus:border-green-forest',
-            'disabled:bg-gray-50 disabled:text-gray-400',
+            'w-full border rounded-xl px-4 py-3 text-base transition-all duration-150 focus:outline-none focus:ring-2',
+            'disabled:bg-off-white disabled:text-text-secondary/50',
             icon      && 'pl-11',
             iconRight && 'pr-11',
-            error ? 'border-muted-danger bg-red-50' : 'border-brown-soft/30',
+            error ? 'border-muted-danger bg-red-50 focus:ring-muted-danger/30' : variantStyles[variant],
             className
           )}
           aria-invalid={!!error}

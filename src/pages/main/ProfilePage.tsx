@@ -35,7 +35,7 @@ const ProfilePage: React.FC = () => {
       title: 'Support',
       items: [
         { icon: HelpCircle, label: 'Help & Support', value: null, route: '/help' },
-        { icon: Info,       label: 'About Agri AI',  value: 'v1.0.0', route: '/about' },
+        { icon: Info,       label: 'About Cropoctor',  value: 'v1.0.0', route: '/about' },
       ],
     },
   ]
@@ -115,7 +115,7 @@ const ProfilePage: React.FC = () => {
           Sign Out
         </button>
 
-        <p className="text-center text-xs text-gray-300 pb-2">Agri AI v1.0.0 · BRICS Agricultural Intelligence Platform</p>
+        <p className="text-center text-xs text-gray-300 pb-2">Cropoctor v1.0.0 · BRICS Agricultural Intelligence Platform</p>
       </PageLayout>
     </motion.div>
   )

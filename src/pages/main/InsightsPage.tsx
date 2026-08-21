@@ -28,8 +28,8 @@ const InsightsPage: React.FC = () => {
       <MobileHeader title="Farm Insights" />
       <PageLayout className="pt-4 pb-8 space-y-4">
         <div className="hidden lg:block mb-4">
-          <h1 className="text-2xl font-bold text-gray-800">Farm Insights</h1>
-          <p className="text-sm text-gray-500">Crop health, soil health, and satellite intelligence.</p>
+          <h1 className="text-2xl font-bold text-green-forest tracking-tight">Farm Insights</h1>
+          <p className="text-sm text-brown-earth/80 font-medium">Crop health, soil health, and satellite intelligence.</p>
         </div>
 
         <div className="flex gap-2">
@@ -42,11 +42,11 @@ const InsightsPage: React.FC = () => {
           <>
             {tab === 'crop' && (
               <div className="space-y-4">
-                <Card padding="md">
+                <Card padding="md" className="bg-cream border-brown-pastel/40 shadow-sm">
                   <div className="flex items-center justify-between mb-4">
                     <div>
-                      <p className="text-xs text-gray-400 mb-0.5">Crop Health Score</p>
-                      <h2 className="text-4xl font-bold text-gray-800">{insights.cropHealth.score}<span className="text-xl text-gray-400">/100</span></h2>
+                      <p className="text-[11px] uppercase tracking-widest text-brown-earth/80 font-bold mb-0.5">Crop Health Score</p>
+                      <h2 className="text-4xl font-bold text-green-forest">{insights.cropHealth.score}<span className="text-xl text-brown-earth/60">/100</span></h2>
                       <Badge variant="green" dot className="mt-1">
                         {insights.cropHealth.trend === 'up' ? '↑ Improving' : insights.cropHealth.trend === 'down' ? '↓ Declining' : '→ Stable'}
                       </Badge>
@@ -54,12 +54,12 @@ const InsightsPage: React.FC = () => {
                     <div className="text-5xl">💚</div>
                   </div>
                   <ProgressBar value={insights.cropHealth.score} color="green" size="md" />
-                  <div className="mt-4">
-                    <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Contributing Factors</p>
-                    <div className="space-y-1.5">
+                  <div className="mt-4 pt-4 border-t border-brown-pastel/20">
+                    <p className="text-[10px] font-bold text-brown-earth uppercase tracking-widest mb-2">Contributing Factors</p>
+                    <div className="space-y-2">
                       {insights.cropHealth.factors.map(f => (
-                        <div key={f} className="flex items-center gap-2 text-sm text-gray-700">
-                          <span className="text-green-forest">✓</span>{f}
+                        <div key={f} className="flex items-center gap-2.5 text-sm text-text-main font-medium">
+                          <span className="text-green-forest shrink-0">✓</span>{f}
                         </div>
                       ))}
                     </div>
@@ -70,19 +70,19 @@ const InsightsPage: React.FC = () => {
 
             {tab === 'soil' && (
               <div className="space-y-4">
-                <Card padding="md">
+                <Card padding="md" className="bg-cream border-brown-pastel/40 shadow-sm">
                   <div className="flex items-center justify-between mb-4">
                     <div>
-                      <p className="text-xs text-gray-400 mb-0.5">Soil Health Score</p>
-                      <h2 className="text-4xl font-bold text-gray-800">{insights.soilHealth.score}<span className="text-xl text-gray-400">/100</span></h2>
+                      <p className="text-[11px] uppercase tracking-widest text-brown-earth/80 font-bold mb-0.5">Soil Health Score</p>
+                      <h2 className="text-4xl font-bold text-brown-deep">{insights.soilHealth.score}<span className="text-xl text-brown-earth/60">/100</span></h2>
                       <Badge variant="earth" className="mt-1">Moisture: {insights.soilHealth.moisture}</Badge>
                     </div>
                     <div className="text-5xl">🪨</div>
                   </div>
                   <ProgressBar value={insights.soilHealth.score} color="earth" size="md" />
-                  <div className="mt-4 p-3 bg-beige-warm rounded-xl">
-                    <p className="text-xs font-bold text-brown-earth mb-1">Nutrient Status</p>
-                    <p className="text-sm text-gray-700">{insights.soilHealth.nutrients}</p>
+                  <div className="mt-4 p-3 bg-white border border-brown-pastel/30 rounded-xl shadow-sm">
+                    <p className="text-[10px] font-bold text-brown-earth uppercase tracking-widest mb-1">Nutrient Status</p>
+                    <p className="text-sm text-text-main font-medium">{insights.soilHealth.nutrients}</p>
                   </div>
                 </Card>
               </div>
@@ -90,46 +90,48 @@ const InsightsPage: React.FC = () => {
 
             {tab === 'satellite' && (
               <div className="space-y-4">
-                <Card padding="none" className="overflow-hidden">
+                <Card padding="none" className="overflow-hidden bg-cream border-brown-pastel/40 shadow-sm">
                   <div className="relative">
                     <img src={IMAGES.farms.satellite} alt="Satellite farm view" className="w-full h-64 object-cover" />
                     <div className="absolute top-3 right-3 flex gap-2">
                       <Badge variant="demo">Demo Data</Badge>
                     </div>
                     {/* NDVI overlay legend */}
-                    <div className="absolute bottom-3 left-3 bg-black/60 backdrop-blur-sm rounded-xl p-2">
+                    <div className="absolute bottom-3 left-3 bg-white/90 backdrop-blur-sm rounded-xl p-2 border border-brown-pastel/30 shadow-sm">
                       <div className="flex items-center gap-4">
                         {[['#ff4444','Poor'],['#ffaa00','Fair'],['#44aa44','Good'],['#006600','Excellent']].map(([color, label]) => (
-                          <div key={label} className="flex items-center gap-1">
-                            <div className="w-3 h-3 rounded-full" style={{backgroundColor: color}} />
-                            <span className="text-white text-xs">{label}</span>
+                          <div key={label} className="flex items-center gap-1.5">
+                            <div className="w-3 h-3 rounded-full shadow-inner" style={{backgroundColor: color}} />
+                            <span className="text-text-main text-[10px] font-bold uppercase tracking-wider">{label}</span>
                           </div>
                         ))}
                       </div>
                     </div>
                   </div>
-                  <div className="p-4">
+                  <div className="p-5">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-xs text-gray-400">NDVI Index</p>
-                        <p className="text-3xl font-bold text-green-forest">{insights.ndvi.value}</p>
-                        <Badge variant="green" dot>{insights.ndvi.label}</Badge>
+                        <p className="text-[11px] uppercase tracking-widest text-brown-earth/80 font-bold mb-0.5">NDVI Index</p>
+                        <div className="flex items-baseline gap-2">
+                          <p className="text-3xl font-bold text-green-forest">{insights.ndvi.value}</p>
+                          <Badge variant="green" dot>{insights.ndvi.label}</Badge>
+                        </div>
                       </div>
                       <div className="text-right">
-                        <p className="text-xs text-gray-400">Range</p>
+                        <p className="text-[10px] font-bold text-brown-earth uppercase tracking-widest mb-1.5">Range</p>
                         <div className="flex items-center gap-2 mt-1">
-                          <span className="text-xs text-gray-500">Poor</span>
+                          <span className="text-xs text-text-secondary font-medium">Poor</span>
                           <div className="w-24 h-2 rounded-full" style={{background: 'linear-gradient(to right, #ff4444, #ffaa00, #44aa44, #006600)'}} />
-                          <span className="text-xs text-gray-500">Excellent</span>
+                          <span className="text-xs text-text-secondary font-medium">Excellent</span>
                         </div>
                       </div>
                     </div>
                   </div>
                 </Card>
                 {insights.isDemo && (
-                  <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-xl p-3">
+                  <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-xl p-3 shadow-sm">
                     <span>🛰️</span>
-                    <p className="text-xs text-amber-700">Satellite data shown is demo. Live Earth Engine data will be connected in Stage 4.</p>
+                    <p className="text-xs text-amber-700 font-medium">Satellite data shown is demo. Live Earth Engine data will be connected in Stage 4.</p>
                   </div>
                 )}
               </div>

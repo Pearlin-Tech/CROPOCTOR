@@ -51,12 +51,12 @@ const AIAdvisorPage: React.FC = () => {
             {/* Desktop header (hidden on mobile since MobileHeader handles it) */}
             <div className="hidden lg:block mb-6">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-green-light flex items-center justify-center">
-                  <Bot className="w-5 h-5 text-green-forest" />
+                <div className="w-12 h-12 rounded-2xl bg-cream border border-brown-pastel/40 flex items-center justify-center shadow-sm">
+                  <img src="/images/logo.jpg" alt="Cropoctor Logo" className="w-8 h-8 object-cover rounded-lg" />
                 </div>
                 <div>
-                  <h1 className="text-2xl font-bold text-gray-800">AI Advisor</h1>
-                  <p className="text-sm text-gray-500">Your farm-aware agricultural assistant.</p>
+                  <h1 className="text-2xl font-bold text-green-forest tracking-tight">AI Advisor</h1>
+                  <p className="text-sm text-brown-earth/80 font-medium mt-0.5">Your farm-aware agricultural assistant.</p>
                 </div>
               </div>
             </div>
@@ -64,16 +64,16 @@ const AIAdvisorPage: React.FC = () => {
             {/* Empty state / quick questions */}
             {messages.length === 0 && !loading && (
               <motion.div variants={listVariants} animate="animate" className="space-y-3">
-                <p className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Quick Questions</p>
+                <p className="text-[11px] font-bold text-brown-earth uppercase tracking-wider mb-2">Quick Questions</p>
                 {QUICK_QUESTIONS.map(q => (
                   <motion.button
                     key={q}
                     variants={cardVariants}
                     onClick={() => askQuestion(q)}
-                    className="w-full text-left px-4 py-3.5 bg-white rounded-2xl border border-green-pastel/30 shadow-sm text-sm font-medium text-gray-700 hover:border-green-soft hover:bg-green-light/30 transition-all flex items-center justify-between group"
+                    className="w-full text-left px-4 py-3.5 bg-cream rounded-2xl border border-brown-pastel/30 shadow-sm text-sm font-semibold text-text-main hover:border-green-forest/40 hover:bg-green-pastel/10 transition-all flex items-center justify-between group"
                   >
                     <span>{q}</span>
-                    <ChevronRight className="w-4 h-4 text-gray-300 group-hover:text-green-forest transition-colors" />
+                    <ChevronRight className="w-4 h-4 text-brown-earth/40 group-hover:text-green-forest transition-colors" />
                   </motion.button>
                 ))}
               </motion.div>
@@ -89,52 +89,51 @@ const AIAdvisorPage: React.FC = () => {
                   className={msg.role === 'user' ? 'flex justify-end' : 'flex justify-start'}
                 >
                   {msg.role === 'user' ? (
-                    <div className="max-w-[85%] bg-green-forest text-white px-4 py-3 rounded-2xl rounded-tr-sm text-sm font-medium">
+                    <div className="max-w-[85%] bg-brown-earth text-white px-4 py-3 rounded-2xl rounded-tr-sm text-sm font-medium shadow-sm">
                       {msg.content}
                     </div>
                   ) : (
                     <div className="max-w-[95%] lg:max-w-full w-full">
-                      <Card padding="md" className="border-green-pastel/30">
+                      <Card padding="md" className="border-brown-pastel/30 bg-cream shadow-sm">
                         {msg.structured ? (
                           <div className="space-y-4">
                             {/* Recommendation */}
-                            <div className="bg-green-light rounded-xl p-3">
-                              <p className="text-xs font-bold text-green-forest uppercase tracking-wider mb-1">✅ Recommendation</p>
-                              <p className="font-semibold text-gray-800">{msg.structured.recommendation}</p>
+                            <div className="bg-green-pastel/20 border border-green-pastel/30 rounded-xl p-3">
+                              <p className="text-[10px] font-bold text-green-forest uppercase tracking-widest mb-1">✅ Recommendation</p>
+                              <p className="font-semibold text-text-main">{msg.structured.recommendation}</p>
                             </div>
                             {/* Why */}
                             <div>
-                              <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Why?</p>
-                              <p className="text-sm text-gray-700">{msg.structured.why}</p>
+                              <p className="text-[10px] font-bold text-brown-earth uppercase tracking-widest mb-1.5">Why?</p>
+                              <p className="text-sm text-text-secondary font-medium">{msg.structured.why}</p>
                             </div>
                             {/* What to do */}
                             <div>
-                              <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">What to do</p>
-                              <ol className="space-y-1.5">
+                              <p className="text-[10px] font-bold text-brown-earth uppercase tracking-widest mb-2">What to do</p>
+                              <ol className="space-y-2">
                                 {msg.structured.whatToDo.map((step, i) => (
-                                  <li key={i} className="flex gap-2.5 text-sm text-gray-700">
-                                    <span className="w-5 h-5 rounded-full bg-green-light text-green-forest text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">{i+1}</span>
+                                  <li key={i} className="flex gap-2.5 text-sm text-text-secondary font-medium">
+                                    <span className="w-5 h-5 rounded-full bg-green-forest text-white text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">{i+1}</span>
                                     {step}
                                   </li>
                                 ))}
                               </ol>
                             </div>
                             {/* Data used */}
-                            <div className="flex flex-wrap gap-1.5">
-                              <p className="w-full text-xs font-bold text-gray-400 uppercase tracking-wider">Data Used</p>
+                            <div className="flex flex-wrap gap-1.5 mt-2">
                               {msg.structured.dataUsed.map(d => (
                                 <Badge key={d} variant="earth" size="sm">📊 {d}</Badge>
                               ))}
                             </div>
                             {/* Actions */}
-                            <div className="flex flex-wrap gap-2 pt-1 border-t border-gray-100">
-                              <button onClick={() => toast.info('Playing advice audio…')} className="flex items-center gap-1.5 text-xs font-semibold text-green-forest bg-green-light px-3 py-1.5 rounded-xl hover:bg-green-pastel/50 transition-colors">
+                            <div className="flex flex-wrap gap-2 pt-3 mt-1 border-t border-brown-pastel/20">
+                              <button onClick={() => toast.info('Playing advice audio…')} className="flex items-center gap-1.5 text-xs font-semibold text-green-forest bg-green-pastel/30 px-3 py-1.5 rounded-xl hover:bg-green-pastel/50 transition-colors">
                                 🔊 Listen
                               </button>
-                              <button onClick={() => toast.success('Advice saved.')} className="flex items-center gap-1.5 text-xs font-semibold text-brown-earth bg-beige-warm px-3 py-1.5 rounded-xl hover:bg-brown-soft/20 transition-colors">
-                                💾 Save Advice
+                              <button onClick={() => toast.success('Advice saved.')} className="flex items-center gap-1.5 text-xs font-semibold text-brown-earth bg-brown-pastel/30 px-3 py-1.5 rounded-xl hover:bg-brown-pastel/50 transition-colors">
+                                💾 Save
                               </button>
-                              <button onClick={() => inputRef.current?.focus()} className="flex items-center gap-1.5 text-xs font-semibold text-gray-600 bg-gray-100 px-3 py-1.5 rounded-xl hover:bg-gray-200 transition-colors">
+                              <button onClick={() => inputRef.current?.focus()} className="flex items-center gap-1.5 text-xs font-semibold text-text-secondary bg-off-white px-3 py-1.5 rounded-xl hover:bg-gray-100 transition-colors border border-brown-pastel/30">
                                 💬 Ask Follow-up
                               </button>
                             </div>
@@ -166,13 +165,13 @@ const AIAdvisorPage: React.FC = () => {
             </div>
           </PageLayout>
 
-          <div className="sticky bottom-[68px] md:bottom-0 bg-[#EAE0D5]/90 backdrop-blur-md border-t border-brown-pastel/30 px-4 py-4 shadow-[0_-4px_24px_rgba(141,98,69,0.1)]">
+          <div className="sticky bottom-[68px] md:bottom-0 bg-cream/95 backdrop-blur-md border-t border-brown-pastel/40 px-4 py-4 shadow-[0_-8px_30px_rgba(141,98,69,0.08)]">
             <div className="flex items-center gap-3 max-w-4xl mx-auto">
-              <button onClick={() => navigate('/diagnose')} className="w-12 h-12 rounded-2xl bg-white border border-brown-soft/20 flex items-center justify-center text-brown-earth hover:bg-brown-earth/5 transition-colors shadow-sm shrink-0" aria-label="Upload image">
+              <button onClick={() => navigate('/diagnose')} className="w-12 h-12 rounded-2xl bg-off-white border border-brown-pastel/50 flex items-center justify-center text-brown-earth hover:bg-brown-pastel/20 transition-colors shadow-sm shrink-0" aria-label="Upload image">
                 <Image className="w-5 h-5" />
               </button>
               
-              <div className="flex-1 flex items-center bg-white rounded-2xl px-4 py-3 border border-brown-soft/20 shadow-sm">
+              <div className="flex-1 flex items-center bg-off-white rounded-2xl px-4 py-3 border border-brown-pastel/50 shadow-inner">
                 <input
                   ref={inputRef}
                   type="text"
@@ -180,7 +179,7 @@ const AIAdvisorPage: React.FC = () => {
                   onChange={e => setInput(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && askQuestion(input)}
                   placeholder="Ask anything about your farm…"
-                  className="flex-1 bg-transparent text-sm text-gray-800 placeholder:text-gray-400 focus:outline-none"
+                  className="flex-1 bg-transparent text-sm text-text-main placeholder:text-brown-earth/40 focus:outline-none font-medium"
                 />
               </div>
 
@@ -188,7 +187,7 @@ const AIAdvisorPage: React.FC = () => {
                 <button
                   onClick={() => askQuestion(input)}
                   disabled={loading}
-                  className="w-12 h-12 bg-green-forest rounded-2xl flex items-center justify-center disabled:opacity-40 hover:bg-[#256427] transition-all shadow-button shrink-0"
+                  className="w-12 h-12 bg-brown-earth rounded-2xl flex items-center justify-center disabled:opacity-40 hover:bg-brown-deep transition-all shadow-button shrink-0"
                   aria-label="Send"
                 >
                   <Send className="w-5 h-5 text-white ml-0.5" />
@@ -196,10 +195,11 @@ const AIAdvisorPage: React.FC = () => {
               ) : (
                 <button 
                   onClick={() => navigate('/voice')} 
-                  className="w-14 h-14 bg-gradient-to-br from-green-forest to-[#256427] rounded-full flex items-center justify-center shadow-card-lg text-white hover:scale-105 transition-all shrink-0 animate-pulse-soft"
+                  className="w-14 h-14 bg-gradient-to-br from-green-forest to-[#256427] rounded-full flex items-center justify-center shadow-card-lg text-white hover:scale-105 transition-all shrink-0 relative overflow-hidden"
                   aria-label="Voice input"
                 >
-                  <Mic className="w-6 h-6" />
+                  <div className="absolute inset-0 bg-white/20 blur-[10px] animate-pulse-soft" />
+                  <Mic className="w-6 h-6 relative z-10" />
                 </button>
               )}
             </div>
@@ -207,9 +207,9 @@ const AIAdvisorPage: React.FC = () => {
         </div>
 
         {/* ── Desktop: Farm Context Panel ── */}
-        <div className="hidden lg:flex lg:w-72 xl:w-80 flex-col bg-off-white border-l border-green-pastel/20 p-5 space-y-4">
-          <h3 className="font-bold text-gray-700 text-sm uppercase tracking-wider">Farm Context</h3>
-          <Card variant="flat" padding="sm" className="space-y-3">
+        <div className="hidden lg:flex lg:w-72 xl:w-80 flex-col bg-cream border-l border-brown-pastel/30 p-5 space-y-4">
+          <h3 className="font-bold text-brown-earth text-[11px] uppercase tracking-widest">Farm Context</h3>
+          <Card variant="flat" padding="sm" className="space-y-3 bg-white/60 border border-brown-pastel/30 shadow-sm">
             {[
               { label: 'Crop',     value: activeFarm?.primaryCrop || 'Groundnut', icon: '🌱' },
               { label: 'Soil',     value: activeFarm?.soilType    || 'Loamy',      icon: '🪨' },
@@ -218,18 +218,18 @@ const AIAdvisorPage: React.FC = () => {
               { label: 'Weather',  value: '29°C · Rain 60%',                      icon: '🌦' },
               { label: 'Health',   value: `${activeFarm?.healthScore ?? 82}%`,    icon: '💚' },
             ].map(({ label, value, icon }) => (
-              <div key={label} className="flex items-center gap-2.5">
-                <span className="text-base w-6">{icon}</span>
+              <div key={label} className="flex items-center gap-3">
+                <span className="text-lg w-6 text-center">{icon}</span>
                 <div>
-                  <p className="text-xs text-gray-400">{label}</p>
-                  <p className="text-sm font-semibold text-gray-700 capitalize">{value}</p>
+                  <p className="text-[10px] uppercase font-bold text-brown-earth/60 tracking-wider">{label}</p>
+                  <p className="text-sm font-semibold text-text-main capitalize">{value}</p>
                 </div>
               </div>
             ))}
           </Card>
           <div className="pt-2">
-            <p className="text-xs text-gray-400 leading-relaxed">
-              The AI uses your farm context when generating recommendations. All data shown is demo data for Stage 1.
+            <p className="text-xs text-text-secondary font-medium leading-relaxed bg-brown-pastel/20 p-3 rounded-xl">
+              The AI uses your farm context when generating recommendations.
             </p>
           </div>
         </div>

@@ -1,5 +1,5 @@
 {
-  "app": { "name": "Agri AI", "tagline": "हर खेत के लिए स्मार्ट फैसले।" },
+  "app": { "name": "Cropoctor", "tagline": "हर खेत के लिए स्मार्ट फैसले।" },
   "nav": { "home": "होम", "myFarm": "मेरा खेत", "advisor": "AI सलाहकार", "diagnose": "फसल जांच", "profile": "प्रोफ़ाइल", "weather": "मौसम", "insights": "जानकारी", "history": "इतिहास", "notifications": "सूचनाएं", "settings": "सेटिंग्स" },
   "welcome": { "headline": "बेहतर फैसले। स्वस्थ फसलें।", "subheading": "आपके खेत के लिए AI आधारित कृषि सलाह।", "cta": "शुरू करें", "signin": "पहले से खाता है? साइन इन करें" },
   "auth": { "google": "Google से जारी रखें", "phone": "फ़ोन से जारी रखें", "email": "ईमेल से जारी रखें", "createAccount": "खाता बनाएं", "forgotPassword": "पासवर्ड भूल गए?", "emailLabel": "ईमेल पता", "passwordLabel": "पासवर्ड", "nameLabel": "पूरा नाम", "signingIn": "साइन इन हो रहा है...", "errors": { "required": "यह फ़ील्ड आवश्यक है।", "invalidEmail": "कृपया वैध ईमेल पता दर्ज करें।", "weakPassword": "पासवर्ड कम से कम 6 अक्षर का होना चाहिए।", "authFailed": "साइन इन विफल। कृपया पुनः प्रयास करें।" } },

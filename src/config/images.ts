@@ -10,12 +10,13 @@ const farm = (id: string, w = 800, h = 600) =>
 
 export const IMAGES = {
   // ── Backgrounds / Heroes ───────────────────────────────────────────────────
+  logo: '/images/logo.jpg',
   backgrounds: {
-    welcome:    '/images/hero_sunrise_1787238093279.jpg',
+    splash:     '/images/splash_bg.jpg',
+    welcome:    '/images/welcome_bg.jpg',
     login:      '/images/hero_sunrise_1787238093279.jpg',
-    splash:     '/images/hero_sunrise_1787238093279.jpg',
     setup:      farm('photo-1560493676-04071c5f467b', 800, 600),
-    dashboard:  farm('photo-1625246333195-78d9c38ad449', 800, 400),
+    dashboard:  '/images/dashboard_hero.jpg',
   },
 
   // ── Farmers ────────────────────────────────────────────────────────────────

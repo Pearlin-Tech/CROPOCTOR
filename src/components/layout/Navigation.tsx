@@ -47,20 +47,20 @@ export const BottomNav: React.FC = () => {
             >
               <div className={cn(
                 'p-1.5 rounded-xl transition-all duration-200',
-                active ? 'bg-green-light' : 'bg-transparent',
-                to === '/advisor' && !active && 'bg-green-50 animate-pulse-soft'
+                active ? 'bg-green-pastel/30' : 'bg-transparent',
+                to === '/advisor' && !active && 'bg-green-pastel/20 animate-pulse-soft'
               )}>
                 <Icon
                   className={cn(
-                    'w-5 h-5 transition-colors duration-150', 
-                    active ? 'text-green-forest' : (to === '/advisor' ? 'text-green-forest/80' : 'text-gray-400')
+                    'w-6 h-6 transition-colors duration-150', 
+                    active ? 'text-green-forest' : (to === '/advisor' ? 'text-green-forest' : 'text-brown-earth/70')
                   )}
                   strokeWidth={active ? 2.5 : (to === '/advisor' ? 2 : 1.8)}
                 />
               </div>
               <span className={cn(
                 'text-[10px] font-semibold transition-colors duration-150', 
-                active ? 'text-green-forest' : (to === '/advisor' ? 'text-green-forest/90' : 'text-gray-400')
+                active ? 'text-green-forest' : (to === '/advisor' ? 'text-green-forest' : 'text-brown-earth/70')
               )}>
                 {label}
               </span>
@@ -81,12 +81,12 @@ export const Sidebar: React.FC = () => {
       aria-label="Sidebar navigation"
     >
       {/* Logo */}
-      <div className="px-6 py-6 border-b border-green-pastel/20">
-        <div className="flex items-center gap-2">
-          <span className="text-3xl">🌿</span>
+      <div className="px-6 py-6 border-b border-brown-pastel/40">
+        <div className="flex items-center gap-3">
+          <img src="/images/logo.jpg" alt="Cropoctor Logo" className="w-10 h-10 rounded-xl object-cover border border-brown-pastel/30 shadow-sm" />
           <div>
-            <h1 className="font-bold text-xl text-green-forest leading-none">Agri AI</h1>
-            <p className="text-xs text-gray-400 mt-0.5">Farm Intelligence</p>
+            <h1 className="font-bold text-xl text-green-forest leading-none tracking-tight">Cropoctor</h1>
+            <p className="text-[11px] text-brown-earth mt-1 font-medium">Farm Intelligence</p>
           </div>
         </div>
       </div>
@@ -100,14 +100,14 @@ export const Sidebar: React.FC = () => {
               key={to}
               to={to}
               className={cn(
-                'flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium text-sm transition-all duration-150',
+                'flex items-center gap-3 px-3 py-3 rounded-xl font-medium text-sm transition-all duration-150',
                 'focus-visible:outline-2 focus-visible:outline-green-forest',
                 active
-                  ? 'bg-green-light text-green-forest'
-                  : 'text-gray-600 hover:bg-green-light/50 hover:text-green-forest'
+                  ? 'bg-green-pastel/30 text-green-forest'
+                  : 'text-brown-earth/80 hover:bg-green-pastel/10 hover:text-green-forest'
               )}
             >
-              <Icon className={cn('w-5 h-5 shrink-0', active ? 'text-green-forest' : 'text-gray-400')} strokeWidth={active ? 2.5 : 1.8} />
+              <Icon className={cn('w-5 h-5 shrink-0', active ? 'text-green-forest' : 'text-brown-earth/70')} strokeWidth={active ? 2.5 : 1.8} />
               {label}
               {active && <div className="ml-auto w-1.5 h-5 rounded-full bg-green-forest" />}
             </NavLink>
@@ -116,7 +116,7 @@ export const Sidebar: React.FC = () => {
       </nav>
 
       {/* Bottom links */}
-      <div className="px-3 py-4 border-t border-green-pastel/20 space-y-1">
+      <div className="px-3 py-4 border-t border-brown-pastel/40 space-y-1">
         {[
           { to: '/profile',  icon: User,     label: 'Profile'  },
           { to: '/settings', icon: Settings, label: 'Settings' },
@@ -128,10 +128,10 @@ export const Sidebar: React.FC = () => {
               to={to}
               className={cn(
                 'flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium text-sm transition-all',
-                active ? 'bg-green-light text-green-forest' : 'text-gray-500 hover:bg-green-light/50'
+                active ? 'bg-green-pastel/30 text-green-forest' : 'text-brown-earth/80 hover:bg-green-pastel/10 hover:text-green-forest'
               )}
             >
-              <Icon className="w-5 h-5 shrink-0" strokeWidth={1.8} />
+              <Icon className={cn('w-5 h-5 shrink-0', active ? 'text-green-forest' : 'text-brown-earth/70')} strokeWidth={active ? 2.5 : 1.8} />
               {label}
             </NavLink>
           )
@@ -146,12 +146,12 @@ export const TopNav: React.FC = () => {
   const location = useLocation()
   return (
     <nav
-      className="hidden md:flex lg:hidden items-center justify-between px-4 py-3 bg-off-white border-b border-green-pastel/20 sticky top-0 z-40 shadow-sm"
+      className="hidden md:flex lg:hidden items-center justify-between px-4 py-3 bg-off-white border-b border-brown-pastel/40 sticky top-0 z-40 shadow-sm"
       aria-label="Tablet navigation"
     >
-      <div className="flex items-center gap-2">
-        <span className="text-2xl">🌿</span>
-        <span className="font-bold text-lg text-green-forest">Agri AI</span>
+      <div className="flex items-center gap-3">
+        <img src="/images/logo.jpg" alt="Cropoctor Logo" className="w-8 h-8 rounded-lg object-cover border border-brown-pastel/30" />
+        <span className="font-bold text-lg text-green-forest tracking-tight">Cropoctor</span>
       </div>
       <div className="flex items-center gap-1">
         {MOBILE_NAV.map(({ to, icon: Icon, label }) => {
@@ -164,7 +164,7 @@ export const TopNav: React.FC = () => {
               aria-label={label}
               className={cn(
                 'flex flex-col items-center gap-0.5 px-3 py-2 rounded-xl transition-all',
-                active ? 'bg-green-light text-green-forest' : 'text-gray-400 hover:text-green-forest hover:bg-green-light/50'
+                active ? 'bg-green-pastel/30 text-green-forest' : 'text-brown-earth/80 hover:text-green-forest hover:bg-green-pastel/10'
               )}
             >
               <Icon className="w-5 h-5" strokeWidth={active ? 2.5 : 1.8} />

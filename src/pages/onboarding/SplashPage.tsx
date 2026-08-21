@@ -33,7 +33,7 @@ const SplashPage: React.FC = () => {
         animate="animate"
         className="text-center"
       >
-        <h1 className="text-4xl font-bold text-white tracking-tight mb-2">Agri AI</h1>
+        <h1 className="text-4xl font-bold text-white tracking-tight mb-2">Cropoctor</h1>
         <p className="text-green-pastel text-base font-medium">Smarter decisions for every farm.</p>
       </motion.div>
 

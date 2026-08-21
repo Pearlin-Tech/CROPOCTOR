@@ -28,7 +28,7 @@ const WelcomePage: React.FC = () => {
         <div className="absolute top-12 left-0 right-0 flex justify-center">
           <div className="flex items-center gap-2 bg-white/70 backdrop-blur-md px-5 py-2.5 rounded-full shadow-sm border border-white/50">
             <span className="text-2xl">🌿</span>
-            <span className="text-2xl font-bold text-green-forest">Agri AI</span>
+            <span className="text-2xl font-bold text-green-forest">Cropoctor</span>
           </div>
         </div>
 

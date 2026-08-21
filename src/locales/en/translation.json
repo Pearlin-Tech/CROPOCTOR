@@ -1,5 +1,5 @@
 {
-  "app": { "name": "Agri AI", "tagline": "Smarter decisions for every farm." },
+  "app": { "name": "Cropoctor", "tagline": "Smarter decisions for every farm." },
   "nav": { "home": "Home", "myFarm": "My Farm", "advisor": "AI Advisor", "diagnose": "Diagnose", "profile": "Profile", "weather": "Weather", "insights": "Insights", "history": "History", "notifications": "Notifications", "settings": "Settings" },
   "welcome": {
     "headline": "Better decisions. Healthier crops.",
@@ -144,7 +144,7 @@
     "privacy": "Privacy",
     "dataManagement": "Data Management",
     "help": "Help & Support",
-    "about": "About Agri AI",
+    "about": "About Cropoctor",
     "logout": "Logout",
     "version": "Version"
   },

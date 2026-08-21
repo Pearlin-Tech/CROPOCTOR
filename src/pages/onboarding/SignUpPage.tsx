@@ -41,7 +41,7 @@ const SignUpPage: React.FC = () => {
         <img src={IMAGES.backgrounds.welcome} alt="Farm at sunrise" className="absolute inset-0 w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-l from-black/20 via-transparent to-cream" />
         <div className="absolute bottom-12 right-12 text-right">
-          <h2 className="text-4xl font-bold text-white mb-2 drop-shadow-md">Join Agri AI.</h2>
+          <h2 className="text-4xl font-bold text-white mb-2 drop-shadow-md">Join Cropoctor.</h2>
           <p className="text-white/90 text-lg drop-shadow-md">Unlock the potential of your farm.</p>
         </div>
       </div>
@@ -53,11 +53,11 @@ const SignUpPage: React.FC = () => {
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="w-4 h-4"><path d="M15 18l-6-6 6-6" /></svg>
           </button>
           <span className="text-2xl">🌿</span>
-          <span className="text-xl font-bold text-green-forest">Agri AI</span>
+          <span className="text-xl font-bold text-green-forest">Cropoctor</span>
         </div>
 
         <h1 className="text-2xl font-bold text-gray-800 mb-1">Create Account</h1>
-        <p className="text-gray-500 text-sm mb-8">Join Agri AI to get personalized farm insights.</p>
+        <p className="text-gray-500 text-sm mb-8">Join Cropoctor to get personalized farm insights.</p>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 mb-6">
           <Input label="Full name" placeholder="Rahul Patel" icon={<User className="w-4 h-4" />} error={errors.name?.message} {...register('name')} />

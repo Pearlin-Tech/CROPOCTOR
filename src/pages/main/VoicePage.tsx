@@ -22,17 +22,22 @@ const VoicePage: React.FC = () => {
 
   return (
     <motion.div variants={pageVariants} initial="initial" animate="animate"
-      className="min-h-screen bg-gradient-to-b from-green-forest to-[#1A3B22] flex flex-col items-center justify-center px-6 relative overflow-hidden"
+      className="min-h-screen bg-gradient-to-b from-green-forest to-green-deep flex flex-col items-center justify-center px-6 relative overflow-hidden"
     >
       {/* Background organic shapes */}
-      <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-green-light/10 rounded-full blur-[100px]" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-[#8D6245]/20 rounded-full blur-[120px]" />
+      <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-green-pastel/10 rounded-full blur-[100px]" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-brown-earth/20 rounded-full blur-[120px]" />
 
       <button onClick={() => navigate(-1)} className="absolute top-6 right-6 w-12 h-12 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition-colors backdrop-blur-md">
         <X className="w-5 h-5 text-white" />
       </button>
 
-      <p className="text-green-pastel text-xs font-bold mb-12 uppercase tracking-[0.2em]">Agri AI Voice</p>
+      <div className="flex flex-col items-center mb-12">
+        <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 mb-4 flex items-center justify-center p-1">
+          <img src="/images/logo.jpg" alt="Logo" className="w-full h-full rounded-xl object-cover mix-blend-overlay opacity-80" />
+        </div>
+        <p className="text-green-pastel text-xs font-bold uppercase tracking-[0.25em]">Cropoctor Voice</p>
+      </div>
 
       {/* Microphone button */}
       <div className="relative">
@@ -59,7 +64,7 @@ const VoicePage: React.FC = () => {
           {Array.from({ length: 15 }).map((_, i) => (
             <motion.div
               key={i}
-              className="w-1.5 bg-green-light rounded-full"
+              className="w-1.5 bg-green-pastel rounded-full"
               animate={{ height: [8, Math.random() * 48 + 8, 8] }}
               transition={{ duration: 0.5 + Math.random() * 0.5, repeat: Infinity, ease: "easeInOut", delay: i * 0.05 }}
             />

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Cloud, Droplets, Wind, ChevronRight, AlertTriangle, Bot, Stethoscope, BarChart2, Plus, Bell, Lightbulb } from 'lucide-react'
-import { pageVariants, listVariants, cardVariants } from '@/animations/variants'
+import { Cloud, Droplets, Wind, ChevronRight, AlertTriangle, Bot, Stethoscope, BarChart2, Plus, Bell, Lightbulb, MapPin } from 'lucide-react'
+import { pageVariants, cardVariants } from '@/animations/variants'
 import { PageLayout } from '@/components/layout/AppShell'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
@@ -29,73 +29,111 @@ const HomePage: React.FC = () => {
   }, [activeFarm])
 
   const greeting = getGreeting()
-  const greetingText = greeting === 'morning' ? `Good morning, ${farmer?.name?.split(' ')[0] || 'Farmer'} 🌱`
-    : greeting === 'afternoon' ? `Good afternoon, ${farmer?.name?.split(' ')[0] || 'Farmer'} 🌾`
-    : `Good evening, ${farmer?.name?.split(' ')[0] || 'Farmer'} 🌙`
+  const greetingText = greeting === 'morning' ? `Good morning, ${farmer?.name?.split(' ')[0] || 'Rahul'} 🌱`
+    : greeting === 'afternoon' ? `Good afternoon, ${farmer?.name?.split(' ')[0] || 'Rahul'} 🌾`
+    : `Good evening, ${farmer?.name?.split(' ')[0] || 'Rahul'} 🌙`
 
   const health = activeFarm?.healthScore ?? 82
   const healthColor = health >= 70 ? 'green' : health >= 50 ? 'warning' : 'danger'
 
   return (
-    <motion.div variants={pageVariants} initial="initial" animate="animate" className="min-h-screen bg-background">
-      {/* Hero header */}
-      <div className="relative overflow-hidden">
-        <img src={IMAGES.backgrounds.dashboard} alt="Farm" className="w-full h-40 md:h-52 lg:h-64 object-cover" loading="eager" />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/20 to-background" />
-        <div className="absolute inset-0 px-4 md:px-6 lg:px-8 flex flex-col justify-between py-4">
-          {/* Notification bell */}
-          <div className="flex justify-end">
-            <button onClick={() => navigate('/notifications')} className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center relative">
+    <motion.div variants={pageVariants} initial="initial" animate="animate" className="min-h-screen bg-background pb-8">
+      {/* Hero Header */}
+      <div className="relative overflow-hidden w-full h-44 md:h-56 lg:h-64">
+        <img src={IMAGES.backgrounds.dashboard} alt="Farm Sunrise" className="absolute inset-0 w-full h-full object-cover" loading="eager" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-[#FAF8F3]/95" />
+        <div className="absolute inset-0 px-4 md:px-6 lg:px-8 flex flex-col justify-between py-5 relative z-10">
+          {/* Top header elements */}
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-2 bg-white/25 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/20">
+              <span className="text-white text-xs font-bold uppercase tracking-wider">Cropoctor Dashboard</span>
+            </div>
+            <button onClick={() => navigate('/notifications')} className="w-10 h-10 bg-white/25 backdrop-blur-md rounded-full flex items-center justify-center border border-white/20 relative hover:scale-105 active:scale-95 transition-transform">
               <Bell className="w-5 h-5 text-white" />
               <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-muted-warning rounded-full border-2 border-white" />
             </button>
           </div>
           {/* Greeting */}
           <div>
-            <p className="text-white/80 text-sm font-medium">{new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' })}</p>
-            <h1 className="text-2xl md:text-3xl font-bold text-white mt-0.5">{greetingText}</h1>
+            <p className="text-white/80 text-xs font-bold uppercase tracking-widest">{new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' })}</p>
+            <h1 className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-white mt-1 tracking-tight drop-shadow-sm">{greetingText}</h1>
           </div>
         </div>
       </div>
 
-      <PageLayout className="pt-3 pb-6 space-y-4">
-        {/* Farm pill */}
+      <PageLayout className="pt-4 space-y-5">
+        {/* Farm selector card */}
         {activeFarm && (
-          <div className="flex items-center gap-2 bg-white shadow-sm border border-green-pastel/20 rounded-full px-4 py-2 w-fit">
-            <span className="text-green-forest text-sm">🏡</span>
-            <span className="text-sm font-semibold text-gray-700">{activeFarm.name}</span>
-            <span className="text-xs text-gray-400">· {activeFarm.location.displayName}</span>
-            <span className="text-xs bg-green-light text-green-forest px-2 py-0.5 rounded-full font-medium">{activeFarm.primaryCrop} · {activeFarm.area} acres</span>
-          </div>
+          <motion.div variants={cardVariants} whileHover={{ y: -1 }} className="w-full">
+            <div 
+              onClick={() => navigate('/farms')} 
+              className="flex items-center justify-between p-4 bg-cream border border-brown-pastel/55 rounded-2xl cursor-pointer hover:bg-beige-warm/30 transition-all shadow-sm group"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-brown-pastel/50 border border-brown-pastel/40 flex items-center justify-center text-lg shadow-inner">
+                  🌾
+                </div>
+                <div>
+                  <h2 className="text-text-main font-bold text-base leading-tight group-hover:text-green-forest transition-colors">{activeFarm.name}</h2>
+                  <p className="text-text-secondary text-xs font-semibold mt-0.5 flex items-center gap-1">
+                    <MapPin className="w-3 h-3 text-brown-earth" /> {activeFarm.location.displayName}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Badge variant="green" size="sm" className="hidden sm:inline-flex">
+                  {activeFarm.primaryCrop} · {activeFarm.area} acres
+                </Badge>
+                <ChevronRight className="w-5 h-5 text-brown-earth/60 group-hover:text-brown-earth transition-colors" />
+              </div>
+            </div>
+          </motion.div>
         )}
 
-        {/* Desktop 3-column layout wrapper */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-
-          {/* ── LEFT COLUMN ── */}
-          <div className="lg:col-span-2 space-y-4">
-
-            {/* Weather card */}
+        {/* 2-Column Responsive Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+          {/* ── LEFT COLUMN: Weather & Health ── */}
+          <div className="lg:col-span-2 space-y-5">
+            {/* Weather Card */}
             {loadingWeather ? <WeatherSkeleton /> : weather && (
               <motion.div variants={cardVariants}>
-                <Card className="bg-gradient-to-br from-[#1565C0] to-[#1976D2] text-white border-none" padding="md">
-                  <div className="flex items-start justify-between mb-3">
+                <Card className="bg-cream border border-brown-pastel/40 shadow-card relative overflow-hidden" padding="md">
+                  {/* Decorative background shapes */}
+                  <div className="absolute top-[-25%] right-[-10%] w-40 h-40 bg-beige-warm rounded-full blur-[45px] opacity-60 pointer-events-none" />
+                  <div className="absolute bottom-[-25%] left-[-15%] w-40 h-40 bg-green-light rounded-full blur-[45px] opacity-60 pointer-events-none" />
+                  
+                  <div className="relative z-10 flex items-start justify-between mb-4">
                     <div>
-                      <p className="text-blue-100 text-sm font-medium mb-1">Today's Weather</p>
-                      <div className="flex items-end gap-2">
-                        <span className="text-5xl font-bold">{weather.temperature}°</span>
-                        <span className="text-blue-200 text-lg pb-1">{weather.description}</span>
+                      <p className="text-brown-earth text-xs font-bold uppercase tracking-wider mb-1">Current Weather</p>
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-5xl font-black text-text-main">{weather.temperature}°</span>
+                        <span className="text-text-secondary text-sm font-semibold capitalize">{weather.description}</span>
                       </div>
                     </div>
-                    <Cloud className="w-12 h-12 text-blue-200 opacity-80" />
+                    <div className="w-14 h-14 rounded-full bg-white border border-brown-pastel/30 flex items-center justify-center shadow-sm">
+                      <Cloud className="w-7 h-7 text-green-forest animate-bounce-gentle" />
+                    </div>
                   </div>
-                  <div className="flex gap-4 mb-4">
-                    <div className="flex items-center gap-1.5"><Droplets className="w-4 h-4 text-blue-200" /><span className="text-sm text-blue-100">Rain {weather.rainChance}%</span></div>
-                    <div className="flex items-center gap-1.5"><Droplets className="w-4 h-4 text-blue-200" /><span className="text-sm text-blue-100">Humidity {weather.humidity}%</span></div>
-                    <div className="flex items-center gap-1.5"><Wind className="w-4 h-4 text-blue-200" /><span className="text-sm text-blue-100">Wind {weather.windSpeed} km/h</span></div>
+
+                  <div className="relative z-10 grid grid-cols-3 gap-2.5 mb-4 mt-2">
+                    {[
+                      { icon: Droplets, label: `Rain ${weather.rainChance}%` },
+                      { icon: Droplets, label: `Humidity ${weather.humidity}%` },
+                      { icon: Wind, label: `Wind ${weather.windSpeed} km/h` }
+                    ].map(({ icon: Icon, label }) => (
+                      <div key={label} className="bg-white/50 border border-brown-pastel/30 rounded-xl p-2 flex items-center gap-1.5 shadow-sm">
+                        <Icon className="w-4 h-4 text-green-forest shrink-0" />
+                        <span className="text-xs text-text-main font-semibold truncate">{label}</span>
+                      </div>
+                    ))}
                   </div>
-                  {weather.isDemo && <Badge variant="demo" size="sm">Demo Data</Badge>}
-                  <button onClick={() => navigate('/weather')} className="mt-3 flex items-center gap-1 text-blue-100 text-sm font-medium hover:text-white transition-colors">
+
+                  {weather.isDemo && <div className="mb-3"><Badge variant="demo" size="sm">Demo Data</Badge></div>}
+                  
+                  <button 
+                    onClick={() => navigate('/weather')} 
+                    className="relative z-10 w-full py-3 bg-white rounded-xl border border-brown-pastel/55 flex items-center justify-center gap-1 text-brown-earth text-xs font-bold hover:bg-beige-warm transition-colors shadow-sm"
+                  >
                     View Weather Intelligence <ChevronRight className="w-4 h-4" />
                   </button>
                 </Card>
@@ -104,93 +142,91 @@ const HomePage: React.FC = () => {
 
             {/* Alert */}
             <motion.div variants={cardVariants}>
-              <Card className="border-l-4 border-l-muted-warning bg-amber-50 border-amber-100" padding="md">
+              <Card className="border-l-4 border-l-brown-earth bg-[#FAF5EE] border border-brown-pastel/40" padding="md">
                 <div className="flex gap-3">
-                  <AlertTriangle className="w-5 h-5 text-muted-warning shrink-0 mt-0.5" />
+                  <AlertTriangle className="w-5 h-5 text-brown-earth shrink-0 mt-0.5" />
                   <div className="flex-1">
-                    <p className="font-semibold text-amber-800 text-sm">Heavy rain expected tomorrow.</p>
-                    <p className="text-amber-700 text-xs mt-0.5">Consider delaying irrigation and checking drainage channels.</p>
+                    <p className="font-bold text-text-main text-sm">Heavy rain expected tomorrow.</p>
+                    <p className="text-text-secondary text-xs mt-0.5 font-medium">Consider delaying irrigation and checking drainage channels.</p>
                   </div>
-                  <button
-                    onClick={() => navigate('/advisor')}
-                    className="text-xs text-muted-warning font-bold shrink-0 hover:underline"
-                  >
+                  <button onClick={() => navigate('/advisor')} className="text-xs text-brown-earth font-bold shrink-0 hover:underline">
                     Why?
                   </button>
                 </div>
               </Card>
             </motion.div>
 
-            {/* Farm Health */}
+            {/* Farm Health Card - Pastel Green Surface, Dark Green Indicator */}
             {!loadingWeather ? (
               <motion.div variants={cardVariants}>
-                <Card padding="md">
+                <Card variant="pastelGreen" className="border-green-pastel/55 shadow-card" padding="md">
                   <div className="flex items-center justify-between mb-4">
                     <div>
-                      <p className="text-xs text-gray-400 font-medium mb-0.5">Farm Health</p>
-                      <h2 className="text-3xl font-bold text-gray-800">{health}<span className="text-lg text-gray-400">/100</span></h2>
-                      <Badge variant={healthColor === 'green' ? 'green' : healthColor === 'warning' ? 'warning' : 'danger'} dot>
+                      <p className="text-[10px] font-bold text-green-forest uppercase tracking-widest mb-1">Farm Health Index</p>
+                      <h2 className="text-4xl font-extrabold text-green-forest tracking-tight">{health}<span className="text-xl text-green-forest/60 font-medium">/100</span></h2>
+                      <Badge variant="green" dot className="mt-2">
                         {health >= 70 ? 'Looking Healthy' : health >= 50 ? 'Needs Attention' : 'At Risk'}
                       </Badge>
                     </div>
-                    {/* Circular progress */}
+                    {/* Circular progress with dark green indicator */}
                     <div className="relative w-16 h-16">
                       <svg viewBox="0 0 36 36" className="w-16 h-16 -rotate-90">
-                        <circle cx="18" cy="18" r="15.5" fill="none" stroke="#E8F5E9" strokeWidth="3" />
-                        <circle cx="18" cy="18" r="15.5" fill="none" stroke="#2E7D32" strokeWidth="3"
+                        <circle cx="18" cy="18" r="15.5" fill="none" stroke="var(--color-green-light)" strokeWidth="3" />
+                        <circle cx="18" cy="18" r="15.5" fill="none" stroke="var(--color-green-forest)" strokeWidth="3.5"
                           strokeDasharray={`${health * 0.974} ${100 - health * 0.974}`} strokeLinecap="round" />
                       </svg>
-                      <span className="absolute inset-0 flex items-center justify-center text-xs font-bold text-green-forest">{health}%</span>
+                      <span className="absolute inset-0 flex items-center justify-center text-xs font-black text-green-forest">{health}%</span>
                     </div>
                   </div>
-                  <ProgressBar value={health} color={healthColor as any} size="sm" />
-                  <button onClick={() => navigate('/insights')} className="mt-3 flex items-center gap-1 text-green-forest text-sm font-medium hover:underline">
-                    View Insights <ChevronRight className="w-4 h-4" />
+                  <ProgressBar value={health} color="green" size="sm" />
+                  <button onClick={() => navigate('/insights')} className="mt-4 flex items-center gap-1 text-green-forest text-xs font-bold hover:underline">
+                    View Health Insights <ChevronRight className="w-4 h-4" />
                   </button>
                 </Card>
               </motion.div>
             ) : <FarmHealthSkeleton />}
           </div>
 
-          {/* ── RIGHT COLUMN (desktop) ── */}
-          <div className="space-y-4">
-            {/* Next Best Action */}
+          {/* ── RIGHT COLUMN: Next Action & Quick Actions ── */}
+          <div className="space-y-5">
+            {/* Next Best Action - Earth Brown / Pastel Brown */}
             <motion.div variants={cardVariants}>
-              <Card className="bg-gradient-to-br from-brown-earth to-brown-deep border-none text-white shadow-card-lg" padding="md">
-                <div className="flex items-start gap-3 mb-3">
-                  <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center shrink-0 shadow-sm border border-white/20">
-                    <Lightbulb className="w-5 h-5 text-white" />
+              <Card className="bg-gradient-to-br from-brown-earth to-brown-secondary border-none text-white shadow-card-lg relative overflow-hidden" padding="md">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-[30px] pointer-events-none" />
+                <div className="relative z-10 flex items-start gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-xl bg-white/10 backdrop-blur-md flex items-center justify-center shrink-0 border border-white/20">
+                    <Lightbulb className="w-5 h-5 text-cream animate-pulse" />
                   </div>
                   <div>
-                    <p className="text-[10px] text-white/70 font-bold uppercase tracking-widest">Next Best Action</p>
-                    <p className="font-semibold text-white text-base mt-0.5 leading-snug">Check soil moisture before irrigation.</p>
+                    <p className="text-[10px] text-cream/80 font-bold uppercase tracking-[0.2em] mb-1">Next Best Action</p>
+                    <p className="font-bold text-white text-base leading-snug">Check soil moisture before irrigation.</p>
                   </div>
                 </div>
-                <Button variant="outline" size="sm" fullWidth className="border-white/30 text-white hover:bg-white/10 hover:border-white/50" onClick={() => navigate('/next-action')}>
-                  View Action Plan <ChevronRight className="w-4 h-4 ml-1" />
+                <Button variant="outline" size="sm" fullWidth className="relative z-10 bg-white/10 border-white/20 text-white hover:bg-white/20 hover:border-white/30 backdrop-blur-sm shadow-sm font-bold" onClick={() => navigate('/next-action')}>
+                  View Action Plan <ChevronRight className="w-4 h-4 ml-1 opacity-80" />
                 </Button>
               </Card>
             </motion.div>
 
-            {/* Quick Actions */}
+            {/* Quick Actions - Balanced Pastel Green, Cream, Pastel Brown */}
             <motion.div variants={cardVariants}>
-              <Card padding="md">
-                <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Quick Actions</p>
-                <div className="grid grid-cols-2 gap-2">
+              <Card padding="md" className="border-brown-pastel/30 bg-cream shadow-sm">
+                <p className="text-[10px] font-bold text-brown-earth uppercase tracking-widest mb-3 pl-1">Quick Actions</p>
+                <div className="grid grid-cols-2 gap-2.5">
                   {[
-                    { icon: Bot,         label: 'Ask AI',   route: '/advisor',    bg: 'bg-green-light',   color: 'text-green-forest' },
-                    { icon: Stethoscope, label: 'Diagnose', route: '/diagnose',   bg: 'bg-green-pastel/20', color: 'text-green-deep' },
-                    { icon: Cloud,       label: 'Weather',  route: '/weather',    bg: 'bg-green-light',   color: 'text-green-forest' },
-                    { icon: BarChart2,   label: 'Insights', route: '/insights',   bg: 'bg-beige-warm',    color: 'text-brown-earth' },
-                    { icon: Plus,        label: 'Add Farm', route: '/onboarding/location', bg: 'bg-green-light', color: 'text-green-forest' },
+                    { icon: Bot,         label: 'Ask AI',   route: '/advisor',    bg: 'bg-green-pastel/30 border border-green-pastel/50 hover:bg-green-pastel/40', color: 'text-green-forest' },
+                    { icon: Stethoscope, label: 'Diagnose', route: '/crop-doctor',   bg: 'bg-white border border-brown-pastel/40 hover:bg-off-white',         color: 'text-brown-earth' },
+                    { icon: Cloud,       label: 'Weather',  route: '/weather',    bg: 'bg-green-light/40 border border-green-pastel/30 hover:bg-green-light/60', color: 'text-green-forest' },
+                    { icon: BarChart2,   label: 'Insights', route: '/insights',   bg: 'bg-brown-pastel/30 border border-brown-pastel/40 hover:bg-brown-pastel/40', color: 'text-brown-earth' },
+                    { icon: Plus,        label: 'Add Farm', route: '/onboarding/location', bg: 'bg-white border border-brown-pastel/35 hover:bg-off-white col-span-2 py-3', color: 'text-green-forest' },
                   ].map(({ icon: Icon, label, route, bg, color }) => (
                     <button
                       key={label}
                       onClick={() => navigate(route)}
-                      className={`${bg} rounded-2xl p-4 flex flex-col items-center gap-2 hover:opacity-80 hover:scale-[1.02] active:scale-[0.98] transition-all`}
+                      className={`${bg} rounded-2xl p-4 flex flex-col items-center justify-center gap-2 hover:scale-[1.01] active:scale-[0.98] transition-all shadow-sm`}
                     >
-                      <Icon className={`w-6 h-6 ${color}`} />
-                      <span className={`text-xs font-semibold ${color}`}>{label}</span>
+                      <Icon className={`w-5 h-5 ${color}`} strokeWidth={2} />
+                      <span className={`text-xs font-bold ${color} tracking-tight`}>{label}</span>
                     </button>
                   ))}
                 </div>

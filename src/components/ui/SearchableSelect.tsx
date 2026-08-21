@@ -91,13 +91,13 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
         aria-expanded={open}
         className={cn(
           'w-full flex items-center justify-between px-4 py-3 rounded-xl text-base',
-          'bg-white border transition-all duration-150',
+          'bg-cream border transition-all duration-150',
           'focus:outline-none focus:ring-2 focus:ring-green-forest/30 focus:border-green-forest',
-          error ? 'border-muted-danger' : 'border-brown-soft/30',
+          error ? 'border-muted-danger' : 'border-brown-pastel/50',
           open && 'border-green-forest ring-2 ring-green-forest/20',
         )}
       >
-        <span className={cn('truncate', !selected && 'text-gray-400')}>
+        <span className={cn('truncate', !selected && 'text-brown-earth/60 font-medium')}>
           {selected ? (
             <span className="flex items-center gap-2">
               {selected.emoji && <span>{selected.emoji}</span>}
@@ -106,7 +106,7 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
           ) : placeholder}
         </span>
         <motion.span animate={{ rotate: open ? 180 : 0 }} transition={{ duration: 0.2 }}>
-          <ChevronDown className="w-4 h-4 text-gray-400 shrink-0" />
+          <ChevronDown className="w-4 h-4 text-brown-earth shrink-0" />
         </motion.span>
       </button>
 
@@ -120,23 +120,23 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -6, scale: 0.97 }}
             transition={{ duration: 0.15 }}
-            className="absolute z-50 mt-1.5 w-full bg-white border border-brown-soft/20 rounded-2xl shadow-card-lg overflow-hidden"
+            className="absolute z-50 mt-1.5 w-full bg-cream border border-brown-pastel/50 rounded-2xl shadow-card-lg overflow-hidden"
           >
             {/* Search */}
-            <div className="p-2 border-b border-gray-100">
+            <div className="p-2 border-b border-brown-pastel/30 bg-off-white">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brown-earth/60" />
                 <input
                   ref={inputRef}
                   type="text"
                   value={query}
                   onChange={e => setQuery(e.target.value)}
                   placeholder={searchPlaceholder}
-                  className="w-full pl-9 pr-9 py-2 text-sm bg-green-light rounded-xl focus:outline-none focus:ring-1 focus:ring-green-forest/30"
+                  className="w-full pl-9 pr-9 py-2 text-sm bg-agri-bg rounded-xl focus:outline-none focus:ring-1 focus:ring-green-forest/30 border border-transparent focus:border-green-forest/30"
                 />
                 {query && (
                   <button onClick={() => setQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2">
-                    <X className="w-3.5 h-3.5 text-gray-400" />
+                    <X className="w-3.5 h-3.5 text-brown-earth/60" />
                   </button>
                 )}
               </div>
@@ -174,8 +174,8 @@ const OptionItem = ({ opt, selected, onSelect }: { opt: SelectOption; selected: 
     onClick={() => onSelect(opt.id)}
     className={cn(
       'w-full flex items-center justify-between px-4 py-2.5 text-sm text-left',
-      'hover:bg-green-light transition-colors duration-100',
-      selected && 'bg-green-light text-green-forest font-semibold'
+      'hover:bg-agri-bg transition-colors duration-100',
+      selected && 'bg-green-pastel/30 text-green-forest font-semibold'
     )}
   >
     <span className="flex items-center gap-2">

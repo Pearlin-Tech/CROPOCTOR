@@ -37,12 +37,12 @@ const LoginPage: React.FC = () => {
     await new Promise(r => setTimeout(r, 1200))
     setLoading(false)
     
-    if (data.email === 'test@cropdoctor.com' && data.password === 'password123') {
+    if (data.email === 'test@cropoctor.com' && data.password === 'test') {
       login(MOCK_FARMER)
       navigate('/home')
       toast.success('Successfully logged in!')
     } else {
-      toast.error('Invalid credentials. Use test@cropdoctor.com / password123')
+      toast.error('Invalid credentials. Use test@cropoctor.com / test')
     }
   }
 
@@ -74,13 +74,13 @@ const LoginPage: React.FC = () => {
         <div className="flex items-center gap-2 mb-8">
           <span className="text-3xl">🌿</span>
           <div>
-            <h1 className="text-2xl font-bold text-green-forest">Agri AI</h1>
+            <h1 className="text-2xl font-bold text-green-forest">Cropoctor</h1>
             <p className="text-xs text-gray-400">Farm Intelligence Platform</p>
           </div>
         </div>
 
-        <h2 className="text-2xl font-bold text-gray-800 mb-1">Welcome Back!</h2>
-        <p className="text-gray-500 text-sm mb-8">Sign in to continue.</p>
+        <h2 className="text-2xl font-bold text-text-main mb-1">Welcome Back!</h2>
+        <p className="text-text-secondary text-sm mb-8 font-medium">Sign in to continue. For testing use <b>test@cropoctor.com</b> and <b>test</b></p>
 
         {/* OAuth buttons */}
         <div className="space-y-3 mb-6">

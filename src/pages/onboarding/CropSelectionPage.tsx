@@ -14,11 +14,11 @@ const CropSelectionPage: React.FC = () => {
 
   return (
     <motion.div variants={pageVariants} initial="initial" animate="animate" className="min-h-screen bg-cream flex flex-col max-w-md mx-auto w-full px-6 py-10">
-      <button onClick={() => navigate(-1)} className="w-9 h-9 flex items-center justify-center rounded-xl bg-green-light text-green-forest mb-6">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="w-4 h-4"><path d="M15 18l-6-6 6-6" /></svg>
+      <button onClick={() => navigate(-1)} className="w-10 h-10 flex items-center justify-center rounded-xl bg-green-pastel/30 text-green-forest mb-6 shadow-sm hover:bg-green-pastel/50 transition-colors">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="w-5 h-5"><path d="M15 18l-6-6 6-6" /></svg>
       </button>
-      <h1 className="text-2xl font-bold text-gray-800 mb-1">Select Your Crop</h1>
-      <p className="text-gray-500 text-sm mb-8">Choose the primary crop for this farm.</p>
+      <h1 className="text-2xl font-bold text-green-forest mb-1">Select Your Crop</h1>
+      <p className="text-text-secondary text-sm mb-8 font-medium">Choose the primary crop for this farm.</p>
 
       <div className="flex-1">
         <SearchableSelect
@@ -35,14 +35,17 @@ const CropSelectionPage: React.FC = () => {
         {cropId && (
           <motion.div
             initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
-            className="mt-4 p-4 bg-green-light rounded-2xl border border-green-pastel/30"
+            className="mt-5 p-4 bg-green-pastel/20 rounded-2xl border border-green-pastel/40 shadow-sm relative overflow-hidden"
           >
-            <p className="text-sm font-semibold text-green-forest">
-              ✅ {CROPS.find(c => c.id === cropId)?.name} selected
-            </p>
-            <p className="text-xs text-gray-500 mt-0.5">
-              Category: {CROPS.find(c => c.id === cropId)?.category}
-            </p>
+            <div className="absolute -left-6 -bottom-6 w-24 h-24 bg-green-pastel/30 rounded-full blur-[20px]" />
+            <div className="relative z-10">
+              <p className="text-sm font-bold text-green-forest flex items-center gap-1.5">
+                <span className="text-lg">🌱</span> {CROPS.find(c => c.id === cropId)?.name} selected
+              </p>
+              <p className="text-xs text-text-secondary mt-1 font-medium">
+                Category: {CROPS.find(c => c.id === cropId)?.category}
+              </p>
+            </div>
           </motion.div>
         )}
       </div>

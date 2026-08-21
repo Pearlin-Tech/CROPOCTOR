@@ -48,7 +48,7 @@ const LanguagePage: React.FC = () => {
       <div className="px-6 pt-12 pb-4">
         <div className="flex items-center gap-2 mb-6">
           <span className="text-2xl">🌿</span>
-          <span className="text-xl font-bold text-green-forest">Agri AI</span>
+          <span className="text-xl font-bold text-green-forest">Cropoctor</span>
         </div>
         <h1 className="text-2xl font-bold text-gray-800 mb-1">Choose Language</h1>
         <p className="text-gray-500 text-sm">Select your preferred language.</p>

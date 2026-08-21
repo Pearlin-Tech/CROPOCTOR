@@ -9,10 +9,10 @@ interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
 
 const variantStyles = {
   green:   'bg-green-light text-green-forest border border-green-pastel/50',
-  earth:   'bg-beige-warm text-brown-earth border border-brown-soft/30',
+  earth:   'bg-brown-pastel/30 text-brown-earth border border-brown-pastel/50',
   warning: 'bg-amber-50 text-muted-warning border border-amber-200',
   danger:  'bg-red-50 text-muted-danger border border-red-200',
-  gray:    'bg-gray-100 text-gray-600 border border-gray-200',
+  gray:    'bg-off-white text-text-secondary border border-brown-pastel/30',
   demo:    'bg-amber-50 text-amber-700 border border-amber-200',
 }
 
@@ -82,7 +82,7 @@ export const Chip: React.FC<ChipProps> = ({ selected, className, children, ...pr
       'focus-visible:outline-2 focus-visible:outline-green-forest',
       selected
         ? 'bg-green-forest text-white border-green-forest shadow-button'
-        : 'bg-white text-gray-600 border-gray-200 hover:border-green-soft hover:text-green-forest',
+        : 'bg-cream text-brown-earth border-brown-pastel/50 hover:border-green-forest/40 hover:text-green-forest',
       className
     )}
     {...props}
