@@ -13,8 +13,8 @@ export const IMAGES = {
   logo: '/images/logo.jpg',
   backgrounds: {
     splash:     '/images/splash_bg.jpg',
-    welcome:    '/images/welcome_bg.jpg',
-    login:      '/images/hero_sunrise_1787238093279.jpg',
+    welcome:    '/images/welcome_bg_realistic.png',
+    login:      '/images/login_bg_realistic.png',
     setup:      farm('photo-1560493676-04071c5f467b', 800, 600),
     dashboard:  '/images/dashboard_hero.jpg',
   },

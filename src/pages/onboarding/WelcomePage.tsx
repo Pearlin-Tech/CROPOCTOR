@@ -5,6 +5,7 @@ import { pageVariants } from '@/animations/variants'
 import { Button } from '@/components/ui/Button'
 import { IMAGES } from '@/config/images'
 import { useTranslation } from 'react-i18next'
+import { Globe } from 'lucide-react'
 
 const WelcomePage: React.FC = () => {
   const navigate = useNavigate()
@@ -12,65 +13,72 @@ const WelcomePage: React.FC = () => {
 
   return (
     <motion.div
-      variants={pageVariants} initial="initial" animate="animate"
-      className="min-h-screen flex flex-col bg-cream"
+      variants={pageVariants}
+      initial="initial"
+      animate="animate"
+      className="relative min-h-screen w-full flex flex-col justify-between overflow-hidden bg-gray-950 select-none"
     >
-      {/* Hero image */}
-      <div className="relative flex-1 min-h-[55vh] overflow-hidden">
-        <img
-          src={IMAGES.backgrounds.welcome}
-          alt="Lush agricultural farm field"
-          className="absolute inset-0 w-full h-full object-cover"
-          loading="eager"
-        />
-        {/* Soft cream overlay gradient instead of heavy dark gradient */}
-        <div className="absolute inset-0 bg-gradient-to-t from-cream via-cream/60 to-black/10" />
+      {/* Full-Screen High-Resolution Realistic Farm Background */}
+      <img
+        src={IMAGES.backgrounds.welcome}
+        alt="Lush agricultural farm field at sunrise"
+        className="absolute inset-0 w-full h-full object-cover object-center"
+        loading="eager"
+      />
 
-        {/* Logo over image */}
-        <div className="absolute top-12 left-0 right-0 flex justify-center">
-          <div className="flex items-center gap-2 bg-white/70 backdrop-blur-md px-5 py-2.5 rounded-full shadow-sm border border-white/50">
-            <span className="text-2xl">🌿</span>
-            <span className="text-2xl font-bold text-green-forest">Cropoctor</span>
-          </div>
-        </div>
+      {/* Subtle Dark Gradient Overlay for Maximum Text Legibility */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/35 to-black/85" />
 
-        {/* Headline */}
-        <div className="absolute bottom-0 left-0 right-0 px-6 pb-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 leading-tight mb-2 drop-shadow-sm" dangerouslySetInnerHTML={{ __html: t('welcome.headline') }}>
-          </h1>
-          <p className="text-brown-deep font-medium text-base max-w-sm drop-shadow-sm">
-            {t('welcome.subheading')}
-          </p>
+      {/* Header: Centered Cropoctor Logo */}
+      <div className="relative z-10 pt-10 md:pt-12 px-6 flex justify-center">
+        <div className="flex items-center gap-2.5 bg-black/40 backdrop-blur-md px-5 py-2 rounded-full border border-white/20 shadow-md">
+          <span className="text-2xl">🌿</span>
+          <span className="text-xl font-bold tracking-tight text-white">Cropoctor</span>
         </div>
       </div>
 
-      {/* CTA section */}
-      <div className="px-6 py-8 space-y-4 bg-cream">
-        <Button
-          variant="primary"
-          size="xl"
-          fullWidth
-          onClick={() => navigate('/language')}
-        >
-          🌱 {t('welcome.cta')}
-        </Button>
+      {/* Main Content Area */}
+      <div className="relative z-10 max-w-lg mx-auto w-full px-6 pb-10 md:pb-14 flex flex-col items-center text-center">
+        {/* Headline & Subtitle */}
+        <div className="mb-8 md:mb-10">
+          <h1
+            className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white leading-tight tracking-tight mb-3 drop-shadow-md"
+            dangerouslySetInnerHTML={{ __html: t('welcome.headline') }}
+          />
+          <p className="text-gray-200 text-sm sm:text-base font-medium max-w-md mx-auto leading-relaxed drop-shadow-sm">
+            {t('welcome.subheading')}
+          </p>
+        </div>
 
-        <button
-          onClick={() => navigate('/login')}
-          className="w-full py-3 text-center text-green-forest font-semibold text-base hover:text-green-soft transition-colors"
-        >
-          {t('welcome.signin')}
-        </button>
-
-        {/* Language hint */}
-        <div className="flex items-center justify-center gap-2 pt-2">
-          <span className="text-xs text-gray-400">🌐</span>
-          <button
+        {/* Action Buttons */}
+        <div className="w-full space-y-4">
+          <Button
+            variant="primary"
+            size="xl"
+            fullWidth
             onClick={() => navigate('/language')}
-            className="text-xs text-gray-400 hover:text-green-forest transition-colors"
+            className="bg-[#2E7D32] hover:bg-[#256629] text-white font-semibold text-lg py-4 rounded-xl shadow-lg border border-green-500/20 flex items-center justify-center gap-2 transition-all"
           >
-            English · Português · Русский · 中文 · हिन्दी · + more
+            <span>🌱</span> {t('welcome.cta')}
+          </Button>
+
+          <button
+            onClick={() => navigate('/login')}
+            className="w-full py-2.5 text-center text-white/90 font-semibold text-base hover:text-white transition-colors"
+          >
+            {t('welcome.signin')}
           </button>
+
+          {/* Language Selector Link */}
+          <div className="flex items-center justify-center gap-2 pt-2">
+            <Globe className="w-3.5 h-3.5 text-white/60" />
+            <button
+              onClick={() => navigate('/language')}
+              className="text-xs text-white/70 hover:text-white transition-colors"
+            >
+              English · Português · Русский · 中文 · हिन्दी · + more
+            </button>
+          </div>
         </div>
       </div>
     </motion.div>
