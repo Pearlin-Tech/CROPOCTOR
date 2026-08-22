@@ -1,7 +1,8 @@
 import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react'
 import type { Farmer } from '@/types'
-import { MOCK_FARMER } from '@/mock/farmer'
 import { authService } from '@/services/authService'
+import { userService } from '@/services/userService'
+import { useApp } from '@/store/AppContext'
 import type { User } from 'firebase/auth'
 
 interface UserContextValue {
@@ -19,6 +20,7 @@ interface UserContextValue {
 const UserContext = createContext<UserContextValue | null>(null)
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
+  const { setLanguage } = useApp()
   const [farmer, setFarmer] = useState<Farmer | null>(() => {
     const saved = localStorage.getItem('cropoctor-farmer')
     return saved ? JSON.parse(saved) : null
@@ -31,22 +33,74 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   )
 
   useEffect(() => {
-    const unsubscribe = authService.onAuthStateChange((user) => {
-      setAuthUser(user)
-      if (user) {
-        setIsAuth(true)
-        // Restore farmer from localStorage if available
-        const saved = localStorage.getItem('cropoctor-farmer')
-        if (saved) setFarmer(JSON.parse(saved))
-      } else {
-        setIsAuth(false)
-        setFarmer(null)
-        localStorage.removeItem('cropoctor-farmer')
+    let unsubscribe = () => {}
+    try {
+      unsubscribe = authService.onAuthStateChange((user) => {
+        setAuthUser(user)
+        if (user) {
+          setIsAuth(true)
+          const saved = localStorage.getItem('cropoctor-farmer')
+          if (saved) {
+            try { setFarmer(JSON.parse(saved)) } catch {}
+          }
+        } else {
+          const saved = localStorage.getItem('cropoctor-farmer')
+          if (saved) {
+            try {
+              setFarmer(JSON.parse(saved))
+              setIsAuth(true)
+            } catch {
+              setIsAuth(false)
+              setFarmer(null)
+            }
+          } else {
+            setIsAuth(false)
+            setFarmer(null)
+          }
+        }
+        setIsAuthLoading(false)
+      })
+    } catch (err) {
+      console.warn("[UserContext] Error setting up auth listener:", err)
+      const saved = localStorage.getItem('cropoctor-farmer')
+      if (saved) {
+        try {
+          setFarmer(JSON.parse(saved))
+          setIsAuth(true)
+        } catch {}
       }
       setIsAuthLoading(false)
-    })
-    return () => unsubscribe()
+    }
+    return () => {
+      try { unsubscribe() } catch {}
+    }
   }, [])
+
+  // Retrieve user language preference from Firestore users/{uid} on auth startup/change
+  useEffect(() => {
+    if (!authUser?.uid) return
+    let isCancelled = false
+
+    userService.getUserProfile(authUser.uid).then(({ data }) => {
+      if (isCancelled) return
+      const remoteLang = data?.language || data?.preferredLanguage
+      if (remoteLang) {
+        setLanguage(remoteLang)
+        setFarmer(prev => {
+          if (!prev) return prev
+          const updated = { ...prev, preferredLanguage: remoteLang, language: remoteLang }
+          localStorage.setItem('cropoctor-farmer', JSON.stringify(updated))
+          return updated
+        })
+      } else {
+        // If document has no saved language in Firestore, seed Firestore with current app language
+        const currentLang = localStorage.getItem('agri_ai_language') || 'en'
+        userService.saveUserLanguage(authUser.uid, currentLang)
+      }
+    })
+
+    return () => { isCancelled = true }
+  }, [authUser?.uid, setLanguage])
 
   const login = (f: Farmer) => { 
     setFarmer(f)

@@ -1,13 +1,537 @@
 {
-  "app": { "name": "Cropoctor", "tagline": "દરેક ખેત માટે સ્માર્ટ નિર્ણયો." },
-  "nav": { "home": "હોમ", "myFarm": "મારું ખેતર", "advisor": "AI સલાહકાર", "diagnose": "પાક નિદાન", "profile": "પ્રોફાઇલ", "weather": "હવામાન", "insights": "માહિતી", "history": "ઇતિહાસ", "notifications": "સૂચનાઓ", "settings": "સેટિંગ્સ" },
-  "welcome": { "headline": "વધુ સારા નિર્ણયો. સ્વસ્થ પાક.", "subheading": "તમારા ખેત માટે AI-આધારિત કૃષિ સહાય.", "cta": "શરૂ કરો", "signin": "પહેલેથી ખાતું છે? સાઇન ઇન કરો" },
-  "auth": { "google": "Google સાથે ચાલુ રાખો", "phone": "ફોન સાથે ચાલુ રાખો", "email": "ઇમેઇલ સાથે ચાલુ રાખો", "createAccount": "ખાતું બનાવો", "forgotPassword": "પાસવર્ડ ભૂલ્યા?", "emailLabel": "ઇમેઇલ સરનામું", "passwordLabel": "પાસવર્ડ", "nameLabel": "પૂરું નામ", "signingIn": "સાઇન ઇન થઈ રહ્યું છે...", "errors": { "required": "આ ફીલ્ડ જરૂરી છે.", "invalidEmail": "કૃપા કરીને માન્ય ઇમેઇલ સરનામું દાખલ કરો.", "weakPassword": "પાસવર્ડ ઓછામાં ઓછો 6 અક્ષરનો હોવો જોઈએ.", "authFailed": "સાઇન ઇન નિષ્ફળ. કૃપા કરીને ફરી પ્રયાસ કરો." } },
-  "language": { "title": "ભાષા પસંદ કરો", "subtitle": "તમારી પસંદીદા ભાષા પસંદ કરો.", "search": "ભાષા શોધો...", "continue": "ચાલુ રાખો" },
-  "country": { "title": "દેશ પસંદ કરો", "subtitle": "સ્થાનિક માહિતી માટે તમારો દેશ પસંદ કરો.", "continue": "ચાલુ રાખો" },
-  "dashboard": { "greeting": "સુપ્રભાત, {{name}} 🌱", "greetingAfternoon": "નમસ્તે, {{name}} 🌾", "greetingEvening": "શુભ સાંજ, {{name}} 🌙", "farmHealth": "ખેત આરોગ્ય", "lookingHealthy": "સ્વસ્થ દેખાય છે", "nextBestAction": "આગળ શું કરશો", "viewActionPlan": "કાર્ય યોજના જુઓ", "viewWeather": "હવામાન જુઓ", "viewInsights": "માહિતી જુઓ", "alert": "ચેતવણી", "why": "કેમ?", "demoData": "ડેમો ડેટા" },
-  "advisor": { "title": "AI સલાહકાર", "subtitle": "તમારા ખેત માટે કૃષિ સહાયક.", "inputPlaceholder": "તમારા ખેત વિશે કંઈ પણ પૂછો...", "recommendation": "ભલામણ", "why": "કેમ", "whatToDo": "શું કરવું", "listen": "સાંભળો", "saveAdvice": "સલાહ સાચવો", "saved": "સલાહ સાચવી." },
-  "diagnose": { "title": "પાક ડૉક્ટર", "subtitle": "પાકનો ફોટો લો અથવા અપલોડ કરો.", "takePhoto": "ફોટો લો", "uploadImage": "છબી અપલોડ કરો", "useSample": "નમૂના છબી વાપરો" },
-  "states": { "loading": "લોડ થઈ રહ્યું છે...", "error": "કંઈ ખોટું થઈ ગયું.", "retry": "ફરી પ્રયાસ કરો", "offline": "તમે ઑફલાઇન છો.", "reload": "એપ ફરી લોડ કરો" },
-  "units": { "acres": "એકર", "hectares": "હેક્ટર", "celsius": "°C" }
+  "app": {
+    "name": "Cropoctor",
+    "tagline": "દરેક ખેતર માટે સ્માર્ટ નિર્ણયો.",
+    "platform": "ખેતી પ્લેટફોર્મ",
+    "brics": "BRICS ખેતી પ્લેટફોર્મ"
+  },
+  "nav": {
+    "home": "મુખ્ય પૃષ્ઠ",
+    "myFarm": "મારું ખેતર",
+    "advisor": "AI સલાહકાર",
+    "diagnose": "રોગ નિદાન",
+    "profile": "પ્રોફાઇલ",
+    "weather": "હવામાન",
+    "insights": "વિશ્લેષણ",
+    "history": "ઇતિહાસ",
+    "notifications": "સૂચનાઓ",
+    "settings": "સેટિંગ્સ",
+    "voice": "વોઇસ આસિસ્ટન્ટ",
+    "help": "મદદ અને સપોર્ટ",
+    "about": "અમારા વિશે"
+  },
+  "welcome": {
+    "headline": "સારા નિર્ણયો. સ્વસ્થ પાક.",
+    "subheading": "તમારા ખેતર માટે AI આધારિત સલાહ.",
+    "cta": "શરૂ કરો",
+    "signin": "પહેલેથી એકાઉન્ટ છે? સાઇન ઇન કરો"
+  },
+  "auth": {
+    "google": "Google સાથે ચાલુ રાખો",
+    "phone": "ફોન નંબર સાથે ચાલુ રાખો",
+    "email": "ઇમેઇલ સાથે ચાલુ રાખો",
+    "createAccount": "એકાઉન્ટ બનાવો",
+    "forgotPassword": "પાસવર્ડ ભૂલી ગયા?",
+    "emailLabel": "ઇમેઇલ સરનામું",
+    "passwordLabel": "પાસવર્ડ",
+    "nameLabel": "પૂરું નામ",
+    "signingIn": "સાઇન ઇન થઇ રહ્યું છે...",
+    "welcomeBack": "પાછા સ્વાગત છે!",
+    "signInToContinue": "ચાલુ રાખવા માટે સાઇન ઇન કરો.",
+    "noAccount": "એકાઉન્ટ નથી?",
+    "alreadyHaveAccount": "પહેલેથી એકાઉન્ટ છે?",
+    "securityNotice": "256-બીટ એન્ક્રિપ્ટેડ અને સુરક્ષિત કનેક્શન",
+    "signedOut": "તમે સાઇન આઉટ થયા છો.",
+    "errors": {
+      "required": "આ માહિતી જરૂરી છે.",
+      "invalidEmail": "કૃપા કરીને માન્ય ઇમેઇલ દાખલ કરો.",
+      "weakPassword": "પાસવર્ડ ઓછામાં ઓછો 6 અક્ષરોનો હોવો જોઈએ.",
+      "authFailed": "સાઇન ઇન નિષ્ફળ. ફરી પ્રયાસ કરો."
+    }
+  },
+  "language": {
+    "title": "ભાષા પસંદ કરો",
+    "subtitle": "તમારી પસંદગીની ભાષા પસંદ કરો.",
+    "search": "ભાષા શોધો...",
+    "continue": "ચાલુ રાખો"
+  },
+  "country": {
+    "title": "તમારો દેશ પસંદ કરો",
+    "subtitle": "સ્થાનિક માહિતી માટે તમારો દેશ પસંદ કરો.",
+    "continue": "ચાલુ રાખો"
+  },
+  "profile": {
+    "title": "પ્રોફાઇલ અને સેટિંગ્સ",
+    "subtitle": "તમારી પ્રોફાઇલ અને એકાઉન્ટ સંચાલિત કરો.",
+    "name": "પૂરું નામ",
+    "experience": "ખેતીનો અનુભવ",
+    "experienceOptions": {
+      "beginner": "નવા નિશાળિયા (0-3 વર્ષ)",
+      "intermediate": "મધ્યમ (3-10 વર્ષ)",
+      "expert": "નિષ્ણાત (10+ વર્ષ)"
+    },
+    "preferences": "પસંદગીઓ",
+    "language": "ભાષા",
+    "country": "દેશ",
+    "units": "એકમો",
+    "voiceSettings": "વોઇસ સેટિંગ્સ",
+    "notificationsPrivacy": "સૂચનાઓ અને ગોપનીયતા",
+    "notifications": "સૂચનાઓ",
+    "privacy": "ગોપનીયતા નીતિ",
+    "dataManagement": "ડેટા મેનેજમેન્ટ",
+    "support": "સપોર્ટ",
+    "help": "મદદ અને સપોર્ટ",
+    "about": "Cropoctor વિશે",
+    "logout": "સાઇન આઉટ",
+    "edit": "એડિટ કરો",
+    "farmer": "ખેડૂત",
+    "myFarms": "મારા ખેતરો",
+    "farmsRegistered": "{{count}} ખેતર નોંધાયેલ",
+    "version": "આવૃત્તિ"
+  },
+  "farms": {
+    "farm-001": { "name": "રાજકોટ મગફળી ફાર્મ" },
+    "farm-002": { "name": "સુરત કપાસ ફાર્મ" },
+    "farm-003": { "name": "જૂનાગઢ ઘઉં ફાર્મ" }
+  },
+  "locations": {
+    "Rajkot, Gujarat": "રાજકોટ, ગુજરાત",
+    "Surat, Gujarat": "સુરત, ગુજરાત",
+    "Junagadh, Gujarat": "જૂનાગઢ, ગુજરાત",
+    "Rajkot, Gujarat, India": "રાજકોટ, ગુજરાત, ભારત",
+    "Surat, Gujarat, India": "સુરત, ગુજરાત, ભારત",
+    "Junagadh, Gujarat, India": "જૂનાગઢ, ગુજરાત, ભારત",
+    "Rajkot": "રાજકોટ",
+    "Surat": "સુરત",
+    "Junagadh": "જૂનાગઢ",
+    "Gujarat": "ગુજરાત",
+    "India": "ભારત",
+    "Farm Location": "ખેતરનું સ્થળ"
+  },
+  "farm": {
+    "location": {
+      "title": "તમારું ખેતર ક્યાં છે?",
+      "subtitle": "નકશા પર તમારું ખેતર શોધો અને પિન લગાવો.",
+      "useMyLocation": "મારા લોકેશનનો ઉપયોગ કરો",
+      "searchPlaceholder": "ગામ, શહેર અથવા વિસ્તાર શોધો",
+      "pickOnMap": "નકશા પર પસંદ કરો",
+      "useThisLocation": "આ લોકેશન પસંદ કરો",
+      "locating": "લોકેશન શોધી રહ્યા છીએ...",
+      "locationError": "લોકેશન મળ્યું નથી. કૃપા કરીને શોધો."
+    },
+    "boundary": {
+      "title": "ખેતરની સીમા નક્કી કરો",
+      "subtitle": "સીમા દર્શાવવા માટે નકશા પર ટેપ કરો.",
+      "area": "લગભગ {{value}} {{unit}}",
+      "clear": "સાફ કરો",
+      "edit": "એડિટ કરો",
+      "confirm": "વિસ્તાર કન્ફર્મ કરો"
+    },
+    "details": {
+      "title": "ખેતરની વિગત",
+      "subtitle": "તમારા ખેતરનું સેટઅપ પૂરું કરો.",
+      "name": "ખેતરનું નામ",
+      "namePlaceholder": "દા.ત. રાજકોટ મગફળી ફાર્મ",
+      "area": "ક્ષેત્રફળ",
+      "primaryCrop": "મુખ્ય પાક",
+      "soilType": "જમીનનો પ્રકાર",
+      "cropStage": "પાકની અવસ્થા",
+      "plantingDate": "વાવણી તારીખ (મરજિયાત)",
+      "save": "સાચવો",
+      "setActive": "સક્રિય ખેતર"
+    },
+    "crop": {
+      "title": "પાક પસંદ કરો",
+      "subtitle": "આ ખેતર માટે મુખ્ય પાક પસંદ કરો.",
+      "search": "પાક શોધો...",
+      "categories": "કેટેગરીઝ",
+      "popular": "લોકપ્રિય",
+      "all": "બધા પાક",
+      "select": "પાક પસંદ કરો"
+    },
+    "soil": {
+      "title": "જમીનનો પ્રકાર",
+      "subtitle": "તમારા ખેતરની જમીનનો પ્રકાર પસંદ કરો.",
+      "select": "જમીનનો પ્રકાર પસંદ કરો",
+      "dontKnow": "મને ખબર નથી"
+    },
+    "stage": {
+      "title": "પાકની અવસ્થા",
+      "subtitle": "તમારો પાક કઈ અવસ્થામાં છે?",
+      "select": "અવસ્થા પસંદ કરો",
+      "plantingDate": "વાવણી ક્યારે કરી હતી?"
+    },
+    "complete": {
+      "title": "ખેતર તૈયાર છે! 🌱",
+      "subtitle": "તમારું ખેતર સફળતાપૂર્વક ઉમેરાઈ ગયું છે.",
+      "goToDashboard": "ડેશબોર્ડ પર જાઓ"
+    },
+    "health": "ખેતરનું સ્વાસ્થ્ય",
+    "addNew": "+ નવું ખેતર ઉમેરો",
+    "noFarms": "કોઈ ખેતર ઉમેરેલ નથી.",
+    "noFarmsHint": "શરૂ કરવા માટે તમારું પહેલું ખેતર ઉમેરો.",
+    "addAnotherHint": "સચોટ વિશ્લેષણ માટે બીજું ખેતર ઉમેરો.",
+    "context": {
+      "title": "ખેતરની માહિતી",
+      "crop": "પાક",
+      "soil": "જમીન",
+      "stage": "અવસ્થા",
+      "location": "સ્થળ",
+      "weather": "હવામાન",
+      "health": "સ્વાસ્થ્ય",
+      "hint": "AI સચોટ સલાહ આપવા તમારા ખેતરની માહિતીનો ઉપયોગ કરે છે."
+    }
+  },
+  "dashboard": {
+    "title": "Cropoctor ડેશબોર્ડ",
+    "greeting": "સુપ્રભાત, {{name}} 🌱",
+    "greetingAfternoon": "શુભ બપોર, {{name}} 🌾",
+    "greetingEvening": "શુભ સાંજ, {{name}} 🌙",
+    "currentWeather": "વર્તમાન હવામાન",
+    "farmHealth": "ખેતરનું સ્વાસ્થ્ય",
+    "lookingHealthy": "સ્વસ્થ પરિસ્થિતિ",
+    "needsAttention": "ધ્યાન આપવાની જરૂર છે",
+    "atRisk": "જોખમમાં",
+    "nextBestAction": "મુખ્ય સૂચન",
+    "viewActionPlan": "એક્શન પ્લાન જુઓ",
+    "quickActions": "ઝડપી કાર્યો",
+    "viewWeather": "હવામાન જુઓ",
+    "viewInsights": "વિશ્લેષણ જુઓ",
+    "alert": "ચેતવણી",
+    "why": "શા માટે?",
+    "demoData": "ડેમો ડેટા",
+    "totalFarms": "{{count}} ખેતર નોંધાયેલ",
+    "weatherCard": {
+      "rain": "વરસાદ",
+      "humidity": "ભેજ",
+      "wind": "પવન"
+    },
+    "nba": {
+      "action": "પિયત આપતા પહેલા જમીનનો ભેજ ચકાસો."
+    },
+    "demoAlert": {
+      "title": "કાલે ભારે વરસાદની શક્યતા છે.",
+      "desc": "પિયત રોકવા અને નિકાલની ચકાસણી કરવા વિચારો.",
+      "why": "શા માટે?"
+    }
+  },
+  "advisor": {
+    "title": "AI સલાહકાર",
+    "subtitle": "તમારો બુદ્ધિશાળી કૃષિ મદદનીશ.",
+    "inputPlaceholder": "તમારા ખેતર વિશે કંઈપણ પૂછો...",
+    "askPlaceholder": "તમારા ખેતર વિશે કંઈપણ પૂછો...",
+    "thinking": "ખેતરની માહિતી ચકાસી રહ્યા છીએ...",
+    "preparing": "સલાહ તૈયાર થઈ રહી છે...",
+    "recommendation": "સિફારિશ",
+    "why": "શા માટે?",
+    "whatToDo": "શું કરવું",
+    "dataUsed": "ઉપયોગ કરેલ ડેટા",
+    "listen": "સાંભળો",
+    "saveAdvice": "સાચવો",
+    "saved": "સલાહ સચવાઈ ગઈ.",
+    "farmContext": "ખેતરની માહિતી",
+    "askFollowUp": "વધુ પ્રશ્ન પૂછો",
+    "quickQuestions": "મુખ્ય પ્રશ્નો",
+    "questions": {
+      "q1": "શું મારે આજે પિયત આપવું જોઈએ?",
+      "q2": "પાંદડા કેમ પીળા પડી રહ્યા છે?",
+      "q3": "વાવણી ક્યારે કરવી જોઈએ?",
+      "q4": "કયું ખાતર વાપરવું જોઈએ?",
+      "q5": "શું યોગ્ય સમયે વરસાદની શક્યતા છે?",
+      "q6": "પાકનું સ્વાસ્થ્ય કેવી રીતે સુધારવું?"
+    }
+  },
+  "voice": {
+    "title": "વોઇસ આસિસ્ટન્ટ",
+    "listening": "સાંભળી રહ્યા છીએ...",
+    "understanding": "તમારો પ્રશ્ન સમજી રહ્યા છીએ...",
+    "preparing": "જવાબ તૈયાર થઈ રહ્યો છે...",
+    "cancel": "રદ કરો",
+    "stop": "બંધ કરો",
+    "retry": "ફરી પ્રયાસ કરો",
+    "tapToSpeak": "બોલવા માટે માઇક પર ટેપ કરો",
+    "notSupported": "આ ઉપકરણ પર વોઇસ સપોર્ટ નથી."
+  },
+  "diagnose": {
+    "title": "રોગ નિદાન",
+    "subtitle": "પાકનો ફોટો લો અથવા અપલોડ કરો.",
+    "tapToUpload": "અપલોડ કરવા માટે ટેપ કરો",
+    "orTakePhoto": "અથવા ફોટો પાડો",
+    "takePhoto": "ફોટો લો",
+    "uploadImage": "ઇમેજ અપલોડ કરો",
+    "useSample": "નમૂનાનો ફોટો વાપરો",
+    "sampleHint": "નમૂનાના ફોટાથી તમે કેમેરા વગર ચકાસણી કરી શકો છો.",
+    "recentTitle": "તાજેતરના નિદાન",
+    "analyzing": "ઇમેજનું વિશ્લેષણ થઈ રહ્યું છે",
+    "match": "સચોટતા",
+    "tips": {
+      "title": "સચોટ પરિણામ માટે સૂચનો",
+      "tip1": "કુદરતી પ્રકાશનો ઉપયોગ કરો - છાંયો ટાળો.",
+      "tip2": "અસરગ્રસ્ત પાંદડાનો સ્પષ્ટ ફોટો લો.",
+      "tip3": "2-3 અસરગ્રસ્ત પાંદડા સામેલ કરો.",
+      "tip4": "કેમેરો સ્થિર રાખો.",
+      "tip5": "શક્ય હોય તો પાંદડાની બંને બાજુનો ફોટો લો."
+    },
+    "steps": {
+      "examining": "ઇમેજ તપાસી રહ્યા છીએ",
+      "identifying": "પાક ઓળખી રહ્યા છીએ",
+      "checking": "લક્ષણો ચકાસી રહ્યા છીએ",
+      "analyzing": "વિશ્લેષણ કરી રહ્યા છીએ",
+      "preparing": "સલાહ તૈયાર થઈ રહી છે"
+    },
+    "result": {
+      "title": "નિદાન પરિણામ",
+      "confidence": "{{value}}% મેચ",
+      "possibleIssue": "સંભવિત રોગ",
+      "symptoms": "જોવાયેલા લક્ષણો",
+      "actions": "સૂચવેલા પગલાં",
+      "listen": "સાંભળો",
+      "learnMore": "વધુ જાણો",
+      "askAI": "AI ને પૂછો",
+      "save": "સાચવો",
+      "disclaimer": "AI નિદાન ફક્ત માહિતી માટે છે. નિષ્ણાતની સલાહ લો.",
+      "demo": "ડેમો નિદાન",
+      "severity": {
+        "mild": "હળવું",
+        "moderate": "મધ્યમ",
+        "severe": "ગંભીર"
+      }
+    }
+  },
+  "weather": {
+    "title": "હવામાન વિશ્લેષણ",
+    "subtitle": "રીઅલ-ટાઇમ હવામાન અને ખેતર પર અસર.",
+    "today": "આજે",
+    "tomorrow": "કાલે",
+    "sevenDay": "7 દિવસ",
+    "farmImpact": "ખેતર પર અસર",
+    "irrigation": "પિયત",
+    "spraying": "દવાનો છંટકાવ",
+    "diseaseRisk": "રોગનું જોખમ",
+    "status": {
+      "delay": "મોકૂફ રાખો",
+      "proceed": "ચાલુ રાખો",
+      "monitor": "ધ્યાન રાખો",
+      "postpone": "મોકૂફ રાખો",
+      "caution": "સાવધાની",
+      "low": "ઓછું",
+      "moderate": "મધ્યમ",
+      "elevated": "વધારે",
+      "high": "ઉચ્ચ"
+    },
+    "reasons": {
+      "Soil moisture is adequate. Irrigate as scheduled.": "જમીનમાં પૂરતો ભેજ છે. શિડ્યુલ મુજબ પિયત આપો.",
+      "High wind speed will cause chemical drift.": "ઝડપી પવનથી દવાનો છંટકાવ ઉડી જશે.",
+      "High humidity increases fungal disease risk.": "વધારે ભેજથી ફૂગજન્ય રોગનું જોખમ વધે છે."
+    },
+    "viewDetails": "વિગતો જુઓ",
+    "demo": "ડેમો હવામાન ડેટા",
+    "updatedJustNow": "હમણાં જ અપડેટ થયું",
+    "updatedMinAgo": "{{count}} મિનિટ પહેલા અપડેટ થયું",
+    "feelsLike": "અનુભવ {{temp}}°"
+  },
+  "insights": {
+    "title": "ખેતરનું વિશ્લેષણ",
+    "subtitle": "પાક સ્વાસ્થ્ય, ભેજ અને સેટેલાઇટ આંકડા.",
+    "cropHealth": "પાકનું સ્વાસ્થ્ય",
+    "soilHealth": "જમીનનું સ્વાસ્થ્ય",
+    "satellite": "સેટેલાઇટ",
+    "ndvi": "NDVI ઇન્ડેક્સ",
+    "vegetationHealth": "હરિયાળી ઇન્ડેક્સ",
+    "contributingFactors": "મુખ્ય પરિબળો",
+    "demo": "ડેમો ડેટા",
+    "live": "લાઇવ",
+    "unavailable": "અપ્રાપ્ય",
+    "trend": {
+      "improving": "↑ સુધારો થઈ રહ્યો છે",
+      "declining": "↓ ઘટાડો",
+      "stable": "→ સ્થિર"
+    },
+    "factors": {
+      "moisture": "જમીનમાં યોગ્ય ભેજ",
+      "nutrients": "પૂરતા પોષક તત્વો",
+      "disease": "કોઈ રોગ નથી",
+      "canopy": "પાંદડાનો સારો વિકાસ",
+      "Optimal soil moisture": "જમીનમાં યોગ્ય ભેજ",
+      "Adequate nutrient levels": "પૂરતા પોષક તત્વો",
+      "No confirmed disease": "કોઈ રોગ નથી",
+      "Good canopy development": "પાંદડાનો સારો વિકાસ"
+    }
+  },
+  "history": {
+    "title": "ખેતરનો ઇતિહાસ",
+    "subtitle": "AI સલાહ, રોગ નિદાન અને કાર્યોનો રેકોર્ડ.",
+    "notice": "પૂરો ઇતિહાસ તબક્કા 4 માં ચાલુ થશે.",
+    "items": {
+      "h-001": {
+        "title": "પિયત મોકૂફ રખાયું",
+        "summary": "વરસાદની આગાહીના કારણે AI એ પિયત મોકૂફ રાખવા સલાહ આપી."
+      },
+      "h-002": {
+        "title": "પાંદડાના ટપકાંનો રોગ મળ્યો",
+        "summary": "સર્કોસ્પોરા ટપકાંનો રોગ 87% સચોટતા સાથે મળ્યો."
+      },
+      "h-003": {
+        "title": "ભારે વરસાદની ચેતવણી",
+        "summary": "આગામી 48 કલાકમાં 35-50mm વરસાદની શક્યતા."
+      },
+      "h-004": {
+        "title": "પાકની અવસ્થા: ફૂલ આવવા",
+        "summary": "મગફળીનો પાક ફૂલ આવવાની અવસ્થામાં પહોંચ્યો."
+      },
+      "h-005": {
+        "title": "ખાતર નાખવામાં આવ્યું",
+        "summary": "એકર દીઠ 10 કિલો યુરિયા ખાતર નાખવામાં આવ્યું."
+      }
+    }
+  },
+  "notifications": {
+    "title": "સૂચનાઓ",
+    "subtitle": "ખેતરની ચેતવણીઓ અને અપડેટ્સ.",
+    "unreadAlerts": "{{count}} વંચાયા વગરની સૂચનાઓ",
+    "caughtUp": "બધું વંચાઈ ગયું છે!",
+    "markAllRead": "બધા વાંચેલા માર્ક કરો",
+    "clearAll": "બધા સાફ કરો",
+    "items": {
+      "notif-001": {
+        "title": "કાલે ભારે વરસાદની શક્યતા",
+        "body": "રાજકોટમાં 35-50mm વરસાદની શક્યતા છે. પિયત મોકૂફ રાખવા વિચારો."
+      },
+      "notif-002": {
+        "title": "પિયત સલાહ તૈયાર છે",
+        "body": "આજના હવામાન અનુસાર 24 કલાક પિયત મોકૂફ રાખવા સલાહ છે."
+      },
+      "notif-003": {
+        "title": "રોગનું જોખમ વધ્યું",
+        "body": "વધારે ભેજથી ફૂગજન્ય રોગનું જોખમ વધે છે. પાંદડા ચકાસો."
+      },
+      "notif-004": {
+        "title": "પિયત યાદ અપાવનાર",
+        "body": "રાજકોટ ફાર્મ માટે પિયત ચકાસણીનો સમય."
+      },
+      "notif-005": {
+        "title": "સ્વાસ્થ્ય અપડેટ",
+        "body": "તમારા ખેતરનો સ્વાસ્થ્ય સ્કોર 78 થી વધીને 82 થયો."
+      }
+    },
+    "actions": {
+      "notif-001": "હવામાન જુઓ",
+      "notif-002": "સલાહ જુઓ",
+      "notif-003": "રોગ નિદાન કરો",
+      "notif-004": "પિયત પ્લાન",
+      "notif-005": "વિશ્લેષણ જુઓ"
+    }
+  },
+  "settings": {
+    "title": "સેટિંગ્સ",
+    "subtitle": "એપ પસંદગીઓ અને એકાઉન્ટ વિગત.",
+    "sections": {
+      "languageRegion": "ભાષા અને વિસ્તાર",
+      "voiceAI": "વોઇસ અને AI",
+      "appPreferences": "એપ પસંદગીઓ"
+    },
+    "metricUnits": "મેટ્રિક એકમો",
+    "voiceDesc": "બોલવાની ઝડપ, ભાષા, આઉટપુટ",
+    "weatherAlerts": "હવામાન ચેતવણીઓ",
+    "weatherAlertsDesc": "વરસાદ, વાવાઝોડું અને ઘટનાઓ",
+    "diseaseWarnings": "રોગ ચેતવણીઓ",
+    "diseaseWarningsDesc": "જોખમી રોગના સંકેતો",
+    "irrigationReminders": "પિયત રિમાઇન્ડર",
+    "irrigationRemindersDesc": "નિયમિત પિયત ચકાસણી",
+    "aiRecommendations": "AI સિફારિશો",
+    "aiRecommendationsDesc": "દૈનિક ખેતી અપડેટ્સ",
+    "darkMode": "ડાર્ક મોડ",
+    "darkModeDesc": "આગામી અપડેટમાં આવી રહ્યું છે",
+    "offlineMode": "ઓફલાઇન મોડ",
+    "offlineModeDesc": "ઇન્ટરનેટ વગર ડેટા સાચવો",
+    "exportData": "ડેટા નિકાસ કરો",
+    "exportDataDesc": "તમારા ખેતરનો ઇતિહાસ ડાઉનલોડ કરો",
+    "clearData": "લોકલ ડેટા સાફ કરો",
+    "clearDataDesc": "સેવ થયેલ ડેટા દૂર કરો",
+    "units": "એકમો",
+    "metric": "મેટ્રિક (એકર, °C)",
+    "imperial": "ઇમ્પીરિયલ (હેક્ટર, °F)",
+    "voice": "વોઇસ સેટિંગ્સ",
+    "language": "ભાષા",
+    "notifications": "સૂચનાઓ",
+    "privacy": "ગોપનીયતા નીતિ",
+    "help": "મદદ અને સપોર્ટ",
+    "about": "Cropoctor વિશે"
+  },
+  "states": {
+    "loading": "લોડ થઈ રહ્યું છે...",
+    "error": "કંઈક ખોટું થયું.",
+    "retry": "ફરી પ્રયાસ કરો",
+    "offline": "તમે ઓફલાઇન છો.",
+    "offlineHint": "તમારી સાચવેલી માહિતી ઉપલબ્ધ છે.",
+    "empty": "અહીં હજુ કશું નથી.",
+    "lastUpdated": "છેલ્લું અપડેટ",
+    "reload": "એપ ફરી લોડ કરો"
+  },
+  "toast": {
+    "farmSaved": "ખેતર સફળતાપૂર્વક સાચવાયું.",
+    "locationSelected": "લોકેશન પસંદ થયું.",
+    "adviceSaved": "સલાહ સાચવાઈ ગઈ.",
+    "diagnosisSaved": "નિદાન સાચવાઈ ગયું.",
+    "weatherError": "હવામાન ડેટા લોડ થઈ શક્યો નથી.",
+    "voiceError": "વોઇસ ઇનપુટ ઉપલબ્ધ નથી.",
+    "copied": "ક્લિપબોર્ડ પર કોપી થયું."
+  },
+  "units": {
+    "acres": "એકર",
+    "hectares": "હેક્ટર",
+    "celsius": "°C",
+    "fahrenheit": "°F",
+    "kmh": "કિમી/કલાક"
+  },
+  "crops": {
+    "groundnut": "મગફળી",
+    "cotton": "કપાસ",
+    "wheat": "ઘઉં",
+    "Groundnut": "મગફળી",
+    "Cotton": "કપાસ",
+    "Wheat": "ઘઉં"
+  },
+  "diseases": {
+    "Leaf Spot": "પાંદડાના ટપકાંનો રોગ",
+    "Healthy Crop": "સ્વસ્થ પાક"
+  },
+  "stages": {
+    "seedling": "અંકુરણ",
+    "growing": "વિકાસ",
+    "flowering": "ફૂલ આવવા",
+    "Seedling": "અંકુરણ",
+    "Growing": "વિકાસ",
+    "Flowering": "ફૂલ આવવા"
+  },
+  "soils": {
+    "Loamy": "ગોરાડુ જમીન",
+    "Black Cotton": "કાળી જમીન",
+    "Alluvial": "કાંપની જમીન",
+    "Sandy": "રેતાળ જમીન"
+  },
+  "time": {
+    "h-001": "1 કલાક પહેલા",
+    "h-002": "2 દિવસ પહેલા",
+    "h-003": "3 દિવસ પહેલા",
+    "h-004": "15/08/2026",
+    "h-005": "12/08/2026",
+    "notif-001": "32 મિનિટ પહેલા",
+    "notif-002": "2 કલાક પહેલા",
+    "notif-003": "5 કલાક પહેલા",
+    "notif-004": "1 દિવસ પહેલા",
+    "notif-005": "2 દિવસ પહેલા",
+    "diag-001": "2 દિવસ પહેલા",
+    "diag-002": "1 અઠવાડિયા પહેલા",
+    "daysAgo": "{{count}} દિવસ પહેલા",
+    "weeksAgo": "{{count}} અઠવાડિયા પહેલા"
+  },
+  "weatherDesc": {
+    "sunny": "તડકો",
+    "partly-cloudy": "અંશતઃ વાદળછાયું",
+    "cloudy": "વાદળછાયું",
+    "rainy": "વરસાદી",
+    "stormy": "વાવાઝોડું",
+    "Partly Cloudy": "અંશતઃ વાદળછાયું"
+  }
 }
