@@ -1,14 +1,21 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { pageVariants } from '@/animations/variants'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { useTranslation } from 'react-i18next'
+import { useFarmSetup } from '@/store/FarmSetupContext'
 
 const FarmDetailsPage: React.FC = () => {
   const navigate = useNavigate()
   const { t } = useTranslation()
+  const { setup, setFarmName } = useFarmSetup()
+  const [name, setName] = useState(setup.farmName || '')
+
+  const locationDisplay = setup.location?.name || ''
+  const areaDisplay = setup.area ? `${setup.area} ${setup.areaUnit || 'acres'}` : ''
+
   return (
     <motion.div variants={pageVariants} initial="initial" animate="animate" className="min-h-screen bg-cream flex flex-col max-w-md mx-auto w-full px-6 py-10">
       <button onClick={() => navigate(-1)} className="w-9 h-9 flex items-center justify-center rounded-xl bg-green-light text-green-forest mb-6">
@@ -21,14 +28,22 @@ const FarmDetailsPage: React.FC = () => {
       <p className="text-gray-500 text-sm mb-8">{t('farm.location.detailsSubtitle', 'Complete your farm setup.')}</p>
 
       <div className="space-y-4 flex-1">
-        <Input label={t('farm.location.farmName', 'Farm name')} placeholder="e.g. Rajkot Groundnut Farm" defaultValue="Rajkot Groundnut Farm" />
-        <Input label={t('farm.location.locationLabel', 'Location')} defaultValue="Rajkot, Gujarat, India" disabled hint={t('farm.location.setFromMap', 'Set from map selection.')} />
-        <Input label={t('farm.location.areaLabel', 'Area')} defaultValue="2.45 acres" disabled />
+        <Input
+          label={t('farm.location.farmName', 'Farm name')}
+          placeholder="e.g. Rajkot Groundnut Farm"
+          value={name}
+          onChange={e => setName(e.target.value)}
+        />
+        <Input label={t('farm.location.locationLabel', 'Location')} value={locationDisplay} disabled hint={t('farm.location.setFromMap', 'Set from map selection.')} />
+        <Input label={t('farm.location.areaLabel', 'Area')} value={areaDisplay} disabled />
         <p className="text-xs text-gray-400 -mt-2">{t('farm.location.areaCalculated', 'Area calculated from your farm boundary.')}</p>
       </div>
 
       <div className="mt-10 space-y-3">
-        <Button variant="primary" size="xl" fullWidth onClick={() => navigate('/onboarding/crop')}>
+        <Button variant="primary" size="xl" fullWidth onClick={() => {
+          setFarmName(name.trim() || 'My Farm')
+          navigate('/onboarding/crop')
+        }} disabled={!name.trim()}>
           {t('farm.location.saveContinue', 'Save & Continue')} →
         </Button>
       </div>
@@ -37,3 +52,4 @@ const FarmDetailsPage: React.FC = () => {
 }
 
 export default FarmDetailsPage
+
