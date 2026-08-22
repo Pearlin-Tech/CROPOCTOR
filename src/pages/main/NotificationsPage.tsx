@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react'
+import { onAuthStateChanged } from 'firebase/auth'
+import { auth } from '@/services/firebase'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { pageVariants, listVariants, cardVariants } from '@/animations/variants'
@@ -21,9 +23,35 @@ const NotificationsPage: React.FC = () => {
   const { t } = useTranslation()
   const [notifications, setNotifications] = useState<AppNotification[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    notificationService.getNotifications().then(n => { setNotifications(n); setLoading(false) })
+    let unsubscribeNotif: (() => void) | undefined;
+    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setLoading(true);
+        unsubscribeNotif = notificationService.subscribeToUserNotifications(
+          (n) => {
+            setNotifications(n);
+            setLoading(false);
+            setError(null);
+          },
+          (err) => {
+            console.error("Firebase Notifications Error:", err);
+            setError(err.message);
+            setLoading(false);
+          }
+        );
+      } else {
+        setNotifications([]);
+        setLoading(false);
+      }
+    });
+
+    return () => {
+      unsubscribeAuth();
+      if (unsubscribeNotif) unsubscribeNotif();
+    };
   }, [])
 
   const unread = notifications.filter(n => !n.read).length
@@ -40,7 +68,7 @@ const NotificationsPage: React.FC = () => {
           </div>
           {unread > 0 && (
             <button
-              onClick={() => setNotifications(prev => prev.map(n => ({ ...n, read: true })))}
+              onClick={() => notificationService.markAllRead()}
               className="text-sm text-green-forest font-semibold hover:underline"
             >
               {t('notifications.markAllRead', 'Mark all read')}
@@ -52,6 +80,22 @@ const NotificationsPage: React.FC = () => {
           <div className="space-y-3">
             {[1,2,3].map(i => <div key={i} className="shimmer-bg h-20 rounded-2xl" />)}
           </div>
+        ) : error ? (
+          <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
+            <div className="w-20 h-20 bg-red-50 text-red-500 rounded-full flex items-center justify-center mb-4 text-4xl shadow-sm border border-red-100">
+              ⚠️
+            </div>
+            <h3 className="text-xl font-bold text-gray-800">{t('notifications.errorTitle', 'Something went wrong')}</h3>
+            <p className="text-sm text-gray-500 mt-2 max-w-xs">{error}</p>
+          </div>
+        ) : notifications.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
+            <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mb-4 text-4xl shadow-sm border border-gray-100">
+              📭
+            </div>
+            <h3 className="text-xl font-bold text-gray-800">{t('notifications.emptyTitle', 'No notifications yet')}</h3>
+            <p className="text-sm text-gray-500 mt-2 max-w-xs">{t('notifications.emptyDesc', 'When you get alerts about your farm or weather, they will show up here.')}</p>
+          </div>
         ) : (
           <motion.div variants={listVariants} animate="animate" className="space-y-2">
             {notifications.map(notif => (
@@ -59,8 +103,9 @@ const NotificationsPage: React.FC = () => {
                 key={notif.id}
                 variants={cardVariants}
                 onClick={() => {
-                  setNotifications(prev => prev.map(n => n.id === notif.id ? { ...n, read: true } : n))
-                  notificationService.markRead(notif.id)
+                  if (!notif.read) {
+                    notificationService.markRead(notif.id)
+                  }
                   if (notif.actionRoute) navigate(notif.actionRoute)
                 }}
                 className="w-full text-left"

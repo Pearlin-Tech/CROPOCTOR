@@ -9,6 +9,7 @@ import { MOCK_NOTIFICATIONS } from '@/mock/notifications'
 import { MOCK_INSIGHTS } from '@/mock/insights'
 import { MOCK_FARMS } from '@/mock/farms'
 import { getMockAIResponse } from '@/mock/aiResponses'
+import { FirebaseNotificationService } from './notificationService'
 
 const delay = (ms: number) => new Promise(r => setTimeout(r, ms))
 
@@ -126,20 +127,17 @@ class MockDiagnosisService implements IDiagnosisService {
   }
 }
 
-// ─── Notification Service ─────────────────────────────────────────────────────
 export interface INotificationService {
   getNotifications(): Promise<AppNotification[]>
+  subscribeToUserNotifications(
+    callback: (notifications: AppNotification[]) => void,
+    onError?: (error: Error) => void
+  ): () => void
   markRead(id: string): Promise<void>
-}
-
-class MockNotificationService implements INotificationService {
-  async getNotifications(): Promise<AppNotification[]> {
-    await delay(600)
-    return MOCK_NOTIFICATIONS
-  }
-  async markRead(_id: string): Promise<void> {
-    await delay(200)
-  }
+  markAllRead(): Promise<void>
+  createNotification(notification: Omit<AppNotification, 'id' | 'timestamp'>): Promise<void>
+  deleteNotification(id: string): Promise<void>
+  deleteAllNotifications(): Promise<void>
 }
 
 // ─── Insights Service ─────────────────────────────────────────────────────────
@@ -226,7 +224,7 @@ export const aiService: IAIService               = new MockAIService()
 export const weatherService: IWeatherService     = new ApiWeatherService()
 export const farmService: IFarmService           = new MockFarmService()
 export const diagnosisService: IDiagnosisService = new MockDiagnosisService()
-export const notificationService: INotificationService = new MockNotificationService()
+export const notificationService: INotificationService = new FirebaseNotificationService()
 export const insightsService: IInsightsService   = new MockInsightsService()
 export const locationService: ILocationService   = new MockLocationService()
 export const voiceService: IVoiceService         = new MockVoiceService()
