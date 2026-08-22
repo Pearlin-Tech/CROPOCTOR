@@ -90,9 +90,15 @@
     "version": "Version"
   },
   "farms": {
-    "farm-001": { "name": "Rajkot Groundnut Farm" },
-    "farm-002": { "name": "Surat Cotton Farm" },
-    "farm-003": { "name": "Junagadh Wheat Farm" }
+    "farm-001": {
+      "name": "Rajkot Groundnut Farm"
+    },
+    "farm-002": {
+      "name": "Surat Cotton Farm"
+    },
+    "farm-003": {
+      "name": "Junagadh Wheat Farm"
+    }
   },
   "locations": {
     "Rajkot, Gujarat": "Rajkot, Gujarat",
@@ -420,7 +426,10 @@
       "notif-003": "Diagnose Crop",
       "notif-004": "Irrigation Plan",
       "notif-005": "View Insights"
-    }
+    },
+    "emptyTitle": "No notifications yet",
+    "emptyDesc": "When you get alerts about your farm or weather, they will show up here.",
+    "errorTitle": "Something went wrong"
   },
   "settings": {
     "title": "Settings",
