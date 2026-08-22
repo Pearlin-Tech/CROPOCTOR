@@ -1,25 +1,33 @@
 import React, { useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Mic, Image, Send, Bot, ChevronRight } from 'lucide-react'
+import { Mic, Image, Send, ChevronRight } from 'lucide-react'
 import { pageVariants, listVariants, cardVariants } from '@/animations/variants'
 import { PageLayout, MobileHeader } from '@/components/layout/AppShell'
 import { Card } from '@/components/ui/Card'
-import { Button } from '@/components/ui/Button'
 import { Badge } from '@/components/ui/index'
 import { AIResponseSkeleton as AISkel } from '@/components/skeletons'
 import { useFarm } from '@/store/FarmContext'
 import { aiService } from '@/services'
 import type { AIMessage } from '@/types'
-import { QUICK_QUESTIONS } from '@/mock/aiResponses'
 import { useApp } from '@/store/AppContext'
 import { useTranslation } from 'react-i18next'
+import { formatLocalizedNumber, formatLocalizedPercent } from '@/utils/format'
+
+const QUESTION_KEYS = [
+  'advisor.questions.q1',
+  'advisor.questions.q2',
+  'advisor.questions.q3',
+  'advisor.questions.q4',
+  'advisor.questions.q5',
+  'advisor.questions.q6',
+]
 
 const AIAdvisorPage: React.FC = () => {
   const navigate = useNavigate()
   const { activeFarm } = useFarm()
   const { toast } = useApp()
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const [messages, setMessages] = useState<AIMessage[]>([])
   const [input, setInput]       = useState('')
   const [loading, setLoading]   = useState(false)
@@ -50,7 +58,7 @@ const AIAdvisorPage: React.FC = () => {
         <div className="flex-1 flex flex-col">
           <PageLayout className="flex-1 pt-4 pb-2 space-y-4">
 
-            {/* Desktop header (hidden on mobile since MobileHeader handles it) */}
+            {/* Desktop header */}
             <div className="hidden lg:block mb-6">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-2xl bg-cream border border-brown-pastel/40 flex items-center justify-center shadow-sm">
@@ -67,17 +75,20 @@ const AIAdvisorPage: React.FC = () => {
             {messages.length === 0 && !loading && (
               <motion.div variants={listVariants} animate="animate" className="space-y-3">
                 <p className="text-[11px] font-bold text-brown-earth uppercase tracking-wider mb-2">{t('advisor.quickQuestions', 'Quick Questions')}</p>
-                {QUICK_QUESTIONS.map(q => (
-                  <motion.button
-                    key={q}
-                    variants={cardVariants}
-                    onClick={() => askQuestion(q)}
-                    className="w-full text-left px-4 py-3.5 bg-cream rounded-2xl border border-brown-pastel/30 shadow-sm text-sm font-semibold text-text-main hover:border-green-forest/40 hover:bg-green-pastel/10 transition-all flex items-center justify-between group"
-                  >
-                    <span>{q}</span>
-                    <ChevronRight className="w-4 h-4 text-brown-earth/40 group-hover:text-green-forest transition-colors" />
-                  </motion.button>
-                ))}
+                {QUESTION_KEYS.map(key => {
+                  const qText = t(key)
+                  return (
+                    <motion.button
+                      key={key}
+                      variants={cardVariants}
+                      onClick={() => askQuestion(qText)}
+                      className="w-full text-left px-4 py-3.5 bg-cream rounded-2xl border border-brown-pastel/30 shadow-sm text-sm font-semibold text-text-main hover:border-green-forest/40 hover:bg-green-pastel/10 transition-all flex items-center justify-between group"
+                    >
+                      <span>{qText}</span>
+                      <ChevronRight className="w-4 h-4 text-brown-earth/40 group-hover:text-green-forest transition-colors" />
+                    </motion.button>
+                  )
+                })}
               </motion.div>
             )}
 
@@ -101,17 +112,17 @@ const AIAdvisorPage: React.FC = () => {
                           <div className="space-y-4">
                             {/* Recommendation */}
                             <div className="bg-green-pastel/20 border border-green-pastel/30 rounded-xl p-3">
-                              <p className="text-[10px] font-bold text-green-forest uppercase tracking-widest mb-1">✅ Recommendation</p>
+                              <p className="text-[10px] font-bold text-green-forest uppercase tracking-widest mb-1">✅ {t('advisor.recommendation', 'Recommendation')}</p>
                               <p className="font-semibold text-text-main">{msg.structured.recommendation}</p>
                             </div>
                             {/* Why */}
                             <div>
-                              <p className="text-[10px] font-bold text-brown-earth uppercase tracking-widest mb-1.5">Why?</p>
+                              <p className="text-[10px] font-bold text-brown-earth uppercase tracking-widest mb-1.5">{t('advisor.why', 'Why?')}</p>
                               <p className="text-sm text-text-secondary font-medium">{msg.structured.why}</p>
                             </div>
                             {/* What to do */}
                             <div>
-                              <p className="text-[10px] font-bold text-brown-earth uppercase tracking-widest mb-2">What to do</p>
+                              <p className="text-[10px] font-bold text-brown-earth uppercase tracking-widest mb-2">{t('advisor.whatToDo', 'What to do')}</p>
                               <ol className="space-y-2">
                                 {msg.structured.whatToDo.map((step, i) => (
                                   <li key={i} className="flex gap-2.5 text-sm text-text-secondary font-medium">
@@ -130,13 +141,13 @@ const AIAdvisorPage: React.FC = () => {
                             {/* Actions */}
                             <div className="flex flex-wrap gap-2 pt-3 mt-1 border-t border-brown-pastel/20">
                               <button onClick={() => toast.info('Playing advice audio…')} className="flex items-center gap-1.5 text-xs font-semibold text-green-forest bg-green-pastel/30 px-3 py-1.5 rounded-xl hover:bg-green-pastel/50 transition-colors">
-                                🔊 Listen
+                                🔊 {t('advisor.listen', 'Listen')}
                               </button>
-                              <button onClick={() => toast.success('Advice saved.')} className="flex items-center gap-1.5 text-xs font-semibold text-brown-earth bg-brown-pastel/30 px-3 py-1.5 rounded-xl hover:bg-brown-pastel/50 transition-colors">
-                                💾 Save
+                              <button onClick={() => toast.success(t('advisor.saved', 'Advice saved.'))} className="flex items-center gap-1.5 text-xs font-semibold text-brown-earth bg-brown-pastel/30 px-3 py-1.5 rounded-xl hover:bg-brown-pastel/50 transition-colors">
+                                💾 {t('advisor.saveAdvice', 'Save')}
                               </button>
                               <button onClick={() => inputRef.current?.focus()} className="flex items-center gap-1.5 text-xs font-semibold text-text-secondary bg-off-white px-3 py-1.5 rounded-xl hover:bg-gray-100 transition-colors border border-brown-pastel/30">
-                                💬 Ask Follow-up
+                                💬 {t('advisor.askFollowUp', 'Ask Follow-up')}
                               </button>
                             </div>
                           </div>
@@ -151,16 +162,6 @@ const AIAdvisorPage: React.FC = () => {
 
               {loading && (
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                  <div className="space-y-2 mb-3">
-                    {['Understanding your farm…', 'Checking relevant information…', 'Preparing your recommendation…'].map((s, i) => (
-                      <motion.div key={s} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.6 }}
-                        className="flex items-center gap-2 text-xs text-green-forest font-medium"
-                      >
-                        <div className="w-1.5 h-1.5 bg-green-soft rounded-full animate-pulse-soft" />
-                        {s}
-                      </motion.div>
-                    ))}
-                  </div>
                   <AISkel />
                 </motion.div>
               )}
@@ -210,28 +211,28 @@ const AIAdvisorPage: React.FC = () => {
 
         {/* ── Desktop: Farm Context Panel ── */}
         <div className="hidden lg:flex lg:w-72 xl:w-80 flex-col bg-cream border-l border-brown-pastel/30 p-5 space-y-4">
-          <h3 className="font-bold text-brown-earth text-[11px] uppercase tracking-widest">{t('farm.context', 'Farm Context')}</h3>
+          <h3 className="font-bold text-brown-earth text-[11px] uppercase tracking-widest">{t('farm.context.title', 'Farm Context')}</h3>
           <Card variant="flat" padding="sm" className="space-y-3 bg-white/60 border border-brown-pastel/30 shadow-sm">
             {[
-              { label: 'Crop',     value: activeFarm?.primaryCrop || 'Groundnut', icon: '🌱' },
-              { label: 'Soil',     value: activeFarm?.soilType    || 'Loamy',      icon: '🪨' },
-              { label: 'Stage',    value: activeFarm?.cropStage   || 'Flowering',  icon: '🌸' },
-              { label: 'Location', value: activeFarm?.location.displayName || 'Rajkot, Gujarat', icon: '📍' },
-              { label: 'Weather',  value: '29°C · Rain 60%',                      icon: '🌦' },
-              { label: 'Health',   value: `${activeFarm?.healthScore ?? 82}%`,    icon: '💚' },
+              { label: t('farm.context.crop', 'Crop'),     value: t(`crops.${activeFarm?.primaryCrop || 'groundnut'}`, activeFarm?.primaryCrop || 'groundnut'), icon: '🌱' },
+              { label: t('farm.context.soil', 'Soil'),     value: t(`soils.${activeFarm?.soilType || 'loamy'}`, activeFarm?.soilType || 'loamy'),      icon: '🪨' },
+              { label: t('farm.context.stage', 'Stage'),    value: t(`stages.${activeFarm?.cropStage || 'flowering'}`, activeFarm?.cropStage || 'flowering'),  icon: '🌸' },
+              { label: t('farm.context.location', 'Location'), value: t(`locations.${activeFarm?.location.displayName || 'Rajkot, Gujarat'}`, activeFarm?.location.displayName || 'Rajkot, Gujarat'), icon: '📍' },
+              { label: t('farm.context.weather', 'Weather'),  value: `${formatLocalizedNumber(29, i18n.language)}°C · ${t('dashboard.weatherCard.rain', 'Rain')} ${formatLocalizedPercent(60, i18n.language)}`, icon: '🌦' },
+              { label: t('farm.context.health', 'Health'),   value: formatLocalizedPercent(activeFarm?.healthScore ?? 82, i18n.language), icon: '💚' },
             ].map(({ label, value, icon }) => (
               <div key={label} className="flex items-center gap-3">
                 <span className="text-lg w-6 text-center">{icon}</span>
                 <div>
                   <p className="text-[10px] uppercase font-bold text-brown-earth/60 tracking-wider">{label}</p>
-                  <p className="text-sm font-semibold text-text-main capitalize">{value}</p>
+                  <p className="text-sm font-semibold text-text-main">{value}</p>
                 </div>
               </div>
             ))}
           </Card>
           <div className="pt-2">
             <p className="text-xs text-text-secondary font-medium leading-relaxed bg-brown-pastel/20 p-3 rounded-xl">
-              The AI uses your farm context when generating recommendations.
+              {t('farm.context.hint', 'The AI uses your farm context when generating recommendations.')}
             </p>
           </div>
         </div>

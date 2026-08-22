@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react'
 import { isRTL } from '@/config/countries'
+import i18n from '@/locales/i18n'
 
 // ─── Toast types ──────────────────────────────────────────────────────────────
 export type ToastType = 'success' | 'error' | 'info' | 'warning'
@@ -36,8 +37,9 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
   const isRTLActive = isRTL(language)
 
-  // Apply RTL to document
+  // Apply language & RTL to document & i18n
   useEffect(() => {
+    i18n.changeLanguage(language)
     document.documentElement.lang = language
     document.documentElement.dir = isRTLActive ? 'rtl' : 'ltr'
   }, [language, isRTLActive])
@@ -54,6 +56,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const setLanguage = useCallback((lang: string) => {
     setLangState(lang)
     localStorage.setItem('agri_ai_language', lang)
+    i18n.changeLanguage(lang)
   }, [])
 
   const addToast = useCallback((type: ToastType, message: string) => {

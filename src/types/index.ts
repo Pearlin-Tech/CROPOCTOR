@@ -7,6 +7,7 @@ export interface Farmer {
   avatarUrl?: string
   experience: 'beginner' | 'intermediate' | 'expert'
   preferredLanguage: string
+  language?: string
   country: string
   createdAt: string
 }

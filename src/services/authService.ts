@@ -90,11 +90,19 @@ export const authService = {
     }
   },
 
-  /**
-   * Listens to Firebase authentication state changes
-   */
   onAuthStateChange: (callback: (user: User | null) => void) => {
-    return onAuthStateChanged(auth, callback);
+    try {
+      if (auth && auth.app) {
+        return onAuthStateChanged(auth, callback, (error) => {
+          console.warn("[Cropoctor Auth] Firebase Auth Listener Notice:", error?.message || error);
+          callback(null);
+        });
+      }
+    } catch (err) {
+      console.warn("[Cropoctor Auth] Exception subscribing to auth state:", err);
+    }
+    setTimeout(() => callback(null), 0);
+    return () => {};
   },
 
   /**
