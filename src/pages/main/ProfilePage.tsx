@@ -7,35 +7,37 @@ import { PageLayout, MobileHeader } from '@/components/layout/AppShell'
 import { Card } from '@/components/ui/Card'
 import { useUser } from '@/store/UserContext'
 import { useApp } from '@/store/AppContext'
+import { useTranslation } from 'react-i18next'
 
 const ProfilePage: React.FC = () => {
   const navigate = useNavigate()
   const { farmer, logout } = useUser()
-  const { toast } = useApp()
+  const { toast, language } = useApp()
+  const { t } = useTranslation()
 
   const sections = [
     {
-      title: 'Preferences',
+      title: t('profile.preferences', 'Preferences'),
       items: [
-        { icon: Globe,    label: 'Language',        value: 'English', route: '/settings/language' },
-        { icon: Flag,     label: 'Country',          value: 'India 🇮🇳', route: '/country' },
-        { icon: Ruler,    label: 'Units',            value: 'Metric (acres, °C)', route: '/settings' },
-        { icon: Mic,      label: 'Voice Settings',   value: null, route: '/settings/voice' },
+        { icon: Globe,    label: t('profile.language', 'Language'),        value: language.toUpperCase(), route: '/settings/language' },
+        { icon: Flag,     label: t('profile.country', 'Country'),          value: 'India 🇮🇳', route: '/country' },
+        { icon: Ruler,    label: t('profile.units', 'Units'),            value: t('settings.metric', 'Metric (acres, °C)'), route: '/settings' },
+        { icon: Mic,      label: t('profile.voiceSettings', 'Voice Settings'),   value: null, route: '/settings/voice' },
       ],
     },
     {
-      title: 'Notifications & Privacy',
+      title: t('profile.notificationsPrivacy', 'Notifications & Privacy'),
       items: [
-        { icon: Bell,     label: 'Notifications',    value: 'Enabled', route: '/settings' },
-        { icon: Shield,   label: 'Privacy',          value: null, route: '/settings' },
-        { icon: Database, label: 'Data Management',  value: null, route: '/settings' },
+        { icon: Bell,     label: t('profile.notifications', 'Notifications'),    value: 'Enabled', route: '/settings' },
+        { icon: Shield,   label: t('profile.privacy', 'Privacy'),          value: null, route: '/settings' },
+        { icon: Database, label: t('profile.dataManagement', 'Data Management'),  value: null, route: '/settings' },
       ],
     },
     {
-      title: 'Support',
+      title: t('profile.support', 'Support'),
       items: [
-        { icon: HelpCircle, label: 'Help & Support', value: null, route: '/help' },
-        { icon: Info,       label: 'About Cropoctor',  value: 'v1.0.0', route: '/about' },
+        { icon: HelpCircle, label: t('profile.help', 'Help & Support'), value: null, route: '/help' },
+        { icon: Info,       label: t('profile.about', 'About Cropoctor'),  value: 'v1.0.0', route: '/about' },
       ],
     },
   ]
@@ -43,12 +45,12 @@ const ProfilePage: React.FC = () => {
   const handleLogout = () => {
     logout()
     navigate('/welcome')
-    toast.info('You have been signed out.')
+    toast.info(t('auth.signedOut', 'You have been signed out.'))
   }
 
   return (
     <motion.div variants={pageVariants} initial="initial" animate="animate" className="min-h-screen bg-background">
-      <MobileHeader title="Profile & Settings" />
+      <MobileHeader title={t('profile.title', 'Profile & Settings')} />
 
       <PageLayout className="pt-4 pb-8 space-y-4">
         {/* Profile card */}
@@ -61,14 +63,14 @@ const ProfilePage: React.FC = () => {
               <h2 className="text-xl font-bold text-white truncate">{farmer?.name || 'Rahul Patel'}</h2>
               <p className="text-green-pastel text-sm">{farmer?.email || 'rahul@example.com'}</p>
               <p className="text-green-pastel/70 text-xs capitalize mt-0.5">
-                {farmer?.country || 'India'} · {farmer?.experience || 'Intermediate'} farmer
+                {farmer?.country || 'India'} · {t(`profile.experienceOptions.${farmer?.experience || 'intermediate'}`, farmer?.experience || 'Intermediate')} {t('profile.farmer', 'farmer')}
               </p>
             </div>
             <button
               onClick={() => navigate('/onboarding/profile')}
               className="px-3 py-1.5 bg-white/20 rounded-xl text-white text-xs font-medium hover:bg-white/30 transition-colors shrink-0"
             >
-              Edit
+              {t('profile.edit', 'Edit')}
             </button>
           </div>
         </Card>
@@ -78,8 +80,8 @@ const ProfilePage: React.FC = () => {
           <div className="flex items-center gap-3">
             <span className="text-2xl">🏡</span>
             <div>
-              <p className="font-semibold text-gray-800">My Farms</p>
-              <p className="text-xs text-gray-400">2 farms registered</p>
+              <p className="font-semibold text-gray-800">{t('profile.myFarms', 'My Farms')}</p>
+              <p className="text-xs text-gray-400">{t('profile.farmsRegistered', { count: 2, defaultValue: '2 farms registered' })}</p>
             </div>
           </div>
           <ChevronRight className="w-5 h-5 text-gray-300" />
@@ -112,10 +114,10 @@ const ProfilePage: React.FC = () => {
           className="w-full flex items-center justify-center gap-2 py-3.5 bg-red-50 border border-red-100 rounded-2xl text-muted-danger font-semibold hover:bg-red-100 transition-colors"
         >
           <LogOut className="w-4 h-4" />
-          Sign Out
+          {t('profile.logout', 'Sign Out')}
         </button>
 
-        <p className="text-center text-xs text-gray-300 pb-2">Cropoctor v1.0.0 · BRICS Agricultural Intelligence Platform</p>
+        <p className="text-center text-xs text-gray-300 pb-2">Cropoctor v1.0.0 · {t('app.brics', 'BRICS Agricultural Intelligence Platform')}</p>
       </PageLayout>
     </motion.div>
   )

@@ -31,13 +31,13 @@ const InsightsPage: React.FC = () => {
       <PageLayout className="pt-4 pb-8 space-y-4">
         <div className="hidden lg:block mb-4">
           <h1 className="text-2xl font-bold text-green-forest tracking-tight">{t('nav.insights')}</h1>
-          <p className="text-sm text-brown-earth/80 font-medium">Crop health, soil health, and satellite intelligence.</p>
+          <p className="text-sm text-brown-earth/80 font-medium">{t('insights.subtitle', 'Crop health, soil moisture, and satellite metrics.')}</p>
         </div>
 
         <div className="flex gap-2">
-          <Chip selected={tab === 'crop'} onClick={() => setTab('crop')}>Crop Health</Chip>
-          <Chip selected={tab === 'soil'} onClick={() => setTab('soil')}>Soil Health</Chip>
-          <Chip selected={tab === 'satellite'} onClick={() => setTab('satellite')}>Satellite</Chip>
+          <Chip selected={tab === 'crop'} onClick={() => setTab('crop')}>{t('insights.cropHealth', 'Crop Health')}</Chip>
+          <Chip selected={tab === 'soil'} onClick={() => setTab('soil')}>{t('insights.soilHealth', 'Soil Health')}</Chip>
+          <Chip selected={tab === 'satellite'} onClick={() => setTab('satellite')}>{t('insights.satellite', 'Satellite')}</Chip>
         </div>
 
         {loading ? <InsightSkeleton /> : insights && (
@@ -47,21 +47,21 @@ const InsightsPage: React.FC = () => {
                 <Card padding="md" className="bg-cream border-brown-pastel/40 shadow-sm">
                   <div className="flex items-center justify-between mb-4">
                     <div>
-                      <p className="text-[11px] uppercase tracking-widest text-brown-earth/80 font-bold mb-0.5">Crop Health Score</p>
+                      <p className="text-[11px] uppercase tracking-widest text-brown-earth/80 font-bold mb-0.5">{t('insights.cropHealth', 'Crop Health')} Score</p>
                       <h2 className="text-4xl font-bold text-green-forest">{insights.cropHealth.score}<span className="text-xl text-brown-earth/60">/100</span></h2>
                       <Badge variant="green" dot className="mt-1">
-                        {insights.cropHealth.trend === 'up' ? '↑ Improving' : insights.cropHealth.trend === 'down' ? '↓ Declining' : '→ Stable'}
+                        {insights.cropHealth.trend === 'up' ? t('insights.trend.improving', '↑ Improving') : insights.cropHealth.trend === 'down' ? t('insights.trend.declining', '↓ Declining') : t('insights.trend.stable', '→ Stable')}
                       </Badge>
                     </div>
                     <div className="text-5xl">💚</div>
                   </div>
                   <ProgressBar value={insights.cropHealth.score} color="green" size="md" />
                   <div className="mt-4 pt-4 border-t border-brown-pastel/20">
-                    <p className="text-[10px] font-bold text-brown-earth uppercase tracking-widest mb-2">Contributing Factors</p>
+                    <p className="text-[10px] font-bold text-brown-earth uppercase tracking-widest mb-2">{t('insights.contributingFactors', 'Contributing Factors')}</p>
                     <div className="space-y-2">
                       {insights.cropHealth.factors.map((f: string) => (
                         <div key={f} className="flex items-center gap-2.5 text-sm text-text-main font-medium">
-                          <span className="text-green-forest shrink-0">✓</span>{f}
+                          <span className="text-green-forest shrink-0">✓</span>{t(`insights.factors.${f}`, f)}
                         </div>
                       ))}
                     </div>
@@ -75,7 +75,7 @@ const InsightsPage: React.FC = () => {
                 <Card padding="md" className="bg-cream border-brown-pastel/40 shadow-sm">
                   <div className="flex items-center justify-between mb-4">
                     <div>
-                      <p className="text-[11px] uppercase tracking-widest text-brown-earth/80 font-bold mb-0.5">Soil Health Score</p>
+                      <p className="text-[11px] uppercase tracking-widest text-brown-earth/80 font-bold mb-0.5">{t('insights.soilHealth', 'Soil Health')} Score</p>
                       <h2 className="text-4xl font-bold text-brown-deep">{insights.soilHealth.score}<span className="text-xl text-brown-earth/60">/100</span></h2>
                       <Badge variant="earth" className="mt-1">Moisture: {insights.soilHealth.moisture}</Badge>
                     </div>
@@ -96,7 +96,7 @@ const InsightsPage: React.FC = () => {
                   <div className="relative">
                     <img src={IMAGES.farms.satellite} alt="Satellite farm view" className="w-full h-64 object-cover" />
                     <div className="absolute top-3 right-3 flex gap-2">
-                      <Badge variant="demo">Demo Data</Badge>
+                      <Badge variant="demo">{t('dashboard.demoData', 'Demo Data')}</Badge>
                     </div>
                     {/* NDVI overlay legend */}
                     <div className="absolute bottom-3 left-3 bg-white/90 backdrop-blur-sm rounded-xl p-2 border border-brown-pastel/30 shadow-sm">
