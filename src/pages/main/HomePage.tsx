@@ -13,7 +13,7 @@ import { useFarm } from '@/store/FarmContext'
 import { useUser } from '@/store/UserContext'
 import { weatherService } from '@/services'
 import type { WeatherData } from '@/types'
-import { getGreeting } from '@/utils/format'
+import { getGreeting, formatLocalizedNumber, formatLocalizedPercent } from '@/utils/format'
 import { IMAGES } from '@/config/images'
 import { useTranslation } from 'react-i18next'
 
@@ -21,13 +21,23 @@ const HomePage: React.FC = () => {
   const navigate = useNavigate()
   const { activeFarm } = useFarm()
   const { farmer } = useUser()
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const [weather, setWeather] = useState<WeatherData | null>(null)
   const [loadingWeather, setLoadingWeather] = useState(true)
 
   useEffect(() => {
     if (!activeFarm) return
-    weatherService.getWeather(activeFarm.id).then(w => { setWeather(w); setLoadingWeather(false) })
+    let isSubscribed = true
+    setLoadingWeather(true)
+    weatherService.getWeather(activeFarm.id).then(w => {
+      if (isSubscribed) {
+        setWeather(w)
+        setLoadingWeather(false)
+      }
+    }).catch(() => {
+      if (isSubscribed) setLoadingWeather(false)
+    })
+    return () => { isSubscribed = false }
   }, [activeFarm])
 
   const greeting = getGreeting()
@@ -37,7 +47,6 @@ const HomePage: React.FC = () => {
     : t('dashboard.greetingEvening', { name })
 
   const health = activeFarm?.healthScore ?? 82
-  const healthColor = health >= 70 ? 'green' : health >= 50 ? 'warning' : 'danger'
 
   return (
     <motion.div variants={pageVariants} initial="initial" animate="animate" className="min-h-screen bg-background pb-8">
@@ -58,14 +67,14 @@ const HomePage: React.FC = () => {
           </div>
           {/* Greeting */}
           <div>
-            <p className="text-white/80 text-xs font-bold uppercase tracking-widest">{new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' })}</p>
+            <p className="text-white/80 text-xs font-bold uppercase tracking-widest">{new Date().toLocaleDateString(i18n.language, { weekday: 'long', day: 'numeric', month: 'long' })}</p>
             <h1 className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-white mt-1 tracking-tight drop-shadow-sm">{greetingText}</h1>
           </div>
         </div>
       </div>
 
       <PageLayout className="pt-4 space-y-5">
-        {/* Farm selector card */}
+        {/* Active Farm Bar */}
         {activeFarm && (
           <motion.div variants={cardVariants} whileHover={{ y: -1 }} className="w-full">
             <div 
@@ -77,15 +86,15 @@ const HomePage: React.FC = () => {
                   🌾
                 </div>
                 <div>
-                  <h2 className="text-text-main font-bold text-base leading-tight group-hover:text-green-forest transition-colors">{activeFarm.name}</h2>
+                  <h2 className="text-text-main font-bold text-base leading-tight group-hover:text-green-forest transition-colors">{t(`farms.${activeFarm.id}.name`, activeFarm.name)}</h2>
                   <p className="text-text-secondary text-xs font-semibold mt-0.5 flex items-center gap-1">
-                    <MapPin className="w-3 h-3 text-brown-earth" /> {activeFarm.location.displayName}
+                    <MapPin className="w-3 h-3 text-brown-earth" /> {t(`locations.${activeFarm.location.displayName}`, activeFarm.location.displayName)}
                   </p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <Badge variant="green" size="sm" className="hidden sm:inline-flex">
-                  {activeFarm.primaryCrop} · {activeFarm.area} acres
+                  {t(`crops.${activeFarm.primaryCrop}`, activeFarm.primaryCrop)} · {formatLocalizedNumber(activeFarm.area, i18n.language)} {t('units.acres', 'acres')}
                 </Badge>
                 <ChevronRight className="w-5 h-5 text-brown-earth/60 group-hover:text-brown-earth transition-colors" />
               </div>
@@ -109,8 +118,8 @@ const HomePage: React.FC = () => {
                     <div>
                       <p className="text-brown-earth text-xs font-bold uppercase tracking-wider mb-1">{t('dashboard.currentWeather', 'Current Weather')}</p>
                       <div className="flex items-baseline gap-2">
-                        <span className="text-5xl font-black text-text-main">{weather.temperature}°</span>
-                        <span className="text-text-secondary text-sm font-semibold capitalize">{weather.description}</span>
+                        <span className="text-5xl font-black text-text-main">{formatLocalizedNumber(weather.temperature, i18n.language)}°</span>
+                        <span className="text-text-secondary text-sm font-semibold capitalize">{t(`weatherDesc.${weather.icon}`, weather.description)}</span>
                       </div>
                     </div>
                     <div className="w-14 h-14 rounded-full bg-white border border-brown-pastel/30 flex items-center justify-center shadow-sm">
@@ -120,9 +129,9 @@ const HomePage: React.FC = () => {
 
                   <div className="relative z-10 grid grid-cols-3 gap-2.5 mb-4 mt-2">
                     {[
-                      { icon: Droplets, label: `${t('dashboard.weatherCard.rain', 'Rain')} ${weather.rainChance}%` },
-                      { icon: Droplets, label: `${t('dashboard.weatherCard.humidity', 'Humidity')} ${weather.humidity}%` },
-                      { icon: Wind, label: `${t('dashboard.weatherCard.wind', 'Wind')} ${weather.windSpeed} km/h` }
+                      { icon: Droplets, label: `${t('dashboard.weatherCard.rain', 'Rain')} ${formatLocalizedPercent(weather.rainChance, i18n.language)}` },
+                      { icon: Droplets, label: `${t('dashboard.weatherCard.humidity', 'Humidity')} ${formatLocalizedPercent(weather.humidity, i18n.language)}` },
+                      { icon: Wind, label: `${t('dashboard.weatherCard.wind', 'Wind')} ${formatLocalizedNumber(weather.windSpeed, i18n.language)} km/h` }
                     ].map(({ icon: Icon, label }) => (
                       <div key={label} className="bg-white/50 border border-brown-pastel/30 rounded-xl p-2 flex items-center gap-1.5 shadow-sm">
                         <Icon className="w-4 h-4 text-green-forest shrink-0" />
@@ -159,14 +168,14 @@ const HomePage: React.FC = () => {
               </Card>
             </motion.div>
 
-            {/* Farm Health Card - Pastel Green Surface, Dark Green Indicator */}
+            {/* Farm Health Card */}
             {!loadingWeather ? (
               <motion.div variants={cardVariants}>
                 <Card variant="pastelGreen" className="border-green-pastel/55 shadow-card" padding="md">
                   <div className="flex items-center justify-between mb-4">
                     <div>
                       <p className="text-[10px] font-bold text-green-forest uppercase tracking-widest mb-1">{t('dashboard.farmHealth')}</p>
-                      <h2 className="text-4xl font-extrabold text-green-forest tracking-tight">{health}<span className="text-xl text-green-forest/60 font-medium">/100</span></h2>
+                      <h2 className="text-4xl font-extrabold text-green-forest tracking-tight">{formatLocalizedNumber(health, i18n.language)}<span className="text-xl text-green-forest/60 font-medium">/{formatLocalizedNumber(100, i18n.language)}</span></h2>
                       <Badge variant="green" dot className="mt-2">
                         {health >= 70 ? t('dashboard.lookingHealthy') : health >= 50 ? t('dashboard.needsAttention') : t('dashboard.atRisk', 'At Risk')}
                       </Badge>
@@ -178,7 +187,7 @@ const HomePage: React.FC = () => {
                         <circle cx="18" cy="18" r="15.5" fill="none" stroke="var(--color-green-forest)" strokeWidth="3.5"
                           strokeDasharray={`${health * 0.974} ${100 - health * 0.974}`} strokeLinecap="round" />
                       </svg>
-                      <span className="absolute inset-0 flex items-center justify-center text-xs font-black text-green-forest">{health}%</span>
+                      <span className="absolute inset-0 flex items-center justify-center text-xs font-black text-green-forest">{formatLocalizedPercent(health, i18n.language)}</span>
                     </div>
                   </div>
                   <ProgressBar value={health} color="green" size="sm" />
@@ -192,7 +201,7 @@ const HomePage: React.FC = () => {
 
           {/* ── RIGHT COLUMN: Next Action & Quick Actions ── */}
           <div className="space-y-5">
-            {/* Next Best Action - Earth Brown / Pastel Brown */}
+            {/* Next Best Action */}
             <motion.div variants={cardVariants}>
               <Card className="bg-gradient-to-br from-brown-earth to-brown-secondary border-none text-white shadow-card-lg relative overflow-hidden" padding="md">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-[30px] pointer-events-none" />
@@ -211,14 +220,14 @@ const HomePage: React.FC = () => {
               </Card>
             </motion.div>
 
-            {/* Quick Actions - Balanced Pastel Green, Cream, Pastel Brown */}
+            {/* Quick Actions */}
             <motion.div variants={cardVariants}>
               <Card padding="md" className="border-brown-pastel/30 bg-cream shadow-sm">
                 <p className="text-[10px] font-bold text-brown-earth uppercase tracking-widest mb-3 pl-1">{t('dashboard.quickActions')}</p>
                 <div className="grid grid-cols-2 gap-2.5">
                   {[
                     { icon: Bot,         label: t('nav.advisor'),   route: '/advisor',    bg: 'bg-green-pastel/30 border border-green-pastel/50 hover:bg-green-pastel/40', color: 'text-green-forest' },
-                    { icon: Stethoscope, label: t('nav.diagnose'), route: '/crop-doctor',   bg: 'bg-white border border-brown-pastel/40 hover:bg-off-white',         color: 'text-brown-earth' },
+                    { icon: Stethoscope, label: t('nav.diagnose'), route: '/diagnose',   bg: 'bg-white border border-brown-pastel/40 hover:bg-off-white',         color: 'text-brown-earth' },
                     { icon: Cloud,       label: t('nav.weather'),  route: '/weather',    bg: 'bg-green-light/40 border border-green-pastel/30 hover:bg-green-light/60', color: 'text-green-forest' },
                     { icon: BarChart2,   label: t('nav.insights'), route: '/insights',   bg: 'bg-brown-pastel/30 border border-brown-pastel/40 hover:bg-brown-pastel/40', color: 'text-brown-earth' },
                     { icon: Plus,        label: t('farm.addNew'), route: '/onboarding/location', bg: 'bg-white border border-brown-pastel/35 hover:bg-off-white col-span-2 py-3', color: 'text-green-forest' },
