@@ -116,12 +116,12 @@ const NotificationsPage: React.FC = () => {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-2">
-                      <p className={`text-sm ${!notif.read ? 'font-bold text-gray-800' : 'font-medium text-gray-700'}`}>{notif.title}</p>
+                      <p className={`text-sm ${!notif.read ? 'font-bold text-gray-800' : 'font-medium text-gray-700'}`}>{t(`notifications.items.${notif.id}.title`, notif.title)}</p>
                       <span className="text-xs text-gray-400 shrink-0">{timeAgo(notif.timestamp)}</span>
                     </div>
-                    <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{notif.body}</p>
+                    <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{t(`notifications.items.${notif.id}.body`, notif.body)}</p>
                     {notif.actionLabel && (
-                      <span className="text-xs text-green-forest font-semibold mt-1 block">{notif.actionLabel} →</span>
+                      <span className="text-xs text-green-forest font-semibold mt-1 block">{t(`notifications.actions.${notif.id}`, notif.actionLabel)} →</span>
                     )}
                   </div>
                   {!notif.read && (
