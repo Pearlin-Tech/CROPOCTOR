@@ -1,29 +1,537 @@
 {
-  "app": { "name": "Cropoctor", "tagline": "Decisões mais inteligentes para cada fazenda." },
-  "nav": { "home": "Início", "myFarm": "Minha Fazenda", "advisor": "Consultor IA", "diagnose": "Diagnosticar", "profile": "Perfil", "weather": "Clima", "insights": "Visões", "history": "Histórico", "notifications": "Notificações", "settings": "Configurações" },
+  "app": {
+    "name": "Cropoctor",
+    "tagline": "Decisões mais inteligentes para cada fazenda.",
+    "platform": "Plataforma de Inteligência Agrícola",
+    "brics": "Plataforma de Inteligência Agrícola BRICS"
+  },
+  "nav": {
+    "home": "Início",
+    "myFarm": "Minha Fazenda",
+    "advisor": "Assistente IA",
+    "diagnose": "Diagnóstico",
+    "profile": "Perfil",
+    "weather": "Clima",
+    "insights": "Análises",
+    "history": "Histórico",
+    "notifications": "Notificações",
+    "settings": "Configurações",
+    "voice": "Assistente de Voz",
+    "help": "Ajuda e Suporte",
+    "about": "Sobre"
+  },
   "welcome": {
-    "headline": "Melhores decisões. Cultivos mais saudáveis.",
-    "subheading": "Inteligência agrícola baseada em IA construída em torno da sua fazenda.",
+    "headline": "Decisões melhores. Cultivos mais saudáveis.",
+    "subheading": "Inteligência agrícola com IA adaptada à sua propriedade.",
     "cta": "Começar",
     "signin": "Já tem uma conta? Entrar"
   },
   "auth": {
-    "google": "Continuar com Google",
+    "google": "Continuar com o Google",
     "phone": "Continuar com Telefone",
-    "email": "Continuar com Email",
+    "email": "Continuar com E-mail",
     "createAccount": "Criar Conta",
     "forgotPassword": "Esqueceu a senha?",
-    "emailLabel": "Endereço de email",
+    "emailLabel": "Endereço de e-mail",
     "passwordLabel": "Senha",
     "nameLabel": "Nome completo",
     "signingIn": "Entrando...",
+    "welcomeBack": "Bem-vindo de volta!",
+    "signInToContinue": "Entre para continuar.",
+    "noAccount": "Não tem uma conta?",
+    "alreadyHaveAccount": "Já possui uma conta?",
+    "securityNotice": "Conexão Criptografada e Segura 256-bit",
+    "signedOut": "Você foi desconectado.",
     "errors": {
       "required": "Este campo é obrigatório.",
-      "invalidEmail": "Insira um endereço de email válido.",
+      "invalidEmail": "Insira um e-mail válido.",
       "weakPassword": "A senha deve ter pelo menos 6 caracteres.",
       "authFailed": "Falha no login. Tente novamente."
     }
   },
-  "language": { "title": "Escolher Idioma", "subtitle": "Selecione o seu idioma preferido.", "search": "Pesquisar idioma...", "continue": "Continuar" },
-  "country": { "title": "Selecione Seu País", "subtitle": "Escolha o seu país para obter informações locais.", "continue": "Continuar" }
+  "language": {
+    "title": "Escolha o Idioma",
+    "subtitle": "Selecione seu idioma preferido.",
+    "search": "Buscar idioma...",
+    "continue": "Continuar"
+  },
+  "country": {
+    "title": "Selecione seu País",
+    "subtitle": "Escolha o país para obter informações locais.",
+    "continue": "Continuar"
+  },
+  "profile": {
+    "title": "Perfil e Configurações",
+    "subtitle": "Gerencie seu perfil, preferências e conta.",
+    "name": "Nome completo",
+    "experience": "Experiência agrícola",
+    "experienceOptions": {
+      "beginner": "Iniciante (0–3 anos)",
+      "intermediate": "Intermediário (3–10 anos)",
+      "expert": "Especialista (10+ anos)"
+    },
+    "preferences": "Preferências",
+    "language": "Idioma",
+    "country": "País",
+    "units": "Unidades",
+    "voiceSettings": "Configurações de Voz",
+    "notificationsPrivacy": "Notificações e Privacidade",
+    "notifications": "Notificações",
+    "privacy": "Política de Privacidade",
+    "dataManagement": "Gerenciamento de Dados",
+    "support": "Suporte",
+    "help": "Ajuda e Suporte",
+    "about": "Sobre o Cropoctor",
+    "logout": "Sair",
+    "edit": "Editar",
+    "farmer": "agricultor",
+    "myFarms": "Minhas Fazendas",
+    "farmsRegistered": "{{count}} fazendas registradas",
+    "version": "Versão"
+  },
+  "farms": {
+    "farm-001": { "name": "Fazenda de Amendoim Rajkot" },
+    "farm-002": { "name": "Fazenda de Algodão Surat" },
+    "farm-003": { "name": "Fazenda de Trigo Junagadh" }
+  },
+  "locations": {
+    "Rajkot, Gujarat": "Rajkot, Gujarat",
+    "Surat, Gujarat": "Surat, Gujarat",
+    "Junagadh, Gujarat": "Junagadh, Gujarat",
+    "Rajkot, Gujarat, India": "Rajkot, Gujarat, Índia",
+    "Surat, Gujarat, India": "Surat, Gujarat, Índia",
+    "Junagadh, Gujarat, India": "Junagadh, Gujarat, Índia",
+    "Rajkot": "Rajkot",
+    "Surat": "Surat",
+    "Junagadh": "Junagadh",
+    "Gujarat": "Gujarat",
+    "India": "Índia",
+    "Farm Location": "Localização da Fazenda"
+  },
+  "farm": {
+    "location": {
+      "title": "Onde fica sua fazenda?",
+      "subtitle": "Encontre sua propriedade no mapa e marque a localização.",
+      "useMyLocation": "Usar minha localização",
+      "searchPlaceholder": "Buscar cidade, área ou região",
+      "pickOnMap": "Escolher no mapa",
+      "useThisLocation": "Usar esta localização",
+      "locating": "Localizando...",
+      "locationError": "Não foi possível encontrar sua localização."
+    },
+    "boundary": {
+      "title": "Demarcar Área da Fazenda",
+      "subtitle": "Toque no mapa para desenhar o limite.",
+      "area": "Aprox. {{value}} {{unit}}",
+      "clear": "Limpar",
+      "edit": "Editar",
+      "confirm": "Confirmar Área"
+    },
+    "details": {
+      "title": "Detalhes da Fazenda",
+      "subtitle": "Complete a configuração da sua fazenda.",
+      "name": "Nome da fazenda",
+      "namePlaceholder": "ex. Fazenda Boa Vista",
+      "area": "Área",
+      "primaryCrop": "Cultura principal",
+      "soilType": "Tipo de solo",
+      "cropStage": "Estágio da cultura",
+      "plantingDate": "Data de plantio (opcional)",
+      "save": "Salvar Fazenda",
+      "setActive": "Fazenda Ativa"
+    },
+    "crop": {
+      "title": "Selecione a Cultura",
+      "subtitle": "Escolha o cultivo principal.",
+      "search": "Buscar cultivos...",
+      "categories": "Categorias",
+      "popular": "Populares",
+      "all": "Todos os Cultivos",
+      "select": "Selecionar Cultivo"
+    },
+    "soil": {
+      "title": "Tipo de Solo",
+      "subtitle": "Selecione o tipo de solo.",
+      "select": "Selecionar Solo",
+      "dontKnow": "Não sei"
+    },
+    "stage": {
+      "title": "Estágio do Cultivo",
+      "subtitle": "Em qual estágio está sua lavoura?",
+      "select": "Selecionar Estágio",
+      "plantingDate": "Quando foi o plantio?"
+    },
+    "complete": {
+      "title": "Fazenda Pronta! 🌱",
+      "subtitle": "Sua fazenda foi configurada com sucesso.",
+      "goToDashboard": "Ir para o Painel"
+    },
+    "health": "Saúde da Fazenda",
+    "addNew": "+ Adicionar Nova Fazenda",
+    "noFarms": "Nenhuma fazenda adicionada.",
+    "noFarmsHint": "Adicione sua primeira fazenda para começar.",
+    "addAnotherHint": "Adicione outra fazenda para obter análises personalizadas.",
+    "context": {
+      "title": "Contexto da Fazenda",
+      "crop": "Cultura",
+      "soil": "Solo",
+      "stage": "Estágio",
+      "location": "Localização",
+      "weather": "Clima",
+      "health": "Saúde",
+      "hint": "A IA usa o contexto da sua fazenda para gerar recomendações."
+    }
+  },
+  "dashboard": {
+    "title": "Painel Cropoctor",
+    "greeting": "Bom dia, {{name}} 🌱",
+    "greetingAfternoon": "Boa tarde, {{name}} 🌾",
+    "greetingEvening": "Boa noite, {{name}} 🌙",
+    "currentWeather": "Clima Atual",
+    "farmHealth": "Saúde da Fazenda",
+    "lookingHealthy": "Saudável",
+    "needsAttention": "Requer Atenção",
+    "atRisk": "Em Risco",
+    "nextBestAction": "Próxima Melhor Ação",
+    "viewActionPlan": "Ver Plano de Ação",
+    "quickActions": "Ações Rápidas",
+    "viewWeather": "Ver Clima",
+    "viewInsights": "Ver Análises",
+    "alert": "Alerta",
+    "why": "Por quê?",
+    "demoData": "Dados Demonstrativos",
+    "totalFarms": "{{count}} fazendas registradas",
+    "weatherCard": {
+      "rain": "Chuva",
+      "humidity": "Umidade",
+      "wind": "Vento"
+    },
+    "nba": {
+      "action": "Verifique a umidade do solo antes de irrigar."
+    },
+    "demoAlert": {
+      "title": "Chuva forte esperada para amanhã.",
+      "desc": "Considere adiar a irrigação e verificar os canais de drenagem.",
+      "why": "Por quê?"
+    }
+  },
+  "advisor": {
+    "title": "Assistente IA",
+    "subtitle": "Seu agrônomo virtual inteligente.",
+    "inputPlaceholder": "Pergunte qualquer coisa sobre sua lavoura...",
+    "askPlaceholder": "Pergunte qualquer coisa sobre sua lavoura...",
+    "thinking": "Analisando sua fazenda...",
+    "preparing": "Preparando recomendação...",
+    "recommendation": "Recomendação",
+    "why": "Por quê?",
+    "whatToDo": "O que fazer",
+    "dataUsed": "Dados Utilizados",
+    "listen": "Ouvir",
+    "saveAdvice": "Salvar",
+    "saved": "Recomendação salva.",
+    "farmContext": "Contexto da Fazenda",
+    "askFollowUp": "Fazer Pergunta Adicional",
+    "quickQuestions": "Perguntas Frequentes",
+    "questions": {
+      "q1": "Devo irrigar hoje?",
+      "q2": "Por que minhas folhas estão amareladas?",
+      "q3": "Quando devo semear?",
+      "q4": "Qual fertilizante devo usar?",
+      "q5": "É esperada chuva no momento certo?",
+      "q6": "Como posso melhorar a saúde da cultura?"
+    }
+  },
+  "voice": {
+    "title": "Assistente de Voz",
+    "listening": "Ouvindo...",
+    "understanding": "Compreendendo sua dúvida...",
+    "preparing": "Preparando resposta...",
+    "cancel": "Cancelar",
+    "stop": "Parar",
+    "retry": "Tentar novamente",
+    "tapToSpeak": "Toque no microfone para falar",
+    "notSupported": "Entrada de voz não suportada neste dispositivo."
+  },
+  "diagnose": {
+    "title": "Diagnóstico de Cultivo",
+    "subtitle": "Tire uma foto do cultivo ou envie uma imagem.",
+    "tapToUpload": "Toque para enviar",
+    "orTakePhoto": "ou tire uma foto",
+    "takePhoto": "Tirar Foto",
+    "uploadImage": "Enviar Imagem",
+    "useSample": "Usar Imagem de Exemplo",
+    "sampleHint": "A imagem de exemplo permite testar o diagnóstico completo sem câmera.",
+    "recentTitle": "Diagnósticos Recentes",
+    "analyzing": "Analisando imagem",
+    "match": "de precisão",
+    "tips": {
+      "title": "Dicas para melhores resultados",
+      "tip1": "Use luz natural — evite sombras fortes.",
+      "tip2": "Fotografe a folha afetada com clareza.",
+      "tip3": "Inclua de 2 a 3 folhas com sintomas.",
+      "tip4": "Mantenha a câmera firme e focada.",
+      "tip5": "Inclua ambos os lados da folha se possível."
+    },
+    "steps": {
+      "examining": "Examinando imagem",
+      "identifying": "Identificando cultivo",
+      "checking": "Verificando sintomas",
+      "analyzing": "Analisando padrões visuais",
+      "preparing": "Preparando recomendação"
+    },
+    "result": {
+      "title": "Resultado do Diagnóstico",
+      "confidence": "{{value}}% de Precisão",
+      "possibleIssue": "Problema Identificado",
+      "symptoms": "Sintomas Observados",
+      "actions": "Ações Recomendadas",
+      "listen": "Ouvir",
+      "learnMore": "Saiba Mais",
+      "askAI": "Perguntar à IA",
+      "save": "Salvar Diagnóstico",
+      "disclaimer": "O diagnóstico por IA é informativo e não substitui a orientação técnica profissional.",
+      "demo": "Diagnóstico Demonstrativo",
+      "severity": {
+        "mild": "Leve",
+        "moderate": "Moderado",
+        "severe": "Grave"
+      }
+    }
+  },
+  "weather": {
+    "title": "Inteligência Climática",
+    "subtitle": "Clima em tempo real e impacto no cultivo.",
+    "today": "Hoje",
+    "tomorrow": "Amanhã",
+    "sevenDay": "7 Dias",
+    "farmImpact": "Impacto na Fazenda",
+    "irrigation": "Irrigação",
+    "spraying": "Pulverização",
+    "diseaseRisk": "Risco de Doenças",
+    "status": {
+      "delay": "Adiar",
+      "proceed": "Prosseguir",
+      "monitor": "Monitorar",
+      "postpone": "Adiar",
+      "caution": "Cuidado",
+      "low": "Baixo",
+      "moderate": "Moderado",
+      "elevated": "Elevado",
+      "high": "Alto"
+    },
+    "reasons": {
+      "Soil moisture is adequate. Irrigate as scheduled.": "Umidade do solo é adequada. Irrigue conforme planejado.",
+      "High wind speed will cause chemical drift.": "Vento forte causará deriva de produtos químicos.",
+      "High humidity increases fungal disease risk.": "Alta umidade aumenta o risco de doenças fúngicas."
+    },
+    "viewDetails": "Ver Detalhes",
+    "demo": "Dados Climáticos Demonstrativos",
+    "updatedJustNow": "Atualizado agora",
+    "updatedMinAgo": "Atualizado há {{count}} min",
+    "feelsLike": "Sensação térmica {{temp}}°"
+  },
+  "insights": {
+    "title": "Análises da Fazenda",
+    "subtitle": "Saúde do cultivo, umidade do solo e índices de satélite.",
+    "cropHealth": "Saúde do Cultivo",
+    "soilHealth": "Saúde do Solo",
+    "satellite": "Satélite",
+    "ndvi": "Índice NDVI",
+    "vegetationHealth": "Vigor Vegetativo",
+    "contributingFactors": "Fatores Contribuintes",
+    "demo": "Dados Demonstrativos",
+    "live": "Ao Vivo",
+    "unavailable": "Indisponível",
+    "trend": {
+      "improving": "↑ Melhorando",
+      "declining": "↓ Declinando",
+      "stable": "→ Estável"
+    },
+    "factors": {
+      "moisture": "Umidade ideal do solo",
+      "nutrients": "Níveis adequados de nutrientes",
+      "disease": "Nenhuma doença confirmada",
+      "canopy": "Bom desenvolvimento foliar",
+      "Optimal soil moisture": "Umidade ideal do solo",
+      "Adequate nutrient levels": "Níveis adequados de nutrientes",
+      "No confirmed disease": "Nenhuma doença confirmada",
+      "Good canopy development": "Bom desenvolvimento foliar"
+    }
+  },
+  "history": {
+    "title": "Histórico da Fazenda",
+    "subtitle": "Registro de todas as recomendações IA, diagnósticos e ações.",
+    "notice": "A persistência completa do histórico conecta ao Firestore na Etapa 4.",
+    "items": {
+      "h-001": {
+        "title": "Irrigação adiada",
+        "summary": "IA recomendou adiar a irrigação devido à previsão de chuva."
+      },
+      "h-002": {
+        "title": "Mancha Foliar Detectada",
+        "summary": "Mancha Foliar por Cercospora detectada com 87% de precisão."
+      },
+      "h-003": {
+        "title": "Alerta de Chuva Forte",
+        "summary": "Previsão de 35–50mm de chuva para as próximas 48 horas."
+      },
+      "h-004": {
+        "title": "Estágio do Cultivo: Floração",
+        "summary": "O cultivo de amendoim entrou no estágio de floração."
+      },
+      "h-005": {
+        "title": "Fertilizante Aplicado",
+        "summary": "10kg de Ureia aplicados por acre em cobertura."
+      }
+    }
+  },
+  "notifications": {
+    "title": "Notificações",
+    "subtitle": "Alertas e atualizações da propriedade.",
+    "unreadAlerts": "{{count}} alertas não lidos",
+    "caughtUp": "Tudo em dia!",
+    "markAllRead": "Marcar todas como lidas",
+    "clearAll": "Limpar todas",
+    "items": {
+      "notif-001": {
+        "title": "Chuva Forte Esperada Amanhã",
+        "body": "Previsão de 35–50mm de chuva para Rajkot. Considere adiar a irrigação e proteger seu cultivo."
+      },
+      "notif-002": {
+        "title": "Recomendação de Irrigação Pronta",
+        "body": "Com base nas condições de hoje, recomendamos adiar a irrigação em 24 horas."
+      },
+      "notif-003": {
+        "title": "Risco de Doença Elevado",
+        "body": "A alta umidade aumenta o risco de doenças fúngicas no amendoim. Monitore as folhas de perto."
+      },
+      "notif-004": {
+        "title": "Lembrete de Irrigação",
+        "body": "Verificação de irrigação agendada para a Fazenda Rajkot."
+      },
+      "notif-005": {
+        "title": "Atualização de Saúde da Fazenda",
+        "body": "A pontuação de saúde da sua fazenda em Rajkot melhorou de 78 para 82."
+      }
+    },
+    "actions": {
+      "notif-001": "Ver Clima",
+      "notif-002": "Ver Recomendação",
+      "notif-003": "Diagnosticar Cultivo",
+      "notif-004": "Plano de Irrigação",
+      "notif-005": "Ver Análises"
+    }
+  },
+  "settings": {
+    "title": "Configurações",
+    "subtitle": "Preferências do aplicativo e conta.",
+    "sections": {
+      "languageRegion": "Idioma e Região",
+      "voiceAI": "Voz e IA",
+      "appPreferences": "Preferências do App"
+    },
+    "metricUnits": "Unidades Métricas",
+    "voiceDesc": "Velocidade da fala, idioma, reprodução",
+    "weatherAlerts": "Alertas Climáticos",
+    "weatherAlertsDesc": "Chuvas, tempestades e eventos extremos",
+    "diseaseWarnings": "Avisos de Doenças",
+    "diseaseWarningsDesc": "Condições de alto risco para doenças",
+    "irrigationReminders": "Lembretes de Irrigação",
+    "irrigationRemindersDesc": "Verificações agendadas de irrigação",
+    "aiRecommendations": "Recomendações da IA",
+    "aiRecommendationsDesc": "Atualizações diárias de inteligência agrícola",
+    "darkMode": "Modo Escuro",
+    "darkModeDesc": "Em breve na próxima atualização",
+    "offlineMode": "Modo Offline",
+    "offlineModeDesc": "Armazenar dados da fazenda em cache",
+    "exportData": "Exportar Meus Dados",
+    "exportDataDesc": "Baixar histórico da sua propriedade",
+    "clearData": "Limpar Dados Locais",
+    "clearDataDesc": "Remover todos os dados em cache",
+    "units": "Unidades",
+    "metric": "Métrico (acres, °C)",
+    "imperial": "Imperial (hectares, °F)",
+    "voice": "Configurações de Voz",
+    "language": "Idioma",
+    "notifications": "Notificações",
+    "privacy": "Política de Privacidade",
+    "help": "Ajuda e Suporte",
+    "about": "Sobre o Cropoctor"
+  },
+  "states": {
+    "loading": "Carregando...",
+    "error": "Ocorreu um erro.",
+    "retry": "Tentar Novamente",
+    "offline": "Você está offline.",
+    "offlineHint": "Suas informações salvas continuam disponíveis.",
+    "empty": "Nada aqui ainda.",
+    "lastUpdated": "Última atualização",
+    "reload": "Recarregar Aplicativo"
+  },
+  "toast": {
+    "farmSaved": "Fazenda salva com sucesso.",
+    "locationSelected": "Localização selecionada.",
+    "adviceSaved": "Recomendação salva.",
+    "diagnosisSaved": "Diagnóstico salvo.",
+    "weatherError": "Não foi possível carregar o clima.",
+    "voiceError": "Entrada de voz indisponível.",
+    "copied": "Copiado para a área de transferência."
+  },
+  "units": {
+    "acres": "acres",
+    "hectares": "hectares",
+    "celsius": "°C",
+    "fahrenheit": "°F",
+    "kmh": "km/h"
+  },
+  "crops": {
+    "groundnut": "Amendoim",
+    "cotton": "Algodão",
+    "wheat": "Trigo",
+    "Groundnut": "Amendoim",
+    "Cotton": "Algodão",
+    "Wheat": "Trigo"
+  },
+  "diseases": {
+    "Leaf Spot": "Mancha Foliar",
+    "Healthy Crop": "Cultivo Saudável"
+  },
+  "stages": {
+    "seedling": "Muda",
+    "growing": "Crescimento",
+    "flowering": "Floração",
+    "Seedling": "Muda",
+    "Growing": "Crescimento",
+    "Flowering": "Floração"
+  },
+  "soils": {
+    "Loamy": "Franco-arenoso",
+    "Black Cotton": "Solo Argiloso Escuro",
+    "Alluvial": "Aluvial",
+    "Sandy": "Arenoso"
+  },
+  "time": {
+    "h-001": "há 1h",
+    "h-002": "há 2d",
+    "h-003": "há 3d",
+    "h-004": "15/08/2026",
+    "h-005": "12/08/2026",
+    "notif-001": "há 32 min",
+    "notif-002": "há 2h",
+    "notif-003": "há 5h",
+    "notif-004": "há 1d",
+    "notif-005": "há 2d",
+    "diag-001": "há 2 dias",
+    "diag-002": "há 1 semana",
+    "daysAgo": "há {{count}} dias",
+    "weeksAgo": "há {{count}} semana"
+  },
+  "weatherDesc": {
+    "sunny": "Ensolarado",
+    "partly-cloudy": "Parcialmente Nublado",
+    "cloudy": "Nublado",
+    "rainy": "Chuvoso",
+    "stormy": "Tempestuoso",
+    "Partly Cloudy": "Parcialmente Nublado"
+  }
 }

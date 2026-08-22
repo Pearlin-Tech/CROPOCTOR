@@ -1,12 +1,537 @@
 {
-  "app": { "name": "Cropoctor", "tagline": "Keputusan yang lebih cerdas untuk setiap lahan pertanian." },
-  "nav": { "home": "Beranda", "myFarm": "Lahan Saya", "advisor": "Penasihat AI", "diagnose": "Diagnosa", "profile": "Profil", "weather": "Cuaca", "insights": "Wawasan", "history": "Riwayat", "notifications": "Notifikasi", "settings": "Pengaturan" },
-  "welcome": {
-    "headline": "Keputusan yang lebih baik. Tanaman yang lebih sehat.",
-    "subheading": "Kecerdasan pertanian bertenaga AI yang dibangun di sekitar lahan pertanian Anda.",
-    "cta": "Mulai",
-    "signin": "Sudah memiliki akun? Masuk"
+  "app": {
+    "name": "Cropoctor",
+    "tagline": "Keputusan lebih cerdas untuk setiap lahan.",
+    "platform": "Platform Intelijen Pertanian",
+    "brics": "Platform Intelijen Pertanian BRICS"
   },
-  "language": { "title": "Pilih Bahasa", "subtitle": "Pilih bahasa pilihan Anda.", "search": "Cari bahasa...", "continue": "Lanjutkan" },
-  "country": { "title": "Pilih Negara Anda", "subtitle": "Pilih negara Anda untuk mendapatkan wawasan lokal.", "continue": "Lanjutkan" }
+  "nav": {
+    "home": "Beranda",
+    "myFarm": "Lahan Saya",
+    "advisor": "Asisten AI",
+    "diagnose": "Diagnosis",
+    "profile": "Profil",
+    "weather": "Cuaca",
+    "insights": "Wawasan",
+    "history": "Riwayat",
+    "notifications": "Notifikasi",
+    "settings": "Pengaturan",
+    "voice": "Asisten Suara",
+    "help": "Bantuan & Dukungan",
+    "about": "Tentang"
+  },
+  "welcome": {
+    "headline": "Keputusan краще. Tanaman lebih sehat.",
+    "subheading": "Intelijen pertanian berbasis AI yang disesuaikan dengan lahan Anda.",
+    "cta": "Mulai Sekarang",
+    "signin": "Sudah punya akun? Masuk"
+  },
+  "auth": {
+    "google": "Lanjutkan dengan Google",
+    "phone": "Lanjutkan dengan Telepon",
+    "email": "Lanjutkan dengan Email",
+    "createAccount": "Buat Akun",
+    "forgotPassword": "Lupa kata sandi?",
+    "emailLabel": "Alamat Email",
+    "passwordLabel": "Kata Sandi",
+    "nameLabel": "Nama Lengkap",
+    "signingIn": "Sedang masuk...",
+    "welcomeBack": "Selamat Datang Kembali!",
+    "signInToContinue": "Masuk untuk melanjutkan.",
+    "noAccount": "Belum punya akun?",
+    "alreadyHaveAccount": "Sudah punya akun?",
+    "securityNotice": "Koneksi Terenkripsi & Aman 256-bit",
+    "signedOut": "Anda telah keluar.",
+    "errors": {
+      "required": "Bidang ini wajib diisi.",
+      "invalidEmail": "Masukkan alamat email yang valid.",
+      "weakPassword": "Kata sandi minimal 6 karakter.",
+      "authFailed": "Gagal masuk. Silakan coba lagi."
+    }
+  },
+  "language": {
+    "title": "Pilih Bahasa",
+    "subtitle": "Pilih bahasa pilihan Anda.",
+    "search": "Cari bahasa...",
+    "continue": "Lanjutkan"
+  },
+  "country": {
+    "title": "Pilih Negara Anda",
+    "subtitle": "Pilih negara untuk wawasan lokal.",
+    "continue": "Lanjutkan"
+  },
+  "profile": {
+    "title": "Profil & Pengaturan",
+    "subtitle": "Kelola profil, preferensi, dan akun Anda.",
+    "name": "Nama Lengkap",
+    "experience": "Pengalaman Bertani",
+    "experienceOptions": {
+      "beginner": "Pemula (0–3 tahun)",
+      "intermediate": "Menengah (3–10 tahun)",
+      "expert": "Ahli (10+ tahun)"
+    },
+    "preferences": "Preferensi",
+    "language": "Bahasa",
+    "country": "Negara",
+    "units": "Satuan",
+    "voiceSettings": "Pengaturan Suara",
+    "notificationsPrivacy": "Notifikasi & Privasi",
+    "notifications": "Notifikasi",
+    "privacy": "Kebijakan Privasi",
+    "dataManagement": "Manajemen Data",
+    "support": "Dukungan",
+    "help": "Bantuan & Dukungan",
+    "about": "Tentang Cropoctor",
+    "logout": "Keluar",
+    "edit": "Edit",
+    "farmer": "Petani",
+    "myFarms": "Lahan Saya",
+    "farmsRegistered": "{{count}} lahan terdaftar",
+    "version": "Versi"
+  },
+  "farms": {
+    "farm-001": { "name": "Lahan Kacang Rajkot" },
+    "farm-002": { "name": "Lahan Kapas Surat" },
+    "farm-003": { "name": "Lahan Gandum Junagadh" }
+  },
+  "locations": {
+    "Rajkot, Gujarat": "Rajkot, Gujarat",
+    "Surat, Gujarat": "Surat, Gujarat",
+    "Junagadh, Gujarat": "Junagadh, Gujarat",
+    "Rajkot, Gujarat, India": "Rajkot, Gujarat, India",
+    "Surat, Gujarat, India": "Surat, Gujarat, India",
+    "Junagadh, Gujarat, India": "Junagadh, Gujarat, India",
+    "Rajkot": "Rajkot",
+    "Surat": "Surat",
+    "Junagadh": "Junagadh",
+    "Gujarat": "Gujarat",
+    "India": "India",
+    "Farm Location": "Lokasi Lahan"
+  },
+  "farm": {
+    "location": {
+      "title": "Di mana lokasi lahan Anda?",
+      "subtitle": "Temukan lahan Anda di peta dan tandai lokasinya.",
+      "useMyLocation": "Gunakan Lokasi Saya",
+      "searchPlaceholder": "Cari desa, kota, atau daerah",
+      "pickOnMap": "Pilih di Peta",
+      "useThisLocation": "Gunakan Lokasi Ini",
+      "locating": "Mencari lokasi...",
+      "locationError": "Tidak dapat menemukan lokasi Anda."
+    },
+    "boundary": {
+      "title": "Tandai Area Lahan",
+      "subtitle": "Ketuk peta untuk membuat batas lahan.",
+      "area": "Sekitar {{value}} {{unit}}",
+      "clear": "Hapus",
+      "edit": "Edit",
+      "confirm": "Konfirmasi Area"
+    },
+    "details": {
+      "title": "Detail Lahan",
+      "subtitle": "Lengkapi pengaturan lahan Anda.",
+      "name": "Nama Lahan",
+      "namePlaceholder": "contoh: Lahan Kacang Rajkot",
+      "area": "Luas",
+      "primaryCrop": "Tanaman Utama",
+      "soilType": "Jenis Tanah",
+      "cropStage": "Tahap Pertumbuhan",
+      "plantingDate": "Tanggal Tanam (opsional)",
+      "save": "Simpan Lahan",
+      "setActive": "Lahan Aktif"
+    },
+    "crop": {
+      "title": "Pilih Tanaman Anda",
+      "subtitle": "Pilih tanaman utama untuk lahan ini.",
+      "search": "Cari tanaman...",
+      "categories": "Kategori",
+      "popular": "Populer",
+      "all": "Semua Tanaman",
+      "select": "Pilih Tanaman"
+    },
+    "soil": {
+      "title": "Jenis Tanah",
+      "subtitle": "Pilih jenis tanah lahan Anda.",
+      "select": "Pilih Jenis Tanah",
+      "dontKnow": "Saya tidak tahu"
+    },
+    "stage": {
+      "title": "Tahap Pertumbuhan",
+      "subtitle": "Di tahap mana tanaman Anda berada?",
+      "select": "Pilih Tahap",
+      "plantingDate": "Kapan Anda menanam?"
+    },
+    "complete": {
+      "title": "Lahan Siap! 🌱",
+      "subtitle": "Lahan Anda berhasil dikonfigurasi.",
+      "goToDashboard": "Buka Dashboard"
+    },
+    "health": "Kesehatan Lahan",
+    "addNew": "+ Tambah Lahan Baru",
+    "noFarms": "Belum ada lahan yang ditambahkan.",
+    "noFarmsHint": "Tambahkan lahan pertama Anda untuk memulai.",
+    "addAnotherHint": "Tambahkan lahan lain untuk rekomendasi yang lebih presisi.",
+    "context": {
+      "title": "Konteks Lahan",
+      "crop": "Tanaman",
+      "soil": "Tanah",
+      "stage": "Tahap",
+      "location": "Lokasi",
+      "weather": "Cuaca",
+      "health": "Kesehatan",
+      "hint": "AI menggunakan konteks lahan Anda saat membuat rekomendasi."
+    }
+  },
+  "dashboard": {
+    "title": "Dashboard Cropoctor",
+    "greeting": "Selamat pagi, {{name}} 🌱",
+    "greetingAfternoon": "Selamat siang, {{name}} 🌾",
+    "greetingEvening": "Selamat malam, {{name}} 🌙",
+    "currentWeather": "Cuaca Saat Ini",
+    "farmHealth": "Kesehatan Lahan",
+    "lookingHealthy": "Kondisi Sehat",
+    "needsAttention": "Perlu Perhatian",
+    "atRisk": "Beresiko",
+    "nextBestAction": "Rekomendasi Utama",
+    "viewActionPlan": "Lihat Rencana Aksi",
+    "quickActions": "Aksi Cepat",
+    "viewWeather": "Lihat Cuaca",
+    "viewInsights": "Lihat Wawasan",
+    "alert": "Peringatan",
+    "why": "Mengapa?",
+    "demoData": "Data Demo",
+    "totalFarms": "{{count}} lahan terdaftar",
+    "weatherCard": {
+      "rain": "Hujan",
+      "humidity": "Kelembapan",
+      "wind": "Angin"
+    },
+    "nba": {
+      "action": "Periksa kelembapan tanah sebelum menyiram."
+    },
+    "demoAlert": {
+      "title": "Hujan lebat diperkirakan besok.",
+      "desc": "Pertimbangkan untuk menunda irigasi dan memeriksa saluran drainase.",
+      "why": "Mengapa?"
+    }
+  },
+  "advisor": {
+    "title": "Asisten AI",
+    "subtitle": "Asisten pertanian pintar Anda.",
+    "inputPlaceholder": "Tanyakan apa saja tentang lahan Anda...",
+    "askPlaceholder": "Tanyakan apa saja tentang lahan Anda...",
+    "thinking": "Menganalisis data lahan Anda...",
+    "preparing": "Menyiapkan rekomendasi...",
+    "recommendation": "Rekomendasi",
+    "why": "Mengapa?",
+    "whatToDo": "Langkah Tindakan",
+    "dataUsed": "Data yang Digunakan",
+    "listen": "Dengarkan",
+    "saveAdvice": "Simpan",
+    "saved": "Rekomendasi disimpan.",
+    "farmContext": "Konteks Lahan",
+    "askFollowUp": "Tanyakan Lanjutan",
+    "quickQuestions": "Pertanyaan Populer",
+    "questions": {
+      "q1": "Apakah saya harus menyiram hari ini?",
+      "q2": "Mengapa daun tanaman saya menguning?",
+      "q3": "Kapan waktu terbaik untuk menanam?",
+      "q4": "Pupuk apa yang sebaiknya saya gunakan?",
+      "q5": "Apakah hujan diperkirakan datang tepat waktu?",
+      "q6": "Bagaimana cara meningkatkan kesehatan tanaman?"
+    }
+  },
+  "voice": {
+    "title": "Asisten Suara",
+    "listening": "Mendengarkan...",
+    "understanding": "Memahami pertanyaan Anda...",
+    "preparing": "Menyiapkan jawaban...",
+    "cancel": "Batal",
+    "stop": "Berhenti",
+    "retry": "Coba lagi",
+    "tapToSpeak": "Ketuk mikrofon untuk berbicara",
+    "notSupported": "Input suara tidak didukung pada perangkat ini."
+  },
+  "diagnose": {
+    "title": "Diagnosis Tanaman",
+    "subtitle": "Ambil foto tanaman atau unggah gambar.",
+    "tapToUpload": "Ketuk untuk mengunggah",
+    "orTakePhoto": "atau ambil foto",
+    "takePhoto": "Ambil Foto",
+    "uploadImage": "Unggah Gambar",
+    "useSample": "Gunakan Gambar Sampel",
+    "sampleHint": "Gambar sampel memungkinkan Anda mencoba diagnosis tanpa kamera.",
+    "recentTitle": "Diagnosis Terakhir",
+    "analyzing": "Menganalisis gambar",
+    "match": "akurasi",
+    "tips": {
+      "title": "Tips untuk hasil terbaik",
+      "tip1": "Gunakan cahaya alami — hindari bayangan tajam.",
+      "tip2": "Foto daun yang bergejala dengan jelas.",
+      "tip3": "Sertakan 2–3 daun yang menunjukkan gejala.",
+      "tip4": "Jaga kamera tetap stabil dan fokus.",
+      "tip5": "Sertakan kedua sisi daun jika memungkinkan."
+    },
+    "steps": {
+      "examining": "Memeriksa gambar",
+      "identifying": "Mengidentifikasi tanaman",
+      "checking": "Memeriksa gejala",
+      "analyzing": "Menganalisis pola visual",
+      "preparing": "Menyiapkan laporan"
+    },
+    "result": {
+      "title": "Hasil Diagnosis",
+      "confidence": "{{value}}% Akurasi",
+      "possibleIssue": "Masalah Terdeteksi",
+      "symptoms": "Gejala yang Diamati",
+      "actions": "Tindakan yang Direkomendasikan",
+      "listen": "Dengarkan",
+      "learnMore": "Pelajari Lebih Lanjut",
+      "askAI": "Tanya AI",
+      "save": "Simpan Diagnosis",
+      "disclaimer": "Diagnosis AI bersifat informatif dan tidak menggantikan saran pakar pertanian.",
+      "demo": "Diagnosis Demo",
+      "severity": {
+        "mild": "Ringan",
+        "moderate": "Sedang",
+        "severe": "Parah"
+      }
+    }
+  },
+  "weather": {
+    "title": "Intelijen Cuaca",
+    "subtitle": "Cuaca real-time dan dampaknya pada lahan.",
+    "today": "Hari Ini",
+    "tomorrow": "Besok",
+    "sevenDay": "7 Hari",
+    "farmImpact": "Dampak pada Lahan",
+    "irrigation": "Irigasi",
+    "spraying": "Penyemprotan",
+    "diseaseRisk": "Risiko Penyakit",
+    "status": {
+      "delay": "Tunda",
+      "proceed": "Lanjutkan",
+      "monitor": "Pantau",
+      "postpone": "Tunda",
+      "caution": "Waspada",
+      "low": "Rendah",
+      "moderate": "Sedang",
+      "elevated": "Meningkat",
+      "high": "Tinggi"
+    },
+    "reasons": {
+      "Soil moisture is adequate. Irrigate as scheduled.": "Kelembapan tanah cukup. Siram sesuai jadwal.",
+      "High wind speed will cause chemical drift.": "Angin kencang akan menyebabkan hanyutan bahan kimia.",
+      "High humidity increases fungal disease risk.": "Kelembapan tinggi meningkatkan risiko penyakit jamur."
+    },
+    "viewDetails": "Lihat Detail",
+    "demo": "Data Cuaca Demo",
+    "updatedJustNow": "Baru saja diperbarui",
+    "updatedMinAgo": "Diperbarui {{count}} mnt lalu",
+    "feelsLike": "Terasa seperti {{temp}}°"
+  },
+  "insights": {
+    "title": "Wawasan Lahan",
+    "subtitle": "Kesehatan tanaman, kelembapan tanah, dan data satelit.",
+    "cropHealth": "Kesehatan Tanaman",
+    "soilHealth": "Kondisi Tanah",
+    "satellite": "Satelit",
+    "ndvi": "Indeks NDVI",
+    "vegetationHealth": "Kesehatan Vegetasi",
+    "contributingFactors": "Faktor Pengaruh",
+    "demo": "Data Demo",
+    "live": "Langsung",
+    "unavailable": "Tidak Tersedia",
+    "trend": {
+      "improving": "↑ Membaik",
+      "declining": "↓ Menurun",
+      "stable": "→ Stabil"
+    },
+    "factors": {
+      "moisture": "Kelembapan tanah optimal",
+      "nutrients": "Kadar nutrisi cukup",
+      "disease": "Tidak ada penyakit terkonfirmasi",
+      "canopy": "Pertumbuhan kanopi baik",
+      "Optimal soil moisture": "Kelembapan tanah optimal",
+      "Adequate nutrient levels": "Kadar nutrisi cukup",
+      "No confirmed disease": "Tidak ada penyakit terkonfirmasi",
+      "Good canopy development": "Pertumbuhan kanopi baik"
+    }
+  },
+  "history": {
+    "title": "Riwayat Lahan",
+    "subtitle": "Catatan saran AI, diagnosis, dan tindakan lahan.",
+    "notice": "Riwayat lengkap akan terhubung ke Firestore pada Tahap 4.",
+    "items": {
+      "h-001": {
+        "title": "Irigasi Ditunda",
+        "summary": "AI menyarankan menunda irigasi karena prakiraan hujan."
+      },
+      "h-002": {
+        "title": "Bercak Daun Terdeteksi",
+        "summary": "Bercak daun Cercospora terdeteksi dengan akurasi 87%."
+      },
+      "h-003": {
+        "title": "Peringatan Hujan Lebat",
+        "summary": "Prakiraan hujan 35–50mm dalam 48 jam ke depan."
+      },
+      "h-004": {
+        "title": "Tahap Tanaman: Berbunga",
+        "summary": "Tanaman kacang telah memasuki tahap berbunga."
+      },
+      "h-005": {
+        "title": "Pupuk Diaplikasikan",
+        "summary": "10kg Urea diaplikasikan per hektar sebagai susulan."
+      }
+    }
+  },
+  "notifications": {
+    "title": "Notifikasi",
+    "subtitle": "Peringatan dan pembaruan lahan.",
+    "unreadAlerts": "{{count}} peringatan belum dibaca",
+    "caughtUp": "Semua sudah dibaca!",
+    "markAllRead": "Tandai semua dibaca",
+    "clearAll": "Hapus semua",
+    "items": {
+      "notif-001": {
+        "title": "Hujan Lebat Diperkirakan Besok",
+        "body": "Rajkot diperkirakan mengalami hujan 35–50mm. Pertimbangkan menunda irigasi."
+      },
+      "notif-002": {
+        "title": "Rekomendasi Irigasi Siap",
+        "body": "Berdasarkan kondisi hari ini, kami menyarankan menunda irigasi selama 24 jam."
+      },
+      "notif-003": {
+        "title": "Risiko Penyakit Meningkat",
+        "body": "Kelembapan tinggi meningkatkan risiko penyakit jamur. Pantau daun dengan cermat."
+      },
+      "notif-004": {
+        "title": "Pengingat Irigasi",
+        "body": "Pemeriksaan irigasi terjadwal untuk Lahan Kacang Rajkot."
+      },
+      "notif-005": {
+        "title": "Pembaruan Kesehatan Lahan",
+        "body": "Skor kesehatan lahan Anda meningkat dari 78 menjadi 82."
+      }
+    },
+    "actions": {
+      "notif-001": "Lihat Cuaca",
+      "notif-002": "Lihat Saran",
+      "notif-003": "Diagnosis Tanaman",
+      "notif-004": "Rencana Irigasi",
+      "notif-005": "Lihat Wawasan"
+    }
+  },
+  "settings": {
+    "title": "Pengaturan",
+    "subtitle": "Preferensi aplikasi dan konfigurasi akun.",
+    "sections": {
+      "languageRegion": "Bahasa & Wilayah",
+      "voiceAI": "Suara & AI",
+      "appPreferences": "Preferensi Aplikasi"
+    },
+    "metricUnits": "Satuan Metrik",
+    "voiceDesc": "Kecepatan suara, bahasa, output",
+    "weatherAlerts": "Peringatan Cuaca",
+    "weatherAlertsDesc": "Hujan, badai, dan cuaca ekstrem",
+    "diseaseWarnings": "Peringatan Penyakit",
+    "diseaseWarningsDesc": "Kondisi berisiko tinggi penyakit",
+    "irrigationReminders": "Pengingat Irigasi",
+    "irrigationRemindersDesc": "Pemeriksaan irigasi terjadwal",
+    "aiRecommendations": "Rekomendasi AI",
+    "aiRecommendationsDesc": "Pembaruan harian intelijen pertanian",
+    "darkMode": "Mode Gelap",
+    "darkModeDesc": "Hadir pada pembaruan berikutnya",
+    "offlineMode": "Mode Offline",
+    "offlineModeDesc": "Simpan data lahan untuk penggunaan offline",
+    "exportData": "Ekspor Data Saya",
+    "exportDataDesc": "Unduh riwayat lahan Anda",
+    "clearData": "Hapus Data Lokal",
+    "clearDataDesc": "Hapus semua data tersimpan",
+    "units": "Satuan",
+    "metric": "Metrik (hektar, °C)",
+    "imperial": "Imperial (acre, °F)",
+    "voice": "Pengaturan Suara",
+    "language": "Bahasa",
+    "notifications": "Notifikasi",
+    "privacy": "Kebijakan Privasi",
+    "help": "Bantuan & Dukungan",
+    "about": "Tentang Cropoctor"
+  },
+  "states": {
+    "loading": "Memuat...",
+    "error": "Terjadi kesalahan.",
+    "retry": "Coba Lagi",
+    "offline": "Anda sedang offline.",
+    "offlineHint": "Data tersimpan Anda tetap tersedia.",
+    "empty": "Belum ada konten di sini.",
+    "lastUpdated": "Terakhir diperbarui",
+    "reload": "Muat Ulang Aplikasi"
+  },
+  "toast": {
+    "farmSaved": "Lahan berhasil disimpan.",
+    "locationSelected": "Lokasi dipilih.",
+    "adviceSaved": "Rekomendasi disimpan.",
+    "diagnosisSaved": "Diagnosis disimpan.",
+    "weatherError": "Gagal memuat data cuaca.",
+    "voiceError": "Input suara tidak tersedia.",
+    "copied": "Disalin ke papan klip."
+  },
+  "units": {
+    "acres": "hektar",
+    "hectares": "ha",
+    "celsius": "°C",
+    "fahrenheit": "°F",
+    "kmh": "km/jam"
+  },
+  "crops": {
+    "groundnut": "Kacang Tanah",
+    "cotton": "Kapas",
+    "wheat": "Gandum",
+    "Groundnut": "Kacang Tanah",
+    "Cotton": "Kapas",
+    "Wheat": "Gandum"
+  },
+  "diseases": {
+    "Leaf Spot": "Bercak Daun",
+    "Healthy Crop": "Tanaman Sehat"
+  },
+  "stages": {
+    "seedling": "Bibit",
+    "growing": "Pertumbuhan",
+    "flowering": "Berbunga",
+    "Seedling": "Bibit",
+    "Growing": "Pertumbuhan",
+    "Flowering": "Berbunga"
+  },
+  "soils": {
+    "Loamy": "Lempung Berpasir",
+    "Black Cotton": "Tanah Hitam",
+    "Alluvial": "Aluvial",
+    "Sandy": "Berpasir"
+  },
+  "time": {
+    "h-001": "1 jam lalu",
+    "h-002": "2 hari lalu",
+    "h-003": "3 hari lalu",
+    "h-004": "15/08/2026",
+    "h-005": "12/08/2026",
+    "notif-001": "32 mnt lalu",
+    "notif-002": "2 jam lalu",
+    "notif-003": "5 jam lalu",
+    "notif-004": "1 hari lalu",
+    "notif-005": "2 hari lalu",
+    "diag-001": "2 hari lalu",
+    "diag-002": "1 minggu lalu",
+    "daysAgo": "{{count}} hari lalu",
+    "weeksAgo": "{{count}} minggu lalu"
+  },
+  "weatherDesc": {
+    "sunny": "Cerah",
+    "partly-cloudy": "Cerah Berawan",
+    "cloudy": "Berawan",
+    "rainy": "Hujan",
+    "stormy": "Badai",
+    "Partly Cloudy": "Cerah Berawan"
+  }
 }
