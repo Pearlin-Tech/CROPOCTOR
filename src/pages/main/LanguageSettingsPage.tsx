@@ -6,6 +6,8 @@ import { PageLayout, MobileHeader } from '@/components/layout/AppShell'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { useApp } from '@/store/AppContext'
+import { useUser } from '@/store/UserContext'
+import { userService } from '@/services/userService'
 import i18n from '@/locales/i18n'
 import { useTranslation } from 'react-i18next'
 
@@ -24,11 +26,16 @@ const LANGUAGES = [
 const LanguageSettingsPage: React.FC = () => {
   const navigate = useNavigate()
   const { language, setLanguage } = useApp()
+  const { authUser, updateFarmer } = useUser()
   const { t } = useTranslation()
 
-  const handleLang = (code: string) => {
+  const handleLang = async (code: string) => {
     setLanguage(code)
     i18n.changeLanguage(code)
+    updateFarmer({ preferredLanguage: code, language: code })
+    if (authUser?.uid) {
+      await userService.saveUserLanguage(authUser.uid, code)
+    }
     navigate(-1)
   }
 

@@ -6,17 +6,13 @@ import { motion } from 'framer-motion'
 import { pageVariants, listVariants, cardVariants } from '@/animations/variants'
 import { PageLayout, MobileHeader } from '@/components/layout/AppShell'
 import { Card } from '@/components/ui/Card'
-import { Badge } from '@/components/ui/index'
 import { notificationService } from '@/services'
 import type { AppNotification } from '@/types'
-import { timeAgo } from '@/utils/format'
-import { useNavigate as useNav } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
 const typeIcon: Record<string, string> = {
   weather: '🌧️', 'ai-advice': '🤖', disease: '🔬', irrigation: '💧', 'crop-health': '🌱',
 }
-const priorityVariant = { high: 'danger', medium: 'warning', low: 'gray' } as const
 
 const NotificationsPage: React.FC = () => {
   const navigate = useNavigate()
@@ -58,13 +54,16 @@ const NotificationsPage: React.FC = () => {
 
   return (
     <motion.div variants={pageVariants} initial="initial" animate="animate" className="min-h-screen bg-background">
-      <MobileHeader title={t('dashboard.actions.notifications', 'Notifications')} subtitle={unread > 0 ? `${unread} ${t('notifications.unread', 'unread')}` : t('notifications.caughtUp', 'All caught up!')} />
+      <MobileHeader
+        title={t('notifications.title', 'Notifications')}
+        subtitle={unread > 0 ? t('notifications.unreadAlerts', { count: unread, defaultValue: '{{count}} unread alerts' }) : t('notifications.caughtUp', 'All caught up!')}
+      />
 
       <PageLayout className="pt-4 pb-8 space-y-4">
         <div className="hidden lg:flex items-center justify-between mb-4">
           <div>
-            <h1 className="text-2xl font-bold text-gray-800">{t('dashboard.actions.notifications', 'Notifications')}</h1>
-            <p className="text-sm text-gray-500">{unread > 0 ? `${unread} ${t('notifications.unread', 'unread alerts')}` : t('notifications.caughtUp', 'All caught up!')}</p>
+            <h1 className="text-2xl font-bold text-gray-800">{t('notifications.title', 'Notifications')}</h1>
+            <p className="text-sm text-gray-500">{unread > 0 ? t('notifications.unreadAlerts', { count: unread, defaultValue: '{{count}} unread alerts' }) : t('notifications.caughtUp', 'All caught up!')}</p>
           </div>
           {unread > 0 && (
             <button
@@ -116,12 +115,12 @@ const NotificationsPage: React.FC = () => {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-2">
-                      <p className={`text-sm ${!notif.read ? 'font-bold text-gray-800' : 'font-medium text-gray-700'}`}>{notif.title}</p>
-                      <span className="text-xs text-gray-400 shrink-0">{timeAgo(notif.timestamp)}</span>
+                      <p className={`text-sm ${!notif.read ? 'font-bold text-gray-800' : 'font-medium text-gray-700'}`}>{t(`notifications.items.${notif.id}.title`, notif.title)}</p>
+                      <span className="text-xs text-gray-400 shrink-0">{t(`time.${notif.id}`, '32m ago')}</span>
                     </div>
-                    <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{notif.body}</p>
+                    <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{t(`notifications.items.${notif.id}.body`, notif.body)}</p>
                     {notif.actionLabel && (
-                      <span className="text-xs text-green-forest font-semibold mt-1 block">{notif.actionLabel} →</span>
+                      <span className="text-xs text-green-forest font-semibold mt-1 block">{t(`notifications.actions.${notif.id}`, notif.actionLabel)} →</span>
                     )}
                   </div>
                   {!notif.read && (
