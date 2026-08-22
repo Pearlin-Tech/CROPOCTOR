@@ -1,6 +1,25 @@
 {
-  "app": { "name": "Cropoctor", "tagline": "Smarter decisions for every farm." },
-  "nav": { "home": "Home", "myFarm": "My Farm", "advisor": "AI Advisor", "diagnose": "Diagnose", "profile": "Profile", "weather": "Weather", "insights": "Insights", "history": "History", "notifications": "Notifications", "settings": "Settings" },
+  "app": {
+    "name": "Cropoctor",
+    "tagline": "Smarter decisions for every farm.",
+    "platform": "Farm Intelligence Platform",
+    "brics": "BRICS Agricultural Intelligence Platform"
+  },
+  "nav": {
+    "home": "Home",
+    "myFarm": "My Farm",
+    "advisor": "AI Advisor",
+    "diagnose": "Diagnose",
+    "profile": "Profile",
+    "weather": "Weather",
+    "insights": "Insights",
+    "history": "History",
+    "notifications": "Notifications",
+    "settings": "Settings",
+    "voice": "Voice Assistant",
+    "help": "Help & Support",
+    "about": "About"
+  },
   "welcome": {
     "headline": "Better decisions. Healthier crops.",
     "subheading": "AI-powered agricultural intelligence built around your farm.",
@@ -17,6 +36,12 @@
     "passwordLabel": "Password",
     "nameLabel": "Full name",
     "signingIn": "Signing in...",
+    "welcomeBack": "Welcome Back!",
+    "signInToContinue": "Sign in to continue.",
+    "noAccount": "Don't have an account?",
+    "alreadyHaveAccount": "Already have an account?",
+    "securityNotice": "256-bit Encrypted & Secure Connection",
+    "signedOut": "You have been signed out.",
     "errors": {
       "required": "This field is required.",
       "invalidEmail": "Please enter a valid email address.",
@@ -24,37 +49,149 @@
       "authFailed": "Sign in failed. Please try again."
     }
   },
-  "language": { "title": "Choose Language", "subtitle": "Select your preferred language.", "search": "Search language...", "continue": "Continue" },
-  "country": { "title": "Select Your Country", "subtitle": "Choose your country to get local insights.", "continue": "Continue" },
+  "language": {
+    "title": "Choose Language",
+    "subtitle": "Select your preferred language.",
+    "search": "Search language...",
+    "continue": "Continue"
+  },
+  "country": {
+    "title": "Select Your Country",
+    "subtitle": "Choose your country to get local insights.",
+    "continue": "Continue"
+  },
   "profile": {
-    "title": "Your Profile",
-    "subtitle": "Tell us a bit about yourself.",
+    "title": "Profile & Settings",
+    "subtitle": "Manage your profile, preferences, and account.",
     "name": "Full name",
     "experience": "Farming experience",
-    "experienceOptions": { "beginner": "Beginner (0–3 years)", "intermediate": "Intermediate (3–10 years)", "expert": "Expert (10+ years)" },
-    "continue": "Continue",
-    "step": "Step {{current}} of {{total}}"
+    "experienceOptions": {
+      "beginner": "Beginner (0–3 years)",
+      "intermediate": "Intermediate (3–10 years)",
+      "expert": "Expert (10+ years)"
+    },
+    "preferences": "Preferences",
+    "language": "Language",
+    "country": "Country",
+    "units": "Units",
+    "voiceSettings": "Voice Settings",
+    "notificationsPrivacy": "Notifications & Privacy",
+    "notifications": "Notifications",
+    "privacy": "Privacy Policy",
+    "dataManagement": "Data Management",
+    "support": "Support",
+    "help": "Help & Support",
+    "about": "About Cropoctor",
+    "logout": "Sign Out",
+    "edit": "Edit",
+    "farmer": "farmer",
+    "myFarms": "My Farms",
+    "farmsRegistered": "{{count}} farm(s) registered",
+    "version": "Version"
+  },
+  "farms": {
+    "farm-001": { "name": "Rajkot Groundnut Farm" },
+    "farm-002": { "name": "Surat Cotton Farm" },
+    "farm-003": { "name": "Junagadh Wheat Farm" }
+  },
+  "locations": {
+    "Rajkot, Gujarat": "Rajkot, Gujarat",
+    "Surat, Gujarat": "Surat, Gujarat",
+    "Junagadh, Gujarat": "Junagadh, Gujarat",
+    "Rajkot, Gujarat, India": "Rajkot, Gujarat, India",
+    "Surat, Gujarat, India": "Surat, Gujarat, India",
+    "Junagadh, Gujarat, India": "Junagadh, Gujarat, India",
+    "Rajkot": "Rajkot",
+    "Surat": "Surat",
+    "Junagadh": "Junagadh",
+    "Gujarat": "Gujarat",
+    "India": "India",
+    "Farm Location": "Farm Location"
   },
   "farm": {
-    "location": { "title": "Where is your farm?", "subtitle": "Find your farm on the map and drop a pin.", "useMyLocation": "Use My Location", "searchPlaceholder": "Search village, city or area", "pickOnMap": "Pick on Map", "useThisLocation": "Use This Location", "locating": "Finding your location...", "locationError": "Could not find your location. Please try searching." },
-    "boundary": { "title": "Mark Your Farm Area", "subtitle": "Tap the map to outline your farm boundary.", "area": "Approx. {{value}} {{unit}}", "clear": "Clear", "edit": "Edit", "confirm": "Confirm Area" },
-    "details": { "title": "Farm Details", "subtitle": "Complete your farm setup.", "name": "Farm name", "namePlaceholder": "e.g. Rajkot Groundnut Farm", "area": "Area", "primaryCrop": "Primary crop", "soilType": "Soil type", "cropStage": "Crop stage", "plantingDate": "Planting date (optional)", "save": "Save Farm" },
-    "crop": { "title": "Select Your Crop", "subtitle": "Choose the primary crop for this farm.", "search": "Search crops...", "categories": "Categories", "popular": "Popular", "all": "All Crops", "select": "Select Crop" },
-    "soil": { "title": "Soil Type", "subtitle": "Select your farm's soil type.", "select": "Select Soil Type", "dontKnow": "I don't know" },
-    "stage": { "title": "Crop Stage", "subtitle": "What stage is your crop at?", "select": "Select Crop Stage", "plantingDate": "When did you plant?" },
-    "complete": { "title": "Farm Ready! 🌱", "subtitle": "Your farm has been set up successfully.", "goToDashboard": "Go to Dashboard" },
+    "location": {
+      "title": "Where is your farm?",
+      "subtitle": "Find your farm on the map and drop a pin.",
+      "useMyLocation": "Use My Location",
+      "searchPlaceholder": "Search village, city or area",
+      "pickOnMap": "Pick on Map",
+      "useThisLocation": "Use This Location",
+      "locating": "Finding your location...",
+      "locationError": "Could not find your location. Please try searching."
+    },
+    "boundary": {
+      "title": "Mark Your Farm Area",
+      "subtitle": "Tap the map to outline your farm boundary.",
+      "area": "Approx. {{value}} {{unit}}",
+      "clear": "Clear",
+      "edit": "Edit",
+      "confirm": "Confirm Area"
+    },
+    "details": {
+      "title": "Farm Details",
+      "subtitle": "Complete your farm setup.",
+      "name": "Farm name",
+      "namePlaceholder": "e.g. Rajkot Groundnut Farm",
+      "area": "Area",
+      "primaryCrop": "Primary crop",
+      "soilType": "Soil type",
+      "cropStage": "Crop stage",
+      "plantingDate": "Planting date (optional)",
+      "save": "Save Farm",
+      "setActive": "Active Farm"
+    },
+    "crop": {
+      "title": "Select Your Crop",
+      "subtitle": "Choose the primary crop for this farm.",
+      "search": "Search crops...",
+      "categories": "Categories",
+      "popular": "Popular",
+      "all": "All Crops",
+      "select": "Select Crop"
+    },
+    "soil": {
+      "title": "Soil Type",
+      "subtitle": "Select your farm's soil type.",
+      "select": "Select Soil Type",
+      "dontKnow": "I don't know"
+    },
+    "stage": {
+      "title": "Crop Stage",
+      "subtitle": "What stage is your crop at?",
+      "select": "Select Crop Stage",
+      "plantingDate": "When did you plant?"
+    },
+    "complete": {
+      "title": "Farm Ready! 🌱",
+      "subtitle": "Your farm has been set up successfully.",
+      "goToDashboard": "Go to Dashboard"
+    },
     "health": "Farm Health",
     "addNew": "+ Add New Farm",
     "noFarms": "No farm added yet.",
-    "noFarmsHint": "Add your first farm to get started."
+    "noFarmsHint": "Add your first farm to get started.",
+    "addAnotherHint": "Add another farm to get personalized insights.",
+    "context": {
+      "title": "Farm Context",
+      "crop": "Crop",
+      "soil": "Soil",
+      "stage": "Stage",
+      "location": "Location",
+      "weather": "Weather",
+      "health": "Health",
+      "hint": "The AI uses your farm context when generating recommendations."
+    }
   },
   "dashboard": {
+    "title": "Cropoctor Dashboard",
     "greeting": "Good morning, {{name}} 🌱",
     "greetingAfternoon": "Good afternoon, {{name}} 🌾",
     "greetingEvening": "Good evening, {{name}} 🌙",
+    "currentWeather": "Current Weather",
     "farmHealth": "Farm Health",
     "lookingHealthy": "Looking Healthy",
     "needsAttention": "Needs Attention",
+    "atRisk": "At Risk",
     "nextBestAction": "Next Best Action",
     "viewActionPlan": "View Action Plan",
     "quickActions": "Quick Actions",
@@ -62,25 +199,50 @@
     "viewInsights": "View Insights",
     "alert": "Alert",
     "why": "Why?",
-    "demoData": "Demo Data"
+    "demoData": "Demo Data",
+    "totalFarms": "{{count}} farm(s) registered",
+    "weatherCard": {
+      "rain": "Rain",
+      "humidity": "Humidity",
+      "wind": "Wind"
+    },
+    "nba": {
+      "action": "Check soil moisture before irrigation."
+    },
+    "demoAlert": {
+      "title": "Heavy rain expected tomorrow.",
+      "desc": "Consider delaying irrigation and checking drainage channels.",
+      "why": "Why?"
+    }
   },
   "advisor": {
     "title": "AI Advisor",
     "subtitle": "Your farm-aware agricultural assistant.",
     "inputPlaceholder": "Ask anything about your farm...",
+    "askPlaceholder": "Ask anything about your farm...",
     "thinking": "Understanding your farm...",
     "preparing": "Preparing your recommendation...",
     "recommendation": "Recommendation",
-    "why": "Why",
+    "why": "Why?",
     "whatToDo": "What to do",
     "dataUsed": "Data Used",
     "listen": "Listen",
-    "saveAdvice": "Save Advice",
-    "askFollowUp": "Ask Follow-up",
+    "saveAdvice": "Save",
     "saved": "Advice saved.",
-    "farmContext": "Farm Context"
+    "farmContext": "Farm Context",
+    "askFollowUp": "Ask Follow-up",
+    "quickQuestions": "Quick Questions",
+    "questions": {
+      "q1": "Should I irrigate today?",
+      "q2": "Why are my leaves turning yellow?",
+      "q3": "When should I sow?",
+      "q4": "Which fertilizer should I use?",
+      "q5": "Is rain expected at the right time?",
+      "q6": "How can I improve crop health?"
+    }
   },
   "voice": {
+    "title": "Voice Assistant",
     "listening": "Listening...",
     "understanding": "Understanding your question...",
     "preparing": "Preparing your recommendation...",
@@ -93,60 +255,208 @@
   "diagnose": {
     "title": "Crop Doctor",
     "subtitle": "Take a photo of your crop or upload one.",
+    "tapToUpload": "Tap to upload",
+    "orTakePhoto": "or take a photo",
     "takePhoto": "Take Photo",
     "uploadImage": "Upload Image",
     "useSample": "Use Sample Image",
+    "sampleHint": "Sample image lets you demo the full diagnosis without a camera.",
+    "recentTitle": "Recent Diagnoses",
     "analyzing": "Analyzing image",
-    "steps": { "examining": "Examining image", "identifying": "Identifying crop", "checking": "Checking symptoms", "analyzing": "Analyzing visual patterns", "preparing": "Preparing recommendation" },
-    "result": { "title": "Diagnosis Result", "confidence": "{{value}}% Match", "possibleIssue": "Possible Issue", "symptoms": "Observed Symptoms", "actions": "Recommended Actions", "listen": "Listen", "learnMore": "Learn More", "askAI": "Ask AI", "save": "Save Diagnosis", "disclaimer": "AI diagnosis is informational and should not replace professional agricultural advice.", "demo": "Demo Diagnosis", "severity": { "mild": "Mild", "moderate": "Moderate", "severe": "Severe" } }
+    "match": "match",
+    "tips": {
+      "title": "Tips for best results",
+      "tip1": "Use natural daylight — avoid harsh shadows.",
+      "tip2": "Photograph the affected leaf clearly.",
+      "tip3": "Include 2–3 leaves showing symptoms.",
+      "tip4": "Keep the camera steady and focused.",
+      "tip5": "Include both sides of the leaf if possible."
+    },
+    "steps": {
+      "examining": "Examining image",
+      "identifying": "Identifying crop",
+      "checking": "Checking symptoms",
+      "analyzing": "Analyzing visual patterns",
+      "preparing": "Preparing recommendation"
+    },
+    "result": {
+      "title": "Diagnosis Result",
+      "confidence": "{{value}}% Match",
+      "possibleIssue": "Possible Issue",
+      "symptoms": "Observed Symptoms",
+      "actions": "Recommended Actions",
+      "listen": "Listen",
+      "learnMore": "Learn More",
+      "askAI": "Ask AI",
+      "save": "Save Diagnosis",
+      "disclaimer": "AI diagnosis is informational and should not replace professional agricultural advice.",
+      "demo": "Demo Diagnosis",
+      "severity": {
+        "mild": "Mild",
+        "moderate": "Moderate",
+        "severe": "Severe"
+      }
+    }
   },
   "weather": {
     "title": "Weather Intelligence",
-    "today": "Today", "tomorrow": "Tomorrow", "sevenDay": "7 Days",
+    "subtitle": "Real-time weather and farm impact analysis.",
+    "today": "Today",
+    "tomorrow": "Tomorrow",
+    "sevenDay": "7 Days",
     "farmImpact": "Farm Impact",
     "irrigation": "Irrigation",
     "spraying": "Spraying",
     "diseaseRisk": "Disease Risk",
-    "status": { "delay": "Delay", "proceed": "Proceed", "monitor": "Monitor", "postpone": "Postpone", "caution": "Caution", "low": "Low", "moderate": "Moderate", "elevated": "Elevated", "high": "High" },
+    "status": {
+      "delay": "Delay",
+      "proceed": "Proceed",
+      "monitor": "Monitor",
+      "postpone": "Postpone",
+      "caution": "Caution",
+      "low": "Low",
+      "moderate": "Moderate",
+      "elevated": "Elevated",
+      "high": "High"
+    },
+    "reasons": {
+      "Soil moisture is adequate. Irrigate as scheduled.": "Soil moisture is adequate. Irrigate as scheduled.",
+      "High wind speed will cause chemical drift.": "High wind speed will cause chemical drift.",
+      "High humidity increases fungal disease risk.": "High humidity increases fungal disease risk."
+    },
     "viewDetails": "View Details",
-    "demo": "Demo Weather Data"
+    "demo": "Demo Weather Data",
+    "updatedJustNow": "Updated just now",
+    "updatedMinAgo": "Updated {{count}} min ago",
+    "feelsLike": "Feels like {{temp}}°"
   },
   "insights": {
     "title": "Farm Insights",
-    "cropHealth": "Crop Health", "soilHealth": "Soil Health", "satellite": "Satellite",
+    "subtitle": "Crop health, soil moisture, and satellite metrics.",
+    "cropHealth": "Crop Health",
+    "soilHealth": "Soil Health",
+    "satellite": "Satellite",
     "ndvi": "NDVI Index",
     "vegetationHealth": "Vegetation Health",
+    "contributingFactors": "Contributing Factors",
     "demo": "Demo Data",
     "live": "Live",
-    "unavailable": "Unavailable"
+    "unavailable": "Unavailable",
+    "trend": {
+      "improving": "↑ Improving",
+      "declining": "↓ Declining",
+      "stable": "→ Stable"
+    },
+    "factors": {
+      "moisture": "Optimal soil moisture",
+      "nutrients": "Adequate nutrient levels",
+      "disease": "No confirmed disease",
+      "canopy": "Good canopy development",
+      "Optimal soil moisture": "Optimal soil moisture",
+      "Adequate nutrient levels": "Adequate nutrient levels",
+      "No confirmed disease": "No confirmed disease",
+      "Good canopy development": "Good canopy development"
+    }
   },
-  "action": {
-    "title": "Next Best Action",
-    "subtitle": "What should you do next?",
-    "today": "TODAY", "thisWeek": "THIS WEEK", "watchFor": "WATCH FOR",
-    "save": "Save", "setReminder": "Set Reminder"
+  "history": {
+    "title": "Farm History",
+    "subtitle": "A log of all AI advice, diagnoses, and farm actions.",
+    "notice": "Full history persistence connects to Firestore in Stage 4.",
+    "items": {
+      "h-001": {
+        "title": "Irrigation delayed",
+        "summary": "AI advised delaying irrigation due to rain forecast."
+      },
+      "h-002": {
+        "title": "Leaf Spot Detected",
+        "summary": "Cercospora Leaf Spot detected at 87% confidence."
+      },
+      "h-003": {
+        "title": "Heavy Rain Warning",
+        "summary": "35–50mm rain forecast for the next 48 hours."
+      },
+      "h-004": {
+        "title": "Crop Stage: Flowering",
+        "summary": "Groundnut crop entered flowering stage."
+      },
+      "h-005": {
+        "title": "Fertiliser Applied",
+        "summary": "10kg Urea applied per acre as top dressing."
+      }
+    }
   },
-  "irrigation": {
-    "title": "Irrigation Intelligence",
-    "recommended": "Recommended",
-    "delay": "Delay",
-    "monitor": "Monitor",
-    "askAI": "Ask AI about Irrigation",
-    "why": "Why this recommendation?"
+  "notifications": {
+    "title": "Notifications",
+    "subtitle": "Alerts and farm updates.",
+    "unreadAlerts": "{{count}} unread alerts",
+    "caughtUp": "All caught up!",
+    "markAllRead": "Mark all read",
+    "clearAll": "Clear all",
+    "items": {
+      "notif-001": {
+        "title": "Heavy Rain Expected Tomorrow",
+        "body": "Rajkot is expecting 35–50mm of rainfall. Consider delaying irrigation and protecting your crop."
+      },
+      "notif-002": {
+        "title": "Irrigation Advice Ready",
+        "body": "Based on today's conditions, we recommend delaying irrigation by 24 hours."
+      },
+      "notif-003": {
+        "title": "Disease Risk Elevated",
+        "body": "High humidity conditions increase fungal disease risk for your groundnut crop. Monitor leaves closely."
+      },
+      "notif-004": {
+        "title": "Irrigation Reminder",
+        "body": "Scheduled irrigation check for Rajkot Groundnut Farm."
+      },
+      "notif-005": {
+        "title": "Farm Health Update",
+        "body": "Your Rajkot Groundnut Farm health score improved from 78 to 82."
+      }
+    },
+    "actions": {
+      "notif-001": "View Weather",
+      "notif-002": "View Advice",
+      "notif-003": "Diagnose Crop",
+      "notif-004": "Irrigation Plan",
+      "notif-005": "View Insights"
+    }
   },
-  "profile": {
-    "title": "Profile & Settings",
-    "language": "Language",
-    "country": "Country",
+  "settings": {
+    "title": "Settings",
+    "subtitle": "App preferences and account configuration.",
+    "sections": {
+      "languageRegion": "Language & Region",
+      "voiceAI": "Voice & AI",
+      "appPreferences": "App Preferences"
+    },
+    "metricUnits": "Metric Units",
+    "voiceDesc": "Speech rate, language, output",
+    "weatherAlerts": "Weather Alerts",
+    "weatherAlertsDesc": "Rain, storms, and extreme events",
+    "diseaseWarnings": "Disease Warnings",
+    "diseaseWarningsDesc": "High-risk disease conditions",
+    "irrigationReminders": "Irrigation Reminders",
+    "irrigationRemindersDesc": "Scheduled irrigation checks",
+    "aiRecommendations": "AI Recommendations",
+    "aiRecommendationsDesc": "Daily farm intelligence updates",
+    "darkMode": "Dark Mode",
+    "darkModeDesc": "Coming in next update",
+    "offlineMode": "Offline Mode",
+    "offlineModeDesc": "Cache farm data for offline use",
+    "exportData": "Export My Data",
+    "exportDataDesc": "Download your farm history",
+    "clearData": "Clear Local Data",
+    "clearDataDesc": "Remove all cached farm data",
     "units": "Units",
-    "voiceSettings": "Voice Settings",
+    "metric": "Metric (acres, °C)",
+    "imperial": "Imperial (hectares, °F)",
+    "voice": "Voice Settings",
+    "language": "Language",
     "notifications": "Notifications",
-    "privacy": "Privacy",
-    "dataManagement": "Data Management",
+    "privacy": "Privacy Policy",
     "help": "Help & Support",
-    "about": "About Cropoctor",
-    "logout": "Logout",
-    "version": "Version"
+    "about": "About Cropoctor"
   },
   "states": {
     "loading": "Loading...",
@@ -167,5 +477,65 @@
     "voiceError": "Voice input unavailable.",
     "copied": "Copied to clipboard."
   },
-  "units": { "acres": "acres", "hectares": "hectares", "celsius": "°C", "fahrenheit": "°F", "kmh": "km/h" }
+  "units": {
+    "acres": "acres",
+    "hectares": "hectares",
+    "celsius": "°C",
+    "fahrenheit": "°F",
+    "kmh": "km/h"
+  },
+  "crops": {
+    "groundnut": "Groundnut",
+    "cotton": "Cotton",
+    "wheat": "Wheat",
+    "Groundnut": "Groundnut",
+    "Cotton": "Cotton",
+    "Wheat": "Wheat"
+  },
+  "diseases": {
+    "Leaf Spot": "Leaf Spot",
+    "Healthy Crop": "Healthy Crop"
+  },
+  "stages": {
+    "seedling": "Seedling",
+    "growing": "Growing",
+    "flowering": "Flowering",
+    "Seedling": "Seedling",
+    "Growing": "Growing",
+    "Flowering": "Flowering"
+  },
+  "soils": {
+    "loamy": "Loamy",
+    "Loamy": "Loamy",
+    "black": "Black Cotton",
+    "Black Cotton": "Black Cotton",
+    "alluvial": "Alluvial",
+    "Alluvial": "Alluvial",
+    "sandy": "Sandy",
+    "Sandy": "Sandy"
+  },
+  "time": {
+    "h-001": "1h ago",
+    "h-002": "2d ago",
+    "h-003": "3d ago",
+    "h-004": "15/08/2026",
+    "h-005": "12/08/2026",
+    "notif-001": "32m ago",
+    "notif-002": "2h ago",
+    "notif-003": "5h ago",
+    "notif-004": "1d ago",
+    "notif-005": "2d ago",
+    "diag-001": "2 days ago",
+    "diag-002": "1 week ago",
+    "daysAgo": "{{count}} days ago",
+    "weeksAgo": "{{count}} week(s) ago"
+  },
+  "weatherDesc": {
+    "sunny": "Sunny",
+    "partly-cloudy": "Partly Cloudy",
+    "cloudy": "Cloudy",
+    "rainy": "Rainy",
+    "stormy": "Stormy",
+    "Partly Cloudy": "Partly Cloudy"
+  }
 }

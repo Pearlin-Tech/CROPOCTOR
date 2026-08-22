@@ -1,12 +1,537 @@
 {
-  "app": { "name": "Cropoctor", "tagline": "为每个农场提供更明智的决策。" },
-  "nav": { "home": "主页", "myFarm": "我的农场", "advisor": "AI 顾问", "diagnose": "诊断", "profile": "个人资料", "weather": "天气", "insights": "见解", "history": "历史记录", "notifications": "通知", "settings": "设置" },
-  "welcome": {
-    "headline": "更好的决策。更健康的作物。",
-    "subheading": "围绕您的农场构建的 AI 农业智能。",
-    "cta": "开始",
-    "signin": "已有账号？ 登录"
+  "app": {
+    "name": "Cropoctor",
+    "tagline": "让每个农场作出更明智的决策。",
+    "platform": "农业智能平台",
+    "brics": "金砖国家农业智能平台"
   },
-  "language": { "title": "选择语言", "subtitle": "选择您喜欢的语言。", "search": "搜索语言...", "continue": "继续" },
-  "country": { "title": "选择您的国家", "subtitle": "选择您的国家以获取本地见解。", "continue": "继续" }
+  "nav": {
+    "home": "首页",
+    "myFarm": "我的农场",
+    "advisor": "AI 顾问",
+    "diagnose": "作物诊断",
+    "profile": "个人中心",
+    "weather": "天气",
+    "insights": "分析报告",
+    "history": "历史记录",
+    "notifications": "通知",
+    "settings": "设置",
+    "voice": "语音助手",
+    "help": "帮助与支持",
+    "about": "关于"
+  },
+  "welcome": {
+    "headline": "更好的决策，更健康的作物。",
+    "subheading": "基于 AI 的农业智能服务，专为您的农场量身打造。",
+    "cta": "立即开始",
+    "signin": "已有账号？登录"
+  },
+  "auth": {
+    "google": "使用 Google 账号继续",
+    "phone": "使用手机号继续",
+    "email": "使用邮箱继续",
+    "createAccount": "创建账号",
+    "forgotPassword": "忘记密码？",
+    "emailLabel": "电子邮箱",
+    "passwordLabel": "密码",
+    "nameLabel": "姓名",
+    "signingIn": "正在登录...",
+    "welcomeBack": "欢迎回来！",
+    "signInToContinue": "请登录以继续使用。",
+    "noAccount": "还没有账号？",
+    "alreadyHaveAccount": "已有账号？",
+    "securityNotice": "256位加密与安全连接",
+    "signedOut": "您已成功退出登录。",
+    "errors": {
+      "required": "此项为必填项。",
+      "invalidEmail": "请输入有效的电子邮箱。",
+      "weakPassword": "密码长度至少为 6 个字符。",
+      "authFailed": "登录失败，请重试。"
+    }
+  },
+  "language": {
+    "title": "选择语言",
+    "subtitle": "请选择您的首选语言。",
+    "search": "搜索语言...",
+    "continue": "继续"
+  },
+  "country": {
+    "title": "选择国家",
+    "subtitle": "选择国家以获取本地化洞察。",
+    "continue": "继续"
+  },
+  "profile": {
+    "title": "个人资料与设置",
+    "subtitle": "管理您的个人资料和账号设置。",
+    "name": "姓名",
+    "experience": "务农经验",
+    "experienceOptions": {
+      "beginner": "初学者 (0–3年)",
+      "intermediate": "中级 (3–10年)",
+      "expert": "专家 (10年以上)"
+    },
+    "preferences": "偏好设置",
+    "language": "语言",
+    "country": "国家",
+    "units": "单位",
+    "voiceSettings": "语音设置",
+    "notificationsPrivacy": "通知与隐私",
+    "notifications": "通知",
+    "privacy": "隐私政策",
+    "dataManagement": "数据管理",
+    "support": "技术支持",
+    "help": "帮助与支持",
+    "about": "关于 Cropoctor",
+    "logout": "退出登录",
+    "edit": "编辑",
+    "farmer": "农户",
+    "myFarms": "我的农场",
+    "farmsRegistered": "已登记 {{count}} 个农场",
+    "version": "版本"
+  },
+  "farms": {
+    "farm-001": { "name": "拉杰科特花生农场" },
+    "farm-002": { "name": "苏拉特棉花农场" },
+    "farm-003": { "name": "朱纳格特小麦农场" }
+  },
+  "locations": {
+    "Rajkot, Gujarat": "拉杰科特, 古吉拉特邦",
+    "Surat, Gujarat": "苏拉特, 古吉拉特邦",
+    "Junagadh, Gujarat": "朱纳格特, 古吉拉特邦",
+    "Rajkot, Gujarat, India": "拉杰科特, 古吉拉特邦, 印度",
+    "Surat, Gujarat, India": "苏拉特, 古吉拉特邦, 印度",
+    "Junagadh, Gujarat, India": "朱纳格特, 古吉拉特邦, 印度",
+    "Rajkot": "拉杰科特",
+    "Surat": "苏拉特",
+    "Junagadh": "朱纳格特",
+    "Gujarat": "古吉拉特邦",
+    "India": "印度",
+    "Farm Location": "农场位置"
+  },
+  "farm": {
+    "location": {
+      "title": "您的农场在哪里？",
+      "subtitle": "在地图上找到您的农场并打标注。",
+      "useMyLocation": "使用我的位置",
+      "searchPlaceholder": "搜索村庄、城市或区域",
+      "pickOnMap": "在地图上选择",
+      "useThisLocation": "使用此位置",
+      "locating": "正在获取位置...",
+      "locationError": "无法获取您的位置，请手动搜索。"
+    },
+    "boundary": {
+      "title": "划定农场边界",
+      "subtitle": "点击地图绘制农场边界轮廓。",
+      "area": "约 {{value}} {{unit}}",
+      "clear": "清除",
+      "edit": "编辑",
+      "confirm": "确认面积"
+    },
+    "details": {
+      "title": "农场详情",
+      "subtitle": "完成农场信息设置。",
+      "name": "农场名称",
+      "namePlaceholder": "例如：拉杰科特花生农场",
+      "area": "面积",
+      "primaryCrop": "主要作物",
+      "soilType": "土壤类型",
+      "cropStage": "生长阶段",
+      "plantingDate": "种植日期（选填）",
+      "save": "保存农场",
+      "setActive": "当前活动农场"
+    },
+    "crop": {
+      "title": "选择作物",
+      "subtitle": "为该农场选择主要作物。",
+      "search": "搜索作物...",
+      "categories": "分类",
+      "popular": "热门",
+      "all": "所有作物",
+      "select": "选择作物"
+    },
+    "soil": {
+      "title": "土壤类型",
+      "subtitle": "选择您农场的土壤类型。",
+      "select": "选择土壤类型",
+      "dontKnow": "我不确定"
+    },
+    "stage": {
+      "title": "生长阶段",
+      "subtitle": "您的作物目前处于什么阶段？",
+      "select": "选择生长阶段",
+      "plantingDate": "何时种植的？"
+    },
+    "complete": {
+      "title": "农场准备就绪！ 🌱",
+      "subtitle": "您的农场设置成功。",
+      "goToDashboard": "前往控制台"
+    },
+    "health": "农场健康度",
+    "addNew": "+ 添加新农场",
+    "noFarms": "暂未添加农场。",
+    "noFarmsHint": "添加您的第一个农场以开始使用。",
+    "addAnotherHint": "添加更多农场以获取精准建议。",
+    "context": {
+      "title": "农场信息",
+      "crop": "作物",
+      "soil": "土壤",
+      "stage": "阶段",
+      "location": "位置",
+      "weather": "天气",
+      "health": "健康度",
+      "hint": "AI 将根据您的农场信息生成个性化推荐。"
+    }
+  },
+  "dashboard": {
+    "title": "Cropoctor 控制台",
+    "greeting": "早上好，{{name}} 🌱",
+    "greetingAfternoon": "下午好，{{name}} 🌾",
+    "greetingEvening": "晚上好，{{name}} 🌙",
+    "currentWeather": "实时天气",
+    "farmHealth": "农场健康度",
+    "lookingHealthy": "状态良好",
+    "needsAttention": "需要注意",
+    "atRisk": "存在风险",
+    "nextBestAction": "最佳建议",
+    "viewActionPlan": "查看行动计划",
+    "quickActions": "快捷操作",
+    "viewWeather": "查看天气",
+    "viewInsights": "查看分析",
+    "alert": "预警",
+    "why": "为什么？",
+    "demoData": "演示数据",
+    "totalFarms": "已登记 {{count}} 个农场",
+    "weatherCard": {
+      "rain": "降水",
+      "humidity": "湿度",
+      "wind": "风速"
+    },
+    "nba": {
+      "action": "灌溉前请检查土壤湿度。"
+    },
+    "demoAlert": {
+      "title": "预计明天有强降雨。",
+      "desc": "建议推迟灌溉并检查排水渠道。",
+      "why": "为什么？"
+    }
+  },
+  "advisor": {
+    "title": "AI 顾问",
+    "subtitle": "您的智能农艺助手。",
+    "inputPlaceholder": "询问关于农场的任何问题...",
+    "askPlaceholder": "询问关于农场的任何问题...",
+    "thinking": "正在分析您的农场信息...",
+    "preparing": "正在生成建议...",
+    "recommendation": "推荐建议",
+    "why": "原因",
+    "whatToDo": "操作步骤",
+    "dataUsed": "使用的数据",
+    "listen": "播放语音",
+    "saveAdvice": "保存",
+    "saved": "建议已保存。",
+    "farmContext": "农场信息",
+    "askFollowUp": "追问",
+    "quickQuestions": "常见问题",
+    "questions": {
+      "q1": "今天应该灌溉吗？",
+      "q2": "为什么叶子会发黄？",
+      "q3": "什么时候播种最好？",
+      "q4": "应该施用什么肥料？",
+      "q5": "近期降雨时机是否合适？",
+      "q6": "如何改善作物健康？"
+    }
+  },
+  "voice": {
+    "title": "语音助手",
+    "listening": "正在倾听...",
+    "understanding": "正在理解您的问题...",
+    "preparing": "正在准备回答...",
+    "cancel": "取消",
+    "stop": "停止",
+    "retry": "重试",
+    "tapToSpeak": "点击麦克风开始说话",
+    "notSupported": "该设备不支持语音输入。"
+  },
+  "diagnose": {
+    "title": "作物诊断",
+    "subtitle": "拍摄或上传作物照片进行诊断。",
+    "tapToUpload": "点击上传照片",
+    "orTakePhoto": "或拍照",
+    "takePhoto": "拍照",
+    "uploadImage": "上传图片",
+    "useSample": "使用示例图片",
+    "sampleHint": "示例图片可让您在没有相机的情况下体验诊断流程。",
+    "recentTitle": "近期诊断记录",
+    "analyzing": "正在分析图片",
+    "match": "匹配度",
+    "tips": {
+      "title": "获取最佳诊断结果的提示",
+      "tip1": "使用自然光 — 避免强烈的阴影。",
+      "tip2": "清晰拍摄受损叶片。",
+      "tip3": "拍入2–3片有症状的叶子。",
+      "tip4": "保持相机稳定并聚焦。",
+      "tip5": "如果可能，拍下叶片的正反面。"
+    },
+    "steps": {
+      "examining": "正在检测图片",
+      "identifying": "正在识别作物",
+      "checking": "正在检查症状",
+      "analyzing": "正在分析病斑",
+      "preparing": "正在生成诊断报告"
+    },
+    "result": {
+      "title": "诊断结果",
+      "confidence": "{{value}}% 匹配度",
+      "possibleIssue": "可能存在的问题",
+      "symptoms": "观察到的症状",
+      "actions": "建议采取的措施",
+      "listen": "播放",
+      "learnMore": "了解更多",
+      "askAI": "咨询 AI",
+      "save": "保存诊断结果",
+      "disclaimer": "AI 诊断结果仅供参考，不可替代专业农艺师建议。",
+      "demo": "演示诊断",
+      "severity": {
+        "mild": "轻度",
+        "moderate": "中度",
+        "severe": "重度"
+      }
+    }
+  },
+  "weather": {
+    "title": "天气智能",
+    "subtitle": "实时天气及农场影响分析。",
+    "today": "今天",
+    "tomorrow": "明天",
+    "sevenDay": "7 天预报",
+    "farmImpact": "农场影响",
+    "irrigation": "灌溉",
+    "spraying": "喷药",
+    "diseaseRisk": "病害风险",
+    "status": {
+      "delay": "暂缓",
+      "proceed": "正常进行",
+      "monitor": "持续观察",
+      "postpone": "推迟",
+      "caution": "谨慎",
+      "low": "低",
+      "moderate": "中等",
+      "elevated": "偏高",
+      "high": "高"
+    },
+    "reasons": {
+      "Soil moisture is adequate. Irrigate as scheduled.": "土壤湿度充足，按计划灌溉。",
+      "High wind speed will cause chemical drift.": "风速较大易造成药剂漂移。",
+      "High humidity increases fungal disease risk.": "高湿环境增加真菌病害风险。"
+    },
+    "viewDetails": "查看详情",
+    "demo": "演示天气数据",
+    "updatedJustNow": "刚刚更新",
+    "updatedMinAgo": "{{count}} 分钟前更新",
+    "feelsLike": "体感温度 {{temp}}°"
+  },
+  "insights": {
+    "title": "农场分析",
+    "subtitle": "作物健康度、土壤湿度和卫星数据。",
+    "cropHealth": "作物健康度",
+    "soilHealth": "土壤状况",
+    "satellite": "卫星遥感",
+    "ndvi": "NDVI 指数",
+    "vegetationHealth": "植被长势",
+    "contributingFactors": "主要影响因素",
+    "demo": "演示数据",
+    "live": "实时",
+    "unavailable": "不可用",
+    "trend": {
+      "improving": "↑ 正在改善",
+      "declining": "↓ 呈下降趋势",
+      "stable": "→ 保持稳定"
+    },
+    "factors": {
+      "moisture": "土壤湿度适宜",
+      "nutrients": "养分充足",
+      "disease": "未发现明确病害",
+      "canopy": "冠层发育良好",
+      "Optimal soil moisture": "土壤湿度适宜",
+      "Adequate nutrient levels": "养分充足",
+      "No confirmed disease": "未发现明确病害",
+      "Good canopy development": "冠层发育良好"
+    }
+  },
+  "history": {
+    "title": "农场历史记录",
+    "subtitle": "AI 建议、诊断及农事记录。",
+    "notice": "完整历史持久化将在阶段 4 连接到 Firestore。",
+    "items": {
+      "h-001": {
+        "title": "推迟灌溉",
+        "summary": "根据降雨预报，AI 建议暂停灌溉。"
+      },
+      "h-002": {
+        "title": "检测到叶斑病",
+        "summary": "检测到褐斑病，匹配度为 87%。"
+      },
+      "h-003": {
+        "title": "强降雨预警",
+        "summary": "预计未来 48 小时内降雨量达 35–50 毫米。"
+      },
+      "h-004": {
+        "title": "作物阶段：开花期",
+        "summary": "花生作物已进入开花期。"
+      },
+      "h-005": {
+        "title": "已施肥",
+        "summary": "每英亩追施 10 公斤尿素。"
+      }
+    }
+  },
+  "notifications": {
+    "title": "通知",
+    "subtitle": "农场预警与更新。",
+    "unreadAlerts": "{{count}} 条未读预警",
+    "caughtUp": "已读取全部通知！",
+    "markAllRead": "全部标记为已读",
+    "clearAll": "清空全部",
+    "items": {
+      "notif-001": {
+        "title": "预计明天有强降雨",
+        "body": "拉杰科特预计将有 35–50 毫米降雨。建议暂停灌溉并保护作物。"
+      },
+      "notif-002": {
+        "title": "灌溉建议已生成",
+        "body": "根据今日气象条件，建议推迟灌溉 24 小时。"
+      },
+      "notif-003": {
+        "title": "病害风险上升",
+        "body": "高湿环境增加了花生真菌病害的风险，请密切观察叶片。"
+      },
+      "notif-004": {
+        "title": "灌溉提醒",
+        "body": "拉杰科特农场预定的灌溉检查提醒。"
+      },
+      "notif-005": {
+        "title": "农场健康度更新",
+        "body": "您的农场健康度评分已从 78 提升至 82。"
+      }
+    },
+    "actions": {
+      "notif-001": "查看天气",
+      "notif-002": "查看建议",
+      "notif-003": "诊断作物",
+      "notif-004": "灌溉计划",
+      "notif-005": "查看分析"
+    }
+  },
+  "settings": {
+    "title": "设置",
+    "subtitle": "应用偏好与账号配置。",
+    "sections": {
+      "languageRegion": "语言与地区",
+      "voiceAI": "语音与 AI",
+      "appPreferences": "应用偏好"
+    },
+    "metricUnits": "公制单位",
+    "voiceDesc": "语速、语言、声音输出",
+    "weatherAlerts": "天气预警",
+    "weatherAlertsDesc": "降雨、暴风雨及极端天气",
+    "diseaseWarnings": "病害预警",
+    "diseaseWarningsDesc": "高风险病害气象提醒",
+    "irrigationReminders": "灌溉提醒",
+    "irrigationRemindersDesc": "定期灌溉检查提醒",
+    "aiRecommendations": "AI 推荐",
+    "aiRecommendationsDesc": "每日农情智能更新",
+    "darkMode": "深色模式",
+    "darkModeDesc": "即将在下个版本推出",
+    "offlineMode": "离线模式",
+    "offlineModeDesc": "缓存农场数据以便离线查看",
+    "exportData": "导出我的数据",
+    "exportDataDesc": "下载您的农场历史记录",
+    "clearData": "清除本地数据",
+    "clearDataDesc": "删除所有缓存的农场数据",
+    "units": "单位",
+    "metric": "公制 (英亩, °C)",
+    "imperial": "英制 (公顷, °F)",
+    "voice": "语音设置",
+    "language": "语言",
+    "notifications": "通知",
+    "privacy": "隐私政策",
+    "help": "帮助与支持",
+    "about": "关于 Cropoctor"
+  },
+  "states": {
+    "loading": "加载中...",
+    "error": "出错了。",
+    "retry": "重试",
+    "offline": "您处于离线状态。",
+    "offlineHint": "您保存的农场数据仍可访问。",
+    "empty": "暂无内容。",
+    "lastUpdated": "最后更新于",
+    "reload": "重新加载应用"
+  },
+  "toast": {
+    "farmSaved": "农场保存成功。",
+    "locationSelected": "位置已选择。",
+    "adviceSaved": "建议已保存。",
+    "diagnosisSaved": "诊断已保存。",
+    "weatherError": "无法加载天气数据。",
+    "voiceError": "语音输入不可用。",
+    "copied": "已复制到剪贴板。"
+  },
+  "units": {
+    "acres": "英亩",
+    "hectares": "公顷",
+    "celsius": "°C",
+    "fahrenheit": "°F",
+    "kmh": "公里/小时"
+  },
+  "crops": {
+    "groundnut": "花生",
+    "cotton": "棉花",
+    "wheat": "小麦",
+    "Groundnut": "花生",
+    "Cotton": "棉花",
+    "Wheat": "小麦"
+  },
+  "diseases": {
+    "Leaf Spot": "叶斑病",
+    "Healthy Crop": "健康作物"
+  },
+  "stages": {
+    "seedling": "幼苗期",
+    "growing": "生长期",
+    "flowering": "开花期",
+    "Seedling": "幼苗期",
+    "Growing": "生长期",
+    "Flowering": "开花期"
+  },
+  "soils": {
+    "Loamy": "壤土",
+    "Black Cotton": "黑棉土",
+    "Alluvial": "冲积土",
+    "Sandy": "沙土"
+  },
+  "time": {
+    "h-001": "1小时前",
+    "h-002": "2天前",
+    "h-003": "3天前",
+    "h-004": "2026-08-15",
+    "h-005": "2026-08-12",
+    "notif-001": "32分钟前",
+    "notif-002": "2小时前",
+    "notif-003": "5小时前",
+    "notif-004": "1天前",
+    "notif-005": "2天前",
+    "diag-001": "2天前",
+    "diag-002": "1周前",
+    "daysAgo": "{{count}} 天前",
+    "weeksAgo": "{{count}} 周前"
+  },
+  "weatherDesc": {
+    "sunny": "晴朗",
+    "partly-cloudy": "多云",
+    "cloudy": "阴天",
+    "rainy": "有雨",
+    "stormy": "雷阵雨",
+    "Partly Cloudy": "多云"
+  }
 }

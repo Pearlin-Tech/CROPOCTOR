@@ -122,9 +122,9 @@ const CropDoctorPage: React.FC = () => {
                   >
                     <img src={d.imageUrl} alt={d.disease} className="w-14 h-14 rounded-xl object-cover border border-brown-pastel/20" />
                     <div className="flex-1 min-w-0">
-                      <p className="font-bold text-text-main text-sm truncate">{d.disease}</p>
-                      <p className="text-xs text-text-secondary font-medium mt-0.5">{d.crop} · <span className="text-green-forest">{d.confidence}% {t('diagnosis.match', 'match')}</span></p>
-                      <p className="text-xs text-brown-earth/60 mt-0.5">{d.date}</p>
+                      <p className="font-bold text-text-main text-sm truncate">{t(`diseases.${d.disease}`, d.disease)}</p>
+                      <p className="text-xs text-text-secondary font-medium mt-0.5">{t(`crops.${d.crop}`, d.crop)} · <span className="text-green-forest">{d.confidence}% {t('diagnose.match', 'match')}</span></p>
+                      <p className="text-xs text-brown-earth/60 mt-0.5">{t(`time.${d.id}`, d.date)}</p>
                     </div>
                     <span className="w-8 h-8 rounded-full bg-green-pastel/20 flex items-center justify-center shrink-0">
                       <ChevronRight className="w-4 h-4 text-green-forest" />

@@ -1,12 +1,537 @@
 {
-  "app": { "name": "Cropoctor", "tagline": "ለእያንዳንዱ እርሻ ብልህ ውሳኔዎች።" },
-  "nav": { "home": "መነሻ", "myFarm": "የእኔ እርሻ", "advisor": "የ AI አማካሪ", "diagnose": "ምርመራ", "profile": "መገለጫ", "weather": "የአየር ሁኔታ", "insights": "ግንዛቤዎች", "history": "ታሪክ", "notifications": "ማሳወቂያዎች", "settings": "ቅንብሮች" },
+  "app": {
+    "name": "Cropoctor",
+    "tagline": "ለእያንዳንዱ እርሻ ብልህ ውሳኔዎች።",
+    "platform": "የግብርና ኢንተለጀንስ መድረክ",
+    "brics": "BRICS የግብርና ኢንተለጀንስ መድረክ"
+  },
+  "nav": {
+    "home": "ዋና ገጽ",
+    "myFarm": "እርሻዬ",
+    "advisor": "AI አማካሪ",
+    "diagnose": "ምርመራ",
+    "profile": "መገለጫ",
+    "weather": "አየር ሁኔታ",
+    "insights": "ትንታኔዎች",
+    "history": "ታሪክ",
+    "notifications": "ማስታወቂያዎች",
+    "settings": "ቅንብሮች",
+    "voice": "የድምጽ ረዳት",
+    "help": "እርዳታ እና ድጋፍ",
+    "about": "ስለ መተግበሪያው"
+  },
   "welcome": {
     "headline": "የተሻሉ ውሳኔዎች። ጤናማ ሰብሎች።",
-    "subheading": "በእርሻዎ ዙሪያ የተገነባ በ AI የተጎላበተ የእርሻ ብልህነት።",
+    "subheading": "በ AI የተደገፈ የግብርና ኢንተለጀንስ ለእርሻዎ።",
     "cta": "ጀምር",
-    "signin": "አካውንት አለዎት? ይግቡ"
+    "signin": "ቀደም ሲል መለያ አለዎት? ግባ"
   },
-  "language": { "title": "ቋንቋ ይምረጡ", "subtitle": "ተመራጭ ቋንቋዎን ይምረጡ።", "search": "ቋንቋ ይፈልጉ...", "continue": "ቀጥል" },
-  "country": { "title": "አገርዎን ይምረጡ", "subtitle": "አካባቢያዊ ግንዛቤዎችን ለማግኘት አገርዎን ይምረጡ።", "continue": "ቀጥል" }
+  "auth": {
+    "google": "በ Google ቀጥል",
+    "phone": "በስልክ ቁጥር ቀጥል",
+    "email": "በኢሜይል ቀጥል",
+    "createAccount": "መለያ ፍጠር",
+    "forgotPassword": "የይለፍ ቃል ረስተዋል?",
+    "emailLabel": "ኢሜይል አድራሻ",
+    "passwordLabel": "የይለፍ ቃል",
+    "nameLabel": "ሙሉ ስም",
+    "signingIn": "በመግባት ላይ...",
+    "welcomeBack": "እንኳን ደህና መጡ!",
+    "signInToContinue": "ለመቀጠል ይግቡ።",
+    "noAccount": "መለያ የለዎትም?",
+    "alreadyHaveAccount": "ቀደም ሲል መለያ አለዎት?",
+    "securityNotice": "በ256-ቢት የተጠበቀ የተጠበቀ ግንኙነት",
+    "signedOut": "በተሳካ ሁኔታ ወጥተዋል።",
+    "errors": {
+      "required": "ይህ መስክ ያስፈልጋል።",
+      "invalidEmail": "እባክዎን ትክክለኛ ኢሜይል ያስገቡ።",
+      "weakPassword": "የይለፍ ቃል ቢያንስ 6 ቁምፊዎች መሆን አለበት።",
+      "authFailed": "መግባት አልተሳካም። እባክዎ እንደገና ይሞክሩ።"
+    }
+  },
+  "language": {
+    "title": "ቋንቋ ይምረጡ",
+    "subtitle": "የሚመርጡትን ቋንቋ ይምረጡ።",
+    "search": "ቋንቋ ፈልግ...",
+    "continue": "ቀጥል"
+  },
+  "country": {
+    "title": "አገርዎን ይምረጡ",
+    "subtitle": "አካባቢያዊ መረጃ ለማግኘት አገርዎን ይምረጡ።",
+    "continue": "ቀጥል"
+  },
+  "profile": {
+    "title": "መገለጫ እና ቅንብሮች",
+    "subtitle": "የመለያዎን ዝርዝሮች እና ምርጫዎች ያስተዳድሩ።",
+    "name": "ሙሉ ስም",
+    "experience": "የግብርና ልምድ",
+    "experienceOptions": {
+      "beginner": "ጀማሪ (0-3 ዓመታት)",
+      "intermediate": "መካከለኛ (3-10 ዓመታት)",
+      "expert": "ባለሙያ (10+ ዓመታት)"
+    },
+    "preferences": "ምርጫዎች",
+    "language": "ቋንቋ",
+    "country": "አገር",
+    "units": "መለኪያዎች",
+    "voiceSettings": "የድምጽ ቅንብሮች",
+    "notificationsPrivacy": "ማስታወቂያዎች እና ግላዊነት",
+    "notifications": "ማስታወቂያዎች",
+    "privacy": "የግላዊነት ፖሊሲ",
+    "dataManagement": "የውሂብ አስተዳደር",
+    "support": "ድጋፍ",
+    "help": "እርዳታ እና ድጋፍ",
+    "about": "ስለ Cropoctor",
+    "logout": "ውጣ",
+    "edit": "አርትዕ",
+    "farmer": "አርሶ አደር",
+    "myFarms": "እርሻዎቼ",
+    "farmsRegistered": "{{count}} እርሻዎች ተመዝግበዋል",
+    "version": "ስሪት"
+  },
+  "farms": {
+    "farm-001": { "name": "የራጅኮት የለውዝ እርሻ" },
+    "farm-002": { "name": "የሱራት የጥጥ እርሻ" },
+    "farm-003": { "name": "የጁናጋድ የስንዴ እርሻ" }
+  },
+  "locations": {
+    "Rajkot, Gujarat": "ራጅኮት, ጉጃራት",
+    "Surat, Gujarat": "ሱራት, ጉጃራት",
+    "Junagadh, Gujarat": "ጁናጋድ, ጉጃራት",
+    "Rajkot, Gujarat, India": "ራጅኮት, ጉጃራት, ሕንድ",
+    "Surat, Gujarat, India": "ሱራት, ጉጃራት, ሕንድ",
+    "Junagadh, Gujarat, India": "ጁናጋድ, ጉጃራት, ሕንድ",
+    "Rajkot": "ራጅኮት",
+    "Surat": "ሱራት",
+    "Junagadh": "ጁናጋድ",
+    "Gujarat": "ጉጃራት",
+    "India": "ሕንድ",
+    "Farm Location": "የእርሻ ቦታ"
+  },
+  "farm": {
+    "location": {
+      "title": "እርሻዎ የት ይገኛል?",
+      "subtitle": "በካርታው ላይ የእርሻዎን ቦታ ያግኙ።",
+      "useMyLocation": "የአሁኑን ቦታዬን ተጠቀም",
+      "searchPlaceholder": "መንደር ወይም ከተማ ፈልግ",
+      "pickOnMap": "በካርታ ላይ ምረጥ",
+      "useThisLocation": "ይህንን ቦታ ተጠቀም",
+      "locating": "ቦታ በመፈለግ ላይ...",
+      "locationError": "ቦታዎን ማግኘት አልተቻለም።"
+    },
+    "boundary": {
+      "title": "የእርሻ ድንበር নির্ধারণ",
+      "subtitle": "የእርሻዎን ድንበር ለማስመር ካርታውን ይጫኑ።",
+      "area": "በግምት {{value}} {{unit}}",
+      "clear": "አጽዳ",
+      "edit": "አርትዕ",
+      "confirm": "ስፋቱን አረጋግጥ"
+    },
+    "details": {
+      "title": "የእርሻ ዝርዝሮች",
+      "subtitle": "የእርሻዎን ቅንብር ያጠናቅቁ።",
+      "name": "የእርሻ ስም",
+      "namePlaceholder": "ምሳሌ፡ የራጅኮት የለውዝ እርሻ",
+      "area": "ስፋት",
+      "primaryCrop": "ዋና ሰብል",
+      "soilType": "የአፈር ዓይነት",
+      "cropStage": "የሰብል እድገት ደረጃ",
+      "plantingDate": "የተተከለበት ቀን (አማራጭ)",
+      "save": "እርሻውን አስቀምጥ",
+      "setActive": "ንቁ እርሻ"
+    },
+    "crop": {
+      "title": "ሰብል ይምረጡ",
+      "subtitle": "ለዚህ እርሻ ዋናውን ሰብል ይምረጡ።",
+      "search": "ሰብል ፈልግ...",
+      "categories": "ምድቦች",
+      "popular": "ታዋቂ",
+      "all": "ሁሉም ሰብሎች",
+      "select": "ሰብል ምረጥ"
+    },
+    "soil": {
+      "title": "የአፈር ዓይነት",
+      "subtitle": "የእርሻዎን የአፈር ዓይነት ይምረጡ።",
+      "select": "የአፈር ዓይነት ምረጥ",
+      "dontKnow": "አላውቅም"
+    },
+    "stage": {
+      "title": "የእድገት ደረጃ",
+      "subtitle": "ሰብልዎ በምን ደረጃ ላይ ይገኛል?",
+      "select": "ደረጃ ምረጥ",
+      "plantingDate": "መቼ ተተከለ?"
+    },
+    "complete": {
+      "title": "እርሻዎ ዝግጁ ነው! 🌱",
+      "subtitle": "እርሻዎ በተሳካ ሁኔታ ተዋቅሯል።",
+      "goToDashboard": "ወደ ዳሽቦርድ ሂድ"
+    },
+    "health": "የእርሻ ጤና",
+    "addNew": "+ አዲስ እርሻ አክል",
+    "noFarms": "እስካሁን ምንም እርሻ አልተጨመረም።",
+    "noFarmsHint": "ለመጀመር የመጀመሪያ እርሻዎን ያክሉ።",
+    "addAnotherHint": "የተሻለ ትንተና ለማግኘት ሌላ እርሻ ያክሉ።",
+    "context": {
+      "title": "የእርሻ መረጃ",
+      "crop": "ሰብል",
+      "soil": "አፈር",
+      "stage": "ደረጃ",
+      "location": "ቦታ",
+      "weather": "አየር ሁኔታ",
+      "health": "ጤና",
+      "hint": "AI ለእርስዎ ምክር ለመስጠት የእርሻዎን መረጃ ይጠቀማል።"
+    }
+  },
+  "dashboard": {
+    "title": "Cropoctor ዳሽቦርድ",
+    "greeting": "እንደ ምን አደሩ፣ {{name}} 🌱",
+    "greetingAfternoon": "እንደ ምን ዋሉ፣ {{name}} 🌾",
+    "greetingEvening": "እንደ ምን አመሹ፣ {{name}} 🌙",
+    "currentWeather": "የአሁኑ አየር ሁኔታ",
+    "farmHealth": "የእርሻ ጤና",
+    "lookingHealthy": "በጥሩ ሁኔታ ላይ",
+    "needsAttention": "ትኩረት ያስፈልገዋል",
+    "atRisk": "አደጋ ላይ",
+    "nextBestAction": "ዋና ምክር",
+    "viewActionPlan": "የእርምጃ ዕቅድ ይመልከቱ",
+    "quickActions": "ፈጣን እርምጃዎች",
+    "viewWeather": "አየር ሁኔታ ይመልከቱ",
+    "viewInsights": "ትንታኔዎችን ይመልከቱ",
+    "alert": "ማስጠንቀቂያ",
+    "why": "ለሙን?",
+    "demoData": "የማሳያ መረጃ",
+    "totalFarms": "{{count}} እርሻዎች ተመዝግበዋል",
+    "weatherCard": {
+      "rain": "ዝናብ",
+      "humidity": "እርጥበት",
+      "wind": "ነፋስ"
+    },
+    "nba": {
+      "action": "ውሃ ከመስጠትዎ በፊት የአፈር እርጥበትን ይመልከቱ።"
+    },
+    "demoAlert": {
+      "title": "ነገ ከፍተኛ ዝናብ ይጠበቃል።",
+      "desc": "ውሃ ማጠጣቱን ማቆየት እና የመስኖ ቦዮችን ማየት ይመከራል።",
+      "why": "ለሙን?"
+    }
+  },
+  "advisor": {
+    "title": "AI አማካሪ",
+    "subtitle": "የእርስዎ ብልህ የግብርና ረዳት።",
+    "inputPlaceholder": "ስለ እርሻዎ ማንኛውንም ጥያቄ ይጠይቁ...",
+    "askPlaceholder": "ስለ እርሻዎ ማንኛውንም ጥያቄ ይጠይቁ...",
+    "thinking": "የእርሻ መረጃዎችን በማሰላሰል ላይ...",
+    "preparing": "ምክሩን በማዘጋጀት ላይ...",
+    "recommendation": "ምክር",
+    "why": "ለሙን?",
+    "whatToDo": "ምን ማድረግ አለብዎት",
+    "dataUsed": "የተጠቀመው መረጃ",
+    "listen": "አዳምጥ",
+    "saveAdvice": "አስቀምጥ",
+    "saved": "ምክሩ ተቀምጧል።",
+    "farmContext": "የእርሻ መረጃ",
+    "askFollowUp": "ተጨማሪ ጥያቄ ጠይቅ",
+    "quickQuestions": "ተደጋጋሚ ጥያቄዎች",
+    "questions": {
+      "q1": "ዛሬ ውሃ ማጠጣት አለብኝ?",
+      "q2": "ቅጠሎቹ ለምን ቢጫ ይሆናሉ?",
+      "q3": "መቼ መዝራት አለብኝ?",
+      "q4": "የትኛውን ማዳበሪያ ልጠቀም?",
+      "q5": "በሰዓቱ ዝናብ ይጠበቃል?",
+      "q6": "የሰብል ጤናን እንዴት ማሻሻል እችላለሁ?"
+    }
+  },
+  "voice": {
+    "title": "የድምጽ ረዳት",
+    "listening": "በማዳመጥ ላይ...",
+    "understanding": "ጥያቄዎን በመረዳት ላይ...",
+    "preparing": "መልስ በማዘጋጀት ላይ...",
+    "cancel": "ሰርዝ",
+    "stop": "አቁም",
+    "retry": "እንደገና ይሞክሩ",
+    "tapToSpeak": "ለመናገር ማይክሮፎኑን ይጫኑ",
+    "notSupported": "በዚህ መሳሪያ ላይ የድምጽ ግቤት አይሰራም።"
+  },
+  "diagnose": {
+    "title": "የሰብል ምርመራ",
+    "subtitle": "የሰብሉን ፎቶ ያንሱ ወይም ያክሉ።",
+    "tapToUpload": "ለመጫን ይጫኑ",
+    "orTakePhoto": "ወይም ፎቶ ያንሱ",
+    "takePhoto": "ፎቶ አንሳ",
+    "uploadImage": "ምስል ስቀል",
+    "useSample": "የማሳያ ምስል ተጠቀም",
+    "sampleHint": "የማሳያ ምስሉ ያለ ካሜራ ምርመራውን እንድትሞክሩ ያስችልዎታል።",
+    "recentTitle": "ቅርብ ጊዜ ምርመራዎች",
+    "analyzing": "ምስሉን በመመርመር ላይ",
+    "match": "ትክክለኛነት",
+    "tips": {
+      "title": "ለተሻለ ውጤት ጠቃሚ ምክሮች",
+      "tip1": "የተፈጥሮ ብርሃን ይጠቀሙ - ጥላዎችን ያስወግዱ።",
+      "tip2": "የተጎዳውን ቅጠል በግልጽ ፎቶ ያንሱ።",
+      "tip3": "ምልክቶች ያሏቸውን 2-3 ቅጠሎች ያካቱ።",
+      "tip4": "ካሜራውን ሳያንቀሳቅሱ ያተኩሩ።",
+      "tip5": "ከተቻለ የቅጠሉን ሁለቱንም ጎኖች ያንሱ።"
+    },
+    "steps": {
+      "examining": "ምስሉን በመመርመር ላይ",
+      "identifying": "ሰብሉን በመለየት ላይ",
+      "checking": "ምልክቶችን በማየት ላይ",
+      "analyzing": "በማሰላሰል ላይ",
+      "preparing": "ሪፖርቱን በማዘጋጀት ላይ"
+    },
+    "result": {
+      "title": "የምርመራ ውጤት",
+      "confidence": "{{value}}% ትክክለኛነት",
+      "possibleIssue": "የተገኘ ችግር",
+      "symptoms": "የታዩ ምልክቶች",
+      "actions": "የሚመከሩ እርምጃዎች",
+      "listen": "አዳምጥ",
+      "learnMore": "ተጨማሪ ይወቁ",
+      "askAI": "AI ን ጠይቅ",
+      "save": "አስቀምጥ",
+      "disclaimer": "የ AI ምርመራው መረጃ ሰጪ ብቻ ሲሆን የሙያ ምክርን አይተካም።",
+      "demo": "የማሳያ ምርመራ",
+      "severity": {
+        "mild": "ቀለል ያለ",
+        "moderate": "መካከለኛ",
+        "severe": "ከባድ"
+      }
+    }
+  },
+  "weather": {
+    "title": "የአየር ሁኔታ ትንበያ",
+    "subtitle": "የወቅቱ አየር ሁኔታ እና በእርሻ ላይ ያለው ተፅዕኖ።",
+    "today": "ዛሬ",
+    "tomorrow": "ነገ",
+    "sevenDay": "7 ቀናት",
+    "farmImpact": "በእርሻ ላይ ያለው ተፅዕኖ",
+    "irrigation": "ውሃ ማጠጣት",
+    "spraying": "መድኃኒት መረጨት",
+    "diseaseRisk": "የበሽታ አደጋ",
+    "status": {
+      "delay": "አቆይ",
+      "proceed": "ቀጥል",
+      "monitor": "ተከታተል",
+      "postpone": "አስተላልፍ",
+      "caution": "ጥንቃቄ",
+      "low": "ዝቅተኛ",
+      "moderate": "መካከለኛ",
+      "elevated": "ከፍ ያለ",
+      "high": "ከፍተኛ"
+    },
+    "reasons": {
+      "Soil moisture is adequate. Irrigate as scheduled.": "የአፈር እርጥበት በቂ ነው። በታቀደው መሠረት ውሃ አጣጣ።",
+      "High wind speed will cause chemical drift.": "ከፍተኛ የነፋስ ፍጥነት መድኃኒቱን ያበላሸዋል።",
+      "High humidity increases fungal disease risk.": "ከፍተኛ እርጥበት የፈንገስ በሽታ አደጋን ይጨምራል።"
+    },
+    "viewDetails": "ዝርዝሩን ይመልከቱ",
+    "demo": "የማሳያ አየር ሁኔታ መረጃ",
+    "updatedJustNow": "አሁን ተዘምኗል",
+    "updatedMinAgo": "ከ {{count}} ደቂቃ በፊት ተዘምኗል",
+    "feelsLike": "የሚሰማው {{temp}}°"
+  },
+  "insights": {
+    "title": "የእርሻ ትንታኔዎች",
+    "subtitle": "የሰብል ጤና፣ የአፈር እርጥበት እና የሳተላይት መረጃ።",
+    "cropHealth": "የሰብል ጤና",
+    "soilHealth": "የአፈር ሁኔታ",
+    "satellite": "ሳተላይት",
+    "ndvi": "NDVI সূচক",
+    "vegetationHealth": "የእፅዋት ሁኔታ",
+    "contributingFactors": "ተፅዕኖ ፈጣሪ ምክንያቶች",
+    "demo": "የማሳያ መረጃ",
+    "live": "ቀጥታ",
+    "unavailable": "አይገኝም",
+    "trend": {
+      "improving": "↑ እየተሻሻለ ነው",
+      "declining": "↓ እየቀነሰ ነው",
+      "stable": "→ መደበኛ"
+    },
+    "factors": {
+      "moisture": "ተስማሚ የአፈር እርጥበት",
+      "nutrients": "በቂ ንጥረ ነገሮች",
+      "disease": "ምንም የተረጋገጠ በሽታ የለም",
+      "canopy": "ጥሩ የእፅዋት እድገት",
+      "Optimal soil moisture": "ተስማሚ የአፈር እርጥበት",
+      "Adequate nutrient levels": "በቂ ንጥረ ነገሮች",
+      "No confirmed disease": "ምንም የተረጋገጠ በሽታ የለም",
+      "Good canopy development": "ጥሩ የእፅዋት እድገት"
+    }
+  },
+  "history": {
+    "title": "የእርሻ ታሪክ",
+    "subtitle": "የ AI ምክሮች፣ የምርመራዎች እና የእርሻ እንቅስቃሴዎች መዝገብ።",
+    "notice": "ሙሉ የታሪክ መዝገብ በደረጃ 4 ከ Firestore ጋር ይያያዛል።",
+    "items": {
+      "h-001": {
+        "title": "ውሃ ማጠጣት ተዘግይቷል",
+        "summary": "በዝናብ ትንበያ ምክንያት AI ውሃ ማጠጣቱን እንዲዘገይ መክሯል።"
+      },
+      "h-002": {
+        "title": "የቅጠል ነጠብጣብ በሽታ ተገኝቷል",
+        "summary": "ሴርኮስፖራ ቅጠል ነጠብጣብ በ 87% ትክክለኛነት ተገኝቷል።"
+      },
+      "h-003": {
+        "title": "የከባድ ዝናብ ማስጠንቀቂያ",
+        "summary": "በሚቀጥሉት 48 ሰዓታት ውስጥ 35-50 ሚሜ ዝናብ ይጠበቃል።"
+      },
+      "h-004": {
+        "title": "የሰብል ደረጃ፡ ማበብ",
+        "summary": "የለውዝ ሰብሉ ወደ ማበብ ደረጃ ገብቷል።"
+      },
+      "h-005": {
+        "title": "ማዳበሪያ ተጨምሯል",
+        "summary": "በአንድ ሄክታር 10 ኪሎ ዩሪያ ማዳበሪያ ተጨምሯል።"
+      }
+    }
+  },
+  "notifications": {
+    "title": "ማስታወቂያዎች",
+    "subtitle": "የእርሻ ማስጠንቀቂያዎች እና ዝመናዎች።",
+    "unreadAlerts": "{{count}} ያልተነበቡ ማስጠንቀቂያዎች",
+    "caughtUp": "ሁሉም ተነበዋል!",
+    "markAllRead": "ሁሉንም እንደተነበበ አድርግ",
+    "clearAll": "ሁሉንም አጽዳ",
+    "items": {
+      "notif-001": {
+        "title": "ነገ ከፍተኛ ዝናብ ይጠበቃል",
+        "body": "በራጅኮት 35-50 ሚሜ ዝናብ ይጠበቃል። ውሃ ማጠጣቱን ማቆየት ይመከራል።"
+      },
+      "notif-002": {
+        "title": "የውሃ ማጠጣት ምክር ዝግጁ ነው",
+        "body": "በዛሬው ሁኔታዎች መሠረት ውሃ ማጠጣቱን ለ 24 ሰዓታት እንዲያዘገዩ እንመክራለን።"
+      },
+      "notif-003": {
+        "title": "የበሽታ አደጋ ጨምሯል",
+        "body": "ከፍተኛ እርጥበት የፈንገስ በሽታ አደጋን ይጨምራል። ቅጠሎችን ይከታተሉ።"
+      },
+      "notif-004": {
+        "title": "የውሃ ማጠጣት ማስታወሻ",
+        "body": "ለራጅኮት የለውዝ እርሻ የታቀደ የውሃ ማጠጣት ፍተሻ።"
+      },
+      "notif-005": {
+        "title": "የእርሻ ጤና ዝመና",
+        "body": "የእርሻዎ ጤና ውጤት ከ 78 ወደ 82 አድጓል።"
+      }
+    },
+    "actions": {
+      "notif-001": "አየር ሁኔታ ይመልከቱ",
+      "notif-002": "ምክሩን ይመልከቱ",
+      "notif-003": "ሰብል መርምር",
+      "notif-004": "የውሃ ዕቅድ",
+      "notif-005": "ትንታኔዎችን ይመልከቱ"
+    }
+  },
+  "settings": {
+    "title": "ቅንብሮች",
+    "subtitle": "የመተግበሪያ ምርጫዎች እና የመለያ ቅንብር።",
+    "sections": {
+      "languageRegion": "ቋንቋ እና ክልል",
+      "voiceAI": "ድምጽ እና AI",
+      "appPreferences": "የመተግበሪያ ምርጫዎች"
+    },
+    "metricUnits": "ሜትሪክ መለኪያዎች",
+    "voiceDesc": "የንግግር ፍጥነት፣ ቋንቋ፣ ድምጽ",
+    "weatherAlerts": "የአየር ሁኔታ ማስጠንቀቂያዎች",
+    "weatherAlertsDesc": "ዝናብ፣ አውሎ ነፋስ እና አደጋዎች",
+    "diseaseWarnings": "የበሽታ ማስጠንቀቂያዎች",
+    "diseaseWarningsDesc": "ከፍተኛ የበሽታ አደጋ ሁኔታዎች",
+    "irrigationReminders": "የውሃ ማጠጣት ማስታወሻዎች",
+    "irrigationRemindersDesc": "የታቀዱ የውሃ ማጠጣት ፍተሻዎች",
+    "aiRecommendations": "የ AI 추천ዎች",
+    "aiRecommendationsDesc": "ዕለታዊ የግብርና መረጃዎች",
+    "darkMode": "ጨለማ ሁነታ",
+    "darkModeDesc": "በቀጣዩ ዝመና የሚመጣ",
+    "offlineMode": "ያለ இணைய ሁነታ",
+    "offlineModeDesc": "መረጃዎችን በመሳሪያው ላይ አስቀምጥ",
+    "exportData": "ውሂብ ላክ",
+    "exportDataDesc": "የእርሻዎን ታሪክ ያውርዱ",
+    "clearData": "የአካባቢ ውሂብ አጽዳ",
+    "clearDataDesc": "የተቀመጡ መረጃዎችን አጥፋ",
+    "units": "መለኪያዎች",
+    "metric": "ሜትሪክ (ኤከር, °C)",
+    "imperial": "ኢምፔሪያል (ሄክታር, °F)",
+    "voice": "የድምጽ ቅንብሮች",
+    "language": "ቋንቋ",
+    "notifications": "ማስታወቂያዎች",
+    "privacy": "የግላዊነት ፖሊሲ",
+    "help": "እርዳታ እና ድጋፍ",
+    "about": "ስለ Cropoctor"
+  },
+  "states": {
+    "loading": "በመጫን ላይ...",
+    "error": "ስህተት ተከስቷል።",
+    "retry": "እንደገና ይሞክሩ",
+    "offline": "መስመር ላይ አይደሉም።",
+    "offlineHint": "የተቀመጡ መረጃዎች አሁንም ይገኛሉ።",
+    "empty": "እስካሁን ምንም የለም።",
+    "lastUpdated": "መጨረሻ የተዘመነው",
+    "reload": "መተግበሪያውን እንደገና ጫን"
+  },
+  "toast": {
+    "farmSaved": "እርሻው በተሳካ ሁኔታ ተቀምጧል።",
+    "locationSelected": "ቦታው ተመርጧል።",
+    "adviceSaved": "ምክሩ ተቀምጧል።",
+    "diagnosisSaved": "ምርመራው ተቀምጧል።",
+    "weatherError": "የአየር ሁኔታ መረጃ ማግኘት አልተቻለም።",
+    "voiceError": "የድምጽ ግቤት አይገኝም።",
+    "copied": "ወደ ቅንጥብ ሰሌዳ ተገልብጧል።"
+  },
+  "units": {
+    "acres": "ኤከር",
+    "hectares": "ሄክታር",
+    "celsius": "°C",
+    "fahrenheit": "°F",
+    "kmh": "ኪሜ/ሰ"
+  },
+  "crops": {
+    "groundnut": "ለውዝ",
+    "cotton": "ጥጥ",
+    "wheat": "ስንዴ",
+    "Groundnut": "ለውዝ",
+    "Cotton": "ጥጥ",
+    "Wheat": "ስንዴ"
+  },
+  "diseases": {
+    "Leaf Spot": "የቅጠል ነጠብጣብ በሽታ",
+    "Healthy Crop": "ጤናማ ሰብል"
+  },
+  "stages": {
+    "seedling": "ቡቃያ",
+    "growing": "እድገት",
+    "flowering": "ማበብ",
+    "Seedling": "ቡቃያ",
+    "Growing": "እድገት",
+    "Flowering": "ማበብ"
+  },
+  "soils": {
+    "Loamy": "ለሰስ ያለ አፈር",
+    "Black Cotton": "ጥቁር አፈር",
+    "Alluvial": "ደለል አፈር",
+    "Sandy": "አሸዋማ አፈር"
+  },
+  "time": {
+    "h-001": "ከ 1 ሰዓት በፊት",
+    "h-002": "ከ 2 ቀን በፊት",
+    "h-003": "ከ 3 ቀን በፊት",
+    "h-004": "15/08/2026",
+    "h-005": "12/08/2026",
+    "notif-001": "ከ 32 ደቂቃ በፊት",
+    "notif-002": "ከ 2 ሰዓት በፊት",
+    "notif-003": "ከ 5 ሰዓት በፊት",
+    "notif-004": "ከ 1 ቀን በፊት",
+    "notif-005": "ከ 2 ቀን በፊት",
+    "diag-001": "ከ 2 ቀን በፊት",
+    "diag-002": "ከ 1 ሳምንት በፊት",
+    "daysAgo": "ከ {{count}} ቀናት በፊት",
+    "weeksAgo": "ከ {{count}} ሳምንታት በፊት"
+  },
+  "weatherDesc": {
+    "sunny": "ጸሐያማ",
+    "partly-cloudy": "በከፊል ደመናማ",
+    "cloudy": "ደመናማ",
+    "rainy": "ዝናባማ",
+    "stormy": "ማዕበላዊ",
+    "Partly Cloudy": "በከፊል ደመናማ"
+  }
 }
