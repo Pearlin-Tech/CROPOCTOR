@@ -90,9 +90,15 @@
     "version": "Versi"
   },
   "farms": {
-    "farm-001": { "name": "Lahan Kacang Rajkot" },
-    "farm-002": { "name": "Lahan Kapas Surat" },
-    "farm-003": { "name": "Lahan Gandum Junagadh" }
+    "farm-001": {
+      "name": "Lahan Kacang Rajkot"
+    },
+    "farm-002": {
+      "name": "Lahan Kapas Surat"
+    },
+    "farm-003": {
+      "name": "Lahan Gandum Junagadh"
+    }
   },
   "locations": {
     "Rajkot, Gujarat": "Rajkot, Gujarat",
@@ -420,7 +426,10 @@
       "notif-003": "Diagnosis Tanaman",
       "notif-004": "Rencana Irigasi",
       "notif-005": "Lihat Wawasan"
-    }
+    },
+    "emptyTitle": "Belum ada notifikasi",
+    "emptyDesc": "Saat Anda mendapat peringatan tentang pertanian atau cuaca Anda, peringatan tersebut akan muncul di sini.",
+    "errorTitle": "Terjadi kesalahan"
   },
   "settings": {
     "title": "Pengaturan",

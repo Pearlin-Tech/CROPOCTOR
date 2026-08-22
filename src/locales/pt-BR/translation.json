@@ -90,9 +90,15 @@
     "version": "Versão"
   },
   "farms": {
-    "farm-001": { "name": "Fazenda de Amendoim Rajkot" },
-    "farm-002": { "name": "Fazenda de Algodão Surat" },
-    "farm-003": { "name": "Fazenda de Trigo Junagadh" }
+    "farm-001": {
+      "name": "Fazenda de Amendoim Rajkot"
+    },
+    "farm-002": {
+      "name": "Fazenda de Algodão Surat"
+    },
+    "farm-003": {
+      "name": "Fazenda de Trigo Junagadh"
+    }
   },
   "locations": {
     "Rajkot, Gujarat": "Rajkot, Gujarat",
@@ -420,7 +426,10 @@
       "notif-003": "Diagnosticar Cultivo",
       "notif-004": "Plano de Irrigação",
       "notif-005": "Ver Análises"
-    }
+    },
+    "emptyTitle": "Ainda não há notificações",
+    "emptyDesc": "Quando você receber alertas sobre sua fazenda ou clima, eles aparecerão aqui.",
+    "errorTitle": "Algo deu errado"
   },
   "settings": {
     "title": "Configurações",
