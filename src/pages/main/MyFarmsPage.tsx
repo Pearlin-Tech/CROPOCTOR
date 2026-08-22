@@ -11,11 +11,12 @@ import { ProgressBar } from '@/components/ui/index'
 import { FarmCardSkeleton } from '@/components/skeletons'
 import { useFarm } from '@/store/FarmContext'
 import { useTranslation } from 'react-i18next'
+import { formatLocalizedNumber, formatLocalizedPercent } from '@/utils/format'
 
 const MyFarmsPage: React.FC = () => {
   const navigate = useNavigate()
   const { farms, activeFarm, setActiveFarm } = useFarm()
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
 
   return (
     <motion.div variants={pageVariants} initial="initial" animate="animate" className="min-h-screen bg-background">
@@ -29,7 +30,7 @@ const MyFarmsPage: React.FC = () => {
         <div className="hidden lg:flex items-center justify-between mb-4">
           <div>
             <h1 className="text-2xl font-bold text-gray-800">{t('nav.myFarm', 'My Farms')}</h1>
-            <p className="text-sm text-gray-500">{t('dashboard.overview.totalFarms', { count: farms.length, defaultValue: '{{count}} farm(s) registered' })}</p>
+            <p className="text-sm text-gray-500">{formatLocalizedNumber(t('profile.farmsRegistered', { count: farms.length }), i18n.language)}</p>
           </div>
           <Button variant="primary" size="md" icon={<Plus className="w-4 h-4" />} onClick={() => navigate('/onboarding/location')}>
             {t('farm.addNew')}
@@ -53,19 +54,19 @@ const MyFarmsPage: React.FC = () => {
                       </div>
                     )}
                     <div className="absolute bottom-3 left-3 right-3">
-                      <h3 className="font-bold text-white text-lg leading-tight">{farm.name}</h3>
-                      <p className="text-white/80 text-xs">{farm.location.displayName}</p>
+                      <h3 className="font-bold text-white text-lg leading-tight">{t(`farms.${farm.id}.name`, farm.name)}</h3>
+                      <p className="text-white/80 text-xs">{t(`locations.${farm.location.displayName}`, farm.location.displayName)}</p>
                     </div>
                   </div>
                   <div className="p-4">
                     <div className="flex items-center gap-2 flex-wrap mb-3">
-                      <Badge variant="green" size="sm">🌱 {farm.primaryCrop}</Badge>
-                      <Badge variant="earth" size="sm">📐 {farm.area} {t('dashboard.overview.acres', 'acres')}</Badge>
-                      <Badge variant="gray" size="sm">🌸 {farm.cropStage}</Badge>
+                      <Badge variant="green" size="sm">🌱 {t(`crops.${farm.primaryCrop}`, farm.primaryCrop)}</Badge>
+                      <Badge variant="earth" size="sm">📐 {formatLocalizedNumber(farm.area, i18n.language)} {t('units.acres', 'acres')}</Badge>
+                      <Badge variant="gray" size="sm">🌸 {t(`stages.${farm.cropStage}`, farm.cropStage)}</Badge>
                     </div>
                     <div className="flex items-center gap-2">
                       <ProgressBar value={farm.healthScore} color="green" size="sm" />
-                      <span className="text-xs font-bold text-green-forest shrink-0">{farm.healthScore}%</span>
+                      <span className="text-xs font-bold text-green-forest shrink-0">{formatLocalizedPercent(farm.healthScore, i18n.language)}</span>
                     </div>
                     <p className="text-xs text-gray-400 mt-1">{t('farm.health')}</p>
                   </div>
@@ -84,7 +85,7 @@ const MyFarmsPage: React.FC = () => {
                 <Plus className="w-7 h-7" />
               </div>
               <p className="font-semibold">{t('farm.addNew')}</p>
-              <p className="text-xs text-gray-400 text-center">{t('dashboard.overview.addAnother', 'Add another farm to get personalized insights.')}</p>
+              <p className="text-xs text-gray-400 text-center">{t('farm.addAnotherHint', 'Add another farm to get personalized insights.')}</p>
             </button>
           </motion.div>
         </motion.div>

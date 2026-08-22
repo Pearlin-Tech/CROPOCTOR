@@ -5,6 +5,8 @@ import { Search, Check } from 'lucide-react'
 import { pageVariants, cardVariants, listVariants } from '@/animations/variants'
 import { Button } from '@/components/ui/Button'
 import { useApp } from '@/store/AppContext'
+import { useUser } from '@/store/UserContext'
+import { userService } from '@/services/userService'
 import i18n from '@/locales/i18n'
 import { useTranslation } from 'react-i18next'
 
@@ -23,6 +25,7 @@ const LANGUAGES = [
 const LanguagePage: React.FC = () => {
   const navigate = useNavigate()
   const { language, setLanguage } = useApp()
+  const { authUser, updateFarmer } = useUser()
   const { t } = useTranslation()
   const [selected, setSelected] = useState(language)
   const [query, setQuery]       = useState('')
@@ -31,9 +34,13 @@ const LanguagePage: React.FC = () => {
     ? LANGUAGES.filter(l => l.name.toLowerCase().includes(query.toLowerCase()) || l.native.includes(query))
     : LANGUAGES
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
     setLanguage(selected)
     i18n.changeLanguage(selected)
+    updateFarmer({ preferredLanguage: selected, language: selected })
+    if (authUser?.uid) {
+      await userService.saveUserLanguage(authUser.uid, selected)
+    }
     navigate('/country')
   }
 
