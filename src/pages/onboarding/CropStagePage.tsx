@@ -7,10 +7,12 @@ import { SearchableSelect } from '@/components/ui/SearchableSelect'
 import { CROP_STAGES } from '@/config/soils'
 import { Input } from '@/components/ui/Input'
 import { useTranslation } from 'react-i18next'
+import { useFarmSetup } from '@/store/FarmSetupContext'
 
 const CropStagePage: React.FC = () => {
   const navigate = useNavigate()
   const { t } = useTranslation()
+  const { setCropStage } = useFarmSetup()
   const [stage, setStage] = useState('flowering')
   const [date, setDate]   = useState('')
   const stageOptions = CROP_STAGES.map(s => ({ id: s.id, name: s.name }))
@@ -42,7 +44,10 @@ const CropStagePage: React.FC = () => {
       </div>
 
       <div className="mt-10">
-        <Button variant="primary" size="xl" fullWidth onClick={() => navigate('/onboarding/complete')}>
+        <Button variant="primary" size="xl" fullWidth onClick={() => {
+          setCropStage(stage, date)
+          navigate('/onboarding/complete')
+        }}>
           {t('farm.location.almostDone', 'Almost Done')} →
         </Button>
       </div>

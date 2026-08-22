@@ -6,10 +6,12 @@ import { Button } from '@/components/ui/Button'
 import { SearchableSelect } from '@/components/ui/SearchableSelect'
 import { SOILS } from '@/config/soils'
 import { useTranslation } from 'react-i18next'
+import { useFarmSetup } from '@/store/FarmSetupContext'
 
 const SoilSelectionPage: React.FC = () => {
   const navigate = useNavigate()
   const { t } = useTranslation()
+  const { setSoil } = useFarmSetup()
   const [soilId, setSoilId] = useState('loamy')
   const soilOptions = SOILS.map(s => ({ id: s.id, name: s.name, description: s.description }))
   const selectedSoil = SOILS.find(s => s.id === soilId)
@@ -50,7 +52,10 @@ const SoilSelectionPage: React.FC = () => {
       </div>
 
       <div className="mt-10">
-        <Button variant="primary" size="xl" fullWidth onClick={() => navigate('/onboarding/stage')}>
+        <Button variant="primary" size="xl" fullWidth onClick={() => {
+          setSoil(soilId, selectedSoil?.name || soilId)
+          navigate('/onboarding/stage')
+        }}>
           {t('country.continue')} →
         </Button>
       </div>
