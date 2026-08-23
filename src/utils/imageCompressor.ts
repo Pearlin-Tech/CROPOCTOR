@@ -164,3 +164,48 @@ export async function compressImageWithFallback(file: File | Blob): Promise<{
     }
   }
 }
+
+/**
+ * Resizes and center-crops a profile avatar image to a square compressed Base64 data URI (~10 KB).
+ * @param file Input image File or Blob
+ * @param size Target square dimension (default: 160px)
+ */
+export async function compressAvatarPhoto(file: File | Blob, size = 160): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const objectUrl = URL.createObjectURL(file)
+    const img = new Image()
+
+    img.onload = () => {
+      URL.revokeObjectURL(objectUrl)
+
+      const canvas = document.createElement('canvas')
+      canvas.width = size
+      canvas.height = size
+      const ctx = canvas.getContext('2d')
+
+      if (!ctx) {
+        reject(new Error('Canvas 2D context unavailable'))
+        return
+      }
+
+      // Calculate center crop
+      const minDim = Math.min(img.width, img.height)
+      const sx = (img.width - minDim) / 2
+      const sy = (img.height - minDim) / 2
+
+      ctx.fillStyle = '#FFFFFF'
+      ctx.fillRect(0, 0, size, size)
+      ctx.drawImage(img, sx, sy, minDim, minDim, 0, 0, size, size)
+
+      const base64 = canvas.toDataURL('image/jpeg', 0.82)
+      resolve(base64)
+    }
+
+    img.onerror = (err) => {
+      URL.revokeObjectURL(objectUrl)
+      reject(err)
+    }
+
+    img.src = objectUrl
+  })
+}

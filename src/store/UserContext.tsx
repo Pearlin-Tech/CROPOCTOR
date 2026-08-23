@@ -85,14 +85,30 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       if (isCancelled) return
       const remoteLang = data?.language || data?.preferredLanguage
       const remoteCountry = data?.country
-      if (remoteLang || remoteCountry) {
+      const remoteName = data?.name || data?.fullName
+      const remoteExp = data?.experience
+      const remotePhoto = data?.photoData
+
+      if (remoteLang || remoteCountry || remoteName || remoteExp || remotePhoto !== undefined) {
         if (remoteLang) setLanguage(remoteLang)
         setFarmer(prev => {
-          if (!prev) return prev
+          const fallback: Farmer = {
+            id: authUser.uid,
+            name: authUser.displayName || 'Farmer',
+            email: authUser.email || undefined,
+            experience: 'intermediate',
+            preferredLanguage: remoteLang || 'en',
+            country: 'India',
+            createdAt: new Date().toISOString()
+          }
+          const base = prev || fallback
           const updated = {
-            ...prev,
+            ...base,
             ...(remoteLang ? { preferredLanguage: remoteLang, language: remoteLang } : {}),
-            ...(remoteCountry ? { country: remoteCountry } : {})
+            ...(remoteCountry ? { country: remoteCountry } : {}),
+            ...(remoteName ? { name: remoteName } : {}),
+            ...(remoteExp ? { experience: remoteExp } : {}),
+            ...(remotePhoto !== undefined ? { photoData: remotePhoto } : {})
           }
           localStorage.setItem('cropoctor-farmer', JSON.stringify(updated))
           return updated

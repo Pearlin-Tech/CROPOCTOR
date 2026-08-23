@@ -68,8 +68,13 @@
     "experienceOptions": {
       "beginner": "Beginner (0–3 years)",
       "intermediate": "Intermediate (3–10 years)",
-      "expert": "Expert (10+ years)"
+      "experienced": "Experienced (10+ years)",
+      "expert": "Experienced (10+ years)"
     },
+    "expBeginner": "Beginner (0–3 years)",
+    "expIntermediate": "Intermediate (3–10 years)",
+    "expExperienced": "Experienced (10+ years)",
+    "expExpert": "Experienced (10+ years)",
     "preferences": "Preferences",
     "language": "Language",
     "country": "Country",

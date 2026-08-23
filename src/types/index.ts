@@ -5,7 +5,8 @@ export interface Farmer {
   email?: string
   phone?: string
   avatarUrl?: string
-  experience: 'beginner' | 'intermediate' | 'expert'
+  photoData?: string | null
+  experience: 'beginner' | 'intermediate' | 'experienced' | 'expert' | string
   preferredLanguage: string
   language?: string
   country: string

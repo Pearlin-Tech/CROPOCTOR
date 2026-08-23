@@ -7,6 +7,9 @@ export interface UserProfileData {
   country?: string;
   email?: string;
   name?: string;
+  fullName?: string;
+  experience?: string;
+  photoData?: string | null;
   updatedAt?: any;
 }
 
@@ -28,6 +31,36 @@ export const userService = {
     } catch (err: any) {
       console.warn("[userService] Error getting user profile:", err?.message || err);
       return { data: null, error: err?.message || String(err) };
+    }
+  },
+
+  /**
+   * Saves/updates user profile details (name, experience, photoData) in Firestore: users/{uid}
+   */
+  saveUserProfile: async (
+    uid: string,
+    profile: { name?: string; fullName?: string; experience?: string; photoData?: string | null }
+  ): Promise<{ success: boolean; error: string | null }> => {
+    try {
+      if (!db || !db.app) {
+        return { success: false, error: "Firestore not initialized" };
+      }
+      const userRef = doc(db, "users", uid);
+      const nameToSave = profile.fullName || profile.name;
+      await setDoc(
+        userRef,
+        {
+          ...(nameToSave ? { name: nameToSave, fullName: nameToSave } : {}),
+          ...(profile.experience ? { experience: profile.experience } : {}),
+          ...(profile.photoData !== undefined ? { photoData: profile.photoData } : {}),
+          updatedAt: serverTimestamp(),
+        },
+        { merge: true }
+      );
+      return { success: true, error: null };
+    } catch (err: any) {
+      console.warn("[userService] Error saving user profile:", err?.message || err);
+      return { success: false, error: err?.message || String(err) };
     }
   },
 
