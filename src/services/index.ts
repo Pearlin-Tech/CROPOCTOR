@@ -10,6 +10,7 @@ import { MOCK_INSIGHTS } from '@/mock/insights'
 import { MOCK_FARMS } from '@/mock/farms'
 import { getMockAIResponse } from '@/mock/aiResponses'
 import { FirebaseNotificationService } from './notificationService'
+import { FirebaseFarmService } from './farmService'
 
 const delay = (ms: number) => new Promise(r => setTimeout(r, ms))
 
@@ -94,6 +95,11 @@ export interface IFarmService {
   getFarm(farmId: string): Promise<Farm | null>
   saveFarm(farm: Partial<Farm>): Promise<Farm>
   deleteFarm(farmId: string): Promise<void>
+  subscribeToUserFarms?: (
+    userId: string,
+    callback: (farms: Farm[]) => void,
+    onError?: (error: Error) => void
+  ) => () => void
 }
 
 class MockFarmService implements IFarmService {
@@ -159,28 +165,51 @@ export interface ILocationService {
   searchPlaces(query: string): Promise<Array<{ name: string; lat: number; lng: number }>>
 }
 
-class MockLocationService implements ILocationService {
+class ApiLocationService implements ILocationService {
   async getCurrentPosition(): Promise<{ lat: number; lng: number }> {
     return new Promise((resolve, reject) => {
-      if (!navigator.geolocation) { reject(new Error('Geolocation not supported')); return }
+      if (!navigator.geolocation) {
+        reject(new Error('Geolocation not supported'))
+        return
+      }
       navigator.geolocation.getCurrentPosition(
         pos => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
-        () => resolve({ lat: 22.3039, lng: 70.8022 }) // fallback to Rajkot
+        err => reject(err),
+        { enableHighAccuracy: true, timeout: 10000 }
       )
     })
   }
+
   async reverseGeocode(lat: number, lng: number): Promise<string> {
-    await delay(500)
-    return `Farm Location (${lat.toFixed(4)}, ${lng.toFixed(4)})`
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`, {
+        headers: { 'Accept-Language': 'en' }
+      })
+      if (!res.ok) throw new Error('Failed to fetch address')
+      const data = await res.json()
+      return data.display_name || `Location (${lat.toFixed(4)}, ${lng.toFixed(4)})`
+    } catch (e) {
+      console.warn('Reverse geocode failed:', e)
+      return `Location (${lat.toFixed(4)}, ${lng.toFixed(4)})`
+    }
   }
+
   async searchPlaces(query: string): Promise<Array<{ name: string; lat: number; lng: number }>> {
-    await delay(600)
-    // Mock search results
-    return [
-      { name: `${query}, Gujarat, India`, lat: 22.3039, lng: 70.8022 },
-      { name: `${query} Village, Rajkot District`, lat: 22.3500, lng: 70.7500 },
-      { name: `Near ${query}, Saurashtra`, lat: 22.2800, lng: 70.8500 },
-    ]
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5`, {
+        headers: { 'Accept-Language': 'en' }
+      })
+      if (!res.ok) throw new Error('Failed to search places')
+      const data = await res.json()
+      return data.map((item: any) => ({
+        name: item.display_name,
+        lat: parseFloat(item.lat),
+        lng: parseFloat(item.lon)
+      }))
+    } catch (e) {
+      console.warn('Search places failed:', e)
+      return []
+    }
   }
 }
 
@@ -230,10 +259,10 @@ export { textToSpeech, playAudioContent, stopAudioPlayback, type TextToSpeechOpt
 
 export const aiService: IAIService               = new MockAIService()
 export const weatherService: IWeatherService     = new ApiWeatherService()
-export const farmService: IFarmService           = new MockFarmService()
+export const farmService: IFarmService           = new FirebaseFarmService()
 export const diagnosisService: IDiagnosisService = new MockDiagnosisService()
 export const notificationService: INotificationService = new FirebaseNotificationService()
 export const insightsService: IInsightsService   = new MockInsightsService()
-export const locationService: ILocationService   = new MockLocationService()
+export const locationService: ILocationService   = new ApiLocationService()
 export const voiceService: IVoiceService         = new MockVoiceService()
 

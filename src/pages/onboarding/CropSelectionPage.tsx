@@ -6,10 +6,12 @@ import { Button } from '@/components/ui/Button'
 import { SearchableSelect } from '@/components/ui/SearchableSelect'
 import { CROPS } from '@/config/crops'
 import { useTranslation } from 'react-i18next'
+import { useFarmSetup } from '@/store/FarmSetupContext'
 
 const CropSelectionPage: React.FC = () => {
   const navigate = useNavigate()
   const { t } = useTranslation()
+  const { setCrop } = useFarmSetup()
   const [cropId, setCropId] = useState('groundnut')
 
   const cropOptions = CROPS.map(c => ({ id: c.id, name: c.name, category: c.category }))
@@ -53,7 +55,11 @@ const CropSelectionPage: React.FC = () => {
       </div>
 
       <div className="mt-10">
-        <Button variant="primary" size="xl" fullWidth onClick={() => navigate('/onboarding/soil')} disabled={!cropId}>
+        <Button variant="primary" size="xl" fullWidth onClick={() => {
+          const crop = CROPS.find(c => c.id === cropId)
+          setCrop(cropId, crop?.name || cropId)
+          navigate('/onboarding/soil')
+        }} disabled={!cropId}>
           {t('country.continue')} →
         </Button>
       </div>
