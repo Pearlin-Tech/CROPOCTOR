@@ -219,7 +219,15 @@ class MockVoiceService implements IVoiceService {
   }
 }
 
+export { voiceAiService, type VoiceProcessResult } from './voiceAiService'
+export { speechToText, type SpeechToTextOptions, type SpeechToTextResult } from './speechToTextService'
+export { processAssistantRequest as processGeminiAssistant, type GeminiAssistantOptions, type GeminiAssistantResult } from './geminiAssistantClient'
+export { textToSpeech, playAudioContent, stopAudioPlayback, type TextToSpeechOptions, type TextToSpeechResult } from './textToSpeechService'
+
 // ─── Export singletons (swap class to change implementation) ──────────────────
+
+
+
 export const aiService: IAIService               = new MockAIService()
 export const weatherService: IWeatherService     = new ApiWeatherService()
 export const farmService: IFarmService           = new MockFarmService()
@@ -228,3 +236,4 @@ export const notificationService: INotificationService = new FirebaseNotificatio
 export const insightsService: IInsightsService   = new MockInsightsService()
 export const locationService: ILocationService   = new MockLocationService()
 export const voiceService: IVoiceService         = new MockVoiceService()
+
