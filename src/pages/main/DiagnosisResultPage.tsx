@@ -10,7 +10,7 @@ import { ProgressBar } from '@/components/ui/index'
 import { useApp } from '@/store/AppContext'
 import { useTranslation } from 'react-i18next'
 import type { DiagnosisResult } from '@/types'
-import { Volume2, VolumeX, AlertTriangle, ShieldCheck, UserCheck, RotateCcw, Stethoscope } from 'lucide-react'
+import { ChevronLeft, RotateCcw, Volume2, VolumeX, ShieldCheck, MessageSquare, AlertTriangle, UserCheck, Stethoscope } from 'lucide-react'
 
 const severityColor = {
   healthy: 'green',
@@ -245,6 +245,14 @@ const DiagnosisResultPage: React.FC = () => {
               >
                 {isPlayingAudio ? <VolumeX className="w-4 h-4 text-amber-600 animate-pulse" /> : <Volume2 className="w-4 h-4 text-green-forest" />}
                 <span>{isPlayingAudio ? 'Stop Audio' : t('diagnosis.listen', 'Listen Remedies')}</span>
+              </button>
+              
+              <button
+                onClick={() => navigate('/advisor', { state: { diagnosisContext: d } })}
+                className="flex items-center gap-2 text-sm font-bold text-white bg-brown-earth px-4 py-2.5 rounded-xl hover:bg-brown-earth/90 transition-colors shadow-sm w-full justify-center"
+              >
+                <MessageSquare className="w-4 h-4" />
+                <span>Ask AI Advisor about this</span>
               </button>
             </div>
 

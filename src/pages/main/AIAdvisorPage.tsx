@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Mic, Image, Send, ChevronRight } from 'lucide-react'
 import { pageVariants, listVariants, cardVariants } from '@/animations/variants'
@@ -10,7 +10,7 @@ import { AIResponseSkeleton as AISkel } from '@/components/skeletons'
 import { useFarm } from '@/store/FarmContext'
 import { aiService, weatherService } from '@/services'
 import { cropDoctorService } from '@/services/cropDoctorService'
-import type { AIMessage } from '@/types'
+import type { AIMessage, DiagnosisResult } from '@/types'
 import { useApp } from '@/store/AppContext'
 import { useTranslation } from 'react-i18next'
 import { formatLocalizedNumber, formatLocalizedPercent } from '@/utils/format'
@@ -33,6 +33,29 @@ const AIAdvisorPage: React.FC = () => {
   const [input, setInput]       = useState('')
   const [loading, setLoading]   = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
+  
+  const [activeDiagnosis, setActiveDiagnosis] = useState<DiagnosisResult | null>(null)
+  const location = useLocation()
+
+  // Fetch context on mount
+  React.useEffect(() => {
+    if (!activeFarm?.id) return
+    let isMounted = true
+
+    const passedDiagnosis = location.state?.diagnosisContext as DiagnosisResult | undefined
+    if (passedDiagnosis) {
+      setActiveDiagnosis(passedDiagnosis)
+      return
+    }
+
+    cropDoctorService.getRecentDiagnoses(1, activeFarm.id).then(diagnoses => {
+      if (isMounted && diagnoses && diagnoses.length > 0) {
+        setActiveDiagnosis(diagnoses[0])
+      }
+    }).catch(err => console.warn('Failed to fetch recent diagnoses', err))
+
+    return () => { isMounted = false }
+  }, [activeFarm?.id, location.state])
 
   const askQuestion = async (q: string) => {
     if (!q.trim() || loading) return
@@ -53,15 +76,20 @@ const AIAdvisorPage: React.FC = () => {
           console.warn('Failed to fetch weather for AI Advisor context', e)
         }
 
-        // Fetch recent diagnosis
-        try {
-          const diagnoses = await cropDoctorService.getRecentDiagnoses(1, activeFarm.id)
-          if (diagnoses && diagnoses.length > 0) {
-            const d = diagnoses[0]
-            recentDiagnosisStr = `Condition: ${d.disease} (${d.confidence}% match). Severity: ${d.severity}. Symptoms: ${d.symptoms?.join(', ')}. Actions: ${d.actions?.join(', ')}. Date: ${d.timestamp?.slice(0, 10)}.`
+        // Use the active diagnosis state if available, or fetch again as fallback
+        if (activeDiagnosis) {
+          recentDiagnosisStr = `Condition: ${activeDiagnosis.disease} (${activeDiagnosis.confidence}% match). Severity: ${activeDiagnosis.severity}. Symptoms: ${activeDiagnosis.symptoms?.join(', ')}. Actions: ${activeDiagnosis.actions?.join(', ')}. Date: ${activeDiagnosis.timestamp?.slice(0, 10)}.`
+        } else {
+          try {
+            const diagnoses = await cropDoctorService.getRecentDiagnoses(1, activeFarm.id)
+            if (diagnoses && diagnoses.length > 0) {
+              const d = diagnoses[0]
+              setActiveDiagnosis(d)
+              recentDiagnosisStr = `Condition: ${d.disease} (${d.confidence}% match). Severity: ${d.severity}. Symptoms: ${d.symptoms?.join(', ')}. Actions: ${d.actions?.join(', ')}. Date: ${d.timestamp?.slice(0, 10)}.`
+            }
+          } catch (e) {
+            console.warn('Failed to fetch recent diagnosis for AI Advisor context', e)
           }
-        } catch (e) {
-          console.warn('Failed to fetch recent diagnosis for AI Advisor context', e)
         }
       }
 
@@ -105,6 +133,32 @@ const AIAdvisorPage: React.FC = () => {
                 </div>
               </div>
             </div>
+
+            {/* Active Context Banner */}
+            {activeDiagnosis && (
+              <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-4 bg-green-pastel/20 border border-green-pastel/50 rounded-xl p-3 flex items-start gap-3 shadow-sm">
+                <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center overflow-hidden shrink-0 border border-green-pastel/40 shadow-sm">
+                  {activeDiagnosis.imageUrl ? (
+                    <img src={activeDiagnosis.imageUrl} alt={activeDiagnosis.disease} className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="text-lg">🔬</span>
+                  )}
+                </div>
+                <div className="flex-1">
+                  <p className="text-[10px] font-bold text-green-forest uppercase tracking-widest mb-0.5">Active Context</p>
+                  <p className="text-sm font-bold text-text-main leading-tight">{activeDiagnosis.disease}</p>
+                  <p className="text-xs text-text-secondary mt-0.5">I have analyzed your recent diagnosis. Ask me how to treat it!</p>
+                </div>
+                {messages.length === 0 && (
+                  <button 
+                    onClick={() => askQuestion(`What is the recommended treatment for ${activeDiagnosis.disease}?`)}
+                    className="shrink-0 bg-green-forest text-white text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-green-dark transition-colors shadow-sm mt-1"
+                  >
+                    Ask Treatment
+                  </button>
+                )}
+              </motion.div>
+            )}
 
             {/* Empty state / quick questions */}
             {messages.length === 0 && !loading && (

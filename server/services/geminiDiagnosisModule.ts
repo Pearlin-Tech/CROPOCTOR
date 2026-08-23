@@ -1,4 +1,6 @@
 import dotenv from 'dotenv'
+import fs from 'fs'
+import path from 'path'
 import { AI_CONFIG } from '../config/aiConfig.ts'
 
 dotenv.config()
@@ -199,6 +201,37 @@ export async function analyzeCropWithGeminiModule(
       } catch (err) {
         console.warn('[GeminiDiagnosisModule] Unable to fetch external imageUrl for vision prompt:', err)
       }
+    } else if (isSample || (imageUrl && imageUrl.startsWith('/'))) {
+      // Load from local public folder
+      try {
+        const targetUrl = imageUrl || '/images/disease_leaf_1787238259522.jpg'
+        const imagePath = path.join(process.cwd(), 'public', targetUrl)
+        if (fs.existsSync(imagePath)) {
+          const buffer = fs.readFileSync(imagePath)
+          const ext = path.extname(imagePath).toLowerCase()
+          let mime = 'image/jpeg'
+          if (ext === '.png') mime = 'image/png'
+          else if (ext === '.webp') mime = 'image/webp'
+          
+          parts.push({
+            inlineData: {
+              mimeType: mime,
+              data: buffer.toString('base64')
+            }
+          })
+        } else {
+          console.warn('[GeminiDiagnosisModule] Local image not found at:', imagePath)
+        }
+      } catch (err) {
+        console.warn('[GeminiDiagnosisModule] Failed to load local sample image:', err)
+      }
+    }
+
+    if (parts.length === 0) {
+      return {
+        success: false,
+        error: 'No valid image data could be extracted for diagnosis.'
+      }
     }
 
     // Append agronomic prompt context
@@ -230,23 +263,26 @@ ${locationInfo ? `- ${locationInfo}` : ''}
       body: JSON.stringify({
         contents: [{ parts }],
         generationConfig: {
-          temperature: AI_CONFIG.TEMPERATURE,
-          maxOutputTokens: AI_CONFIG.MAX_OUTPUT_TOKENS
+          temperature: AI_CONFIG.TEMPERATURE
         }
       }),
       signal: controller.signal
     }).finally(() => clearTimeout(timeoutId))
 
     if (!response.ok) {
+      const errText = await response.text()
+      console.error(`[Gemini API Error] Status ${response.status}:`, errText)
       if (response.status === 429) {
         return { success: false, error: 'Gemini API rate limit reached (HTTP 429).' }
       }
-      throw new Error(`Gemini API HTTP status ${response.status}`)
+      throw new Error(`Gemini API HTTP status ${response.status}: ${errText}`)
     }
 
     const resData = await response.json()
     const rawText = resData.candidates?.[0]?.content?.parts?.[0]?.text || ''
     const cleanJsonText = rawText.replace(/```json/g, '').replace(/```/g, '').trim()
+    
+    console.log('[GeminiDiagnosisModule] Raw text from model:', rawText)
 
     const parsed = JSON.parse(cleanJsonText)
     const normalizedData = validateAndNormalizeDiagnosis(parsed, farmContext)

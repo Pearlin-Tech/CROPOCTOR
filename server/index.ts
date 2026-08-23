@@ -10,6 +10,7 @@ import { transcribeAudio } from './services/sttService'
 import { processAssistantRequest } from './services/geminiAssistantService'
 import { synthesizeTextToSpeech } from './services/ttsService'
 import { analyzeCropWithGeminiModule } from './services/geminiDiagnosisModule'
+import { getSatelliteDataForFarm } from './services/satelliteService'
 import { AI_CONFIG } from './config/aiConfig'
 
   // Pre-bind iconv encodings to resolve tsx bundle lookup issue
@@ -465,7 +466,27 @@ app.post('/api/voice/assistant', verifyFirebaseAuth as any, async (req: Authenti
   }
 })
 
-// --- PHASE 3: GOOGLE CLOUD TEXT-TO-SPEECH ENDPOINT ---
+// ----------------------------------------------------------------------------
+// SATELLITE & REMOTE SENSING ROUTES
+// ----------------------------------------------------------------------------
+app.get('/api/farms/:farmId/satellite', async (req: Request, res: Response) => {
+  try {
+    const { farmId } = req.params;
+    const { lat, lng } = req.query;
+    const latitude = lat ? parseFloat(lat as string) : undefined;
+    const longitude = lng ? parseFloat(lng as string) : undefined;
+    
+    const data = await getSatelliteDataForFarm(farmId, latitude, longitude);
+    res.json({ success: true, data });
+  } catch (error: any) {
+    console.error('[Server] Error fetching satellite data:', error);
+    res.status(500).json({ success: false, error: error.message || 'Failed to fetch satellite data' });
+  }
+});
+
+// ----------------------------------------------------------------------------
+// VOICE INTERACTION ROUTES (Speech-to-Text, Agent, Text-to-Speech)
+// ----------------------------------------------------------------------------
 
 /**
  * POST /api/voice/tts

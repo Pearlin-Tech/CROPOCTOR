@@ -68,6 +68,7 @@ export default defineConfig({
       '/api/advisor': 'http://localhost:3001',
       '/api/weather': 'http://localhost:3001',
       '/api/analyze-crop': 'http://localhost:3001',
+      '/api/farms': 'http://localhost:3001',
     }
   }
 })
