@@ -2,6 +2,7 @@ import express, { Request, Response } from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv'
 import dns from 'dns'
+import { GoogleGenAI } from '@google/genai'
 
 dns.setDefaultResultOrder('ipv4first')
 
@@ -361,6 +362,71 @@ app.get('/api/weather', async (req: Request, res: Response) => {
   } catch (err: any) {
     console.error('[Server Error /api/weather]:', err)
     return res.status(500).json({ error: 'Failed to fetch weather data', message: err.message })
+  }
+})
+
+// POST /api/advisor endpoint
+app.post('/api/advisor', async (req: Request, res: Response) => {
+  const geminiKey = process.env.GEMINI_API_KEY
+  if (!geminiKey) {
+    return res.status(503).json({ error: 'AI features are currently unavailable. Server is missing GEMINI_API_KEY.' })
+  }
+
+  try {
+    const { question, farmContext } = req.body
+    if (!question) {
+      return res.status(400).json({ error: 'Question is required' })
+    }
+
+    const prompt = `
+You are an expert agricultural agronomy advisor. Return ONLY a raw JSON object (no markdown formatting, no code blocks) matching the exact schema below based on the real farm context and the user's question.
+
+[USER QUESTION]
+${question}
+
+[FARM CONTEXT]
+- Farm ID: ${farmContext?.farmId || 'Unknown'}
+- Crop: ${farmContext?.crop || 'Unknown'}
+- Crop Stage: ${farmContext?.cropStage || 'Unknown'}
+- Soil Type: ${farmContext?.soilType || 'Unknown'}
+- Location: ${farmContext?.location || 'Unknown'}
+- Weather/Status Context: ${farmContext?.weather || 'None'}
+
+[EXPECTED JSON SCHEMA]
+{
+  "recommendation": "A clear, concise, direct answer to the user's question (max 2 sentences).",
+  "why": "Brief agronomic reasoning explaining the recommendation.",
+  "whatToDo": [
+    "Step 1 actionable instruction",
+    "Step 2 actionable instruction (if needed)"
+  ],
+  "dataUsed": [
+    "Crop Stage",
+    "Weather Forecast",
+    "etc"
+  ]
+}
+`
+
+    const ai = new GoogleGenAI({ apiKey: geminiKey })
+    const response = await ai.models.generateContent({
+      model: 'gemini-3.6-flash',
+      contents: prompt,
+      config: {
+        responseMimeType: 'application/json'
+      }
+    })
+
+    const parsed = JSON.parse(response.text || '{}')
+
+    if (parsed && parsed.recommendation && parsed.why && parsed.whatToDo && parsed.dataUsed) {
+      return res.json(parsed)
+    }
+    
+    throw new Error('Gemini response schema mismatch')
+  } catch (err: any) {
+    console.error('[Server Error /api/advisor]:', err)
+    return res.status(500).json({ error: 'Failed to generate AI recommendation', message: err.message })
   }
 })
 
