@@ -8,7 +8,7 @@ import { Card } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/index'
 import { AIResponseSkeleton as AISkel } from '@/components/skeletons'
 import { useFarm } from '@/store/FarmContext'
-import { aiService } from '@/services'
+import { aiService, weatherService } from '@/services'
 import type { AIMessage } from '@/types'
 import { useApp } from '@/store/AppContext'
 import { useTranslation } from 'react-i18next'
@@ -40,7 +40,25 @@ const AIAdvisorPage: React.FC = () => {
     setInput('')
     setLoading(true)
     try {
-      const res = await aiService.getRecommendation(q, { farmId: activeFarm?.id, crop: activeFarm?.primaryCrop, soilType: activeFarm?.soilType, cropStage: activeFarm?.cropStage })
+      let weatherStr = 'None'
+      if (activeFarm) {
+        try {
+          const weather = await weatherService.getWeather(activeFarm.id, activeFarm)
+          weatherStr = `${weather.temperature}°C, ${weather.description}, Humidity: ${weather.humidity}%, Rain Chance: ${weather.rainChance}%`
+        } catch (e) {
+          console.warn('Failed to fetch weather for AI Advisor context', e)
+        }
+      }
+
+      const res = await aiService.getRecommendation(q, { 
+        farmId: activeFarm?.id, 
+        crop: activeFarm?.primaryCrop, 
+        soilType: activeFarm?.soilType, 
+        cropStage: activeFarm?.cropStage,
+        location: activeFarm?.location?.displayName,
+        area: activeFarm?.area ? `${activeFarm.area} ${activeFarm.areaUnit}` : undefined,
+        weather: weatherStr
+      } as any)
       setMessages(prev => [...prev, res])
     } catch {
       toast.error('Unable to get recommendation. Please try again.')
