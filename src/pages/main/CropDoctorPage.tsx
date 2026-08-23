@@ -67,7 +67,7 @@ const CropDoctorPage: React.FC = () => {
     let isMounted = true
     setIsLoadingHistory(true)
 
-    cropDoctorService.getRecentDiagnoses(5).then(list => {
+    cropDoctorService.getRecentDiagnoses(5, activeFarm?.id).then(list => {
       if (!isMounted) return
       if (list && list.length > 0) {
         setRecentDiagnoses(list)
@@ -79,7 +79,7 @@ const CropDoctorPage: React.FC = () => {
     })
 
     return () => { isMounted = false }
-  }, [authUser?.uid, isAnalyzing])
+  }, [authUser?.uid, isAnalyzing, activeFarm?.id])
 
   /**
    * Resets current image selection in memory

@@ -110,6 +110,8 @@ export interface AIContext {
   cropStage?: string
   location?: string
   weather?: string
+  area?: string
+  recentDiagnosis?: string | null
 }
 
 // ─── Diagnosis ────────────────────────────────────────────────────────────────

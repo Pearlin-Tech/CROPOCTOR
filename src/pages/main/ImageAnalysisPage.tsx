@@ -17,6 +17,8 @@ const ImageAnalysisPage: React.FC = () => {
   const location = useLocation()
   const [step, setStep] = useState(0)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [animationDone, setAnimationDone] = useState(false)
+  const [apiDone, setApiDone] = useState(false)
   
   const state = (location.state as any) || {}
   const { imageUrl, imageBase64, isSample, farmContext } = state
@@ -41,11 +43,11 @@ const ImageAnalysisPage: React.FC = () => {
         console.warn('[ImageAnalysisPage] Diagnostic API error:', res.error)
         setErrorMessage(res.error)
       }
-      apiCompletedRef.current = true
+      setApiDone(true)
     }).catch(err => {
       if (isCancelled) return
       console.error('[ImageAnalysisPage] Exception during diagnosis:', err)
-      apiCompletedRef.current = true
+      setApiDone(true)
     })
 
     return () => { isCancelled = true }
@@ -59,26 +61,38 @@ const ImageAnalysisPage: React.FC = () => {
           return prev + 1
         } else {
           clearInterval(stepInterval)
-
-          // Once animation reaches final step, check API result and navigate
-          setTimeout(() => {
-            const finalDiagnosis = diagnosisRef.current
-            navigate('/diagnosis-result', {
-              state: {
-                diagnosis: finalDiagnosis,
-                imageUrl: imageUrl || finalDiagnosis?.imageUrl || '/images/disease_leaf_1787238259522.jpg'
-              },
-              replace: true
-            })
-          }, 600)
-
+          setAnimationDone(true)
           return prev
         }
       })
     }, 800)
 
     return () => clearInterval(stepInterval)
-  }, [navigate, imageUrl])
+  }, [])
+
+  // 3. Navigate only when BOTH animation and API are finished
+  useEffect(() => {
+    if (animationDone && apiDone) {
+      if (errorMessage) {
+        return // Stay on page to show error
+      }
+      
+      const finalDiagnosis = diagnosisRef.current
+      if (finalDiagnosis) {
+        setTimeout(() => {
+          navigate('/diagnosis-result', {
+            state: {
+              diagnosis: finalDiagnosis,
+              imageUrl: imageUrl || finalDiagnosis?.imageUrl || '/images/disease_leaf_1787238259522.jpg'
+            },
+            replace: true
+          })
+        }, 600)
+      } else {
+        setErrorMessage("Analysis completed but no diagnosis data was returned.")
+      }
+    }
+  }, [animationDone, apiDone, errorMessage, navigate, imageUrl])
 
   return (
     <div className="min-h-screen bg-gray-950 flex flex-col items-center justify-center px-6 text-white relative">

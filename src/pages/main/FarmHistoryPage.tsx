@@ -8,6 +8,7 @@ import { MOCK_HISTORY } from '@/mock/insights'
 import { useTranslation } from 'react-i18next'
 import { cropDoctorService } from '@/services/cropDoctorService'
 import { useUser } from '@/store/UserContext'
+import { useFarm } from '@/store/FarmContext'
 import type { DiagnosisResult } from '@/types'
 import { RefreshCw, ChevronRight } from 'lucide-react'
 
@@ -23,6 +24,7 @@ const FarmHistoryPage: React.FC = () => {
   const navigate = useNavigate()
   const { t } = useTranslation()
   const { authUser } = useUser()
+  const { activeFarm } = useFarm()
 
   const [realDiagnoses, setRealDiagnoses] = useState<DiagnosisResult[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -31,7 +33,7 @@ const FarmHistoryPage: React.FC = () => {
     let isMounted = true
     setIsLoading(true)
 
-    cropDoctorService.getRecentDiagnoses(20).then(list => {
+    cropDoctorService.getRecentDiagnoses(20, activeFarm?.id).then(list => {
       if (!isMounted) return
       setRealDiagnoses(list || [])
       setIsLoading(false)
@@ -41,7 +43,7 @@ const FarmHistoryPage: React.FC = () => {
     })
 
     return () => { isMounted = false }
-  }, [authUser?.uid])
+  }, [authUser?.uid, activeFarm?.id])
 
   return (
     <motion.div variants={pageVariants} initial="initial" animate="animate" className="min-h-screen bg-background">

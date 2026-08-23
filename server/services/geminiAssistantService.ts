@@ -1,4 +1,5 @@
-import { AssistantTools, ServerFarm } from './assistantTools'
+import { AssistantTools, ServerFarm } from './assistantTools.ts'
+import { AI_CONFIG } from '../config/aiConfig.ts'
 
 export type AssistantIntent =
   | 'GET_CURRENT_FARM'
@@ -89,7 +90,7 @@ Return ONLY a raw JSON object (no markdown formatting, no code blocks):
 
   try {
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/${AI_CONFIG.TEXT_MODEL}:generateContent?key=${apiKey}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -159,7 +160,7 @@ Directly address the farmer's question using the retrieved farm and weather data
 
   try {
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/${AI_CONFIG.TEXT_MODEL}:generateContent?key=${apiKey}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

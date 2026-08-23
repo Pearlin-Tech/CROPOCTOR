@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/index'
 import { AIResponseSkeleton as AISkel } from '@/components/skeletons'
 import { useFarm } from '@/store/FarmContext'
 import { aiService, weatherService } from '@/services'
+import { cropDoctorService } from '@/services/cropDoctorService'
 import type { AIMessage } from '@/types'
 import { useApp } from '@/store/AppContext'
 import { useTranslation } from 'react-i18next'
@@ -41,12 +42,26 @@ const AIAdvisorPage: React.FC = () => {
     setLoading(true)
     try {
       let weatherStr = 'None'
+      let recentDiagnosisStr: string | null = null
+
       if (activeFarm) {
+        // Fetch weather
         try {
           const weather = await weatherService.getWeather(activeFarm.id, activeFarm)
           weatherStr = `${weather.temperature}°C, ${weather.description}, Humidity: ${weather.humidity}%, Rain Chance: ${weather.rainChance}%`
         } catch (e) {
           console.warn('Failed to fetch weather for AI Advisor context', e)
+        }
+
+        // Fetch recent diagnosis
+        try {
+          const diagnoses = await cropDoctorService.getRecentDiagnoses(1, activeFarm.id)
+          if (diagnoses && diagnoses.length > 0) {
+            const d = diagnoses[0]
+            recentDiagnosisStr = `Condition: ${d.disease} (${d.confidence}% match). Severity: ${d.severity}. Symptoms: ${d.symptoms?.join(', ')}. Actions: ${d.actions?.join(', ')}. Date: ${d.timestamp?.slice(0, 10)}.`
+          }
+        } catch (e) {
+          console.warn('Failed to fetch recent diagnosis for AI Advisor context', e)
         }
       }
 
@@ -57,7 +72,9 @@ const AIAdvisorPage: React.FC = () => {
         cropStage: activeFarm?.cropStage,
         location: activeFarm?.location?.displayName,
         area: activeFarm?.area ? `${activeFarm.area} ${activeFarm.areaUnit}` : undefined,
-        weather: weatherStr
+        weather: weatherStr,
+        recentDiagnosis: recentDiagnosisStr
+
       } as any)
       setMessages(prev => [...prev, res])
     } catch {
