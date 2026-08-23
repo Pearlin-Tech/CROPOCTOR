@@ -31,47 +31,6 @@ class MockAIService implements IAIService {
   }
 }
 
-class GeminiAIService implements IAIService {
-  async getRecommendation(question: string, context: AIContext): Promise<AIMessage> {
-    try {
-      const res = await fetch('/api/advisor', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question, farmContext: context })
-      })
-
-      if (!res.ok) {
-        const errorData = await res.json().catch(() => ({}))
-        throw new Error(errorData.error || `HTTP ${res.status}`)
-      }
-
-      const structured = await res.json()
-      return {
-        id: `ai-${Date.now()}`,
-        role: 'assistant',
-        content: structured.recommendation || 'I have a recommendation for you.',
-        timestamp: new Date().toISOString(),
-        structured
-      }
-    } catch (err: any) {
-      console.error('[GeminiAIService] Error:', err)
-      return {
-        id: `ai-error-${Date.now()}`,
-        role: 'assistant',
-        content: `Sorry, I couldn't get a recommendation at this time. (${err.message})`,
-        timestamp: new Date().toISOString()
-      }
-    }
-  }
-
-  async followUp(question: string, history: AIMessage[]): Promise<AIMessage> {
-    // For now, followUp can just call getRecommendation again, or you could pass history to the server.
-    // To keep the change small and non-breaking, we just pass the question.
-    // Farm context could be extracted from history if needed, but we'll use a basic call.
-    return this.getRecommendation(question, {})
-  }
-}
-
 // ─── Weather Service ──────────────────────────────────────────────────────────
 export interface IWeatherService {
   getWeather(farmId: string, farm?: Farm): Promise<WeatherData>
@@ -289,8 +248,16 @@ class MockVoiceService implements IVoiceService {
   }
 }
 
+export { voiceAiService, type VoiceProcessResult } from './voiceAiService'
+export { speechToText, type SpeechToTextOptions, type SpeechToTextResult } from './speechToTextService'
+export { processAssistantRequest as processGeminiAssistant, type GeminiAssistantOptions, type GeminiAssistantResult } from './geminiAssistantClient'
+export { textToSpeech, playAudioContent, stopAudioPlayback, type TextToSpeechOptions, type TextToSpeechResult } from './textToSpeechService'
+
 // ─── Export singletons (swap class to change implementation) ──────────────────
-export const aiService: IAIService               = new GeminiAIService()
+
+
+
+export const aiService: IAIService               = new MockAIService()
 export const weatherService: IWeatherService     = new ApiWeatherService()
 export const farmService: IFarmService           = new FirebaseFarmService()
 export const diagnosisService: IDiagnosisService = new MockDiagnosisService()
@@ -298,3 +265,4 @@ export const notificationService: INotificationService = new FirebaseNotificatio
 export const insightsService: IInsightsService   = new MockInsightsService()
 export const locationService: ILocationService   = new ApiLocationService()
 export const voiceService: IVoiceService         = new MockVoiceService()
+
