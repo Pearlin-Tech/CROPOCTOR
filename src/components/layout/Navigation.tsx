@@ -1,6 +1,6 @@
 import React from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
-import { Home, Leaf, Bot, Stethoscope, User, CloudSun, BarChart2, Bell, History, Settings } from 'lucide-react'
+import { Home, Leaf, Bot, Stethoscope, User, CloudSun, BarChart2, Bell, History } from 'lucide-react'
 import { cn } from '@/utils/cn'
 import { useApp } from '@/store/AppContext'
 
@@ -125,7 +125,6 @@ export const Sidebar: React.FC = () => {
       <div className="px-3 py-4 border-t border-brown-pastel/40 space-y-1">
         {[
           { to: '/profile',  icon: User,     labelKey: 'nav.profile'  },
-          { to: '/settings', icon: Settings, labelKey: 'nav.settings' },
         ].map(({ to, icon: Icon, labelKey }) => {
           const active = location.pathname.startsWith(to)
           const label = t(labelKey)
