@@ -2,16 +2,32 @@ import express, { Request, Response } from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv'
 import dns from 'dns'
+import iconv from 'iconv-lite'
+import encodings from 'iconv-lite/encodings'
+import { verifyFirebaseAuth, AuthenticatedRequest } from './middleware/auth'
+import { transcribeAudio } from './services/sttService'
+import { processAssistantRequest } from './services/geminiAssistantService'
+import { synthesizeTextToSpeech } from './services/ttsService'
+import { analyzeCropWithGemini } from './services/diagnosisService'
+import { analyzeCropWithGeminiModule } from './services/geminiDiagnosisModule'
+
+
+
+
+// Pre-bind iconv encodings to resolve tsx bundle lookup issue
+;(iconv as any).encodings = encodings
 
 dns.setDefaultResultOrder('ipv4first')
 
 dotenv.config()
 
 const app = express()
+
 const PORT = process.env.PORT || 3001
 
 app.use(cors())
-app.use(express.json())
+app.use(express.json({ limit: '10mb' }))
+
 
 // --- MOCK FARMS DATABASE (For server-side lookup matching frontend) ---
 const MOCK_FARMS_DB = [
@@ -357,6 +373,7 @@ app.get('/api/weather', async (req: Request, res: Response) => {
     // Cache payload
     weatherCache.set(cacheKey, { timestamp: Date.now(), data: payload })
 
+
     return res.json(payload)
   } catch (err: any) {
     console.error('[Server Error /api/weather]:', err)
@@ -364,6 +381,412 @@ app.get('/api/weather', async (req: Request, res: Response) => {
   }
 })
 
+// --- PHASE 1: GOOGLE CLOUD SPEECH-TO-TEXT ENDPOINT ---
+
+
+/**
+ * POST /api/voice/stt
+ * Protected endpoint for Google Cloud Speech-to-Text transcription.
+ * Rejects unauthenticated requests with HTTP 401.
+ */
+app.post('/api/voice/stt', verifyFirebaseAuth as any, async (req: Request, res: Response) => {
+  try {
+    const { audio, mimeType, languageCode } = req.body
+
+    if (!audio) {
+      return res.status(400).json({
+        success: false,
+        error: 'Audio parameter is required.'
+      })
+    }
+
+    const sttResult = await transcribeAudio({
+      audio,
+      mimeType: mimeType || 'audio/webm',
+      languageCode: languageCode || 'en-IN'
+    })
+
+    if (!sttResult.success) {
+      return res.status(400).json({
+        success: false,
+        error: sttResult.error || 'Failed to transcribe speech audio.'
+      })
+    }
+
+    return res.json({
+      success: true,
+      transcript: sttResult.transcript,
+      confidence: sttResult.confidence,
+      languageCode: sttResult.languageCode || 'en-IN'
+    })
+  } catch (err: any) {
+    console.error('[Server Error /api/voice/stt]:', err?.message || err)
+    return res.status(500).json({
+      success: false,
+      error: 'An error occurred while processing speech recognition.'
+    })
+  }
+})
+
+// --- PHASE 2: GEMINI / GOOGLE AI CROPOCTOR ASSISTANT ENDPOINT ---
+
+
+/**
+ * POST /api/voice/assistant
+ * Protected endpoint for Gemini CROPOCTOR Assistant logic.
+ * Enforces authentication and farm ownership verification.
+ */
+app.post('/api/voice/assistant', verifyFirebaseAuth as any, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { query, activeFarmId, language } = req.body
+    const userId = req.user?.uid || 'farmer-001'
+
+    if (!query) {
+      return res.status(400).json({
+        success: false,
+        error: 'Query parameter is required.'
+      })
+    }
+
+    const assistantResult = await processAssistantRequest(query, {
+      userId,
+      activeFarmId,
+      language: language || 'en-IN'
+    })
+
+    return res.json(assistantResult)
+  } catch (err: any) {
+    console.error('[Server Error /api/voice/assistant]:', err?.message || err)
+    return res.status(500).json({
+      success: false,
+      intent: 'GENERAL_AGRICULTURE_QUESTION',
+      answer: 'An error occurred while processing your request.',
+      error: err?.message || String(err)
+    })
+  }
+})
+
+// --- PHASE 3: GOOGLE CLOUD TEXT-TO-SPEECH ENDPOINT ---
+
+/**
+ * POST /api/voice/tts
+ * Protected endpoint for Google Cloud Text-to-Speech synthesis.
+ * Rejects unauthenticated requests with HTTP 401.
+ */
+app.post('/api/voice/tts', verifyFirebaseAuth as any, async (req: Request, res: Response) => {
+  try {
+    const { text, languageCode, speakingRate } = req.body
+
+    if (!text) {
+      return res.status(400).json({
+        success: false,
+        error: 'Text parameter is required.'
+      })
+    }
+
+    const ttsResult = await synthesizeTextToSpeech({
+      text,
+      languageCode: languageCode || 'en-IN',
+      speakingRate: speakingRate || 1.0
+    })
+
+    if (!ttsResult.success) {
+      return res.status(400).json({
+        success: false,
+        error: ttsResult.error || 'Failed to synthesize speech audio.'
+      })
+    }
+
+    return res.json({
+      success: true,
+      audioContent: ttsResult.audioContent,
+      languageCode: ttsResult.languageCode || 'en-IN',
+      format: ttsResult.format || 'mp3'
+    })
+  } catch (err: any) {
+    console.error('[Server Error /api/voice/tts]:', err?.message || err)
+    return res.status(500).json({
+      success: false,
+      error: 'An error occurred while processing speech synthesis.'
+    })
+  }
+})
+
+
+// --- GOOGLE AI VOICE ASSISTANT ENDPOINT ---
+
+
+
+// Helper for BCP-47 language codes
+function mapLanguageCode(lang?: string): string {
+  const code = (lang || 'en').toLowerCase()
+  if (code.startsWith('hi')) return 'hi-IN'
+  if (code.startsWith('gu')) return 'gu-IN'
+  if (code.startsWith('ar')) return 'ar-SA'
+  if (code.startsWith('fa')) return 'fa-IR'
+  if (code.startsWith('am')) return 'am-ET'
+  if (code.startsWith('id')) return 'id-ID'
+  if (code.startsWith('pt')) return 'pt-BR'
+  if (code.startsWith('ru')) return 'ru-RU'
+  if (code.startsWith('zh')) return 'zh-CN'
+  return 'en-US'
+}
+
+// Google Cloud Text-to-Speech synthesis helper
+async function synthesizeGoogleTTS(text: string, languageCode: string): Promise<string | null> {
+  const apiKey = process.env.GOOGLE_TTS_API_KEY || process.env.GOOGLE_CLOUD_API_KEY || process.env.GEMINI_API_KEY
+  if (!apiKey) return null
+
+  try {
+    const url = `https://texttospeech.googleapis.com/v1/text:synthesize?key=${apiKey}`
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        input: { text },
+        voice: {
+          languageCode,
+          ssmlGender: 'NEUTRAL'
+        },
+        audioConfig: {
+          audioEncoding: 'MP3',
+          speakingRate: 1.0,
+          pitch: 0
+        }
+      })
+    })
+
+    if (!response.ok) {
+      console.warn(`[Server TTS] Google TTS API HTTP ${response.status}`)
+      return null
+    }
+
+    const data = await response.json()
+    return data.audioContent || null
+  } catch (err) {
+    console.warn('[Server TTS] Google Text-to-Speech fetch error:', err)
+    return null
+  }
+}
+
+// POST /api/voice/process endpoint
+app.post('/api/voice/process', async (req: Request, res: Response) => {
+  try {
+    const { audio, mimeType, text, farmContext, weather, language } = req.body
+    const bcpLanguage = mapLanguageCode(language)
+    const geminiKey = process.env.GEMINI_API_KEY
+
+    let transcript = text || ''
+    let aiAnswer = ''
+    let shortSpeechAnswer = ''
+
+    const farmInfo = farmContext ? `
+[SELECTED FARM CONTEXT]
+- Farm Name: ${farmContext.name || 'Selected Farm'}
+- Location: ${farmContext.location?.displayName || farmContext.location?.city || 'Rajkot, Gujarat'} (Lat: ${farmContext.location?.lat ?? 22.3039}, Lng: ${farmContext.location?.lng ?? 70.8022})
+- Primary Crop: ${farmContext.primaryCrop || 'Groundnut'}
+- Crop Stage: ${farmContext.cropStage || 'flowering'}
+- Soil Type: ${farmContext.soilType || 'loamy'}
+- Farm Area: ${farmContext.area || 2.5} acres
+` : ''
+
+    const weatherInfo = weather ? `
+[CURRENT WEATHER & SOIL]
+- Temperature: ${weather.temperature || 29}°C (Feels like ${weather.feelsLike || 31}°C)
+- Humidity: ${weather.humidity || 75}%
+- Rain Chance: ${weather.rainChance || 60}%
+- Wind Speed: ${weather.windSpeed || 14} km/h
+- Condition: ${weather.description || 'Partly Cloudy'}
+- Irrigation Status: ${weather.farmImpact?.irrigation?.status || 'delay'} (${weather.farmImpact?.irrigation?.reason || 'Rain expected'})
+- Spraying Status: ${weather.farmImpact?.spraying?.status || 'postpone'}
+- Disease Risk: ${weather.farmImpact?.diseaseRisk?.level || 'moderate'}
+` : ''
+
+    if (geminiKey) {
+      const parts: any[] = []
+
+      if (audio) {
+        parts.push({
+          inlineData: {
+            mimeType: mimeType || 'audio/webm',
+            data: audio
+          }
+        })
+        parts.push({
+          text: `
+Listen carefully to the audio query from the farmer in language code (${bcpLanguage}).
+Transcribe the user's spoken words into text, then answer the question accurately based on the active farm context and weather provided below.
+
+${farmInfo}
+${weatherInfo}
+
+Provide your response strictly in raw JSON format (no markdown formatting, no code blocks):
+{
+  "transcript": "Exact transcribed text of user's spoken input",
+  "answer": "Detailed, practical agronomic advice in ${bcpLanguage} addressing the farmer's question.",
+  "shortAnswer": "1-2 sentence spoken summary in ${bcpLanguage} suitable for audio speech synthesis."
+}
+`
+        })
+      } else {
+        parts.push({
+          text: `
+Farmer Asked: "${transcript}"
+
+Answer the farmer's question accurately in language code (${bcpLanguage}) based on their selected farm context and current weather below.
+
+${farmInfo}
+${weatherInfo}
+
+Provide your response strictly in raw JSON format (no markdown formatting, no code blocks):
+{
+  "transcript": "${transcript}",
+  "answer": "Detailed, practical agronomic advice in ${bcpLanguage} addressing the farmer's question.",
+  "shortAnswer": "1-2 sentence spoken summary in ${bcpLanguage} suitable for audio speech synthesis."
+}
+`
+        })
+      }
+
+      const geminiResponse = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiKey}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ contents: [{ parts }] })
+        }
+      )
+
+      if (geminiResponse.ok) {
+        const resData = await geminiResponse.json()
+        const rawText = resData.candidates?.[0]?.content?.parts?.[0]?.text || ''
+        const cleanJsonText = rawText.replace(/```json/g, '').replace(/```/g, '').trim()
+
+        try {
+          const parsed = JSON.parse(cleanJsonText)
+          transcript = parsed.transcript || transcript || 'Voice query processed'
+          aiAnswer = parsed.answer || rawText
+          shortSpeechAnswer = parsed.shortAnswer || aiAnswer
+        } catch {
+          aiAnswer = rawText
+          shortSpeechAnswer = rawText.slice(0, 200)
+        }
+      } else {
+        console.warn(`[Server Voice] Gemini API returned HTTP ${geminiResponse.status}`)
+      }
+    }
+
+    // Fallback if Gemini key is missing or call failed
+    if (!aiAnswer) {
+      if (!transcript) transcript = "How is my farm doing today?"
+      const crop = farmContext?.primaryCrop || 'crop'
+      const farmName = farmContext?.name || 'your farm'
+      aiAnswer = `For ${farmName} growing ${crop}: Current weather shows ${weather?.description || 'normal conditions'} with ${weather?.temperature || 28}°C. ${weather?.farmImpact?.irrigation?.reason || 'Keep monitoring soil moisture.'}`
+      shortSpeechAnswer = `Here is advice for ${farmName}: ${weather?.description || 'normal weather'}, temperature ${weather?.temperature || 28} degrees. ${weather?.farmImpact?.irrigation?.reason || 'Monitor soil moisture.'}`
+    }
+
+    // Generate Text-to-Speech audio content via Google Cloud TTS
+    const audioContent = await synthesizeGoogleTTS(shortSpeechAnswer || aiAnswer, bcpLanguage)
+
+    return res.json({
+      success: true,
+      transcript,
+      answer: aiAnswer,
+      shortAnswer: shortSpeechAnswer,
+      audioContent,
+      language: bcpLanguage,
+      farmId: farmContext?.id || 'default-farm'
+    })
+  } catch (err: any) {
+    console.error('[Server Voice Error]:', err)
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to process voice request',
+      message: err.message
+    })
+  }
+})
+
+/**
+ * POST /api/diagnose
+ * Protected endpoint for Gemini 2.5 Flash Multimodal Vision crop disease diagnosis.
+ */
+app.post('/api/diagnose', verifyFirebaseAuth as any, async (req: Request, res: Response) => {
+  try {
+    const { imageBase64, imageUrl, isSample, farmContext } = req.body
+
+    if (!imageBase64 && !imageUrl && !isSample) {
+      return res.status(400).json({
+        success: false,
+        error: 'An image (imageBase64, imageUrl, or isSample) is required for crop diagnosis.'
+      })
+    }
+
+    const diagnosisResult = await analyzeCropWithGemini({
+      imageBase64,
+      imageUrl,
+      isSample: Boolean(isSample),
+      farmContext
+    })
+
+    if (!diagnosisResult.success || !diagnosisResult.data) {
+      return res.status(500).json({
+        success: false,
+        error: diagnosisResult.error || 'Failed to analyze crop image.'
+      })
+    }
+
+    return res.json({
+      success: true,
+      data: diagnosisResult.data
+    })
+  } catch (err: any) {
+    console.error('[Server Error /api/diagnose]:', err?.message || err)
+    return res.status(500).json({
+      success: false,
+      error: 'An error occurred while processing crop diagnosis.'
+    })
+  }
+})
+
+/**
+ * POST /api/analyze-crop
+ * Express server route matching Vercel Serverless Function endpoint
+ */
+app.post('/api/analyze-crop', async (req: Request, res: Response) => {
+  try {
+    const { imageBase64, mimeType, imageUrl, isSample, farmContext } = req.body
+
+    const result = await analyzeCropWithGeminiModule({
+      imageBase64,
+      mimeType,
+      imageUrl,
+      isSample: Boolean(isSample),
+      farmContext
+    })
+
+    if (!result.success || !result.data) {
+      return res.status(400).json({
+        success: false,
+        error: result.error || 'Failed to process crop diagnosis.'
+      })
+    }
+
+    return res.json({
+      success: true,
+      data: result.data
+    })
+  } catch (err: any) {
+    console.error('[Server Error /api/analyze-crop]:', err?.message || err)
+    return res.status(500).json({
+      success: false,
+      error: 'An internal server error occurred while processing crop diagnosis.'
+    })
+  }
+})
+
 app.listen(PORT, () => {
   console.log(`⚡ Agri AI Backend Server running on http://localhost:${PORT}`)
 })
+
+
