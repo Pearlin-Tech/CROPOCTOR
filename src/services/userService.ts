@@ -4,6 +4,7 @@ import { db } from "./firebase";
 export interface UserProfileData {
   language?: string;
   preferredLanguage?: string;
+  country?: string;
   email?: string;
   name?: string;
   updatedAt?: any;
@@ -51,6 +52,30 @@ export const userService = {
       return { success: true, error: null };
     } catch (err: any) {
       console.warn("[userService] Error saving user language:", err?.message || err);
+      return { success: false, error: err?.message || String(err) };
+    }
+  },
+
+  /**
+   * Saves/updates user country preference in Firestore: users/{uid}
+   */
+  saveUserCountry: async (uid: string, country: string): Promise<{ success: boolean; error: string | null }> => {
+    try {
+      if (!db || !db.app) {
+        return { success: false, error: "Firestore not initialized" };
+      }
+      const userRef = doc(db, "users", uid);
+      await setDoc(
+        userRef,
+        {
+          country,
+          updatedAt: serverTimestamp(),
+        },
+        { merge: true }
+      );
+      return { success: true, error: null };
+    } catch (err: any) {
+      console.warn("[userService] Error saving user country:", err?.message || err);
       return { success: false, error: err?.message || String(err) };
     }
   },
