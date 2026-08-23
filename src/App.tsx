@@ -5,6 +5,7 @@ import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { AppProvider } from '@/store/AppContext'
 import { UserProvider, useUser } from '@/store/UserContext'
 import { FarmProvider } from '@/store/FarmContext'
+import { FarmSetupProvider } from '@/store/FarmSetupContext'
 import { PageSkeleton } from '@/components/skeletons'
 import '@/locales/i18n'
 
@@ -63,6 +64,7 @@ const App: React.FC = () => (
     <AppProvider>
       <UserProvider>
         <FarmProvider>
+          <FarmSetupProvider>
           <BrowserRouter>
             <Suspense fallback={<Fallback />}>
               <Routes>
@@ -115,6 +117,7 @@ const App: React.FC = () => (
               </Routes>
             </Suspense>
           </BrowserRouter>
+          </FarmSetupProvider>
         </FarmProvider>
       </UserProvider>
     </AppProvider>

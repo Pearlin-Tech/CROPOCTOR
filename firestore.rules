@@ -12,6 +12,10 @@ service cloud.firestore {
       match /diagnoses/{diagnosisId} {
         allow read, write: if request.auth != null && request.auth.uid == userId;
       }
+
+      match /farms/{farmId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
     }
   }
 }
