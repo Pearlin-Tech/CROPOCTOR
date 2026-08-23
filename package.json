@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@google/earthengine": "^1.7.40",
     "@google/genai": "^2.18.0",
     "@hookform/resolvers": "^5.9.1",
     "@rolldown/binding-darwin-arm64": "^1.2.5",
