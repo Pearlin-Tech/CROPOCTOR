@@ -3,17 +3,49 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
 import path from 'path'
+import dotenv from 'dotenv'
+import { analyzeCropWithGeminiModule } from './server/services/geminiDiagnosisModule'
+
+dotenv.config()
 
 export default defineConfig({
   plugins: [
     tailwindcss(),
     react(),
+    {
+      name: 'api-analyze-crop-dev-server',
+      configureServer(server) {
+        server.middlewares.use(async (req, res, next) => {
+          if ((req.url === '/api/analyze-crop' || req.url === '/api/diagnose') && req.method === 'POST') {
+            let body = ''
+            req.on('data', chunk => {
+              body += chunk
+            })
+            req.on('end', async () => {
+              try {
+                const parsed = JSON.parse(body || '{}')
+                const result = await analyzeCropWithGeminiModule(parsed)
+                res.setHeader('Content-Type', 'application/json')
+                res.statusCode = 200
+                res.end(JSON.stringify(result))
+              } catch (err: any) {
+                console.error('[ViteDevServer API Error]:', err)
+                res.setHeader('Content-Type', 'application/json')
+                res.statusCode = 500
+                res.end(JSON.stringify({ success: false, error: err?.message || 'Server diagnostic error' }))
+              }
+            })
+            return
+          }
+          next()
+        })
+      }
+    },
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'icons/*.png'],
       manifest: {
-        name: 'Agri AI — Smarter decisions for every farm',
-        short_name: 'Agri AI',
+        name: 'Agri AI — Smarter decisions for every farm', short_name: 'Agri AI',
         description: 'AI-powered agricultural intelligence built around your farm.',
         theme_color: '#2E7D32',
         background_color: '#FFF9F0',
@@ -22,8 +54,8 @@ export default defineConfig({
         scope: '/',
         start_url: '/',
         icons: [
-          { src: '/icons/icon-72.png',  sizes: '72x72',   type: 'image/png' },
-          { src: '/icons/icon-96.png',  sizes: '96x96',   type: 'image/png' },
+          { src: '/icons/icon-72.png', sizes: '72x72', type: 'image/png' },
+          { src: '/icons/icon-96.png', sizes: '96x96', type: 'image/png' },
           { src: '/icons/icon-128.png', sizes: '128x128', type: 'image/png' },
           { src: '/icons/icon-144.png', sizes: '144x144', type: 'image/png' },
           { src: '/icons/icon-152.png', sizes: '152x152', type: 'image/png' },
@@ -55,14 +87,6 @@ export default defineConfig({
       },
     }),
   ],
-  server: {
-    proxy: {
-      '/api': {
-        target: 'http://localhost:3001',
-        changeOrigin: true,
-      },
-    },
-  },
   resolve: {
     alias: {
       '@': path.resolve(import.meta.dirname, './src'),
