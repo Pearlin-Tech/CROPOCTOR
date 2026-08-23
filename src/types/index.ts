@@ -113,18 +113,32 @@ export interface AIContext {
 }
 
 // ─── Diagnosis ────────────────────────────────────────────────────────────────
+export type SeverityLevel = 'healthy' | 'mild' | 'moderate' | 'severe' | 'unknown'
+
 export interface DiagnosisResult {
   id: string
+  userId?: string
+  farmId?: string
   imageUrl: string
+  storagePath?: string
   crop: string
+  cropName?: string
   disease: string
+  diseaseName?: string
   confidence: number // 0–100
+  severity: SeverityLevel
   symptoms: string[]
   actions: string[]
-  severity: 'mild' | 'moderate' | 'severe'
+  recommendations?: string[]
+  prevention?: string[]
+  explanation?: string
+  isPlantImage?: boolean
+  needsExpertReview?: boolean
   isDemo: boolean
+  isSample?: boolean
   timestamp: string
 }
+
 
 // ─── Notifications ────────────────────────────────────────────────────────────
 export type NotificationType = 'weather' | 'crop-health' | 'disease' | 'irrigation' | 'ai-advice' | 'reminder'
