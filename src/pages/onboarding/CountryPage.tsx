@@ -1,26 +1,91 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Check } from 'lucide-react'
+import { Check, ArrowLeft } from 'lucide-react'
 import { listVariants, cardVariants, pageVariants } from '@/animations/variants'
 import { Button } from '@/components/ui/Button'
 import { COUNTRIES } from '@/config/countries'
 import { useTranslation } from 'react-i18next'
+import { useUser } from '@/store/UserContext'
+import { useApp } from '@/store/AppContext'
+import { userService } from '@/services/userService'
 
 const CountryPage: React.FC = () => {
   const navigate = useNavigate()
   const { t } = useTranslation()
-  const [selected, setSelected] = useState('IN')
+  const { farmer, authUser, isAuthenticated, updateFarmer } = useUser()
+  const { toast } = useApp()
+
+  const findCountryCode = (countryNameOrCode?: string): string => {
+    if (!countryNameOrCode) return 'IN'
+    const matched = COUNTRIES.find(
+      c => c.code === countryNameOrCode || c.name.toLowerCase() === countryNameOrCode.toLowerCase()
+    )
+    return matched ? matched.code : 'IN'
+  }
+
+  const [selected, setSelected] = useState(() => findCountryCode(farmer?.country))
+  const [saving, setSaving] = useState(false)
+
+  useEffect(() => {
+    if (farmer?.country) {
+      setSelected(findCountryCode(farmer.country))
+    }
+  }, [farmer?.country])
+
+  const handleSaveCountry = async () => {
+    const countryObj = COUNTRIES.find(c => c.code === selected) || COUNTRIES[0]
+    setSaving(true)
+
+    try {
+      // 1. Update local farmer context & localStorage ('cropoctor-farmer')
+      updateFarmer({ country: countryObj.name })
+
+      // 2. Persist to Firestore if user is authenticated
+      if (authUser?.uid) {
+        const { error } = await userService.saveUserCountry(authUser.uid, countryObj.name)
+        if (error) {
+          console.warn('[CountryPage] Error saving country to Firestore:', error)
+          toast.error('Failed to sync country online. Saved locally.')
+        } else {
+          toast.success(`Country updated to ${countryObj.name} ${countryObj.flag}`)
+        }
+      } else {
+        toast.success(`Country set to ${countryObj.name} ${countryObj.flag}`)
+      }
+
+      // 3. Navigate appropriately: return to Profile/previous page if authenticated, else go to login
+      if (isAuthenticated) {
+        navigate('/profile')
+      } else {
+        navigate('/login')
+      }
+    } catch (err: any) {
+      console.error('[CountryPage] Exception saving country selection:', err)
+      toast.error('Unable to save country selection.')
+    } finally {
+      setSaving(false)
+    }
+  }
 
   return (
     <motion.div variants={pageVariants} initial="initial" animate="animate" className="min-h-screen bg-cream flex flex-col">
-      <div className="px-6 pt-12 pb-6">
-        <div className="flex items-center gap-2 mb-6">
+      <div className="px-6 pt-6 pb-4">
+        {isAuthenticated && (
+          <button
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-2 text-sm text-brown-earth/80 font-semibold mb-4 hover:text-green-forest transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Back</span>
+          </button>
+        )}
+        <div className="flex items-center gap-2 mb-4">
           <span className="text-2xl">🌿</span>
           <span className="text-xl font-bold text-green-forest">Cropoctor</span>
         </div>
-        <h1 className="text-2xl font-bold text-gray-800 mb-1">{t('country.title')}</h1>
-        <p className="text-gray-500 text-sm">{t('country.subtitle')}</p>
+        <h1 className="text-2xl font-bold text-gray-800 mb-1">{t('country.title', 'Select Country')}</h1>
+        <p className="text-gray-500 text-sm">{t('country.subtitle', 'Choose your primary farming region')}</p>
       </div>
 
       <motion.div
@@ -57,8 +122,8 @@ const CountryPage: React.FC = () => {
       </motion.div>
 
       <div className="fixed bottom-0 left-0 right-0 px-6 py-6 bg-cream/95 backdrop-blur-sm border-t border-gray-100">
-        <Button variant="primary" size="xl" fullWidth onClick={() => navigate('/login')}>
-          {t('country.continue')}
+        <Button variant="primary" size="xl" fullWidth onClick={handleSaveCountry} disabled={saving}>
+          {saving ? 'Saving...' : t('country.continue', 'Save & Continue')}
         </Button>
       </div>
     </motion.div>
