@@ -76,7 +76,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [])
 
-  // Retrieve user language preference from Firestore users/{uid} on auth startup/change
+  // Retrieve user language and country preferences from Firestore users/{uid} on auth startup/change
   useEffect(() => {
     if (!authUser?.uid) return
     let isCancelled = false
@@ -84,15 +84,21 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     userService.getUserProfile(authUser.uid).then(({ data }) => {
       if (isCancelled) return
       const remoteLang = data?.language || data?.preferredLanguage
-      if (remoteLang) {
-        setLanguage(remoteLang)
+      const remoteCountry = data?.country
+      if (remoteLang || remoteCountry) {
+        if (remoteLang) setLanguage(remoteLang)
         setFarmer(prev => {
           if (!prev) return prev
-          const updated = { ...prev, preferredLanguage: remoteLang, language: remoteLang }
+          const updated = {
+            ...prev,
+            ...(remoteLang ? { preferredLanguage: remoteLang, language: remoteLang } : {}),
+            ...(remoteCountry ? { country: remoteCountry } : {})
+          }
           localStorage.setItem('cropoctor-farmer', JSON.stringify(updated))
           return updated
         })
-      } else {
+      }
+      if (!remoteLang) {
         // If document has no saved language in Firestore, seed Firestore with current app language
         const currentLang = localStorage.getItem('agri_ai_language') || 'en'
         userService.saveUserLanguage(authUser.uid, currentLang)
