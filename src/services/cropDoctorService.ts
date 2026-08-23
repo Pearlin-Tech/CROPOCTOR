@@ -41,138 +41,15 @@ export function validateCropImage(file: File | Blob): { valid: boolean; error: s
   return { valid: true, error: null }
 }
 
+
 /**
- * Generates an agronomic fallback diagnosis for offline development / network backup
+ * Fast deterministic hash for base64 images to prevent duplicate Gemini calls
  */
-async function generateAgronomicFallback(
-  params: AnalyzeImageParams,
-  thumbnailDataUrl?: string
-): Promise<DiagnosisResult> {
-  const crop = params.farmContext?.crop || 'Groundnut'
-  const isSample = Boolean(params.isSample)
-  const timestampIso = new Date().toISOString()
-  const diagnosisId = `diag_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`
-  const currentUser = auth.currentUser
-  const userId = currentUser?.uid || 'guest-user'
-  const displayImageUrl = thumbnailDataUrl || params.imageUrl || '/images/disease_leaf_1787238259522.jpg'
-
-  let record: DiagnosisResult
-
-  if (isSample) {
-    record = {
-      id: diagnosisId,
-      userId,
-      farmId: params.farmContext?.farmId || 'farm-001',
-      imageUrl: displayImageUrl,
-      crop: 'Groundnut',
-      cropName: 'Groundnut',
-      disease: 'Cercospora Leaf Spot',
-      diseaseName: 'Cercospora Leaf Spot',
-      confidence: 88,
-      severity: 'moderate',
-      symptoms: [
-        'Dark brown circular leaf spots with yellow chlorotic halos',
-        'Progressive leaf yellowing and browning on lower canopy',
-        'Premature foliage drop starting from lower plant leaves',
-        'Fungal lesions expanding under humid field conditions'
-      ],
-      explanation: 'Visual leaf inspection shows characteristic brown necrotic lesions with distinct yellow halos, typical of early Cercospora fungal leaf spot infection in groundnut crops.',
-      actions: [
-        'Inspect nearby plants for early signs of fungal leaf spots',
-        'Avoid overhead irrigation to minimize leaf moisture duration',
-        'Apply recommended copper-based or bio-fungicide spray',
-        'Ensure proper field drainage and crop spacing for canopy ventilation',
-        'Collect and safely dispose of infected fallen leaves'
-      ],
-      recommendations: [
-        'Inspect nearby plants for early signs of fungal leaf spots',
-        'Avoid overhead irrigation to minimize leaf moisture duration',
-        'Apply recommended copper-based or bio-fungicide spray',
-        'Ensure proper field drainage and crop spacing for canopy ventilation',
-        'Collect and safely dispose of infected fallen leaves'
-      ],
-      prevention: [
-        'Practice crop rotation with non-host cereal crops',
-        'Use certified disease-resistant seed varieties'
-      ],
-      isPlantImage: true,
-      needsExpertReview: false,
-      isDemo: true,
-      isSample: true,
-      timestamp: timestampIso
-    }
-  } else {
-    record = {
-      id: diagnosisId,
-      userId,
-      farmId: params.farmContext?.farmId || 'farm-001',
-      imageUrl: displayImageUrl,
-      crop,
-      cropName: crop,
-      disease: 'Fungal Leaf Blight',
-      diseaseName: 'Fungal Leaf Blight',
-      confidence: 84,
-      severity: 'moderate',
-      symptoms: [
-        'Irregular brown necrotic lesions on foliage surface',
-        'Yellow chlorotic margins around affected areas',
-        'Wilting leaf tips and reduced photosynthetic leaf area'
-      ],
-      explanation: `Foliage visual patterns suggest fungal leaf blight activity on ${crop}. Symptoms include necrotic leaf spotting and chlorotic margins.`,
-      actions: [
-        'Apply copper-based protective fungicide according to label directions',
-        'Ensure balanced nitrogen fertilization to avoid lush, susceptible leaves',
-        'Avoid standing water around plant root zones',
-        'Consult local extension officer for confirmed treatment dosage'
-      ],
-      recommendations: [
-        'Apply copper-based protective fungicide according to label directions',
-        'Ensure balanced nitrogen fertilization to avoid lush, susceptible leaves',
-        'Avoid standing water around plant root zones',
-        'Consult local extension officer for confirmed treatment dosage'
-      ],
-      prevention: [
-        'Ensure proper crop row spacing to maximize canopy ventilation',
-        'Avoid field operations when leaves are wet to prevent spore dispersal'
-      ],
-      isPlantImage: true,
-      needsExpertReview: false,
-      isDemo: false,
-      isSample: false,
-      timestamp: timestampIso
-    }
-  }
-
-  // Persist fallback to Firestore if authenticated
-  if (currentUser && db && db.app) {
-    try {
-      const docRef = doc(db, 'users', currentUser.uid, 'diagnoses', diagnosisId)
-      await setDoc(docRef, {
-        cropName: record.cropName,
-        diseaseName: record.diseaseName,
-        crop: record.crop,
-        disease: record.disease,
-        confidence: record.confidence,
-        severity: record.severity,
-        symptoms: record.symptoms,
-        explanation: record.explanation,
-        recommendations: record.recommendations,
-        prevention: record.prevention,
-        needsExpertReview: record.needsExpertReview,
-        isPlantImage: record.isPlantImage,
-        source: params.source || 'upload',
-        imageUrl: displayImageUrl,
-        farmId: record.farmId,
-        isSample: record.isSample,
-        createdAt: serverTimestamp()
-      })
-      console.log(`[Firestore] Fallback diagnosis persisted to users/${currentUser.uid}/diagnoses/${diagnosisId}`)
-    } catch (e) {
-      console.warn('[cropDoctorService] Error persisting fallback to Firestore:', e)
-    }
-  }
-
-  return record
+async function generateImageHash(base64: string): Promise<string> {
+  const data = new TextEncoder().encode(base64.substring(0, 50000)) // Hash first 50k chars
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data)
+  const hashArray = Array.from(new Uint8Array(hashBuffer))
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('').substring(0, 16)
 }
 
 export const cropDoctorService = {
@@ -206,10 +83,57 @@ export const cropDoctorService = {
         }
       }
 
+      if (!imageBase64 && !params.imageUrl && !isSample) {
+        return { success: false, error: 'No image provided for diagnosis.' }
+      }
+
       const currentUser = auth.currentUser
       const userId = currentUser?.uid || 'guest-user'
 
-      // 2. Retrieve Firebase Auth ID token if authenticated
+      // 2. Deterministic Image Hashing & Caching
+      const imageStringForHash = imageBase64 || params.imageUrl || 'sample'
+      const imageHash = await generateImageHash(imageStringForHash)
+      const diagnosisId = `diag_${imageHash}`
+      const displayImageUrl = thumbnailDataUrl || params.imageUrl || '/images/disease_leaf_1787238259522.jpg'
+
+      if (currentUser && db && db.app) {
+        try {
+          const cachedDoc = await getDoc(doc(db, 'users', currentUser.uid, 'diagnoses', diagnosisId))
+          if (cachedDoc.exists()) {
+            console.log(`[cropDoctorService] Cache hit! Returning saved diagnosis ${diagnosisId}`)
+            const data = cachedDoc.data()
+            return {
+              success: true,
+              diagnosis: {
+                id: diagnosisId,
+                userId,
+                farmId: data.farmId,
+                imageUrl: data.imageUrl,
+                crop: data.crop,
+                cropName: data.cropName,
+                disease: data.disease,
+                diseaseName: data.diseaseName,
+                confidence: data.confidence,
+                severity: data.severity,
+                symptoms: data.symptoms,
+                actions: data.recommendations,
+                recommendations: data.recommendations,
+                prevention: data.prevention,
+                explanation: data.explanation,
+                isPlantImage: data.isPlantImage,
+                needsExpertReview: data.needsExpertReview,
+                isDemo: data.isSample,
+                isSample: data.isSample,
+                timestamp: data.createdAt?.toDate().toISOString() || new Date().toISOString()
+              }
+            }
+          }
+        } catch (e) {
+          console.warn('[cropDoctorService] Cache lookup failed:', e)
+        }
+      }
+
+      // 3. Retrieve Firebase Auth ID token if authenticated
       let idToken = ''
       if (currentUser) {
         try {
@@ -226,8 +150,8 @@ export const cropDoctorService = {
         headers['Authorization'] = `Bearer ${idToken}`
       }
 
-      // 3. Call serverless backend endpoint POST /api/analyze-crop with fallback handling
-      let response: Response | null = null
+      // 4. Call serverless backend endpoint POST /api/analyze-crop
+      let response: Response
       try {
         response = await fetch('/api/analyze-crop', {
           method: 'POST',
@@ -240,49 +164,24 @@ export const cropDoctorService = {
             farmContext
           })
         })
-
-        if (response && !response.ok && response.status === 404) {
-          // Fallback to /api/diagnose if running legacy backend route
-          response = await fetch('/api/diagnose', {
-            method: 'POST',
-            headers,
-            body: JSON.stringify({
-              imageBase64,
-              imageUrl: params.imageUrl,
-              isSample: Boolean(isSample),
-              farmContext
-            })
-          })
-        }
-      } catch (fetchErr) {
-        console.warn('[cropDoctorService] Network fetch to backend failed; switching to agronomic diagnostic fallback:', fetchErr)
+      } catch (fetchErr: any) {
+        console.error('[cropDoctorService] Network fetch to backend failed:', fetchErr)
+        throw new Error('Network error. Unable to reach diagnostic server.')
       }
 
-      // If backend API returns non-OK or failed to connect, run safe agronomic fallback
-      if (!response || !response.ok) {
-        console.warn('[cropDoctorService] Backend API offline or returned non-200. Utilizing agronomic fallback engine.')
-        const fallbackDiagnosis = await generateAgronomicFallback(params, thumbnailDataUrl)
-        return {
-          success: true,
-          diagnosis: fallbackDiagnosis
-        }
+      if (!response.ok) {
+        const errText = await response.text()
+        console.error(`[cropDoctorService] Backend API returned ${response.status}:`, errText)
+        throw new Error(`Diagnostic server returned error: HTTP ${response.status}`)
       }
 
       const apiResult = await response.json()
       if (!apiResult.success || !apiResult.data) {
-        const fallbackDiagnosis = await generateAgronomicFallback(params, thumbnailDataUrl)
-        return {
-          success: true,
-          diagnosis: fallbackDiagnosis
-        }
+        throw new Error(apiResult.error || 'Diagnostic server returned invalid data format.')
       }
 
       const diagnosisData = apiResult.data
-      const diagnosisId = `diag_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`
       const timestampIso = new Date().toISOString()
-
-      // Determine display image URL (Thumbnail URI, passed URL, or fallback)
-      const displayImageUrl = thumbnailDataUrl || params.imageUrl || diagnosisData.imageUrl || '/images/disease_leaf_1787238259522.jpg'
 
       const cropName = diagnosisData.cropName || diagnosisData.crop || farmContext?.crop || 'Groundnut'
       const diseaseName = diagnosisData.diseaseName || diagnosisData.disease || 'Unclear Leaf Condition'
@@ -318,7 +217,7 @@ export const cropDoctorService = {
         timestamp: timestampIso
       }
 
-      // 4. Persist metadata & structured result to Firestore: users/{uid}/diagnoses/{diagnosisId}
+      // 5. Persist metadata & structured result to Firestore
       if (currentUser && db && db.app) {
         try {
           const docRef = doc(db, 'users', currentUser.uid, 'diagnoses', diagnosisId)
@@ -339,11 +238,13 @@ export const cropDoctorService = {
             imageUrl: displayImageUrl,
             farmId: farmContext?.farmId || 'farm-001',
             isSample: Boolean(isSample),
+            imageHash,
             createdAt: serverTimestamp()
           })
           console.log(`[Firestore] Diagnosis metadata persisted to users/${currentUser.uid}/diagnoses/${diagnosisId}`)
         } catch (firestoreErr) {
           console.warn('[cropDoctorService] Error persisting diagnosis to Firestore:', firestoreErr)
+          // We don't throw here to still allow the UI to show the result if Firestore saves fail
         }
       }
 
@@ -352,20 +253,20 @@ export const cropDoctorService = {
         diagnosis: diagnosisRecord
       }
     } catch (err: any) {
-      console.warn('[cropDoctorService Exception]: Fallback activated due to error:', err?.message || err)
-      const fallbackDiagnosis = await generateAgronomicFallback(params, thumbnailDataUrl)
+      console.error('[cropDoctorService Exception]:', err?.message || err)
       return {
-        success: true,
-        diagnosis: fallbackDiagnosis
+        success: false,
+        error: err?.message || 'Failed to analyze crop image.'
       }
     }
   },
+
 
   /**
    * Fetches recent diagnoses for current authenticated user from Firestore: `users/{uid}/diagnoses`
    * Sorted newest first (`orderBy('createdAt', 'desc')`).
    */
-  getRecentDiagnoses: async (limitCount = 10): Promise<DiagnosisResult[]> => {
+  getRecentDiagnoses: async (limitCount = 10, farmId?: string): Promise<DiagnosisResult[]> => {
     try {
       const currentUser = auth.currentUser
       if (!currentUser || !db || !db.app) {
@@ -373,10 +274,13 @@ export const cropDoctorService = {
       }
 
       const diagnosesCol = collection(db, 'users', currentUser.uid, 'diagnoses')
-      const q = query(diagnosesCol, orderBy('createdAt', 'desc'), limit(limitCount))
+      // Use simple orderBy-only query to avoid requiring a Firestore composite index.
+      // Client-side farmId filter is applied after fetch.
+      const q = query(diagnosesCol, orderBy('createdAt', 'desc'), limit(farmId ? limitCount * 5 : limitCount))
+
       const snap = await getDocs(q)
 
-      const results: DiagnosisResult[] = []
+      let results: DiagnosisResult[] = []
       snap.forEach(docSnap => {
         const data = docSnap.data()
         const cropName = data.cropName || data.crop || 'Groundnut'
@@ -408,7 +312,9 @@ export const cropDoctorService = {
         })
       })
 
-      return results
+      // Apply JS-side farmId filter to avoid requiring Firestore composite index
+      const filtered = farmId ? results.filter(d => d.farmId === farmId).slice(0, limitCount) : results
+      return filtered
     } catch (err) {
       console.warn('[cropDoctorService] Error retrieving diagnoses from Firestore:', err)
       return []

@@ -31,6 +31,46 @@ class MockAIService implements IAIService {
   }
 }
 
+class GeminiAIService implements IAIService {
+  async getRecommendation(question: string, context: AIContext): Promise<AIMessage> {
+    try {
+      const res = await fetch('/api/advisor', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          question,
+          farmContext: context
+        })
+      })
+
+      if (!res.ok) {
+        throw new Error(`API returned ${res.status}`)
+      }
+
+      const data = await res.json()
+      
+      return {
+        id: `ai-${Date.now()}`,
+        role: 'assistant',
+        content: data.recommendation,
+        structured: data,
+        timestamp: new Date().toISOString()
+      }
+    } catch (err) {
+      console.error('[GeminiAIService] /api/advisor request failed:', err)
+      // Re-throw so the UI can show a real error rather than silently returning mock data
+      throw err
+    }
+  }
+
+  async followUp(question: string, history: AIMessage[]): Promise<AIMessage> {
+    // For now just route to getRecommendation
+    return this.getRecommendation(question, {})
+  }
+}
+
 // ─── Weather Service ──────────────────────────────────────────────────────────
 export interface IWeatherService {
   getWeather(farmId: string, farm?: Farm): Promise<WeatherData>
@@ -257,7 +297,7 @@ export { textToSpeech, playAudioContent, stopAudioPlayback, type TextToSpeechOpt
 
 
 
-export const aiService: IAIService               = new MockAIService()
+export const aiService: IAIService               = new GeminiAIService()
 export const weatherService: IWeatherService     = new ApiWeatherService()
 export const farmService: IFarmService           = new FirebaseFarmService()
 export const diagnosisService: IDiagnosisService = new MockDiagnosisService()

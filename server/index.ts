@@ -9,8 +9,8 @@ import { verifyFirebaseAuth, AuthenticatedRequest } from './middleware/auth'
 import { transcribeAudio } from './services/sttService'
 import { processAssistantRequest } from './services/geminiAssistantService'
 import { synthesizeTextToSpeech } from './services/ttsService'
-import { analyzeCropWithGemini } from './services/diagnosisService'
 import { analyzeCropWithGeminiModule } from './services/geminiDiagnosisModule'
+import { AI_CONFIG } from './config/aiConfig'
 
   // Pre-bind iconv encodings to resolve tsx bundle lookup issue
   ; (iconv as any).encodings = encodings
@@ -251,7 +251,7 @@ You are an expert agricultural agronomy advisor. Return ONLY a raw JSON object (
 }
 `
 
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiKey}`, {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${geminiKey}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -648,7 +648,7 @@ Provide your response strictly in raw JSON format (no markdown formatting, no co
       }
 
       const geminiResponse = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiKey}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${geminiKey}`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -706,47 +706,7 @@ Provide your response strictly in raw JSON format (no markdown formatting, no co
   }
 })
 
-/**
- * POST /api/diagnose
- * Protected endpoint for Gemini 2.5 Flash Multimodal Vision crop disease diagnosis.
- */
-app.post('/api/diagnose', verifyFirebaseAuth as any, async (req: Request, res: Response) => {
-  try {
-    const { imageBase64, imageUrl, isSample, farmContext } = req.body
 
-    if (!imageBase64 && !imageUrl && !isSample) {
-      return res.status(400).json({
-        success: false,
-        error: 'An image (imageBase64, imageUrl, or isSample) is required for crop diagnosis.'
-      })
-    }
-
-    const diagnosisResult = await analyzeCropWithGemini({
-      imageBase64,
-      imageUrl,
-      isSample: Boolean(isSample),
-      farmContext
-    })
-
-    if (!diagnosisResult.success || !diagnosisResult.data) {
-      return res.status(500).json({
-        success: false,
-        error: diagnosisResult.error || 'Failed to analyze crop image.'
-      })
-    }
-
-    return res.json({
-      success: true,
-      data: diagnosisResult.data
-    })
-  } catch (err: any) {
-    console.error('[Server Error /api/diagnose]:', err?.message || err)
-    return res.status(500).json({
-      success: false,
-      error: 'An error occurred while processing crop diagnosis.'
-    })
-  }
-})
 
 /**
  * POST /api/analyze-crop
@@ -781,6 +741,72 @@ app.post('/api/analyze-crop', async (req: Request, res: Response) => {
       success: false,
       error: 'An internal server error occurred while processing crop diagnosis.'
     })
+  }
+})
+
+// POST /api/advisor endpoint
+app.post('/api/advisor', async (req: Request, res: Response) => {
+  const geminiKey = process.env.GEMINI_API_KEY
+  if (!geminiKey) {
+    return res.status(503).json({ error: 'AI features are currently unavailable. Server is missing GEMINI_API_KEY.' })
+  }
+
+  try {
+    const { question, farmContext } = req.body
+    if (!question) {
+      return res.status(400).json({ error: 'Question is required' })
+    }
+
+    const prompt = `
+You are an expert agricultural agronomy advisor. Return ONLY a raw JSON object (no markdown formatting, no code blocks) matching the exact schema below based on the real farm context and the user's question.
+
+[USER QUESTION]
+${question}
+
+[FARM CONTEXT]
+- Farm ID: ${farmContext?.farmId || 'Unknown'}
+- Crop: ${farmContext?.crop || 'Unknown'}
+- Crop Stage: ${farmContext?.cropStage || 'Unknown'}
+- Soil Type: ${farmContext?.soilType || 'Unknown'}
+- Location: ${farmContext?.location || 'Unknown'}
+- Weather/Status Context: ${farmContext?.weather || 'None'}
+- Recent Diagnosis: ${farmContext?.recentDiagnosis || 'None'}
+
+[EXPECTED JSON SCHEMA]
+{
+  "recommendation": "A clear, concise, direct answer to the user's question (max 2 sentences).",
+  "why": "Brief agronomic reasoning explaining the recommendation.",
+  "whatToDo": [
+    "Step 1 actionable instruction",
+    "Step 2 actionable instruction (if needed)"
+  ],
+  "dataUsed": [
+    "Crop Stage",
+    "Weather Forecast",
+    "etc"
+  ]
+}
+`
+
+    const ai = new GoogleGenAI({ apiKey: geminiKey })
+    const response = await ai.models.generateContent({
+      model: AI_CONFIG.TEXT_MODEL,
+      contents: prompt,
+      config: {
+        responseMimeType: 'application/json'
+      }
+    })
+
+    const parsed = JSON.parse(response.text || '{}')
+
+    if (parsed && parsed.recommendation && parsed.why && parsed.whatToDo && parsed.dataUsed) {
+      return res.json(parsed)
+    }
+    
+    throw new Error('Gemini response schema mismatch')
+  } catch (err: any) {
+    console.error('[Server Error /api/advisor]:', err)
+    return res.status(500).json({ error: 'Failed to generate AI recommendation', message: err.message })
   }
 })
 

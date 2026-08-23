@@ -123,7 +123,11 @@ Return ONLY a raw JSON object (no markdown formatting, no code blocks) matching 
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        contents: [{ parts }]
+        contents: [{ parts }],
+        generationConfig: {
+          temperature: 0,    // deterministic output for same image
+          maxOutputTokens: 1024
+        }
       })
     })
 

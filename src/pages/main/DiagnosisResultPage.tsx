@@ -7,7 +7,6 @@ import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { Badge } from '@/components/ui/index'
 import { ProgressBar } from '@/components/ui/index'
-import { MOCK_DIAGNOSIS } from '@/mock/diagnosis'
 import { useApp } from '@/store/AppContext'
 import { useTranslation } from 'react-i18next'
 import type { DiagnosisResult } from '@/types'
@@ -28,9 +27,18 @@ const DiagnosisResultPage: React.FC = () => {
   const { t } = useTranslation()
   const [isPlayingAudio, setIsPlayingAudio] = useState(false)
 
-  // Read diagnosis object passed via navigation state, or fallback to mock
+  // Read diagnosis object passed via navigation state
   const locationState = (location.state as any) || {}
-  const d: DiagnosisResult = locationState.diagnosis || MOCK_DIAGNOSIS
+  const d: DiagnosisResult | null = locationState.diagnosis || null
+
+  React.useEffect(() => {
+    if (!d) {
+      navigate('/diagnose', { replace: true })
+    }
+  }, [d, navigate])
+
+  if (!d) return null // Wait for redirect
+
   const displayImage = locationState.imageUrl || d.imageUrl || '/images/disease_leaf_1787238259522.jpg'
 
   const actionsList = d.recommendations || d.actions || []

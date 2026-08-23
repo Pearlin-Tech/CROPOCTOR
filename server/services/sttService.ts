@@ -1,3 +1,5 @@
+import { AI_CONFIG } from '../config/aiConfig.ts'
+
 export interface STTRequestParams {
   audio: string // base64 encoded audio
   mimeType?: string
@@ -115,7 +117,7 @@ export async function transcribeAudio(params: STTRequestParams): Promise<STTResp
     }
 
     // 2. Fallback: Gemini Multimodal STT for robust audio transcription
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`
+    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${AI_CONFIG.TEXT_MODEL}:generateContent?key=${apiKey}`
     const geminiResponse = await fetch(geminiUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

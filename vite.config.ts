@@ -4,7 +4,6 @@ import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
 import path from 'path'
 import dotenv from 'dotenv'
-import { analyzeCropWithGeminiModule } from './server/services/geminiDiagnosisModule'
 
 dotenv.config()
 
@@ -12,35 +11,7 @@ export default defineConfig({
   plugins: [
     tailwindcss(),
     react(),
-    {
-      name: 'api-analyze-crop-dev-server',
-      configureServer(server) {
-        server.middlewares.use(async (req, res, next) => {
-          if ((req.url === '/api/analyze-crop' || req.url === '/api/diagnose') && req.method === 'POST') {
-            let body = ''
-            req.on('data', chunk => {
-              body += chunk
-            })
-            req.on('end', async () => {
-              try {
-                const parsed = JSON.parse(body || '{}')
-                const result = await analyzeCropWithGeminiModule(parsed)
-                res.setHeader('Content-Type', 'application/json')
-                res.statusCode = 200
-                res.end(JSON.stringify(result))
-              } catch (err: any) {
-                console.error('[ViteDevServer API Error]:', err)
-                res.setHeader('Content-Type', 'application/json')
-                res.statusCode = 500
-                res.end(JSON.stringify({ success: false, error: err?.message || 'Server diagnostic error' }))
-              }
-            })
-            return
-          }
-          next()
-        })
-      }
-    },
+
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'icons/*.png'],
@@ -92,4 +63,11 @@ export default defineConfig({
       '@': path.resolve(import.meta.dirname, './src'),
     },
   },
+  server: {
+    proxy: {
+      '/api/advisor': 'http://localhost:3001',
+      '/api/weather': 'http://localhost:3001',
+      '/api/analyze-crop': 'http://localhost:3001',
+    }
+  }
 })

@@ -1,5 +1,5 @@
 import dotenv from 'dotenv'
-import { AI_CONFIG } from '../config/aiConfig'
+import { AI_CONFIG } from '../config/aiConfig.ts'
 
 dotenv.config()
 
@@ -154,10 +154,9 @@ export async function analyzeCropWithGeminiModule(
 
   const geminiKey = process.env.GEMINI_API_KEY
   if (!geminiKey) {
-    console.warn('[GeminiDiagnosisModule] GEMINI_API_KEY is not configured in process.env. Running dynamic image classifier fallback.')
     return {
-      success: true,
-      data: getAgronomicFallback(params)
+      success: false,
+      error: 'GEMINI_API_KEY is not configured on the server.'
     }
   }
 
@@ -240,8 +239,7 @@ ${locationInfo ? `- ${locationInfo}` : ''}
 
     if (!response.ok) {
       if (response.status === 429) {
-        console.warn('[GeminiDiagnosisModule] Gemini API rate limit reached (HTTP 429). Returning dynamic fallback.')
-        return { success: true, data: getAgronomicFallback(params) }
+        return { success: false, error: 'Gemini API rate limit reached (HTTP 429).' }
       }
       throw new Error(`Gemini API HTTP status ${response.status}`)
     }
@@ -258,181 +256,10 @@ ${locationInfo ? `- ${locationInfo}` : ''}
       data: normalizedData
     }
   } catch (err: any) {
-    if (err.name === 'AbortError') {
-      console.warn('[GeminiDiagnosisModule] Gemini API request timed out after 15s.')
-    } else {
-      console.warn('[GeminiDiagnosisModule] Exception during Gemini diagnosis:', err?.message || err)
-    }
-
-    // Return dynamic fallback diagnosis based on image characteristics
     return {
-      success: true,
-      data: getAgronomicFallback(params)
+      success: false,
+      error: err?.message || 'Exception during Gemini diagnosis'
     }
   }
 }
 
-/**
- * Dynamic Agronomic Fallback Engine for API key absence, rate limits, timeouts, or network interruptions.
- * Dynamically categorizes images instead of returning a hardcoded disease string.
- */
-function getAgronomicFallback(params: AnalyzeCropParams): CropDiagnosisResult {
-  const crop = params.farmContext?.crop || 'Groundnut'
-  const isSample = Boolean(params.isSample)
-  const imageBase64 = params.imageBase64 || ''
-  const imageUrl = params.imageUrl || ''
-
-  if (isSample) {
-    return {
-      isPlantImage: true,
-      cropName: 'Groundnut',
-      diseaseName: 'Early Leaf Spot (Cercospora)',
-      confidence: 88,
-      severity: 'moderate',
-      symptoms: [
-        'Dark brown circular necrotic lesions on leaf surface',
-        'Yellow chlorotic halos surrounding lesions',
-        'Progressive foliage yellowing on lower canopy'
-      ],
-      explanation: 'Visual analysis shows brown circular lesions surrounded by yellow chlorotic margins typical of Cercospora leaf spot in groundnut crops.',
-      recommendations: [
-        'Apply recommended copper-based or bio-fungicide spray according to label',
-        'Avoid overhead irrigation to minimize leaf wetness duration',
-        'Ensure proper field drainage and row spacing for canopy ventilation'
-      ],
-      prevention: [
-        'Practice crop rotation with non-host cereal crops',
-        'Use certified disease-resistant seed stock'
-      ],
-      needsExpertReview: false
-    }
-  }
-
-  const lowerUrl = imageUrl.toLowerCase()
-  const lowerBase64 = imageBase64.substring(0, 500).toLowerCase()
-
-  // 1. Non-plant image detection heuristic
-  const isNonPlant = lowerUrl.includes('non_plant') || lowerUrl.includes('object') || lowerUrl.includes('person') || lowerUrl.includes('building') || lowerUrl.includes('car') || lowerBase64.includes('nonplant')
-
-  if (isNonPlant) {
-    return {
-      isPlantImage: false,
-      cropName: 'Unknown',
-      diseaseName: 'Non-Plant Image Detected',
-      confidence: 0,
-      severity: 'unknown',
-      symptoms: [],
-      explanation: 'The provided image does not appear to contain a crop, plant, or leaf. Please upload a clear photo of plant foliage.',
-      recommendations: ['Please capture a clear, well-lit photo focused on an affected crop leaf or stem in natural daylight.'],
-      prevention: [],
-      needsExpertReview: true
-    }
-  }
-
-  // 2. Healthy foliage heuristic
-  const isHealthy = lowerUrl.includes('healthy') || lowerUrl.includes('green') || lowerUrl.includes('clean') || lowerBase64.includes('healthy')
-
-  if (isHealthy) {
-    return {
-      isPlantImage: true,
-      cropName: crop,
-      diseaseName: 'Healthy Crop (No Disease Detected)',
-      confidence: 94,
-      severity: 'healthy',
-      symptoms: [
-        'Vibrant green uniform foliage across leaf lamina',
-        'No visible necrotic spots, fungal lesions, or chlorotic halos',
-        'Intact leaf margins and healthy leaf structure'
-      ],
-      explanation: `Visual examination of the ${crop} leaf shows healthy foliage with active photosynthesis and no signs of fungal or bacterial pathology.`,
-      recommendations: [
-        'Maintain regular irrigation and balanced soil nutrient management',
-        'Continue periodic field inspection for early pest or disease monitoring'
-      ],
-      prevention: [
-        'Maintain balanced fertilization and clean field sanitation',
-        'Monitor weather conditions for humidity spikes'
-      ],
-      needsExpertReview: false
-    }
-  }
-
-  // 3. Dynamic disease classification based on image payload signature
-  let imageHash = 0
-  for (let i = 0; i < Math.min(imageBase64.length, 1000); i++) {
-    imageHash = ((imageHash << 5) - imageHash) + imageBase64.charCodeAt(i)
-    imageHash |= 0
-  }
-  const categoryIndex = Math.abs(imageHash) % 3
-
-  if (categoryIndex === 0) {
-    return {
-      isPlantImage: true,
-      cropName: crop,
-      diseaseName: 'Leaf Rust (Puccinia)',
-      confidence: 86,
-      severity: 'moderate',
-      symptoms: [
-        'Small reddish-brown pustules on lower leaf surface',
-        'Chlorotic yellow spots on upper foliage corresponding to rust pustules',
-        'Premature leaf desiccation under dry windy conditions'
-      ],
-      explanation: `Visual symptoms indicate pustule formation characteristic of fungal leaf rust in ${crop}.`,
-      recommendations: [
-        'Apply systemic bio-fungicide or copper oxychloride spray',
-        'Remove severely rusted lower leaves and destroy plant debris'
-      ],
-      prevention: [
-        'Plant rust-resistant crop varieties',
-        'Avoid excessive nitrogen applications that promote soft tissue growth'
-      ],
-      needsExpertReview: false
-    }
-  } else if (categoryIndex === 1) {
-    return {
-      isPlantImage: true,
-      cropName: crop,
-      diseaseName: 'Bacterial Leaf Blight',
-      confidence: 83,
-      severity: 'severe',
-      symptoms: [
-        'Water-soaked translucent lesions along leaf margins',
-        'Yellowing and wilting progressing inward from leaf tips',
-        'Bacterial ooze droplets visible under high humidity'
-      ],
-      explanation: `Water-soaked marginal lesions and rapid tip desiccation suggest bacterial leaf blight infection on ${crop}.`,
-      recommendations: [
-        'Spray recommended copper-based bactericide solution',
-        'Minimize field machinery movement through wet foliage to prevent bacterial spread'
-      ],
-      prevention: [
-        'Use disease-free certified seeds',
-        'Practice strict sanitization of farm equipment'
-      ],
-      needsExpertReview: true
-    }
-  } else {
-    return {
-      isPlantImage: true,
-      cropName: crop,
-      diseaseName: 'Powdery Mildew',
-      confidence: 89,
-      severity: 'mild',
-      symptoms: [
-        'White to grayish powdery fungal patches on upper leaf surfaces',
-        'Slight leaf curling and stunted young leaf growth',
-        'Chlorotic yellowing under powdery fungal mats'
-      ],
-      explanation: `Powdery white fungal growth on upper foliage is indicative of early powdery mildew colonization on ${crop}.`,
-      recommendations: [
-        'Apply sulfur-based or neem-oil bio-fungicidal foliar spray',
-        'Prune dense canopy leaves to increase sunlight penetration and air circulation'
-      ],
-      prevention: [
-        'Ensure wide crop row spacing',
-        'Avoid planting in heavily shaded field areas'
-      ],
-      needsExpertReview: false
-    }
-  }
-}

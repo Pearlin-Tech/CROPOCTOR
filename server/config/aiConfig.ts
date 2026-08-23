@@ -7,9 +7,12 @@
 export const AI_CONFIG = {
   // Primary multimodal vision model for crop disease diagnosis
   VISION_MODEL: process.env.GEMINI_VISION_MODEL || 'gemini-2.5-flash',
+  
+  // Primary text model for AI Advisor
+  TEXT_MODEL: process.env.GEMINI_TEXT_MODEL || 'gemini-2.5-flash',
 
   // Generation parameters
-  TEMPERATURE: 0.2, // Low temperature for high accuracy and deterministic JSON schema output
+  TEMPERATURE: 0, // Temperature=0 for fully deterministic, reproducible diagnosis output on the same image
   MAX_OUTPUT_TOKENS: 1024,
   TIMEOUT_MS: 15000, // 15-second request timeout
 
