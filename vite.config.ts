@@ -4,7 +4,7 @@ import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
 import path from 'path'
 import dotenv from 'dotenv'
-import { analyzeCropWithGeminiModule } from './server/services/geminiDiagnosisModule'
+import { analyzeCropWithGeminiModule } from './server/services/geminiDiagnosisModule.ts'
 
 dotenv.config()
 
