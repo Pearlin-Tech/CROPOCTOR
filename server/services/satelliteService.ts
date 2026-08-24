@@ -122,8 +122,8 @@ export const getSatelliteDataForFarm = async (farmId: string, lat?: number, lng?
         palette: ['FFFFFF', 'CE7E45', 'DF923D', 'F1B555', 'FCD163', '99B718', '74A901', '66A000', '529400', '3E8601', '207401', '056201', '004C00', '023B01', '012E01', '011D01', '011301'] 
       };
 
-      // Buffer of ~500 meters for a good visual context
-      const region = point.buffer(500);
+      // Buffer of ~300 meters for a tighter visual context and higher relative resolution
+      const region = point.buffer(300);
 
       // Evaluate the numerical value
       ndviDict.evaluate((result: any, evalError: any) => {
@@ -142,24 +142,39 @@ export const getSatelliteDataForFarm = async (farmId: string, lat?: number, lng?
         const rawNdvi = result.NDVI;
         const normalizedNdvi = Number(rawNdvi.toFixed(2)); // Clean precision
 
-        // Generate thumbnail URL using the NDVI image
-        ndviImage.getThumbURL({
-          dimensions: 800,
-          region: region,
-          ...visParams
-        }, (url: string, thumbError: any) => {
-          if (thumbError) return reject(new Error(`GEE Thumbnail Error: ${thumbError}`));
+        // Generate True Color (RGB) composite using Sentinel-2 bands B4 (Red), B3 (Green), B2 (Blue)
+        const trueColorImage = latestImage.visualize({
+          bands: ['B4', 'B3', 'B2'],
+          min: 0,
+          max: 3000
+        });
 
-          resolve({
-            farmId,
-            latitude: lat,
-            longitude: lng,
-            ndvi: {
-              value: normalizedNdvi,
-              label: getNDVILabel(normalizedNdvi)
-            },
-            satelliteImageUrl: url,
-            source: "earth-engine"
+        // Use a much larger buffer (1000m) to get a wider context and avoid extreme pixelation
+        // Evaluate the geometry locally to a GeoJSON representation before requesting the URL
+        const bufferGeo = point.buffer(1000);
+        bufferGeo.evaluate((regionData: any, geoError: any) => {
+          if (geoError) return reject(new Error(`GEE Geometry Error: ${geoError}`));
+          
+          console.log('Evaluated Region Data:', JSON.stringify(regionData));
+          
+          trueColorImage.getThumbURL({
+            dimensions: 1024,
+            region: regionData,
+            format: 'png'
+          }, (url: string, thumbError: any) => {
+            if (thumbError) return reject(new Error(`GEE Thumbnail Error: ${thumbError}`));
+  
+            resolve({
+              farmId,
+              latitude: lat,
+              longitude: lng,
+              ndvi: {
+                value: normalizedNdvi,
+                label: getNDVILabel(normalizedNdvi)
+              },
+              satelliteImageUrl: url,
+              source: "earth-engine"
+            });
           });
         });
       });

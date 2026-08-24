@@ -11,6 +11,14 @@ import '@/locales/i18n'
 
 const Fallback = () => <div className="min-h-screen bg-background flex items-center justify-center"><PageSkeleton /></div>
 
+import { useBrowserNotifications } from '@/hooks/useBrowserNotifications'
+
+const NotificationManager = () => {
+  const { isAuthenticated } = useUser()
+  useBrowserNotifications(isAuthenticated)
+  return null
+}
+
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated, isAuthLoading } = useUser()
   if (isAuthLoading) return <Fallback />
@@ -63,18 +71,19 @@ const App: React.FC = () => (
   <ErrorBoundary>
     <AppProvider>
       <UserProvider>
+        <NotificationManager />
         <FarmProvider>
           <FarmSetupProvider>
-          <BrowserRouter>
-            <Suspense fallback={<Fallback />}>
-              <Routes>
-                {/* Onboarding (no nav shell) */}
-                <Route path="/splash"   element={<SplashPage />} />
-                <Route path="/welcome"  element={<WelcomePage />} />
-                <Route path="/language" element={<LanguagePage />} />
-                <Route path="/country"  element={<CountryPage />} />
-                <Route path="/login"    element={<LoginPage />} />
-                <Route path="/signup"   element={<SignUpPage />} />
+            <BrowserRouter>
+              <Suspense fallback={<Fallback />}>
+                <Routes>
+                  {/* Onboarding (no nav shell) */}
+                  <Route path="/splash"   element={<SplashPage />} />
+                  <Route path="/welcome"  element={<WelcomePage />} />
+                  <Route path="/language" element={<LanguagePage />} />
+                  <Route path="/country"  element={<CountryPage />} />
+                  <Route path="/login"    element={<LoginPage />} />
+                  <Route path="/signup"   element={<SignUpPage />} />
                 <Route path="/onboarding">
                   <Route path="profile"      element={<FarmerProfilePage />} />
                   <Route path="location"     element={<FarmLocationPage />} />

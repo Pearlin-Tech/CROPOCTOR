@@ -746,7 +746,8 @@ app.post('/api/analyze-crop', async (req: Request, res: Response) => {
     })
 
     if (!result.success || !result.data) {
-      return res.status(400).json({
+      const isRateLimit = result.error?.includes('429') || result.error?.toLowerCase().includes('quota');
+      return res.status(isRateLimit ? 429 : 400).json({
         success: false,
         error: result.error || 'Failed to process crop diagnosis.'
       })
@@ -781,6 +782,12 @@ app.post('/api/advisor', async (req: Request, res: Response) => {
     const prompt = `
 You are an expert agricultural agronomy advisor. Return ONLY a raw JSON object (no markdown formatting, no code blocks) matching the exact schema below based on the real farm context and the user's question.
 
+CRITICAL SAFETY RULES:
+- Never fabricate NDVI, satellite observations, weather, disease symptoms, diagnosis confidence, treatment effectiveness, or farm measurements.
+- Use actual available data.
+- If data is missing or satellite data is unavailable, say: "Data unavailable" or "Not enough information" rather than hallucinating it.
+- Do NOT claim that NDVI proves a specific disease. Satellite data should be treated as supporting farm-level vegetation information.
+
 [USER QUESTION]
 ${question}
 
@@ -790,21 +797,33 @@ ${question}
 - Crop Stage: ${farmContext?.cropStage || 'Unknown'}
 - Soil Type: ${farmContext?.soilType || 'Unknown'}
 - Location: ${farmContext?.location || 'Unknown'}
+- Farm Area: ${farmContext?.area || 'Unknown'}
 - Weather/Status Context: ${farmContext?.weather || 'None'}
 - Recent Diagnosis: ${farmContext?.recentDiagnosis || 'None'}
+- Satellite/NDVI Data: ${farmContext?.satelliteData || 'None'}
+- Farm Health Score: ${farmContext?.healthScore || 'None'}
+- Farm Health Status: ${farmContext?.healthStatus || 'None'}
 
 [EXPECTED JSON SCHEMA]
 {
-  "recommendation": "A clear, concise, direct answer to the user's question (max 2 sentences).",
-  "why": "Brief agronomic reasoning explaining the recommendation.",
+  "recommendation": "A clear, concise, direct answer to the user's question.",
+  "why": "Brief agronomic reasoning explaining why the recommendation makes sense given the farm data.",
+  "currentCondition": "What the diagnosis + weather + satellite data currently indicate.",
+  "risks": "What could happen if the issue is ignored.",
   "whatToDo": [
-    "Step 1 actionable instruction",
-    "Step 2 actionable instruction (if needed)"
+    "Prioritized practical step 1",
+    "Prioritized practical step 2"
   ],
+  "whatToMonitor": [
+    "Specific thing the farmer should watch 1"
+  ],
+  "whenToAct": "Timing guidance where supported by available data.",
+  "prosCons": "When the decision has meaningful alternatives, list pros/cons or trade-offs.",
   "dataUsed": [
     "Crop Stage",
     "Weather Forecast",
-    "etc"
+    "Satellite NDVI",
+    "Diagnosis"
   ]
 }
 `
@@ -827,6 +846,9 @@ ${question}
     throw new Error('Gemini response schema mismatch')
   } catch (err: any) {
     console.error('[Server Error /api/advisor]:', err)
+    if (err.status === 429 || (err.message && err.message.includes('429'))) {
+      return res.status(429).json({ error: 'AI Quota Exceeded', message: 'The AI service is temporarily unavailable due to high demand. Please try again in a minute.' })
+    }
     return res.status(500).json({ error: 'Failed to generate AI recommendation', message: err.message })
   }
 })

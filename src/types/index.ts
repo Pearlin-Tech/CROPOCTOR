@@ -99,8 +99,23 @@ export interface AIMessage {
 export interface AIStructuredResponse {
   recommendation: string
   why: string
+  currentCondition?: string
+  risks?: string
   whatToDo: string[]
+  whatToMonitor?: string[]
+  whenToAct?: string
+  prosCons?: string
   dataUsed: string[]
+}
+
+export interface AdvisorConversation {
+  id: string
+  userId?: string
+  farmId: string
+  title: string
+  createdAt: string
+  updatedAt: string
+  messages: AIMessage[]
 }
 
 export interface AIContext {
@@ -112,6 +127,9 @@ export interface AIContext {
   weather?: string
   area?: string
   recentDiagnosis?: string | null
+  satelliteData?: string
+  healthScore?: string
+  healthStatus?: string
 }
 
 // ─── Diagnosis ────────────────────────────────────────────────────────────────
@@ -130,9 +148,17 @@ export interface DiagnosisResult {
   confidence: number // 0–100
   severity: SeverityLevel
   symptoms: string[]
+  observedSymptoms?: string[]
+  positiveSigns?: string[]
+  possibleIssues?: string[]
+  analysis?: string
   actions: string[]
+  immediateActions?: string[]
   recommendations?: string[]
+  treatment?: string[]
   prevention?: string[]
+  longTermPrevention?: string[]
+  whenToRecheck?: string
   explanation?: string
   isPlantImage?: boolean
   needsExpertReview?: boolean

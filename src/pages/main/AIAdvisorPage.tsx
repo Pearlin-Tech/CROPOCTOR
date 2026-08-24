@@ -10,10 +10,15 @@ import { AIResponseSkeleton as AISkel } from '@/components/skeletons'
 import { useFarm } from '@/store/FarmContext'
 import { aiService, weatherService } from '@/services'
 import { cropDoctorService } from '@/services/cropDoctorService'
+import { satelliteService } from '@/services/satelliteService'
 import type { AIMessage, DiagnosisResult } from '@/types'
 import { useApp } from '@/store/AppContext'
 import { useTranslation } from 'react-i18next'
 import { formatLocalizedNumber, formatLocalizedPercent } from '@/utils/format'
+import { calculateFarmHealthScore } from '@/services/healthService'
+import { advisorService } from '@/services/advisorService'
+import { useUser } from '@/store/UserContext'
+import { Plus } from 'lucide-react'
 
 const QUESTION_KEYS = [
   'advisor.questions.q1',
@@ -36,6 +41,9 @@ const AIAdvisorPage: React.FC = () => {
   
   const [activeDiagnosis, setActiveDiagnosis] = useState<DiagnosisResult | null>(null)
   const location = useLocation()
+  
+  const { authUser } = useUser()
+  const [conversationId, setConversationId] = useState<string | null>(null)
 
   // Fetch context on mount
   React.useEffect(() => {
@@ -53,19 +61,65 @@ const AIAdvisorPage: React.FC = () => {
         setActiveDiagnosis(diagnoses[0])
       }
     }).catch(err => console.warn('Failed to fetch recent diagnoses', err))
+    
+    // Load existing conversation or start new
+    const passedConvId = location.state?.conversationId as string | undefined
+    if (passedConvId) {
+      setConversationId(passedConvId)
+      // fetch it
+      advisorService.getRecentConversations(20, activeFarm.id, authUser?.uid).then(convs => {
+        const found = convs.find(c => c.id === passedConvId)
+        if (found && isMounted) {
+          setMessages(found.messages)
+        }
+      })
+    } else {
+      // get most recent for farm
+      advisorService.getRecentConversations(1, activeFarm.id, authUser?.uid).then(convs => {
+        if (convs.length > 0 && isMounted) {
+          setConversationId(convs[0].id)
+          setMessages(convs[0].messages)
+        }
+      })
+    }
 
     return () => { isMounted = false }
-  }, [activeFarm?.id, location.state])
+  }, [activeFarm?.id, location.state, authUser?.uid])
 
   const askQuestion = async (q: string) => {
     if (!q.trim() || loading) return
     const userMsg: AIMessage = { id: `u-${Date.now()}`, role: 'user', content: q, timestamp: new Date().toISOString() }
-    setMessages(prev => [...prev, userMsg])
+    
+    const newMsgsWithUser = [...messages, userMsg]
+    setMessages(newMsgsWithUser)
     setInput('')
     setLoading(true)
+
+    // Helper to save conversation
+    const saveChat = async (msgs: AIMessage[]) => {
+      if (!activeFarm) return
+      const cid = conversationId || `conv-${Date.now()}`
+      if (!conversationId) setConversationId(cid)
+      try {
+        await advisorService.saveConversation({
+          id: cid,
+          userId: authUser?.uid,
+          farmId: activeFarm.id,
+          title: msgs[0]?.content.slice(0, 40) || 'New Conversation',
+          createdAt: msgs[0]?.timestamp || new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          messages: msgs
+        })
+      } catch (e) {
+        console.warn('Failed to save conversation', e)
+      }
+    }
+    
+    await saveChat(newMsgsWithUser)
     try {
       let weatherStr = 'None'
       let recentDiagnosisStr: string | null = null
+      let satelliteStr = 'Data unavailable'
 
       if (activeFarm) {
         // Fetch weather
@@ -74,6 +128,16 @@ const AIAdvisorPage: React.FC = () => {
           weatherStr = `${weather.temperature}°C, ${weather.description}, Humidity: ${weather.humidity}%, Rain Chance: ${weather.rainChance}%`
         } catch (e) {
           console.warn('Failed to fetch weather for AI Advisor context', e)
+        }
+
+        // Fetch satellite
+        try {
+          if (activeFarm.location?.lat && activeFarm.location?.lng) {
+            const satData = await satelliteService.getSatelliteData(activeFarm.id, activeFarm.location.lat, activeFarm.location.lng)
+            satelliteStr = `NDVI: ${satData.ndvi.value.toFixed(2)} (${satData.ndvi.label}), Source: ${satData.source}`
+          }
+        } catch (e) {
+          console.warn('Failed to fetch satellite data for AI Advisor context', e)
         }
 
         // Use the active diagnosis state if available, or fetch again as fallback
@@ -91,22 +155,51 @@ const AIAdvisorPage: React.FC = () => {
             console.warn('Failed to fetch recent diagnosis for AI Advisor context', e)
           }
         }
+
+        // Calculate dynamic health score for context
+        // Try to fetch weather/satellite again if we didn't cache them, or just use what we fetched
+        let satResult = null
+        let weatherResult = null
+        try {
+          if (activeFarm.location?.lat && activeFarm.location?.lng) {
+            satResult = await satelliteService.getSatelliteData(activeFarm.id, activeFarm.location.lat, activeFarm.location.lng)
+          }
+        } catch(e) {}
+        try {
+          weatherResult = await weatherService.getWeather(activeFarm.id, activeFarm)
+        } catch(e) {}
+        
+        const healthResult = calculateFarmHealthScore(activeFarm, activeDiagnosis, satResult, weatherResult)
+        
+        const res = await aiService.getRecommendation(q, { 
+          farmId: activeFarm?.id, 
+          crop: activeFarm?.primaryCrop, 
+          soilType: activeFarm?.soilType, 
+          cropStage: activeFarm?.cropStage,
+          location: activeFarm?.location?.displayName,
+          area: activeFarm?.area ? `${activeFarm.area} ${activeFarm.areaUnit}` : undefined,
+          weather: weatherStr,
+          recentDiagnosis: recentDiagnosisStr,
+          satelliteData: satelliteStr,
+          healthScore: `${healthResult.score}/100`,
+          healthStatus: healthResult.status
+        })
+        const finalMsgs = [...newMsgsWithUser, res]
+        setMessages(finalMsgs)
+        await saveChat(finalMsgs)
+      } else {
+        const res = await aiService.getRecommendation(q, {})
+        const finalMsgs = [...newMsgsWithUser, res]
+        setMessages(finalMsgs)
+        await saveChat(finalMsgs)
       }
-
-      const res = await aiService.getRecommendation(q, { 
-        farmId: activeFarm?.id, 
-        crop: activeFarm?.primaryCrop, 
-        soilType: activeFarm?.soilType, 
-        cropStage: activeFarm?.cropStage,
-        location: activeFarm?.location?.displayName,
-        area: activeFarm?.area ? `${activeFarm.area} ${activeFarm.areaUnit}` : undefined,
-        weather: weatherStr,
-        recentDiagnosis: recentDiagnosisStr
-
-      } as any)
-      setMessages(prev => [...prev, res])
-    } catch {
-      toast.error('Unable to get recommendation. Please try again.')
+    } catch (err: any) {
+      console.error('[AI Advisor]', err)
+      const msg = err.message || 'Unable to get recommendation. Please try again.'
+      toast.error(msg)
+      // Remove the user's pending message from the UI since it failed, or let it remain?
+      // Usually, it's better to remove it so they can try again, or add an error message.
+      // We'll leave it as is, but maybe pop the last message if we want to be fancy.
     } finally {
       setLoading(false)
     }
@@ -122,7 +215,7 @@ const AIAdvisorPage: React.FC = () => {
           <PageLayout className="flex-1 pt-4 pb-2 space-y-4">
 
             {/* Desktop header */}
-            <div className="hidden lg:block mb-6">
+            <div className="hidden lg:flex mb-6 items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-2xl bg-cream border border-brown-pastel/40 flex items-center justify-center shadow-sm">
                   <img src="/images/logo.jpg" alt="Cropoctor Logo" className="w-8 h-8 object-cover rounded-lg" />
@@ -132,6 +225,16 @@ const AIAdvisorPage: React.FC = () => {
                   <p className="text-sm text-brown-earth/80 font-medium mt-0.5">{t('advisor.subtitle', 'Your farm-aware agricultural assistant.')}</p>
                 </div>
               </div>
+              <button
+                onClick={() => {
+                  setConversationId(null)
+                  setMessages([])
+                }}
+                className="flex items-center gap-2 bg-green-forest/10 hover:bg-green-forest/20 text-green-forest px-4 py-2 rounded-xl font-bold transition-colors text-sm"
+              >
+                <Plus className="w-4 h-4" />
+                New Conversation
+              </button>
             </div>
 
             {/* Active Context Banner */}
@@ -209,6 +312,20 @@ const AIAdvisorPage: React.FC = () => {
                               <p className="text-[10px] font-bold text-brown-earth uppercase tracking-widest mb-1.5">{t('advisor.why', 'Why?')}</p>
                               <p className="text-sm text-text-secondary font-medium">{msg.structured.why}</p>
                             </div>
+                            {/* Current Condition */}
+                            {msg.structured.currentCondition && (
+                              <div className="bg-blue-50/50 border border-blue-200/50 rounded-xl p-3 mt-3">
+                                <p className="text-[10px] font-bold text-blue-800 uppercase tracking-widest mb-1.5">Current Condition</p>
+                                <p className="text-sm text-blue-900 font-medium">{msg.structured.currentCondition}</p>
+                              </div>
+                            )}
+                            {/* Risks */}
+                            {msg.structured.risks && (
+                              <div className="bg-red-50/50 border border-red-200/50 rounded-xl p-3 mt-3">
+                                <p className="text-[10px] font-bold text-red-800 uppercase tracking-widest mb-1.5">Potential Risks</p>
+                                <p className="text-sm text-red-900 font-medium">{msg.structured.risks}</p>
+                              </div>
+                            )}
                             {/* What to do */}
                             <div>
                               <p className="text-[10px] font-bold text-brown-earth uppercase tracking-widest mb-2">{t('advisor.whatToDo', 'What to do')}</p>
@@ -221,6 +338,34 @@ const AIAdvisorPage: React.FC = () => {
                                 ))}
                               </ol>
                             </div>
+                            {/* What to monitor */}
+                            {msg.structured.whatToMonitor && msg.structured.whatToMonitor.length > 0 && (
+                              <div className="mt-4">
+                                <p className="text-[10px] font-bold text-amber-800 uppercase tracking-widest mb-2">What to Monitor</p>
+                                <ul className="space-y-2">
+                                  {msg.structured.whatToMonitor.map((item, i) => (
+                                    <li key={i} className="flex gap-2.5 text-sm text-text-secondary font-medium">
+                                      <span className="text-amber-600 mt-0.5">👀</span>
+                                      {item}
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                            {/* When to act */}
+                            {msg.structured.whenToAct && (
+                              <div className="mt-3">
+                                <p className="text-[10px] font-bold text-purple-800 uppercase tracking-widest mb-1.5">When to Act</p>
+                                <p className="text-sm text-purple-900 font-medium">{msg.structured.whenToAct}</p>
+                              </div>
+                            )}
+                            {/* Pros / Cons */}
+                            {msg.structured.prosCons && (
+                              <div className="bg-gray-50/50 border border-gray-200/50 rounded-xl p-3 mt-3">
+                                <p className="text-[10px] font-bold text-gray-700 uppercase tracking-widest mb-1.5">Pros / Cons & Trade-offs</p>
+                                <p className="text-sm text-gray-800 font-medium">{msg.structured.prosCons}</p>
+                              </div>
+                            )}
                             {/* Data used */}
                             <div className="flex flex-wrap gap-1.5 mt-2">
                               {msg.structured.dataUsed.map(d => (
@@ -308,7 +453,7 @@ const AIAdvisorPage: React.FC = () => {
               { label: t('farm.context.stage', 'Stage'),    value: t(`stages.${activeFarm?.cropStage || 'flowering'}`, activeFarm?.cropStage || 'flowering'),  icon: '🌸' },
               { label: t('farm.context.location', 'Location'), value: t(`locations.${activeFarm?.location.displayName || 'Rajkot, Gujarat'}`, activeFarm?.location.displayName || 'Rajkot, Gujarat'), icon: '📍' },
               { label: t('farm.context.weather', 'Weather'),  value: `${formatLocalizedNumber(29, i18n.language)}°C · ${t('dashboard.weatherCard.rain', 'Rain')} ${formatLocalizedPercent(60, i18n.language)}`, icon: '🌦' },
-              { label: t('farm.context.health', 'Health'),   value: formatLocalizedPercent(activeFarm?.healthScore ?? 82, i18n.language), icon: '💚' },
+              { label: t('farm.context.health', 'Health'),   value: `${calculateFarmHealthScore(activeFarm, activeDiagnosis, null, null).score}% (${calculateFarmHealthScore(activeFarm, activeDiagnosis, null, null).status})`, icon: '💚' },
             ].map(({ label, value, icon }) => (
               <div key={label} className="flex items-center gap-3">
                 <span className="text-lg w-6 text-center">{icon}</span>

@@ -12,10 +12,42 @@ import { FarmCardSkeleton } from '@/components/skeletons'
 import { useFarm } from '@/store/FarmContext'
 import { useTranslation } from 'react-i18next'
 import { formatLocalizedNumber, formatLocalizedPercent } from '@/utils/format'
-import { farmService } from '@/services'
-import { useApp } from '@/store/AppContext'
+import { weatherService } from '@/services'
+import { cropDoctorService } from '@/services/cropDoctorService'
+import { satelliteService } from '@/services/satelliteService'
+import { calculateFarmHealthScore } from '@/services/healthService'
 import type { Farm } from '@/types'
 
+// Dynamic Health Indicator Component for the list view
+const FarmHealthIndicator = ({ farm, i18nLanguage }: { farm: Farm; i18nLanguage: string }) => {
+  const [score, setScore] = React.useState<number>(farm.healthScore ?? 82)
+  
+  React.useEffect(() => {
+    let isSubscribed = true
+    Promise.all([
+      weatherService.getWeather(farm.id).catch(() => null),
+      cropDoctorService.getRecentDiagnoses(1, farm.id).then(res => res?.[0] || null).catch(() => null),
+      (farm.location?.lat && farm.location?.lng) 
+        ? satelliteService.getSatelliteData(farm.id, farm.location.lat, farm.location.lng).catch(() => null)
+        : Promise.resolve(null)
+    ]).then(([w, d, s]) => {
+      if (isSubscribed) {
+        const health = calculateFarmHealthScore(farm, d, s, w)
+        setScore(health.score)
+      }
+    })
+    return () => { isSubscribed = false }
+  }, [farm])
+
+  return (
+    <div className="flex items-center gap-2">
+      <ProgressBar value={score} color="green" size="sm" />
+      <span className="text-xs font-bold text-green-forest shrink-0">{formatLocalizedPercent(score, i18nLanguage)}</span>
+    </div>
+  )
+}
+import { farmService } from '@/services'
+import { useApp } from '@/store/AppContext'
 const MyFarmsPage: React.FC = () => {
   const navigate = useNavigate()
   const { farms, activeFarm, setActiveFarm, loading, error } = useFarm()
@@ -122,10 +154,7 @@ const MyFarmsPage: React.FC = () => {
                           <Badge variant="earth" size="sm">📐 {formatLocalizedNumber(farm.area, i18n.language)} {t('units.acres', 'acres')}</Badge>
                           <Badge variant="gray" size="sm">🌸 {t(`stages.${farm.cropStage}`, farm.cropStage)}</Badge>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <ProgressBar value={farm.healthScore} color="green" size="sm" />
-                          <span className="text-xs font-bold text-green-forest shrink-0">{formatLocalizedPercent(farm.healthScore, i18n.language)}</span>
-                        </div>
+                        <FarmHealthIndicator farm={farm} i18nLanguage={i18n.language} />
                         <p className="text-xs text-gray-400 mt-1">{t('farm.health')}</p>
                       </div>
                     </Card>

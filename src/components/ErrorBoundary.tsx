@@ -11,6 +11,9 @@ export class ErrorBoundary extends React.Component<{ children: React.ReactNode }
 
   componentDidCatch(error: Error, info: React.ErrorInfo) {
     console.error('[Cropoctor Error Boundary]', error, info)
+    try {
+      fetch('http://localhost:9999', { method: 'POST', body: String(error.message + '\n' + error.stack) })
+    } catch(e) {}
   }
 
   render() {

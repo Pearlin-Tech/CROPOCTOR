@@ -1,4 +1,5 @@
 import dotenv from 'dotenv'
+import { AI_CONFIG } from '../config/aiConfig.ts'
 
 dotenv.config()
 
@@ -106,18 +107,21 @@ Provide practical, action-oriented treatment steps suitable for a farmer.
 Return ONLY a raw JSON object (no markdown formatting, no code blocks) matching this exact schema:
 
 {
-  "crop": "Name of the crop identified in image",
-  "disease": "Specific disease or issue name (or 'Healthy Crop' if no issue)",
+  "isPlant": boolean, // true if image contains a plant, false otherwise
+  "crop": "Name of the crop identified in image (or empty if not a plant)",
+  "disease": "Specific disease or issue name (or 'Healthy Crop' if no issue, empty if not a plant)",
   "confidence": 88,
   "symptoms": ["Observed visual symptom 1", "Observed visual symptom 2", "Observed visual symptom 3"],
-  "actions": ["Step 1 recommended action", "Step 2 recommended action", "Step 3 recommended action"],
-  "severity": "mild" | "moderate" | "severe"
+  "positiveSigns": ["Signs of health 1", "Signs of health 2"],
+  "actions": ["Step 1 recommended action", "Step 2 recommended action"],
+  "longTermPrevention": ["Step 1 prevention", "Step 2 prevention"],
+  "severity": "mild" | "moderate" | "severe" | "none"
 }
 `
 
     parts.push({ text: promptText })
 
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiKey}`
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${AI_CONFIG.VISION_MODEL}:generateContent?key=${geminiKey}`
     
     const response = await fetch(apiUrl, {
       method: 'POST',
@@ -134,7 +138,9 @@ Return ONLY a raw JSON object (no markdown formatting, no code blocks) matching 
     if (!response.ok) {
       const errBody = await response.text()
       console.error(`[Server Diagnosis] Gemini API HTTP ${response.status}: ${errBody}`)
-      throw new Error(`Gemini API HTTP ${response.status}`)
+      const error: any = new Error(`Gemini API HTTP ${response.status}`)
+      error.status = response.status
+      throw error
     }
 
     const resData = await response.json()

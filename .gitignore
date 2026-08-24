@@ -13,6 +13,7 @@ dist-ssr
 *.local
 .env
 .env.*
+!.env.example
 
 # Editor directories and files
 .vscode/*
@@ -24,6 +25,3 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-
-# Google Earth Engine credentials
-.gee-key.json

@@ -161,9 +161,9 @@ const DiagnosisResultPage: React.FC = () => {
               </div>
 
               {/* Explanation Text */}
-              {d.explanation && (
-                <div className="mt-4 pt-3 border-t border-brown-soft/20 text-xs text-text-secondary leading-relaxed font-medium">
-                  💡 <span className="text-brown-earth font-bold">Analysis:</span> {d.explanation}
+              {(d.analysis || d.explanation) && (
+                <div className="mt-4 pt-3 border-t border-brown-soft/20 text-sm text-text-secondary leading-relaxed font-medium">
+                  💡 <span className="text-brown-earth font-bold">Analysis:</span> {d.analysis || d.explanation}
                 </div>
               )}
 
@@ -176,13 +176,30 @@ const DiagnosisResultPage: React.FC = () => {
           {/* Right: symptoms + remedies + prevention */}
           <div className="space-y-4">
             
+            {/* Positive Signs */}
+            {d.positiveSigns && d.positiveSigns.length > 0 && (
+              <Card padding="md" className="border-green-pastel/40 bg-green-50 shadow-sm">
+                <h3 className="font-bold text-green-forest mb-2.5 flex items-center gap-2 text-sm">
+                  <span className="text-lg">✨</span> {t('diagnosis.positiveSigns', 'Positive Signs')}
+                </h3>
+                <ul className="space-y-1.5 text-xs text-green-900 font-medium">
+                  {d.positiveSigns.map(p => (
+                    <li key={p} className="flex gap-2">
+                      <span className="text-green-600 font-bold shrink-0">✓</span>
+                      <span>{p}</span>
+                    </li>
+                  ))}
+                </ul>
+              </Card>
+            )}
+
             {/* Symptoms List */}
             <Card padding="md" className="border-brown-pastel/30 bg-off-white shadow-sm">
               <h3 className="font-bold text-brown-earth mb-3 flex items-center gap-2">
                 <span className="text-lg">🔍</span> {t('diagnosis.symptoms', 'Observed Visual Symptoms')}
               </h3>
               <ul className="space-y-2">
-                {d.symptoms.map(s => (
+                {(d.observedSymptoms || d.symptoms).map(s => (
                   <li key={s} className="flex gap-3 text-sm text-text-main font-medium bg-white p-2.5 rounded-xl border border-brown-pastel/20">
                     <span className="text-brown-earth shrink-0 mt-0.5">●</span>
                     {s}
@@ -191,39 +208,86 @@ const DiagnosisResultPage: React.FC = () => {
               </ul>
             </Card>
 
-            {/* Recommended Treatment Actions */}
-            <Card padding="md" className="border-green-pastel/40 bg-green-pastel/10 shadow-sm relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-green-pastel/20 rounded-full blur-[30px]" />
-              <div className="relative z-10">
-                <h3 className="font-bold text-green-forest mb-3 flex items-center gap-2">
-                  <span className="text-lg">✅</span> {t('diagnosis.recommendedActions', 'Recommended Treatment Steps')}
+            {/* Possible Issues / Risks */}
+            {d.possibleIssues && d.possibleIssues.length > 0 && (
+              <Card padding="md" className="border-amber-200 bg-amber-50 shadow-sm">
+                <h3 className="font-bold text-amber-900 mb-2.5 flex items-center gap-2 text-sm">
+                  <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
+                  <span>{t('diagnosis.possibleIssues', 'Possible Issues & Risks')}</span>
                 </h3>
-                <ol className="space-y-3">
-                  {actionsList.map((a, i) => (
-                    <li key={a} className="flex gap-3 text-sm text-text-main font-medium">
-                      <span className="w-6 h-6 rounded-full bg-green-pastel/40 text-green-forest text-xs font-bold flex items-center justify-center shrink-0">{i + 1}</span>
+                <ul className="space-y-1.5 text-xs text-amber-900 font-medium">
+                  {d.possibleIssues.map(p => (
+                    <li key={p} className="flex gap-2">
+                      <span className="text-amber-600 font-bold shrink-0">⚠️</span>
+                      <span>{p}</span>
+                    </li>
+                  ))}
+                </ul>
+              </Card>
+            )}
+
+            {/* Immediate Actions */}
+            {d.immediateActions && d.immediateActions.length > 0 && (
+              <Card padding="md" className="border-orange-200 bg-orange-50 shadow-sm">
+                <h3 className="font-bold text-orange-900 mb-3 flex items-center gap-2 text-sm">
+                  <span className="text-lg">⚡</span> {t('diagnosis.immediateActions', 'Immediate Actions')}
+                </h3>
+                <ol className="space-y-2">
+                  {d.immediateActions.map((a, i) => (
+                    <li key={a} className="flex gap-2 text-xs text-orange-900 font-medium">
+                      <span className="w-4 h-4 rounded-full bg-orange-200 text-orange-800 text-[10px] font-bold flex items-center justify-center shrink-0">{i + 1}</span>
                       <span className="mt-0.5 leading-relaxed">{a}</span>
                     </li>
                   ))}
                 </ol>
-              </div>
-            </Card>
+              </Card>
+            )}
+
+            {/* Recommended Treatment Actions */}
+            {((d.treatment && d.treatment.length > 0) || (actionsList && actionsList.length > 0)) && (
+              <Card padding="md" className="border-green-pastel/40 bg-green-pastel/10 shadow-sm relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-green-pastel/20 rounded-full blur-[30px]" />
+                <div className="relative z-10">
+                  <h3 className="font-bold text-green-forest mb-3 flex items-center gap-2">
+                    <span className="text-lg">✅</span> {t('diagnosis.recommendedActions', 'Recommended Treatment')}
+                  </h3>
+                  <ol className="space-y-3">
+                    {(d.treatment && d.treatment.length > 0 ? d.treatment : actionsList).map((a, i) => (
+                      <li key={a} className="flex gap-3 text-sm text-text-main font-medium">
+                        <span className="w-6 h-6 rounded-full bg-green-pastel/40 text-green-forest text-xs font-bold flex items-center justify-center shrink-0">{i + 1}</span>
+                        <span className="mt-0.5 leading-relaxed">{a}</span>
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+              </Card>
+            )}
 
             {/* Prevention Practices Card if present */}
-            {d.prevention && d.prevention.length > 0 && (
+            {d.longTermPrevention && d.longTermPrevention.length > 0 && (
               <Card padding="md" className="border-blue-200 bg-blue-50/40 shadow-sm">
                 <h3 className="font-bold text-blue-900 mb-2.5 flex items-center gap-2 text-sm">
                   <ShieldCheck className="w-4 h-4 text-blue-600 shrink-0" />
-                  <span>Long-term Prevention Practices</span>
+                  <span>{t('diagnosis.longTermPrevention', 'Long-term Prevention Practices')}</span>
                 </h3>
                 <ul className="space-y-1.5 text-xs text-blue-950 font-medium">
-                  {d.prevention.map(p => (
+                  {d.longTermPrevention.map(p => (
                     <li key={p} className="flex gap-2">
                       <span className="text-blue-600 font-bold shrink-0">✓</span>
                       <span>{p}</span>
                     </li>
                   ))}
                 </ul>
+              </Card>
+            )}
+
+            {/* When to Recheck */}
+            {d.whenToRecheck && (
+              <Card padding="md" className="border-purple-200 bg-purple-50 shadow-sm">
+                <h3 className="font-bold text-purple-900 mb-1 flex items-center gap-2 text-sm">
+                  <span className="text-lg">⏱️</span> {t('diagnosis.whenToRecheck', 'When to Recheck')}
+                </h3>
+                <p className="text-xs text-purple-900 font-medium ml-7">{d.whenToRecheck}</p>
               </Card>
             )}
 

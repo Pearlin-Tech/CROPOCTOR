@@ -27,10 +27,19 @@ export interface CropDiagnosisResult {
   diseaseName: string
   confidence: number // 0–100
   severity: SeverityLevel
-  symptoms: string[]
-  explanation: string
-  recommendations: string[]
-  prevention: string[]
+  symptoms: string[] // keeping for backward compatibility
+  observedSymptoms?: string[]
+  positiveSigns?: string[]
+  possibleIssues?: string[]
+  analysis?: string
+  explanation: string // keeping for backward compatibility
+  actions: string[] // keeping for backward compatibility
+  immediateActions?: string[]
+  recommendations: string[] // keeping for backward compatibility
+  treatment?: string[]
+  prevention: string[] // keeping for backward compatibility
+  longTermPrevention?: string[]
+  whenToRecheck?: string
   needsExpertReview: boolean
 }
 
@@ -58,9 +67,18 @@ function validateAndNormalizeDiagnosis(
       confidence: 0,
       severity: 'unknown',
       symptoms: [],
+      observedSymptoms: [],
+      positiveSigns: [],
+      possibleIssues: [],
+      analysis: 'The provided photograph does not appear to contain a recognizable plant, crop, or leaf.',
       explanation: 'The provided photograph does not appear to contain a recognizable plant, crop, or leaf. Please upload a clear photo of plant foliage.',
+      actions: [],
+      immediateActions: ['Please take a clear photo focused on an affected crop leaf or stem under bright natural light.'],
       recommendations: ['Please take a clear photo focused on an affected crop leaf or stem under bright natural light.'],
+      treatment: [],
       prevention: [],
+      longTermPrevention: [],
+      whenToRecheck: 'N/A',
       needsExpertReview: true
     }
   }
@@ -81,21 +99,33 @@ function validateAndNormalizeDiagnosis(
     ? parsed.severity
     : 'moderate'
 
-  const symptoms = Array.isArray(parsed.symptoms)
+  const symptoms = Array.isArray(parsed.observedSymptoms) ? parsed.observedSymptoms : (Array.isArray(parsed.symptoms)
     ? parsed.symptoms.map((s: any) => String(s).trim()).filter(Boolean)
-    : ['Observed visual discoloration on foliage']
+    : ['Observed visual discoloration on foliage'])
 
-  const explanation = typeof parsed.explanation === 'string' && parsed.explanation.trim()
+  const observedSymptoms = Array.isArray(parsed.observedSymptoms) ? parsed.observedSymptoms : symptoms
+  const positiveSigns = Array.isArray(parsed.positiveSigns) ? parsed.positiveSigns : []
+  const possibleIssues = Array.isArray(parsed.possibleIssues) ? parsed.possibleIssues : []
+
+  const explanation = typeof parsed.analysis === 'string' && parsed.analysis.trim() ? parsed.analysis.trim() : (typeof parsed.explanation === 'string' && parsed.explanation.trim()
     ? parsed.explanation.trim()
-    : `Visual analysis indicates symptoms of ${diseaseName} on ${cropName}.`
+    : `Visual analysis indicates symptoms of ${diseaseName} on ${cropName}.`)
 
-  const recommendations = Array.isArray(parsed.recommendations)
+  const analysis = typeof parsed.analysis === 'string' && parsed.analysis.trim() ? parsed.analysis.trim() : explanation
+
+  const recommendations = Array.isArray(parsed.treatment) ? parsed.treatment : (Array.isArray(parsed.recommendations)
     ? parsed.recommendations.map((r: any) => String(r).trim()).filter(Boolean)
-    : ['Inspect nearby foliage for early signs of disease spread', 'Maintain clean field sanitation and proper drainage']
+    : ['Inspect nearby foliage for early signs of disease spread'])
 
-  const prevention = Array.isArray(parsed.prevention)
+  const immediateActions = Array.isArray(parsed.immediateActions) ? parsed.immediateActions : recommendations
+  const treatment = Array.isArray(parsed.treatment) ? parsed.treatment : recommendations
+
+  const prevention = Array.isArray(parsed.longTermPrevention) ? parsed.longTermPrevention : (Array.isArray(parsed.prevention)
     ? parsed.prevention.map((p: any) => String(p).trim()).filter(Boolean)
-    : ['Practice crop rotation', 'Ensure optimal plant spacing for air circulation']
+    : ['Practice crop rotation', 'Ensure optimal plant spacing for air circulation'])
+    
+  const longTermPrevention = Array.isArray(parsed.longTermPrevention) ? parsed.longTermPrevention : prevention
+  const whenToRecheck = typeof parsed.whenToRecheck === 'string' ? parsed.whenToRecheck : 'Within 3-5 days'
 
   // Force expert review rule evaluation
   const isPoorQualityOrAmbiguous = diseaseName.toLowerCase().includes('unclear') || diseaseName.toLowerCase().includes('unknown')
@@ -107,15 +137,24 @@ function validateAndNormalizeDiagnosis(
     : (isLowConfidence || isSevere || isPoorQualityOrAmbiguous)
 
   return {
-    isPlantImage: true,
+    isPlantImage: typeof parsed.isPlantImage === 'boolean' ? parsed.isPlantImage : true,
     cropName,
     diseaseName,
     confidence,
     severity,
     symptoms,
+    observedSymptoms,
+    positiveSigns,
+    possibleIssues,
     explanation,
+    analysis,
+    actions: immediateActions,
+    immediateActions,
     recommendations,
+    treatment,
     prevention,
+    longTermPrevention,
+    whenToRecheck,
     needsExpertReview
   }
 }

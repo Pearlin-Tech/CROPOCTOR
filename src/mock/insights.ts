@@ -55,11 +55,3 @@ export const MOCK_NEXT_BEST_ACTIONS = [
     benefit: 'Preparing drainage channels now prevents crop loss.',
   },
 ]
-
-export const MOCK_HISTORY = [
-  { id: 'h-001', type: 'ai-advice',     title: 'Irrigation delayed',          summary: 'AI advised delaying irrigation due to rain forecast.',        timestamp: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString() },
-  { id: 'h-002', type: 'diagnosis',     title: 'Leaf Spot Detected',          summary: 'Cercospora Leaf Spot detected at 87% confidence.',            timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString() },
-  { id: 'h-003', type: 'weather-alert', title: 'Heavy Rain Warning',          summary: '35–50mm rain forecast for the next 48 hours.',                timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString() },
-  { id: 'h-004', type: 'crop-update',   title: 'Crop Stage: Flowering',       summary: 'Groundnut crop entered flowering stage.',                     timestamp: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString() },
-  { id: 'h-005', type: 'farm-action',   title: 'Fertiliser Applied',          summary: '10kg Urea applied per acre as top dressing.',                 timestamp: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString() },
-]

@@ -2,6 +2,7 @@ import { doc, setDoc, collection, query, orderBy, limit, getDocs, getDoc, server
 import { auth, db } from './firebase'
 import { compressImageWithFallback } from '@/utils/imageCompressor'
 import type { DiagnosisResult } from '@/types'
+import { notificationService } from '@/services/index'
 
 export interface AnalyzeImageParams {
   file?: File | Blob | null
@@ -116,9 +117,17 @@ export const cropDoctorService = {
                 confidence: data.confidence,
                 severity: data.severity,
                 symptoms: data.symptoms,
+                observedSymptoms: data.observedSymptoms,
+                positiveSigns: data.positiveSigns,
+                possibleIssues: data.possibleIssues,
+                analysis: data.analysis,
                 actions: data.recommendations,
+                immediateActions: data.immediateActions,
                 recommendations: data.recommendations,
+                treatment: data.treatment,
                 prevention: data.prevention,
+                longTermPrevention: data.longTermPrevention,
+                whenToRecheck: data.whenToRecheck,
                 explanation: data.explanation,
                 isPlantImage: data.isPlantImage,
                 needsExpertReview: data.needsExpertReview,
@@ -170,9 +179,20 @@ export const cropDoctorService = {
       }
 
       if (!response.ok) {
-        const errText = await response.text()
+        let errText = ''
+        try {
+          const errJson = await response.json()
+          errText = errJson.error || errJson.message || ''
+        } catch {
+          errText = await response.text()
+        }
+        
         console.error(`[cropDoctorService] Backend API returned ${response.status}:`, errText)
-        throw new Error(`Diagnostic server returned error: HTTP ${response.status}`)
+        if (response.status === 429) {
+          throw new Error('AI Quota Exceeded. The diagnosis service is temporarily unavailable due to high demand. Please try again later.')
+        }
+        
+        throw new Error(errText || `Diagnostic server returned error: HTTP ${response.status}`)
       }
 
       const apiResult = await response.json()
@@ -194,6 +214,15 @@ export const cropDoctorService = {
       const isPlantImage = typeof diagnosisData.isPlantImage === 'boolean' ? diagnosisData.isPlantImage : true
       const needsExpertReview = Boolean(diagnosisData.needsExpertReview)
 
+      const observedSymptoms = diagnosisData.observedSymptoms || diagnosisData.symptoms || []
+      const positiveSigns = diagnosisData.positiveSigns || []
+      const possibleIssues = diagnosisData.possibleIssues || []
+      const analysis = diagnosisData.analysis || diagnosisData.explanation || ''
+      const immediateActions = diagnosisData.immediateActions || diagnosisData.actions || diagnosisData.recommendations || []
+      const treatment = diagnosisData.treatment || diagnosisData.recommendations || []
+      const longTermPrevention = diagnosisData.longTermPrevention || diagnosisData.prevention || []
+      const whenToRecheck = diagnosisData.whenToRecheck || 'Within 3-5 days'
+
       const diagnosisRecord: DiagnosisResult = {
         id: diagnosisId,
         userId,
@@ -206,9 +235,17 @@ export const cropDoctorService = {
         confidence,
         severity,
         symptoms,
+        observedSymptoms,
+        positiveSigns,
+        possibleIssues,
+        analysis,
         actions: recommendations,
+        immediateActions,
         recommendations,
+        treatment,
         prevention,
+        longTermPrevention,
+        whenToRecheck,
         explanation,
         isPlantImage,
         needsExpertReview,
@@ -217,10 +254,11 @@ export const cropDoctorService = {
         timestamp: timestampIso
       }
 
-      // 5. Persist metadata & structured result to Firestore
+      // 5. Persist metadata & structured result to Firestore or LocalStorage
       if (currentUser && db && db.app) {
         try {
-          const docRef = doc(db, 'users', currentUser.uid, 'diagnoses', diagnosisId)
+          if (isPlantImage && diseaseName.toLowerCase() !== 'non-plant image detected') {
+            const docRef = doc(db, 'users', currentUser.uid, 'diagnoses', diagnosisId)
           await setDoc(docRef, {
             cropName,
             diseaseName,
@@ -229,9 +267,17 @@ export const cropDoctorService = {
             confidence,
             severity,
             symptoms,
+            observedSymptoms,
+            positiveSigns,
+            possibleIssues,
+            analysis,
             explanation,
             recommendations,
+            immediateActions,
+            treatment,
             prevention,
+            longTermPrevention,
+            whenToRecheck,
             needsExpertReview,
             isPlantImage,
             source,
@@ -242,9 +288,34 @@ export const cropDoctorService = {
             createdAt: serverTimestamp()
           })
           console.log(`[Firestore] Diagnosis metadata persisted to users/${currentUser.uid}/diagnoses/${diagnosisId}`)
+          
+          if (diseaseName.toLowerCase() !== 'healthy plant' && diseaseName.toLowerCase() !== 'non-plant image detected') {
+            await notificationService.createNotification({
+              title: `New Diagnosis: ${cropName}`,
+              body: `${diseaseName} detected with ${severity} severity. Click to view treatment plan.`,
+              type: 'disease',
+              priority: severity === 'severe' ? 'high' : 'medium',
+              read: false,
+              actionRoute: `/farms/${farmContext?.farmId || 'farm-001'}`, // Or link directly to diagnosis history
+            });
+          }
+          }
         } catch (firestoreErr) {
           console.warn('[cropDoctorService] Error persisting diagnosis to Firestore:', firestoreErr)
           // We don't throw here to still allow the UI to show the result if Firestore saves fail
+        }
+      } else {
+        // Fallback for guest users
+        try {
+          const stored = localStorage.getItem('guest_diagnoses')
+          const diagnoses = stored ? JSON.parse(stored) : []
+          // Check if already exists to prevent duplicates
+          if (!diagnoses.find((d: any) => d.id === diagnosisId)) {
+            diagnoses.unshift(diagnosisRecord)
+            localStorage.setItem('guest_diagnoses', JSON.stringify(diagnoses.slice(0, 50)))
+          }
+        } catch (e) {
+          console.warn('[cropDoctorService] Failed to save guest diagnosis to localStorage:', e)
         }
       }
 
@@ -270,6 +341,17 @@ export const cropDoctorService = {
     try {
       const currentUser = auth.currentUser
       if (!currentUser || !db || !db.app) {
+        // Retrieve from localStorage for guest users
+        try {
+          const stored = localStorage.getItem('guest_diagnoses')
+          if (stored) {
+            const parsed = JSON.parse(stored)
+            const filtered = farmId ? parsed.filter((d: any) => d.farmId === farmId) : parsed
+            return filtered.slice(0, limitCount)
+          }
+        } catch (e) {
+          console.warn('[cropDoctorService] Failed to read guest diagnoses from localStorage', e)
+        }
         return []
       }
 
@@ -298,9 +380,17 @@ export const cropDoctorService = {
           confidence: typeof data.confidence === 'number' ? data.confidence : 85,
           severity: data.severity || 'moderate',
           symptoms: data.symptoms || [],
+          observedSymptoms: data.observedSymptoms || data.symptoms || [],
+          positiveSigns: data.positiveSigns || [],
+          possibleIssues: data.possibleIssues || [],
+          analysis: data.analysis || data.explanation || '',
           actions: data.recommendations || data.actions || [],
+          immediateActions: data.immediateActions || data.actions || data.recommendations || [],
           recommendations: data.recommendations || data.actions || [],
+          treatment: data.treatment || data.recommendations || [],
           prevention: data.prevention || [],
+          longTermPrevention: data.longTermPrevention || data.prevention || [],
+          whenToRecheck: data.whenToRecheck || 'Within 3-5 days',
           explanation: data.explanation || '',
           isPlantImage: typeof data.isPlantImage === 'boolean' ? data.isPlantImage : true,
           needsExpertReview: Boolean(data.needsExpertReview),
@@ -327,7 +417,16 @@ export const cropDoctorService = {
   getDiagnosisById: async (diagnosisId: string): Promise<DiagnosisResult | null> => {
     try {
       const currentUser = auth.currentUser
-      if (!currentUser || !db || !db.app) return null
+      if (!currentUser || !db || !db.app) {
+        try {
+          const stored = localStorage.getItem('guest_diagnoses')
+          if (stored) {
+            const parsed = JSON.parse(stored)
+            return parsed.find((d: any) => d.id === diagnosisId) || null
+          }
+        } catch (e) {}
+        return null
+      }
 
       const docRef = doc(db, 'users', currentUser.uid, 'diagnoses', diagnosisId)
       const snap = await getDoc(docRef)
@@ -349,9 +448,17 @@ export const cropDoctorService = {
           confidence: data.confidence,
           severity: data.severity,
           symptoms: data.symptoms || [],
+          observedSymptoms: data.observedSymptoms || data.symptoms || [],
+          positiveSigns: data.positiveSigns || [],
+          possibleIssues: data.possibleIssues || [],
+          analysis: data.analysis || data.explanation || '',
           actions: data.recommendations || data.actions || [],
+          immediateActions: data.immediateActions || data.actions || data.recommendations || [],
           recommendations: data.recommendations || data.actions || [],
+          treatment: data.treatment || data.recommendations || [],
           prevention: data.prevention || [],
+          longTermPrevention: data.longTermPrevention || data.prevention || [],
+          whenToRecheck: data.whenToRecheck || 'Within 3-5 days',
           explanation: data.explanation || '',
           isPlantImage: typeof data.isPlantImage === 'boolean' ? data.isPlantImage : true,
           needsExpertReview: Boolean(data.needsExpertReview),

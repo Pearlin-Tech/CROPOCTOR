@@ -26,7 +26,3 @@ export const MOCK_DIAGNOSIS: DiagnosisResult = {
   timestamp: new Date().toISOString(),
 }
 
-export const MOCK_DIAGNOSIS_HISTORY = [
-  { id: 'diag-001', disease: 'Leaf Spot', confidence: 87, crop: 'Groundnut', date: '2 days ago', imageUrl: IMAGES.diagnosis.leafSpot },
-  { id: 'diag-002', disease: 'Healthy Crop', confidence: 95, crop: 'Cotton', date: '1 week ago', imageUrl: IMAGES.diagnosis.healthyLeaf },
-]
