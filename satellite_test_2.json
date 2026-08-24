@@ -1,0 +1,1 @@
+{"success":true,"data":{"farmId":"farm-001","latitude":19.076,"longitude":72.8777,"ndvi":{"value":0.01,"label":"Poor Vegetation"},"satelliteImageUrl":"https://earthengine.googleapis.com/v1/projects/earthengine-legacy/thumbnails/8fccfe09c907f19fe3350ebc7fa4b73b-86d692e86a3023edc9984270da9fa155:getPixels","source":"earth-engine"}}

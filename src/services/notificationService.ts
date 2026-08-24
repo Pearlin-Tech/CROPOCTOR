@@ -13,7 +13,7 @@ import {
 } from 'firebase/firestore';
 import { db, auth } from './firebase';
 import type { AppNotification } from '@/types';
-import { INotificationService } from './index';
+import type { INotificationService } from './index';
 
 export class FirebaseNotificationService implements INotificationService {
   private getNotificationsRef() {

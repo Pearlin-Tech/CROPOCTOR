@@ -10,7 +10,7 @@ import {
 } from 'firebase/firestore';
 import { db, auth, firebaseConfig } from './firebase';
 import type { Farm } from '@/types';
-import { IFarmService } from './index';
+import type { IFarmService } from './index';
 
 // The model structure requested for Stage 1 in Firestore
 export interface FirestoreFarm {

@@ -124,22 +124,12 @@ const InsightsPage: React.FC = () => {
                 ) : satelliteData ? (
                   <Card padding="none" className="overflow-hidden bg-cream border-brown-pastel/40 shadow-sm">
                     <div className="relative">
-                      <img src={satelliteData.satelliteImageUrl} alt="Satellite farm view" className="w-full h-64 object-cover" />
+                      <img src={satelliteData.satelliteImageUrl} alt="Satellite farm view" className="w-full h-[30vh] sm:h-64 md:h-80 lg:h-[400px] object-cover" />
                       <div className="absolute top-3 right-3 flex gap-2">
                         {satelliteData.source === 'demo' && <Badge variant="demo">Demo Synthetic Data</Badge>}
                         {satelliteData.source === 'error' && <Badge variant="danger">Connection Error</Badge>}
                       </div>
-                      {/* NDVI overlay legend */}
-                      <div className="absolute bottom-3 left-3 bg-white/90 backdrop-blur-sm rounded-xl p-2 border border-brown-pastel/30 shadow-sm">
-                        <div className="flex items-center gap-4">
-                          {[['#ff4444','Poor'],['#ffaa00','Fair'],['#44aa44','Good'],['#006600','Excellent']].map(([color, label]) => (
-                            <div key={label} className="flex items-center gap-1.5">
-                              <div className="w-3 h-3 rounded-full shadow-inner" style={{backgroundColor: color}} />
-                              <span className="text-text-main text-[10px] font-bold uppercase tracking-wider">{label}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
+                      {/* High-res satellite image is shown above without the blurry NDVI overlay */}
                     </div>
                     <div className="p-5">
                       <div className="flex items-center justify-between">

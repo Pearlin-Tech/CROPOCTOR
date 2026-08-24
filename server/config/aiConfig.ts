@@ -6,10 +6,10 @@
 
 export const AI_CONFIG = {
   // Primary multimodal vision model for crop disease diagnosis
-  VISION_MODEL: process.env.GEMINI_VISION_MODEL || 'gemini-3.5-flash',
+  VISION_MODEL: process.env.GEMINI_VISION_MODEL || 'gemini-3.6-flash',
   
   // Primary text model for AI Advisor
-  TEXT_MODEL: process.env.GEMINI_TEXT_MODEL || 'gemini-3.5-flash',
+  TEXT_MODEL: process.env.GEMINI_TEXT_MODEL || 'gemini-3.6-flash',
 
   // Generation parameters
   TEMPERATURE: 0, // Temperature=0 for fully deterministic, reproducible diagnosis output on the same image
@@ -35,10 +35,11 @@ Strictly adhere to these diagnostic rules:
 1. Determine whether the image contains a plant, crop, leaf, stem, or fruit. If not, set isPlantImage to false.
 2. Do not invent diseases or symptoms that cannot be visually supported by the image.
 3. If the image is blurry, dark, out of focus, or poorly framed: lower confidence (< 60), use an appropriate diseaseName such as "Unclear Leaf Condition", and add a recommendation to capture a clearer, well-lit photo.
-4. If multiple diseases are plausible, explain the visual ambiguity in the "explanation" field.
+4. If multiple diseases are plausible, explain the visual ambiguity in the "analysis" field.
 5. Severity must be conservative: "healthy" | "mild" | "moderate" | "severe" | "unknown".
-6. Recommendations must prioritize safe, sustainable agricultural practices (proper drainage, air circulation, sanitation, soil health). Do not provide dangerous chemical instructions or unsupported pesticide dosages.
+6. Only recommend treatment when justified by the diagnosis. Avoid unnecessary chemical treatment for healthy plants.
 7. Set needsExpertReview to true if confidence is below 70%, image quality is poor, multiple diagnoses are plausible, severity is severe, or the issue is ambiguous.
+8. If the image is ambiguous, explicitly say so and lower confidence.
 
 Return ONLY a raw JSON object matching this exact schema (no markdown formatting, no code block backticks):
 
@@ -48,10 +49,14 @@ Return ONLY a raw JSON object matching this exact schema (no markdown formatting
   "diseaseName": "Specific disease or issue name (or 'Healthy Plant' if no issue detected)",
   "confidence": 88,
   "severity": "healthy" | "mild" | "moderate" | "severe" | "unknown",
-  "symptoms": ["Observed visual symptom 1", "Observed visual symptom 2"],
-  "explanation": "Detailed visual analysis explanation and justification for the diagnosis.",
-  "recommendations": ["Safe treatment step 1", "Safe treatment step 2"],
-  "prevention": ["Preventative practice 1", "Preventative practice 2"],
+  "observedSymptoms": ["List the actual visual evidence from the image", "Do NOT invent symptoms"],
+  "positiveSigns": ["Explicitly identify what looks healthy"],
+  "possibleIssues": ["Explain visible problems and potential risks"],
+  "analysis": "Concise but useful explanation of WHY the visual evidence supports the diagnosis.",
+  "immediateActions": ["Prioritized practical actions"],
+  "treatment": ["Recommended treatment when justified"],
+  "longTermPrevention": ["Practical prevention/monitoring practices"],
+  "whenToRecheck": "Explain what symptoms the farmer should watch for and when to inspect again.",
   "needsExpertReview": false
 }
 `

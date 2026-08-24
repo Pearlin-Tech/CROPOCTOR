@@ -7,7 +7,6 @@ import { PageLayout, MobileHeader } from '@/components/layout/AppShell'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { IMAGES } from '@/config/images'
-import { MOCK_DIAGNOSIS_HISTORY } from '@/mock/diagnosis'
 import { useTranslation } from 'react-i18next'
 import { useApp } from '@/store/AppContext'
 import { useUser } from '@/store/UserContext'
@@ -15,6 +14,7 @@ import { useFarm } from '@/store/FarmContext'
 import { cropDoctorService, validateCropImage } from '@/services/cropDoctorService'
 import { compressImageWithFallback } from '@/utils/imageCompressor'
 import type { DiagnosisResult } from '@/types'
+import { CameraModal } from '@/components/ui/CameraModal'
 
 export type ImageSource = 'camera' | 'upload' | 'sample'
 
@@ -44,6 +44,7 @@ const CropDoctorPage: React.FC = () => {
   const [acquiredImage, setAcquiredImage] = useState<AcquiredImageState | null>(null)
   const [isProcessingImage, setIsProcessingImage] = useState<boolean>(false)
   const [permissionError, setPermissionError] = useState<string | null>(null)
+  const [isCameraModalOpen, setIsCameraModalOpen] = useState(false)
 
   // API Analysis State
   const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false)
@@ -99,26 +100,57 @@ const CropDoctorPage: React.FC = () => {
   /**
    * 1. Trigger Camera with Permission Handling
    */
-  const handleTriggerCamera = async () => {
+  const handleTriggerCamera = () => {
     setPermissionError(null)
     setAnalysisError(null)
+    setIsCameraModalOpen(true)
+  }
 
-    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
-        stream.getTracks().forEach(track => track.stop())
-      } catch (err: any) {
-        if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
-          const errMsg = 'Camera access was denied. Please grant camera permission or select a photo from gallery.'
-          setPermissionError(errMsg)
-          toast.error(errMsg)
-          return
-        }
-      }
+  const handleCameraCapture = async (file: File) => {
+    // Client-side validation (< 10MB, JPG/PNG/WebP)
+    const validation = validateCropImage(file)
+    if (!validation.valid) {
+      toast.error(validation.error || 'Unsupported image format')
+      return
     }
 
-    if (cameraInputRef.current) {
-      cameraInputRef.current.click()
+    if (acquiredImage?.previewUrl && acquiredImage.previewUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(acquiredImage.previewUrl)
+    }
+    setAnalysisError(null)
+    setIsAnalyzing(false)
+    setIsProcessingImage(true)
+    setPermissionError(null)
+
+    const blobPreviewUrl = URL.createObjectURL(file)
+    const origSizeKb = (file.size / 1024).toFixed(0) + ' KB'
+
+    try {
+      const compResult = await compressImageWithFallback(file)
+      const compSizeKb = (compResult.compressedSizeBytes / 1024).toFixed(0) + ' KB'
+
+      setAcquiredImage({
+        file,
+        previewUrl: blobPreviewUrl,
+        source: 'camera',
+        fileName: file.name,
+        originalSizeBytes: file.size,
+        compressedBase64: compResult.compressedBase64,
+        compressedSizeBytes: compResult.compressedSizeBytes
+      })
+
+      toast.success(`Photo acquired! Optimized (${origSizeKb} → ${compSizeKb})`)
+    } catch (err) {
+      console.warn('[CropDoctorPage] Canvas compression fallback:', err)
+      setAcquiredImage({
+        file,
+        previewUrl: blobPreviewUrl,
+        source: 'camera',
+        fileName: file.name,
+        originalSizeBytes: file.size
+      })
+    } finally {
+      setIsProcessingImage(false)
     }
   }
 
@@ -240,6 +272,14 @@ const CropDoctorPage: React.FC = () => {
         return
       }
 
+      if (result.diagnosis.isPlantImage === false) {
+        const errorMsg = 'Please upload a clear photo of a plant leaf or crop. The uploaded image does not appear to contain a plant.'
+        setAnalysisError(errorMsg)
+        toast.error(errorMsg)
+        setIsAnalyzing(false)
+        return
+      }
+
       // On Success: Navigate to Diagnosis Result Page displaying structured diagnosis
       navigate('/diagnosis-result', {
         state: {
@@ -261,15 +301,13 @@ const CropDoctorPage: React.FC = () => {
     <motion.div variants={pageVariants} initial="initial" animate="animate" className="min-h-screen bg-background">
       <MobileHeader title={t('diagnose.title', 'Crop Doctor AI')} subtitle={t('diagnose.subtitle', 'Acquire a crop leaf image for instant diagnosis')} />
 
-      {/* Hidden File Inputs */}
-      <input
-        ref={cameraInputRef}
-        type="file"
-        accept="image/jpeg,image/jpg,image/png,image/webp"
-        capture="environment"
-        className="hidden"
-        onChange={(e) => handleFileSelect(e, 'camera')}
+      <CameraModal 
+        isOpen={isCameraModalOpen} 
+        onClose={() => setIsCameraModalOpen(false)} 
+        onCapture={handleCameraCapture} 
       />
+
+      {/* Hidden File Inputs */}
 
       <input
         ref={fileInputRef}
@@ -468,11 +506,11 @@ const CropDoctorPage: React.FC = () => {
                   <RefreshCw className="w-4 h-4 animate-spin text-green-forest" />
                   Loading history from Firestore...
                 </div>
-              ) : (recentDiagnoses.length > 0 ? recentDiagnoses : MOCK_DIAGNOSIS_HISTORY).length === 0 ? (
+              ) : recentDiagnoses.length === 0 ? (
                 <p className="text-xs text-gray-500 text-center py-4">No recent diagnoses found.</p>
               ) : (
                 <div className="space-y-3">
-                  {(recentDiagnoses.length > 0 ? recentDiagnoses : MOCK_DIAGNOSIS_HISTORY).map(d => (
+                  {recentDiagnoses.map(d => (
                     <button
                       key={d.id}
                       onClick={() => navigate('/diagnosis-result', { state: { diagnosis: d } })}

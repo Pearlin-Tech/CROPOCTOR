@@ -10,6 +10,10 @@ import { Button } from '@/components/ui/Button'
 import { useFarm } from '@/store/FarmContext'
 import { useNavigate as useNav } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { weatherService } from '@/services'
+import { cropDoctorService } from '@/services/cropDoctorService'
+import { satelliteService } from '@/services/satelliteService'
+import { calculateFarmHealthScore, type FarmHealth } from '@/services/healthService'
 
 const FarmDetailPage: React.FC = () => {
   const navigate = useNavigate()
@@ -17,6 +21,31 @@ const FarmDetailPage: React.FC = () => {
   const { farms, setActiveFarm } = useFarm()
   const { t } = useTranslation()
   const farm = farms.find(f => f.id === id) || farms[0]
+  
+  const [farmHealth, setFarmHealth] = React.useState<FarmHealth | null>(null)
+  
+  React.useEffect(() => {
+    if (!farm) return
+    let isSubscribed = true
+    
+    Promise.all([
+      weatherService.getWeather(farm.id).catch(() => null),
+      cropDoctorService.getRecentDiagnoses(1, farm.id).then(res => res?.[0] || null).catch(() => null),
+      (farm.location?.lat && farm.location?.lng) 
+        ? satelliteService.getSatelliteData(farm.id, farm.location.lat, farm.location.lng).catch(() => null)
+        : Promise.resolve(null)
+    ]).then(([w, d, s]) => {
+      if (isSubscribed) {
+        const health = calculateFarmHealthScore(farm, d, s, w)
+        setFarmHealth(health)
+      }
+    })
+
+    return () => { isSubscribed = false }
+  }, [farm])
+
+  const healthScoreVal = farmHealth?.score ?? (farm?.healthScore ?? 82)
+  const healthStatus = farmHealth?.status ?? 'Unknown'
 
   if (!farm) return <div className="p-8 text-center text-gray-500">{t('farm.notFound', 'Farm not found.')}</div>
 
@@ -44,20 +73,35 @@ const FarmDetailPage: React.FC = () => {
           <Card padding="md">
             <h3 className="font-bold text-gray-800 mb-3">{t('farm.details.health', 'Farm Health')}</h3>
             <div className="flex items-center gap-4 mb-3">
-              <div className="relative w-16 h-16">
+              <div className="relative w-16 h-16 shrink-0">
                 <svg viewBox="0 0 36 36" className="w-16 h-16 -rotate-90">
                   <circle cx="18" cy="18" r="15.5" fill="none" stroke="#E8F5E9" strokeWidth="3" />
                   <circle cx="18" cy="18" r="15.5" fill="none" stroke="#2E7D32" strokeWidth="3"
-                    strokeDasharray={`${farm.healthScore * 0.974} ${100 - farm.healthScore * 0.974}`} strokeLinecap="round" />
+                    strokeDasharray={`${healthScoreVal * 0.974} ${100 - healthScoreVal * 0.974}`} strokeLinecap="round" />
                 </svg>
-                <span className="absolute inset-0 flex items-center justify-center text-xs font-bold text-green-forest">{farm.healthScore}%</span>
+                <span className="absolute inset-0 flex items-center justify-center text-xs font-bold text-green-forest">{healthScoreVal}%</span>
               </div>
               <div>
-                <p className="text-2xl font-bold text-gray-800">{farm.healthScore}<span className="text-lg text-gray-400">/100</span></p>
-                <Badge variant="green" dot>{t('farm.details.healthy', 'Looking Healthy')}</Badge>
+                <p className="text-2xl font-bold text-gray-800">{healthScoreVal}<span className="text-lg text-gray-400">/100</span></p>
+                <Badge variant="green" dot>{healthStatus}</Badge>
               </div>
             </div>
-            <ProgressBar value={farm.healthScore} color="green" />
+            <ProgressBar value={healthScoreVal} color="green" />
+            
+            {farmHealth && farmHealth.factors.length > 0 && (
+              <div className="mt-4 pt-3 border-t border-gray-100 space-y-2">
+                <p className="text-[10px] uppercase tracking-wider font-bold text-gray-500 mb-2">Health Factors</p>
+                {farmHealth.factors.map(f => (
+                  <div key={f.name} className="flex flex-col gap-0.5">
+                    <div className="flex justify-between items-center text-xs">
+                      <span className="font-semibold text-gray-700">{f.name}</span>
+                      <span className="font-bold text-green-forest">{f.score}</span>
+                    </div>
+                    <p className="text-[10px] text-gray-500 line-clamp-1">{f.explanation}</p>
+                  </div>
+                ))}
+              </div>
+            )}
           </Card>
 
           {/* Details */}

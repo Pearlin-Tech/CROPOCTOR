@@ -11,8 +11,12 @@ import { ProgressBar } from '@/components/ui/index'
 import { WeatherSkeleton, FarmHealthSkeleton } from '@/components/skeletons'
 import { useFarm } from '@/store/FarmContext'
 import { useUser } from '@/store/UserContext'
-import { weatherService } from '@/services'
-import type { WeatherData } from '@/types'
+import { weatherService, aiService } from '@/services'
+import { cropDoctorService } from '@/services/cropDoctorService'
+import { satelliteService } from '@/services/satelliteService'
+import { calculateFarmHealthScore, type FarmHealth } from '@/services/healthService'
+import type { WeatherData, DiagnosisResult } from '@/types'
+import type { NDVIResult } from '@/services/satelliteService'
 import { getGreeting, formatLocalizedNumber, formatLocalizedPercent } from '@/utils/format'
 import { IMAGES } from '@/config/images'
 import { useTranslation } from 'react-i18next'
@@ -23,20 +27,34 @@ const HomePage: React.FC = () => {
   const { farmer } = useUser()
   const { t, i18n } = useTranslation()
   const [weather, setWeather] = useState<WeatherData | null>(null)
+  const [diagnosis, setDiagnosis] = useState<DiagnosisResult | null>(null)
+  const [satellite, setSatellite] = useState<NDVIResult | null>(null)
   const [loadingWeather, setLoadingWeather] = useState(true)
+  const [farmHealth, setFarmHealth] = useState<FarmHealth | null>(null)
 
   useEffect(() => {
     if (!activeFarm) return
     let isSubscribed = true
     setLoadingWeather(true)
-    weatherService.getWeather(activeFarm.id).then(w => {
+    
+    Promise.all([
+      weatherService.getWeather(activeFarm.id).catch(() => null),
+      cropDoctorService.getRecentDiagnoses(1, activeFarm.id).then(res => res?.[0] || null).catch(() => null),
+      (activeFarm.location?.lat && activeFarm.location?.lng) 
+        ? satelliteService.getSatelliteData(activeFarm.id, activeFarm.location.lat, activeFarm.location.lng).catch(() => null)
+        : Promise.resolve(null)
+    ]).then(([w, d, s]) => {
       if (isSubscribed) {
-        setWeather(w)
+        if (w) setWeather(w)
+        if (d) setDiagnosis(d)
+        if (s) setSatellite(s)
+        
+        const health = calculateFarmHealthScore(activeFarm, d, s, w)
+        setFarmHealth(health)
         setLoadingWeather(false)
       }
-    }).catch(() => {
-      if (isSubscribed) setLoadingWeather(false)
     })
+
     return () => { isSubscribed = false }
   }, [activeFarm])
 
@@ -46,7 +64,8 @@ const HomePage: React.FC = () => {
     : greeting === 'afternoon' ? t('dashboard.greetingAfternoon', { name })
     : t('dashboard.greetingEvening', { name })
 
-  const health = activeFarm?.healthScore ?? 82
+  const healthScoreVal = farmHealth?.score ?? (activeFarm?.healthScore ?? 82)
+  const healthStatus = farmHealth?.status ?? 'Unknown'
 
   return (
     <motion.div variants={pageVariants} initial="initial" animate="animate" className="min-h-screen bg-background pb-8">
@@ -175,9 +194,9 @@ const HomePage: React.FC = () => {
                   <div className="flex items-center justify-between mb-4">
                     <div>
                       <p className="text-[10px] font-bold text-green-forest uppercase tracking-widest mb-1">{t('dashboard.farmHealth')}</p>
-                      <h2 className="text-4xl font-extrabold text-green-forest tracking-tight">{formatLocalizedNumber(health, i18n.language)}<span className="text-xl text-green-forest/60 font-medium">/{formatLocalizedNumber(100, i18n.language)}</span></h2>
+                      <h2 className="text-4xl font-extrabold text-green-forest tracking-tight">{formatLocalizedNumber(healthScoreVal, i18n.language)}<span className="text-xl text-green-forest/60 font-medium">/{formatLocalizedNumber(100, i18n.language)}</span></h2>
                       <Badge variant="green" dot className="mt-2">
-                        {health >= 70 ? t('dashboard.lookingHealthy') : health >= 50 ? t('dashboard.needsAttention') : t('dashboard.atRisk', 'At Risk')}
+                        {healthStatus}
                       </Badge>
                     </div>
                     {/* Circular progress with dark green indicator */}
@@ -185,12 +204,12 @@ const HomePage: React.FC = () => {
                       <svg viewBox="0 0 36 36" className="w-16 h-16 -rotate-90">
                         <circle cx="18" cy="18" r="15.5" fill="none" stroke="var(--color-green-light)" strokeWidth="3" />
                         <circle cx="18" cy="18" r="15.5" fill="none" stroke="var(--color-green-forest)" strokeWidth="3.5"
-                          strokeDasharray={`${health * 0.974} ${100 - health * 0.974}`} strokeLinecap="round" />
+                          strokeDasharray={`${healthScoreVal * 0.974} ${100 - healthScoreVal * 0.974}`} strokeLinecap="round" />
                       </svg>
-                      <span className="absolute inset-0 flex items-center justify-center text-xs font-black text-green-forest">{formatLocalizedPercent(health, i18n.language)}</span>
+                      <span className="absolute inset-0 flex items-center justify-center text-xs font-black text-green-forest">{formatLocalizedPercent(healthScoreVal, i18n.language)}</span>
                     </div>
                   </div>
-                  <ProgressBar value={health} color="green" size="sm" />
+                  <ProgressBar value={healthScoreVal} color="green" size="sm" />
                   <button onClick={() => navigate('/insights')} className="mt-4 flex items-center gap-1 text-green-forest text-xs font-bold hover:underline">
                     {t('dashboard.viewInsights')} <ChevronRight className="w-4 h-4" />
                   </button>

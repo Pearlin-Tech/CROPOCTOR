@@ -46,7 +46,15 @@ class GeminiAIService implements IAIService {
       })
 
       if (!res.ok) {
-        throw new Error(`API returned ${res.status}`)
+        let errorMsg = `API returned ${res.status}`
+        try {
+          const errData = await res.json()
+          if (errData.error) errorMsg = errData.error
+          if (errData.message) errorMsg += `: ${errData.message}`
+        } catch (e) {
+          // ignore parsing error
+        }
+        throw new Error(errorMsg)
       }
 
       const data = await res.json()
@@ -87,7 +95,7 @@ class ApiWeatherService implements IWeatherService {
       if (!res.ok) throw new Error(`HTTP error ${res.status}`)
       const data = await res.json()
 
-      return {
+      const weatherObj: WeatherData = {
         farmId: data.farmId || farmId,
         updatedAt: data.updatedAt || new Date().toISOString(),
         location: data.location,
@@ -117,6 +125,8 @@ class ApiWeatherService implements IWeatherService {
           }
         }
       }
+
+      return weatherObj;
     } catch (err) {
       console.warn('Backend weather API call failed, using cached fallback data:', err)
       return {
