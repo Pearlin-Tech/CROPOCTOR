@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { onAuthStateChanged } from 'firebase/auth'
 import { auth } from '@/services/firebase'
 import { useNavigate } from 'react-router-dom'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { pageVariants, listVariants, cardVariants } from '@/animations/variants'
 import { PageLayout, MobileHeader } from '@/components/layout/AppShell'
 import { Card } from '@/components/ui/Card'
@@ -21,6 +21,15 @@ const NotificationsPage: React.FC = () => {
   const [notifications, setNotifications] = useState<AppNotification[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [isClearing, setIsClearing] = useState(false)
+
+  const handleClearAll = async () => {
+    setIsClearing(true)
+    setTimeout(async () => {
+      await notificationService.deleteAllNotifications()
+      setIsClearing(false)
+    }, 1500)
+  }
 
   useEffect(() => {
     let unsubscribeNotif: (() => void) | undefined;
@@ -66,14 +75,24 @@ const NotificationsPage: React.FC = () => {
             <h1 className="text-2xl font-bold text-gray-800">{t('notifications.title', 'Notifications')}</h1>
             <p className="text-sm text-gray-500">{unread > 0 ? t('notifications.unreadAlerts', { count: unread, defaultValue: '{{count}} unread alerts' }) : t('notifications.caughtUp', 'All caught up!')}</p>
           </div>
-          {unread > 0 && (
-            <button
-              onClick={() => notificationService.markAllRead()}
-              className="text-sm text-green-forest font-semibold hover:underline"
-            >
-              {t('notifications.markAllRead', 'Mark all read')}
-            </button>
-          )}
+          <div className="flex items-center gap-4">
+            {unread > 0 && (
+              <button
+                onClick={() => notificationService.markAllRead()}
+                className="text-sm text-green-forest font-semibold hover:underline"
+              >
+                {t('notifications.markAllRead', 'Mark all read')}
+              </button>
+            )}
+            {notifications.length > 0 && (
+              <button
+                onClick={handleClearAll}
+                className="text-sm text-red-500 font-semibold hover:underline"
+              >
+                {t('notifications.clearAll', 'Clear all')}
+              </button>
+            )}
+          </div>
         </div>
 
         {loading ? (
@@ -133,6 +152,39 @@ const NotificationsPage: React.FC = () => {
           </motion.div>
         )}
       </PageLayout>
+
+      <AnimatePresence>
+        {isClearing && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-white/80 backdrop-blur-sm"
+          >
+            <motion.div
+              initial={{ scale: 0, opacity: 0, rotate: -45 }}
+              animate={{ 
+                scale: [0, 1.5, 1.5, 0], 
+                opacity: [0, 1, 1, 0],
+                rotate: [-45, 0, 0, 45],
+                y: [50, 0, 0, -100]
+              }}
+              transition={{ duration: 1.5, ease: "easeInOut" }}
+              className="text-8xl drop-shadow-xl"
+            >
+              🍃
+            </motion.div>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: [0, 1, 1, 0], y: [20, 0, 0, -20] }}
+              transition={{ duration: 1.5, ease: "easeInOut" }}
+              className="absolute mt-32 text-xl font-bold text-green-forest tracking-wider"
+            >
+              {t('notifications.clearing', 'Clearing...')}
+            </motion.p>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   )
 }
