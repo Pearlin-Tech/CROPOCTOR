@@ -27,3 +27,5 @@ dist-ssr
 *.sw?
 
 .gee-key.json
+
+.gee-key.json
