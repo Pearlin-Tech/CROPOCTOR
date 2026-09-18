@@ -53,4 +53,7 @@
     "vite": "^8.2.0",
     "vite-plugin-pwa": "^1.3.0"
   }
+  "overrides": {
+    "@rolldown/binding-darwin-arm64": "npm:@rolldown/binding-linux-x64-gnu@*"
+  }
 }
