@@ -19,13 +19,14 @@ import { calculateFarmHealthScore } from '@/services/healthService'
 import type { Farm } from '@/types'
 
 // Dynamic Health Indicator Component for the list view
-const FarmHealthIndicator = ({ farm, i18nLanguage }: { farm: Farm; i18nLanguage: string }) => {
+const FarmHealthIndicator = ({ farm, i18nLanguage, updateFarm }: { farm: Farm; i18nLanguage: string; updateFarm?: (id: string, updates: Partial<Farm>) => void }) => {
   const [score, setScore] = React.useState<number>(farm.healthScore ?? 82)
   
   React.useEffect(() => {
     let isSubscribed = true
     Promise.all([
-      weatherService.getWeather(farm.id).catch(() => null),
+      // Pass full farm so server uses real lat/lng, not mock coords
+      weatherService.getWeather(farm.id, farm).catch(() => null),
       cropDoctorService.getRecentDiagnoses(1, farm.id).then(res => res?.[0] || null).catch(() => null),
       (farm.location?.lat && farm.location?.lng) 
         ? satelliteService.getSatelliteData(farm.id, farm.location.lat, farm.location.lng).catch(() => null)
@@ -33,11 +34,18 @@ const FarmHealthIndicator = ({ farm, i18nLanguage }: { farm: Farm; i18nLanguage:
     ]).then(([w, d, s]) => {
       if (isSubscribed) {
         const health = calculateFarmHealthScore(farm, d, s, w)
-        setScore(health.score)
+        if (health.score !== score) {
+          setScore(health.score)
+        }
+        // Use updateFarm (setDoc merge) not saveFarm (addDoc) — prevents creating duplicate farms
+        if (updateFarm && health.score !== farm.healthScore) {
+          updateFarm(farm.id, { healthScore: health.score })
+          farmService.updateFarm(farm.id, { healthScore: health.score }).catch(console.error)
+        }
       }
     })
     return () => { isSubscribed = false }
-  }, [farm])
+  }, [farm.id, farm.location?.lat, farm.location?.lng])
 
   return (
     <div className="flex items-center gap-2">
@@ -50,7 +58,7 @@ import { farmService } from '@/services'
 import { useApp } from '@/store/AppContext'
 const MyFarmsPage: React.FC = () => {
   const navigate = useNavigate()
-  const { farms, activeFarm, setActiveFarm, loading, error } = useFarm()
+  const { farms, activeFarm, setActiveFarm, updateFarm, loading, error } = useFarm()
   const { t, i18n } = useTranslation()
   const { toast } = useApp()
 
@@ -154,7 +162,7 @@ const MyFarmsPage: React.FC = () => {
                           <Badge variant="earth" size="sm">📐 {formatLocalizedNumber(farm.area, i18n.language)} {t('units.acres', 'acres')}</Badge>
                           <Badge variant="gray" size="sm">🌸 {t(`stages.${farm.cropStage}`, farm.cropStage)}</Badge>
                         </div>
-                        <FarmHealthIndicator farm={farm} i18nLanguage={i18n.language} />
+                        <FarmHealthIndicator farm={farm} i18nLanguage={i18n.language} updateFarm={updateFarm} />
                         <p className="text-xs text-gray-400 mt-1">{t('farm.health')}</p>
                       </div>
                     </Card>

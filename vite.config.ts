@@ -65,10 +65,11 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      '/api/advisor': 'http://localhost:3001',
-      '/api/weather': 'http://localhost:3001',
-      '/api/analyze-crop': 'http://localhost:3001',
-      '/api/farms': 'http://localhost:3001',
+      '/api': {
+        target: 'http://localhost:3001',
+        changeOrigin: true,
+        secure: false
+      }
     }
   }
 })

@@ -32,26 +32,41 @@ const HomePage: React.FC = () => {
   const [loadingWeather, setLoadingWeather] = useState(true)
   const [farmHealth, setFarmHealth] = useState<FarmHealth | null>(null)
 
+  const [loadingHealth, setLoadingHealth] = useState(true)
+
   useEffect(() => {
     if (!activeFarm) return
     let isSubscribed = true
     setLoadingWeather(true)
+    setLoadingHealth(true)
     
+    // Fetch weather independently so it loads faster and uses the farm location
+    const weatherPromise = weatherService.getWeather(activeFarm.id, activeFarm)
+    
+    weatherPromise.then(w => {
+      if (isSubscribed) {
+        setWeather(w)
+        setLoadingWeather(false)
+      }
+    }).catch(() => {
+      if (isSubscribed) setLoadingWeather(false)
+    })
+
+    // Fetch other data for health score
     Promise.all([
-      weatherService.getWeather(activeFarm.id).catch(() => null),
+      weatherPromise.catch(() => null),
       cropDoctorService.getRecentDiagnoses(1, activeFarm.id).then(res => res?.[0] || null).catch(() => null),
       (activeFarm.location?.lat && activeFarm.location?.lng) 
         ? satelliteService.getSatelliteData(activeFarm.id, activeFarm.location.lat, activeFarm.location.lng).catch(() => null)
         : Promise.resolve(null)
     ]).then(([w, d, s]) => {
       if (isSubscribed) {
-        if (w) setWeather(w)
         if (d) setDiagnosis(d)
         if (s) setSatellite(s)
         
         const health = calculateFarmHealthScore(activeFarm, d, s, w)
         setFarmHealth(health)
-        setLoadingWeather(false)
+        setLoadingHealth(false)
       }
     })
 
@@ -188,7 +203,7 @@ const HomePage: React.FC = () => {
             </motion.div>
 
             {/* Farm Health Card */}
-            {!loadingWeather ? (
+            {!loadingHealth ? (
               <motion.div variants={cardVariants}>
                 <Card variant="pastelGreen" className="border-green-pastel/55 shadow-card" padding="md">
                   <div className="flex items-center justify-between mb-4">

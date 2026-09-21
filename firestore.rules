@@ -1,21 +1,47 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // User profile documents scoped to authenticated user ID
+
+    // ── User profile ──────────────────────────────────────────────────────────
     match /users/{userId} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
-      
-      match /notifications/{notificationId} {
+
+      // Farm documents — only the owner can read/write
+      match /farms/{farmId} {
         allow read, write: if request.auth != null && request.auth.uid == userId;
+
+        // Satellite/weather observations cached per farm+date
+        match /observations/{observationId} {
+          allow read: if request.auth != null && request.auth.uid == userId;
+          allow write: if false; // Written server-side only
+        }
       }
-      
+
+      // Diagnosis records
       match /diagnoses/{diagnosisId} {
         allow read, write: if request.auth != null && request.auth.uid == userId;
       }
 
-      match /farms/{farmId} {
+      // In-app notifications
+      match /notifications/{notificationId} {
         allow read, write: if request.auth != null && request.auth.uid == userId;
       }
+
+      // FCM device tokens — client registers, server reads for push
+      match /devices/{deviceId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+    }
+
+    // ── Monitor run logs (server-side write only) ─────────────────────────────
+    match /monitorRuns/{runId} {
+      allow read: if false;
+      allow write: if false;
+    }
+
+    // ── Deny everything else ──────────────────────────────────────────────────
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }

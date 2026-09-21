@@ -40,6 +40,8 @@ const AIAdvisorPage: React.FC = () => {
   const inputRef = useRef<HTMLInputElement>(null)
   
   const [activeDiagnosis, setActiveDiagnosis] = useState<DiagnosisResult | null>(null)
+  const [weatherData, setWeatherData] = useState<any>(null)
+  const [satelliteData, setSatelliteData] = useState<any>(null)
   const location = useLocation()
   
   const { authUser } = useUser()
@@ -53,14 +55,25 @@ const AIAdvisorPage: React.FC = () => {
     const passedDiagnosis = location.state?.diagnosisContext as DiagnosisResult | undefined
     if (passedDiagnosis) {
       setActiveDiagnosis(passedDiagnosis)
-      return
+    } else {
+      cropDoctorService.getRecentDiagnoses(1, activeFarm.id).then(diagnoses => {
+        if (isMounted && diagnoses && diagnoses.length > 0) {
+          setActiveDiagnosis(diagnoses[0])
+        }
+      }).catch(err => console.warn('Failed to fetch recent diagnoses', err))
     }
 
-    cropDoctorService.getRecentDiagnoses(1, activeFarm.id).then(diagnoses => {
-      if (isMounted && diagnoses && diagnoses.length > 0) {
-        setActiveDiagnosis(diagnoses[0])
-      }
-    }).catch(err => console.warn('Failed to fetch recent diagnoses', err))
+    // Fetch weather and satellite for the Farm Context panel
+    weatherService.getWeather(activeFarm.id, activeFarm).then(w => {
+      if (isMounted) setWeatherData(w)
+    }).catch(() => {})
+
+    if (activeFarm.location?.lat && activeFarm.location?.lng) {
+      satelliteService.getSatelliteData(activeFarm.id, activeFarm.location.lat, activeFarm.location.lng).then(s => {
+        if (isMounted) setSatelliteData(s)
+      }).catch(() => {})
+    }
+
     
     // Load existing conversation or start new
     const passedConvId = location.state?.conversationId as string | undefined
@@ -449,11 +462,11 @@ const AIAdvisorPage: React.FC = () => {
           <Card variant="flat" padding="sm" className="space-y-3 bg-white/60 border border-brown-pastel/30 shadow-sm">
             {[
               { label: t('farm.context.crop', 'Crop'),     value: t(`crops.${activeFarm?.primaryCrop || 'groundnut'}`, activeFarm?.primaryCrop || 'groundnut'), icon: '🌱' },
-              { label: t('farm.context.soil', 'Soil'),     value: t(`soils.${activeFarm?.soilType || 'loamy'}`, activeFarm?.soilType || 'loamy'),      icon: '🪨' },
+              { label: t('farm.context.soil', 'Soil'),     value: t(`soils.${activeFarm?.soilType || 'unknown'}`, activeFarm?.soilType || 'Unknown'),      icon: '🪨' },
               { label: t('farm.context.stage', 'Stage'),    value: t(`stages.${activeFarm?.cropStage || 'flowering'}`, activeFarm?.cropStage || 'flowering'),  icon: '🌸' },
-              { label: t('farm.context.location', 'Location'), value: t(`locations.${activeFarm?.location.displayName || 'Rajkot, Gujarat'}`, activeFarm?.location.displayName || 'Rajkot, Gujarat'), icon: '📍' },
-              { label: t('farm.context.weather', 'Weather'),  value: `${formatLocalizedNumber(29, i18n.language)}°C · ${t('dashboard.weatherCard.rain', 'Rain')} ${formatLocalizedPercent(60, i18n.language)}`, icon: '🌦' },
-              { label: t('farm.context.health', 'Health'),   value: `${calculateFarmHealthScore(activeFarm, activeDiagnosis, null, null).score}% (${calculateFarmHealthScore(activeFarm, activeDiagnosis, null, null).status})`, icon: '💚' },
+              { label: t('farm.context.location', 'Location'), value: activeFarm?.location ? `${activeFarm.location.lat.toFixed(5)}, ${activeFarm.location.lng.toFixed(5)}` : 'Unknown', icon: '📍' },
+              { label: t('farm.context.weather', 'Weather'),  value: weatherData ? `${formatLocalizedNumber(weatherData.current?.temperature || 29, i18n.language)}°C · ${t('dashboard.weatherCard.rain', 'Rain')} ${formatLocalizedPercent(weatherData.current?.rainProbability || 60, i18n.language)}` : t('states.loading', 'Loading...'), icon: '🌦' },
+              { label: t('farm.context.health', 'Health'),   value: (weatherData || satelliteData || activeDiagnosis) ? `${calculateFarmHealthScore(activeFarm, activeDiagnosis, satelliteData, weatherData).score}% (${calculateFarmHealthScore(activeFarm, activeDiagnosis, satelliteData, weatherData).status})` : t('states.loading', 'Loading...'), icon: '💚' },
             ].map(({ label, value, icon }) => (
               <div key={label} className="flex items-center gap-3">
                 <span className="text-lg w-6 text-center">{icon}</span>

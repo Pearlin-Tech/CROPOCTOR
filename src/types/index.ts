@@ -69,6 +69,12 @@ export interface WeatherData {
   forecast: WeatherDay[]
   farmImpact: FarmImpact
   isDemo: boolean
+  source?: {
+    weather: string
+    soilMoisture: string
+    interpretation: string
+    updatedAt: string
+  }
 }
 
 export interface WeatherDay {

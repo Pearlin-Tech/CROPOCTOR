@@ -179,20 +179,21 @@ export const cropDoctorService = {
       }
 
       if (!response.ok) {
-        let errText = ''
+        // Read body ONCE as text to avoid "body is disturbed or locked"
+        const errText = await response.text()
+        let errMessage = `Diagnostic server error: HTTP ${response.status}`
         try {
-          const errJson = await response.json()
-          errText = errJson.error || errJson.message || ''
+          const errJson = JSON.parse(errText)
+          errMessage = errJson.error || errJson.message || errMessage
         } catch {
-          errText = await response.text()
+          if (errText) errMessage = errText
         }
         
-        console.error(`[cropDoctorService] Backend API returned ${response.status}:`, errText)
+        console.error(`[cropDoctorService] Backend API returned ${response.status}:`, errMessage)
         if (response.status === 429) {
           throw new Error('AI Quota Exceeded. The diagnosis service is temporarily unavailable due to high demand. Please try again later.')
         }
-        
-        throw new Error(errText || `Diagnostic server returned error: HTTP ${response.status}`)
+        throw new Error(errMessage)
       }
 
       const apiResult = await response.json()
@@ -203,6 +204,15 @@ export const cropDoctorService = {
       const diagnosisData = apiResult.data
       const timestampIso = new Date().toISOString()
 
+      // Reject non-plant images with a clear message (BUG-5 fix)
+      const isPlantImage = typeof diagnosisData.isPlantImage === 'boolean' ? diagnosisData.isPlantImage : true
+      if (!isPlantImage) {
+        return {
+          success: false,
+          error: "This doesn't appear to be a plant or crop image. Please upload a clear photo of crops, leaves, or plant parts for an accurate diagnosis."
+        }
+      }
+
       const cropName = diagnosisData.cropName || diagnosisData.crop || farmContext?.crop || 'Groundnut'
       const diseaseName = diagnosisData.diseaseName || diagnosisData.disease || 'Unclear Leaf Condition'
       const confidence = typeof diagnosisData.confidence === 'number' ? diagnosisData.confidence : 85
@@ -211,7 +221,7 @@ export const cropDoctorService = {
       const recommendations = diagnosisData.recommendations || diagnosisData.actions || []
       const prevention = diagnosisData.prevention || []
       const explanation = diagnosisData.explanation || ''
-      const isPlantImage = typeof diagnosisData.isPlantImage === 'boolean' ? diagnosisData.isPlantImage : true
+      // isPlantImage already declared and validated above
       const needsExpertReview = Boolean(diagnosisData.needsExpertReview)
 
       const observedSymptoms = diagnosisData.observedSymptoms || diagnosisData.symptoms || []

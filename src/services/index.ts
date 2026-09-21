@@ -87,11 +87,24 @@ export interface IWeatherService {
 class ApiWeatherService implements IWeatherService {
   async getWeather(farmId: string, farm?: Farm): Promise<WeatherData> {
     try {
-      let query = `farmId=${encodeURIComponent(farmId || 'farm-001')}`
-      if (farm) {
-        query += `&lat=${farm.location.lat}&lng=${farm.location.lng}&crop=${encodeURIComponent(farm.primaryCrop)}&cropStage=${encodeURIComponent(farm.cropStage)}&soilType=${encodeURIComponent(farm.soilType)}`
+      // Always require lat/lng for real weather data
+      if (!farm?.location?.lat || !farm?.location?.lng) {
+        console.warn('[ApiWeatherService] No farm location provided — returning demo data')
+        return { ...MOCK_WEATHER, farmId: farmId || 'unknown', updatedAt: new Date().toISOString(), isDemo: true }
       }
-      const res = await fetch(`/api/weather?${query}`)
+
+      const { lat, lng } = farm.location
+      const params = new URLSearchParams({
+        farmId: farmId || 'unknown',
+        lat: lat.toString(),
+        lng: lng.toString(),
+        crop: farm.primaryCrop || '',
+        cropStage: farm.cropStage || '',
+        soilType: farm.soilType || '',
+        displayName: farm.location.displayName || `${lat.toFixed(4)}, ${lng.toFixed(4)}`
+      })
+
+      const res = await fetch(`/api/weather?${params}`)
       if (!res.ok) throw new Error(`HTTP error ${res.status}`)
       const data = await res.json()
 
@@ -108,32 +121,29 @@ class ApiWeatherService implements IWeatherService {
         description: data.current.condition,
         icon: data.current.icon ?? 'partly-cloudy',
         uvIndex: data.current.uvIndex ?? 5,
-        isDemo: data.isDemo ?? false,
+        isDemo: false,
         forecast: data.forecast || [],
         farmImpact: {
-          irrigation: {
-            status: data.farmImpact.irrigation.status,
-            reason: data.farmImpact.irrigation.reason
-          },
-          spraying: {
-            status: data.farmImpact.spraying.status,
-            reason: data.farmImpact.spraying.reason
-          },
-          diseaseRisk: {
-            level: data.farmImpact.diseaseRisk.level,
-            reason: data.farmImpact.diseaseRisk.reason
-          }
-        }
+          irrigation: { status: data.farmImpact.irrigation.status, reason: data.farmImpact.irrigation.reason },
+          spraying: { status: data.farmImpact.spraying.status, reason: data.farmImpact.spraying.reason },
+          diseaseRisk: { level: data.farmImpact.diseaseRisk.level, reason: data.farmImpact.diseaseRisk.reason }
+        },
+        source: data.source
       }
-
-      return weatherObj;
+      return weatherObj
     } catch (err) {
-      console.warn('Backend weather API call failed, using cached fallback data:', err)
+      console.warn('[ApiWeatherService] Weather API call failed — showing demo data:', err)
       return {
         ...MOCK_WEATHER,
-        farmId: farmId || 'farm-001',
+        farmId: farmId || 'unknown',
         updatedAt: new Date().toISOString(),
-        location: farm ? { displayName: farm.location.displayName, city: farm.location.village || farm.name, state: farm.location.state || '', country: farm.location.country } : undefined
+        isDemo: true, // Always mark as demo so UI shows badge
+        location: farm?.location ? {
+          displayName: farm.location.displayName,
+          city: farm.location.village || farm.name,
+          state: farm.location.state || '',
+          country: farm.location.country
+        } : undefined
       }
     }
   }
@@ -144,6 +154,7 @@ export interface IFarmService {
   getFarms(farmerId: string): Promise<Farm[]>
   getFarm(farmId: string): Promise<Farm | null>
   saveFarm(farm: Partial<Farm>): Promise<Farm>
+  updateFarm(farmId: string, updates: Partial<Farm>): Promise<void>
   deleteFarm(farmId: string): Promise<void>
   subscribeToUserFarms?: (
     userId: string,
@@ -165,6 +176,10 @@ class MockFarmService implements IFarmService {
     await delay(1000)
     const saved: Farm = { ...MOCK_FARMS[0], ...farm, id: farm.id || `farm-${Date.now()}`, updatedAt: new Date().toISOString() }
     return saved
+  }
+  async updateFarm(_farmId: string, _updates: Partial<Farm>): Promise<void> {
+    await delay(300)
+    // No-op in mock
   }
   async deleteFarm(_farmId: string): Promise<void> {
     await delay(600)

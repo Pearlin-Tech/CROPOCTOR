@@ -5,6 +5,7 @@ import {
   onSnapshot,
   query, 
   addDoc,
+  setDoc,
   deleteDoc,
   Timestamp
 } from 'firebase/firestore';
@@ -136,18 +137,42 @@ export class FirebaseFarmService implements IFarmService {
   async deleteFarm(farmId: string): Promise<void> {
     console.log('🗑️ [deleteFarm] CALLED with farmId:', farmId);
     const user = auth.currentUser;
-    console.log('🗑️ [deleteFarm] auth.currentUser?.uid:', user?.uid);
     if (!user) throw new Error('Must be logged in to delete a farm');
-
     const farmRef = doc(db, 'users', user.uid, 'farms', farmId);
     try {
       await deleteDoc(farmRef);
       console.log('🗑️ [deleteFarm] SUCCESS! Deleted:', `users/${user.uid}/farms/${farmId}`);
     } catch (err: any) {
-      console.error('🗑️ [deleteFarm] ERROR code:', err.code);
-      console.error('🗑️ [deleteFarm] ERROR message:', err.message);
+      console.error('🗑️ [deleteFarm] ERROR:', err.code, err.message);
       throw err;
     }
+  }
+
+  async updateFarm(farmId: string, updates: Partial<Farm>): Promise<void> {
+    const user = auth.currentUser;
+    if (!user) throw new Error('User is not authenticated');
+    if (!farmId) throw new Error('farmId is required for update');
+
+    const farmRef = doc(db, 'users', user.uid, 'farms', farmId);
+
+    // Map Farm fields to Firestore FirestoreFarm field names
+    const firestoreUpdates: Record<string, any> = {
+      updatedAt: Timestamp.now()
+    };
+    if (updates.name !== undefined) firestoreUpdates.name = updates.name;
+    if (updates.healthScore !== undefined) firestoreUpdates.healthPercentage = updates.healthScore;
+    if (updates.primaryCrop !== undefined) firestoreUpdates.crop = updates.primaryCrop;
+    if (updates.cropStage !== undefined) firestoreUpdates.stage = updates.cropStage;
+    if (updates.area !== undefined) firestoreUpdates['area.value'] = updates.area;
+    if (updates.areaUnit !== undefined) firestoreUpdates['area.unit'] = updates.areaUnit;
+    if (updates.location !== undefined) {
+      if (updates.location.lat !== undefined) firestoreUpdates['location.latitude'] = updates.location.lat;
+      if (updates.location.lng !== undefined) firestoreUpdates['location.longitude'] = updates.location.lng;
+      if (updates.location.address !== undefined) firestoreUpdates['location.address'] = updates.location.address;
+    }
+
+    await setDoc(farmRef, firestoreUpdates, { merge: true });
+    console.log(`✅ [updateFarm] Updated farm ${farmId}:`, Object.keys(firestoreUpdates));
   }
 
   // ─── DIAGNOSTIC: Direct getDocs read (called from FarmContext) ────────────
