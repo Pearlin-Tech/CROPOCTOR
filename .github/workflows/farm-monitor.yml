@@ -1,0 +1,49 @@
+name: Farm Monitor Cron
+
+on:
+  schedule:
+    # Run every hour — matches vercel.json cron "0 * * * *"
+    # Change CRON_INTERVAL_HOURS in Vercel env to adjust Vercel's frequency
+    - cron: '0 * * * *'
+  # Allow manual triggering from GitHub Actions UI
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run (log only, no writes)'
+        required: false
+        default: 'false'
+        type: boolean
+
+jobs:
+  monitor:
+    name: Run Farm Monitor
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Trigger /api/cron/monitor endpoint
+        env:
+          DEPLOYMENT_URL: ${{ secrets.VERCEL_DEPLOYMENT_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          if [ -z "$DEPLOYMENT_URL" ]; then
+            echo "❌ VERCEL_DEPLOYMENT_URL secret not set. Skipping."
+            exit 1
+          fi
+
+          RESPONSE=$(curl -s -o /tmp/monitor_response.json -w "%{http_code}" \
+            -X POST \
+            -H "Authorization: Bearer ${CRON_SECRET}" \
+            -H "Content-Type: application/json" \
+            "${DEPLOYMENT_URL}/api/cron/monitor")
+
+          echo "HTTP Status: $RESPONSE"
+          echo "Response body:"
+          cat /tmp/monitor_response.json | python3 -m json.tool || cat /tmp/monitor_response.json
+
+          if [ "$RESPONSE" != "200" ]; then
+            echo "❌ Monitor job failed with HTTP $RESPONSE"
+            exit 1
+          fi
+
+          echo "✅ Monitor job completed successfully"
