@@ -13,7 +13,6 @@
     "@google/earthengine": "^1.7.40",
     "@google/genai": "^2.18.0",
     "@hookform/resolvers": "^5.9.1",
-    "@rolldown/binding-darwin-arm64": "^1.2.5",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/google.maps": "^3.65.5",
