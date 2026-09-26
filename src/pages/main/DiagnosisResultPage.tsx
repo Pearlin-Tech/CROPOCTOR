@@ -194,8 +194,8 @@ const DiagnosisResultPage: React.FC = () => {
                 </Badge>
               </div>
               <div className="absolute bottom-3 right-3 bg-white/90 backdrop-blur-sm rounded-2xl px-3 py-2 shadow-sm">
-                <p className="text-xs text-gray-500 font-medium">{t('diagnosis.confidence', 'Visual Confidence')}</p>
-                <p className="text-2xl font-bold text-green-forest">{d.confidence}%</p>
+                <p className="text-xs text-gray-500 font-medium">Certainty</p>
+                <p className="text-xl font-bold text-green-forest capitalize">{d.certainty || 'Moderate'}</p>
               </div>
             </div>
 
@@ -223,10 +223,6 @@ const DiagnosisResultPage: React.FC = () => {
                   💡 <span className="text-brown-earth font-bold">Analysis:</span> {d.analysis || d.explanation}
                 </div>
               )}
-
-              <div className="mt-4 pt-3 border-t border-brown-soft/20">
-                <ProgressBar value={d.confidence} color={d.confidence >= 70 ? 'green' : 'warning'} size="sm" label={t('diagnosis.matchConfidence', 'Visual Analysis Confidence')} showValue />
-              </div>
             </Card>
           </div>
 
@@ -250,30 +246,67 @@ const DiagnosisResultPage: React.FC = () => {
               </Card>
             )}
 
-            {/* Symptoms List */}
-            <Card padding="md" className="border-brown-pastel/30 bg-off-white shadow-sm">
-              <h3 className="font-bold text-brown-earth mb-3 flex items-center gap-2">
-                <span className="text-lg">🔍</span> {t('diagnosis.symptoms', 'Observed Visual Symptoms')}
-              </h3>
-              <ul className="space-y-2">
-                {(d.observedSymptoms || d.symptoms).map(s => (
-                  <li key={s} className="flex gap-3 text-sm text-text-main font-medium bg-white p-2.5 rounded-xl border border-brown-pastel/20">
-                    <span className="text-brown-earth shrink-0 mt-0.5">●</span>
-                    {s}
-                  </li>
-                ))}
-              </ul>
-            </Card>
+            {/* Supporting Evidence */}
+            {d.supportingEvidence && d.supportingEvidence.length > 0 && (
+              <Card padding="md" className="border-brown-pastel/30 bg-off-white shadow-sm">
+                <h3 className="font-bold text-brown-earth mb-3 flex items-center gap-2">
+                  <span className="text-lg">🔍</span> {t('diagnosis.symptoms', 'Supporting Evidence')}
+                </h3>
+                <ul className="space-y-2">
+                  {d.supportingEvidence.map((s: string) => (
+                    <li key={s} className="flex gap-3 text-sm text-text-main font-medium bg-white p-2.5 rounded-xl border border-brown-pastel/20">
+                      <span className="text-brown-earth shrink-0 mt-0.5">●</span>
+                      {s}
+                    </li>
+                  ))}
+                </ul>
+              </Card>
+            )}
 
-            {/* Possible Issues / Risks */}
-            {d.possibleIssues && d.possibleIssues.length > 0 && (
+            {/* Contradicting Evidence */}
+            {d.contradictingEvidence && d.contradictingEvidence.length > 0 && (
+              <Card padding="md" className="border-red-200 bg-red-50 shadow-sm">
+                <h3 className="font-bold text-red-900 mb-3 flex items-center gap-2">
+                  <AlertTriangle className="w-4 h-4 text-red-600 shrink-0" />
+                  <span>Contradicting Evidence</span>
+                </h3>
+                <ul className="space-y-2">
+                  {d.contradictingEvidence.map((s: string) => (
+                    <li key={s} className="flex gap-3 text-sm text-red-900 font-medium bg-white p-2.5 rounded-xl border border-red-200">
+                      <span className="text-red-600 shrink-0 mt-0.5">●</span>
+                      {s}
+                    </li>
+                  ))}
+                </ul>
+              </Card>
+            )}
+
+            {/* Limitations */}
+            {d.limitations && d.limitations.length > 0 && (
+              <Card padding="md" className="border-gray-200 bg-gray-50 shadow-sm">
+                <h3 className="font-bold text-gray-700 mb-2.5 flex items-center gap-2 text-sm">
+                  <span className="text-lg">ℹ️</span> Limitations
+                </h3>
+                <ul className="space-y-1.5 text-xs text-gray-700 font-medium">
+                  {d.limitations.map((l: string) => (
+                    <li key={l} className="flex gap-2">
+                      <span className="text-gray-500 font-bold shrink-0">●</span>
+                      <span>{l}</span>
+                    </li>
+                  ))}
+                </ul>
+              </Card>
+            )}
+
+            {/* Possible Issues / Alternatives */}
+            {((d.alternativeDiagnoses?.length || 0) > 0 || (d.possibleIssues?.length || 0) > 0) && (
               <Card padding="md" className="border-amber-200 bg-amber-50 shadow-sm">
                 <h3 className="font-bold text-amber-900 mb-2.5 flex items-center gap-2 text-sm">
                   <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
-                  <span>{t('diagnosis.possibleIssues', 'Possible Issues & Risks')}</span>
+                  <span>{t('diagnosis.possibleIssues', 'Alternative Diagnoses & Risks')}</span>
                 </h3>
                 <ul className="space-y-1.5 text-xs text-amber-900 font-medium">
-                  {d.possibleIssues.map(p => (
+                  {(((d.alternativeDiagnoses?.length || 0) > 0 ? d.alternativeDiagnoses : d.possibleIssues) || []).map((p: string) => (
                     <li key={p} className="flex gap-2">
                       <span className="text-amber-600 font-bold shrink-0">⚠️</span>
                       <span>{p}</span>

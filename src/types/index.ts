@@ -151,14 +151,23 @@ export interface DiagnosisResult {
   storagePath?: string
   crop: string
   cropName?: string
+  cropCode?: string
   disease: string
   diseaseName?: string
-  confidence: number // 0–100
+  diagnosisCode?: string
+  confidence?: number // 0–100 (legacy)
+  certainty?: 'high' | 'moderate' | 'low' | 'insufficient_evidence'
+  confidenceBand?: 'high' | 'moderate' | 'low' | 'insufficient_evidence'
   severity: SeverityLevel
   symptoms: string[]
   observedSymptoms?: string[]
   positiveSigns?: string[]
   possibleIssues?: string[]
+  supportingEvidence?: string[]
+  contradictingEvidence?: string[]
+  alternativeDiagnoses?: string[]
+  limitations?: string[]
+  needsMoreEvidence?: boolean
   analysis?: string
   actions: string[]
   immediateActions?: string[]

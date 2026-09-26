@@ -156,8 +156,8 @@ const DiagnosisReportPDF: React.FC<Props> = ({ diagnosis, farm, weather, satelli
             <Text style={styles.value}>{diagnosis.severity.toUpperCase()}</Text>
           </View>
           <View style={styles.row}>
-            <Text style={styles.label}>Confidence:</Text>
-            <Text style={styles.value}>{Math.round(diagnosis.confidence)}%</Text>
+            <Text style={styles.label}>Certainty:</Text>
+            <Text style={styles.value}>{(diagnosis.certainty || 'moderate').toUpperCase()}</Text>
           </View>
           
           {diagnosis.imageUrl && (
