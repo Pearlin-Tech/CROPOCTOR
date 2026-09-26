@@ -17,19 +17,18 @@ const FarmDetailsPage: React.FC = () => {
       <div className="flex gap-1.5 mb-6">
         {[1,2,3].map(s => <div key={s} className={`h-1.5 flex-1 rounded-full ${s <= 3 ? 'bg-green-forest' : 'bg-gray-200'}`} />)}
       </div>
-      <h1 className="text-2xl font-bold text-gray-800 mb-1">{t('farm.location.detailsTitle', 'Farm Details')}</h1>
-      <p className="text-gray-500 text-sm mb-8">{t('farm.location.detailsSubtitle', 'Complete your farm setup.')}</p>
+      <h1 className="text-2xl font-bold text-gray-800 mb-1">{t('farm.details.title', 'Farm Details')}</h1>
+      <p className="text-gray-500 text-sm mb-8">{t('farm.details.subtitle', 'Complete your farm setup.')}</p>
 
       <div className="space-y-4 flex-1">
-        <Input label={t('farm.location.farmName', 'Farm name')} placeholder="e.g. Rajkot Groundnut Farm" defaultValue="Rajkot Groundnut Farm" />
-        <Input label={t('farm.location.locationLabel', 'Location')} defaultValue="Rajkot, Gujarat, India" disabled hint={t('farm.location.setFromMap', 'Set from map selection.')} />
-        <Input label={t('farm.location.areaLabel', 'Area')} defaultValue="2.45 acres" disabled />
-        <p className="text-xs text-gray-400 -mt-2">{t('farm.location.areaCalculated', 'Area calculated from your farm boundary.')}</p>
+        <Input label={t('farm.details.name', 'Farm name')} placeholder={t('farm.details.namePlaceholder', 'e.g. Rajkot Groundnut Farm')} defaultValue="Rajkot Groundnut Farm" />
+        <Input label={t('farm.context.location', 'Location')} defaultValue="Rajkot, Gujarat, India" disabled hint={t('farm.location.subtitle', 'Find your farm on the map and drop a pin.')} />
+        <Input label={t('farm.details.area', 'Area')} defaultValue="2.45 acres" disabled />
       </div>
 
       <div className="mt-10 space-y-3">
         <Button variant="primary" size="xl" fullWidth onClick={() => navigate('/onboarding/crop')}>
-          {t('farm.location.saveContinue', 'Save & Continue')} →
+          {t('farm.details.save', 'Save Farm')} →
         </Button>
       </div>
     </motion.div>

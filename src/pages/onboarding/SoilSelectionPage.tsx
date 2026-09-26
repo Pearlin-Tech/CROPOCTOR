@@ -19,20 +19,20 @@ const SoilSelectionPage: React.FC = () => {
       <button onClick={() => navigate(-1)} className="w-10 h-10 flex items-center justify-center rounded-xl bg-brown-pastel/30 text-brown-earth hover:bg-brown-pastel/50 transition-colors mb-6 shadow-sm">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="w-5 h-5"><path d="M15 18l-6-6 6-6" /></svg>
       </button>
-      <h1 className="text-2xl font-bold text-green-forest mb-1">{t('farm.location.soilTitle', 'Soil Type')}</h1>
-      <p className="text-brown-earth/80 text-sm mb-2 font-medium">{t('farm.location.soilSubtitle', 'Select your farm\'s soil type.')}</p>
+      <h1 className="text-2xl font-bold text-green-forest mb-1">{t('farm.soil.title', 'Soil Type')}</h1>
+      <p className="text-brown-earth/80 text-sm mb-2 font-medium">{t('farm.soil.subtitle', "Select your farm's soil type.")}</p>
       <div className="bg-white/60 border border-brown-pastel/40 p-3 rounded-xl mb-6 shadow-sm">
-        <p className="text-[11px] text-brown-earth/90 font-medium">💡 {t('farm.location.soilHint', 'Not sure? Select "Unknown" — the AI can still help you.')}</p>
+        <p className="text-[11px] text-brown-earth/90 font-medium">💡 {t('farm.soil.dontKnow', "I don't know")}</p>
       </div>
 
       <div className="flex-1">
         <SearchableSelect
-          label={t('farm.location.soilTitle', 'Soil Type')}
-          options={soilOptions}
+          label={t('farm.soil.title', 'Soil Type')}
+          options={soilOptions.map(s => ({ ...s, name: t(`soils.${s.id}`, s.name) }))}
           value={soilId}
           onChange={setSoilId}
-          placeholder={t('farm.location.selectSoil', 'Select Soil Type')}
-          searchPlaceholder={t('farm.location.searchSoils', 'Search soil types...')}
+          placeholder={t('farm.soil.select', 'Select Soil Type')}
+          searchPlaceholder={t('farm.crop.search', 'Search...')}
         />
 
         {selectedSoil && soilId !== 'unknown' && (

@@ -6,7 +6,9 @@ import { PageLayout, MobileHeader } from '@/components/layout/AppShell'
 import { Card } from '@/components/ui/Card'
 import { notificationService } from '@/services'
 import type { AppNotification } from '@/types'
+import { useApp } from '@/store/AppContext'
 import { useTranslation } from 'react-i18next'
+import { formatNumbersInText } from '@/utils/formatters'
 
 const typeIcon: Record<string, string> = {
   weather: '🌧️', 'ai-advice': '🤖', disease: '🔬', irrigation: '💧', 'crop-health': '🌱',
@@ -14,6 +16,7 @@ const typeIcon: Record<string, string> = {
 
 const NotificationsPage: React.FC = () => {
   const navigate = useNavigate()
+  const { language } = useApp()
   const { t } = useTranslation()
   const [notifications, setNotifications] = useState<AppNotification[]>([])
   const [loading, setLoading] = useState(true)
@@ -23,19 +26,22 @@ const NotificationsPage: React.FC = () => {
   }, [])
 
   const unread = notifications.filter(n => !n.read).length
+  const unreadSubtitle = unread > 0
+    ? formatNumbersInText(t('notifications.unreadAlerts', '{{count}} unread alerts', { count: unread }), language)
+    : t('notifications.caughtUp', 'All caught up!')
 
   return (
     <motion.div variants={pageVariants} initial="initial" animate="animate" className="min-h-screen bg-background">
       <MobileHeader
         title={t('notifications.title', 'Notifications')}
-        subtitle={unread > 0 ? t('notifications.unreadAlerts', { count: unread, defaultValue: '{{count}} unread alerts' }) : t('notifications.caughtUp', 'All caught up!')}
+        subtitle={unreadSubtitle}
       />
 
       <PageLayout className="pt-4 pb-8 space-y-4">
         <div className="hidden lg:flex items-center justify-between mb-4">
           <div>
             <h1 className="text-2xl font-bold text-gray-800">{t('notifications.title', 'Notifications')}</h1>
-            <p className="text-sm text-gray-500">{unread > 0 ? t('notifications.unreadAlerts', { count: unread, defaultValue: '{{count}} unread alerts' }) : t('notifications.caughtUp', 'All caught up!')}</p>
+            <p className="text-sm text-gray-500">{unreadSubtitle}</p>
           </div>
           {unread > 0 && (
             <button
@@ -70,10 +76,10 @@ const NotificationsPage: React.FC = () => {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-2">
-                      <p className={`text-sm ${!notif.read ? 'font-bold text-gray-800' : 'font-medium text-gray-700'}`}>{t(`notifications.items.${notif.id}.title`, notif.title)}</p>
-                      <span className="text-xs text-gray-400 shrink-0">{t(`time.${notif.id}`, '32m ago')}</span>
+                      <p className={`text-sm ${!notif.read ? 'font-bold text-gray-800' : 'font-medium text-gray-700'}`}>{formatNumbersInText(t(`notifications.items.${notif.id}.title`, notif.title), language)}</p>
+                      <span className="text-xs text-gray-400 shrink-0">{formatNumbersInText(t(`time.${notif.id}`, '32m ago'), language)}</span>
                     </div>
-                    <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{t(`notifications.items.${notif.id}.body`, notif.body)}</p>
+                    <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{formatNumbersInText(t(`notifications.items.${notif.id}.body`, notif.body), language)}</p>
                     {notif.actionLabel && (
                       <span className="text-xs text-green-forest font-semibold mt-1 block">{t(`notifications.actions.${notif.id}`, notif.actionLabel)} →</span>
                     )}

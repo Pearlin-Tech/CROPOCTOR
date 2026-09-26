@@ -9,12 +9,13 @@ import { Badge } from '@/components/ui/index'
 import { MOCK_NEXT_BEST_ACTIONS } from '@/mock/insights'
 import { useApp } from '@/store/AppContext'
 import { useTranslation } from 'react-i18next'
+import { formatNumbersInText } from '@/utils/formatters'
 
 const priorityColor = { high: 'danger', medium: 'warning', low: 'green' } as const
 
 const NextBestActionPage: React.FC = () => {
   const navigate = useNavigate()
-  const { toast } = useApp()
+  const { toast, language } = useApp()
   const { t } = useTranslation()
 
   return (
@@ -34,22 +35,22 @@ const NextBestActionPage: React.FC = () => {
                 <div className="flex items-start gap-3 mb-3">
                   <div>
                     <div className="flex items-center gap-2 mb-1.5">
-                      <Badge variant="gray" size="sm">{action.label}</Badge>
+                      <Badge variant="gray" size="sm">{t(`nba.timeframe.${action.timeframe}`, action.label)}</Badge>
                       <Badge variant={priorityColor[action.priority as keyof typeof priorityColor]} size="sm" dot>
-                        {action.priority.charAt(0).toUpperCase() + action.priority.slice(1)} {t('nba.priority', 'Priority')}
+                        {t(`nba.priorityLevel.${action.priority}`, action.priority)} {t('nba.priority', 'Priority')}
                       </Badge>
                     </div>
-                    <h3 className="font-semibold text-gray-800">{action.title}</h3>
+                    <h3 className="font-semibold text-gray-800">{formatNumbersInText(t(`nba.items.${action.id}.title`, action.title), language)}</h3>
                   </div>
                 </div>
                 <div className="space-y-2 mb-4">
                   <div className="flex gap-2">
                     <span className="text-xs font-bold text-gray-400 w-16 shrink-0">{t('nba.why', 'Why?')}</span>
-                    <span className="text-xs text-gray-600">{action.reason}</span>
+                    <span className="text-xs text-gray-600">{formatNumbersInText(t(`nba.items.${action.id}.reason`, action.reason), language)}</span>
                   </div>
                   <div className="flex gap-2">
                     <span className="text-xs font-bold text-gray-400 w-16 shrink-0">{t('nba.benefit', 'Benefit')}</span>
-                    <span className="text-xs text-gray-600">{action.benefit}</span>
+                    <span className="text-xs text-gray-600">{formatNumbersInText(t(`nba.items.${action.id}.benefit`, action.benefit), language)}</span>
                   </div>
                 </div>
                 <div className="flex gap-2">

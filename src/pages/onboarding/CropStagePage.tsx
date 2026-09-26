@@ -20,30 +20,29 @@ const CropStagePage: React.FC = () => {
       <button onClick={() => navigate(-1)} className="w-9 h-9 flex items-center justify-center rounded-xl bg-green-light text-green-forest mb-6">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="w-4 h-4"><path d="M15 18l-6-6 6-6" /></svg>
       </button>
-      <h1 className="text-2xl font-bold text-gray-800 mb-1">{t('farm.location.stageTitle', 'Crop Stage')}</h1>
-      <p className="text-gray-500 text-sm mb-8">{t('farm.location.stageSubtitle', 'What stage is your crop at?')}</p>
+      <h1 className="text-2xl font-bold text-gray-800 mb-1">{t('farm.stage.title', 'Crop Stage')}</h1>
+      <p className="text-gray-500 text-sm mb-8">{t('farm.stage.subtitle', 'What stage is your crop at?')}</p>
 
       <div className="flex-1 space-y-5">
         <SearchableSelect
-          label={t('farm.location.stageTitle', 'Crop Stage')}
-          options={stageOptions}
+          label={t('farm.stage.title', 'Crop Stage')}
+          options={stageOptions.map(s => ({ ...s, name: t(`stages.${s.id}`, s.name) }))}
           value={stage}
           onChange={setStage}
-          placeholder={t('farm.location.selectStage', 'Select Crop Stage')}
-          searchPlaceholder={t('farm.location.searchStages', 'Search stages...')}
+          placeholder={t('farm.stage.select', 'Select Crop Stage')}
+          searchPlaceholder={t('farm.crop.search', 'Search...')}
         />
         <Input
-          label={t('farm.location.plantingDate', 'When did you plant? (optional)')}
+          label={t('farm.stage.plantingDate', 'When did you plant?')}
           type="date"
           value={date}
           onChange={e => setDate(e.target.value)}
-          hint={t('farm.location.plantingHint', 'This helps us calculate fertilizer and irrigation timing.')}
         />
       </div>
 
       <div className="mt-10">
         <Button variant="primary" size="xl" fullWidth onClick={() => navigate('/onboarding/complete')}>
-          {t('farm.location.almostDone', 'Almost Done')} →
+          {t('language.continue', 'Continue')} →
         </Button>
       </div>
     </motion.div>

@@ -6,6 +6,7 @@ import en from './en/translation.json'
 import ptBR from './pt-BR/translation.json'
 import ru from './ru/translation.json'
 import hi from './hi/translation.json'
+import gu from './gu/translation.json'
 import zhCN from './zh-CN/translation.json'
 import ar from './ar/translation.json'
 import am from './am/translation.json'
@@ -21,6 +22,7 @@ i18n
       'pt-BR': { translation: ptBR },
       ru: { translation: ru },
       hi: { translation: hi },
+      gu: { translation: gu },
       'zh-CN': { translation: zhCN },
       ar: { translation: ar },
       am: { translation: am },
@@ -36,3 +38,4 @@ i18n
   })
 
 export default i18n
+

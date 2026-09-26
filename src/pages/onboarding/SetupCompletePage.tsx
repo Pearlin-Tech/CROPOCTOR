@@ -48,12 +48,12 @@ const SetupCompletePage: React.FC = () => {
         className="bg-white/10 backdrop-blur-sm rounded-3xl p-6 mb-10 w-full max-w-sm text-left space-y-3"
       >
         {[
-          { icon: '🌾', label: 'Farm', value: 'Rajkot Groundnut Farm' },
-          { icon: '📍', label: 'Location', value: 'Rajkot, Gujarat' },
-          { icon: '🌱', label: 'Crop', value: 'Groundnut' },
-          { icon: '🌍', label: 'Area', value: '2.45 acres' },
-          { icon: '🪨', label: 'Soil', value: 'Loamy' },
-          { icon: '🌸', label: 'Stage', value: 'Flowering' },
+          { icon: '🌾', label: t('farm.details.title', 'Farm'), value: t('farms.farm-001.name', 'Rajkot Groundnut Farm') },
+          { icon: '📍', label: t('farm.context.location', 'Location'), value: t('locations.Rajkot, Gujarat', 'Rajkot, Gujarat') },
+          { icon: '🌱', label: t('farm.context.crop', 'Crop'), value: t('crops.groundnut', 'Groundnut') },
+          { icon: '🌍', label: t('farm.details.area', 'Area'), value: '2.45 acres' },
+          { icon: '🪨', label: t('farm.context.soil', 'Soil'), value: t('soils.loamy', 'Loamy') },
+          { icon: '🌸', label: t('farm.context.stage', 'Stage'), value: t('stages.flowering', 'Flowering') },
         ].map(({ icon, label, value }) => (
           <motion.div key={label} variants={cardVariants} className="flex items-center gap-3">
             <span className="text-xl w-7">{icon}</span>

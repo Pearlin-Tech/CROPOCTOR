@@ -52,9 +52,9 @@ const FarmerProfilePage: React.FC = () => {
           <label className="block text-sm font-semibold text-gray-700 mb-3">{t('profile.experience')}</label>
           <div className="flex gap-2 flex-wrap">
             {[
-              { id: 'beginner', label: t('profile.expBeginner') },
-              { id: 'intermediate', label: t('profile.expIntermediate') },
-              { id: 'expert', label: t('profile.expExpert') },
+              { id: 'beginner', label: t('profile.experienceOptions.beginner', 'Beginner (0–3 years)') },
+              { id: 'intermediate', label: t('profile.experienceOptions.intermediate', 'Intermediate (3–10 years)') },
+              { id: 'expert', label: t('profile.experienceOptions.expert', 'Expert (10+ years)') },
             ].map(opt => (
               <Chip key={opt.id} selected={experience === opt.id} onClick={() => setExperience(opt.id)}>
                 {opt.label}

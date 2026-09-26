@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Mic, X, RotateCcw } from 'lucide-react'
 import { pageVariants, fadeVariants } from '@/animations/variants'
 
-const STEPS = ['Listening…', 'Understanding your question…', 'Preparing your recommendation…']
-
 const VoicePage: React.FC = () => {
   const navigate = useNavigate()
+  const { t } = useTranslation()
   const [step, setStep] = useState(0)
   const [active, setActive] = useState(false)
 
@@ -79,20 +79,22 @@ const VoicePage: React.FC = () => {
           initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
           className="text-white text-lg font-medium text-center mb-10"
         >
-          {active ? STEPS[step] : 'Tap microphone to speak'}
+          {active
+            ? (step === 0 ? t('voice.listening', 'Listening...') : step === 1 ? t('voice.understanding', 'Understanding your question...') : t('voice.preparing', 'Preparing your recommendation...'))
+            : t('voice.tapToSpeak', 'Tap microphone to speak')}
         </motion.p>
       </AnimatePresence>
 
       {/* Controls */}
       {active ? (
         <div className="flex gap-4">
-          <button onClick={() => navigate(-1)} className="px-6 py-3 bg-white/10 rounded-full text-white text-sm font-medium">Cancel</button>
+          <button onClick={() => navigate(-1)} className="px-6 py-3 bg-white/10 rounded-full text-white text-sm font-medium">{t('voice.cancel', 'Cancel')}</button>
           <button onClick={() => { setActive(false); setStep(0) }} className="px-6 py-3 bg-white/10 rounded-full text-white text-sm font-medium flex items-center gap-2">
-            <RotateCcw className="w-4 h-4" /> Retry
+            <RotateCcw className="w-4 h-4" /> {t('voice.retry', 'Try again')}
           </button>
         </div>
       ) : (
-        <p className="text-green-pastel/60 text-xs text-center">Speak in any supported language</p>
+        <p className="text-green-pastel/60 text-xs text-center">{t('voice.subtitle', 'Speak in any supported language')}</p>
       )}
     </motion.div>
   )

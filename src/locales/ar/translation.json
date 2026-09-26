@@ -494,6 +494,7 @@
   },
   "diseases": {
     "Leaf Spot": "تبقع الأوراق",
+    "Cercospora Leaf Spot": "تبقع أوراق السيركوسبورا",
     "Healthy Crop": "محصول سليم"
   },
   "stages": {
@@ -505,9 +506,13 @@
     "Flowering": "تزهير"
   },
   "soils": {
+    "loamy": "تربة طميية",
     "Loamy": "تربة طميية",
+    "black": "تربة سوداء",
     "Black Cotton": "تربة سوداء",
+    "alluvial": "تربة رسوبية",
     "Alluvial": "تربة رسوبية",
+    "sandy": "تربة رملية",
     "Sandy": "تربة رملية"
   },
   "time": {
@@ -533,5 +538,51 @@
     "rainy": "ممطر",
     "stormy": "عاصف",
     "Partly Cloudy": "غائم جزئياً"
+  },
+  "symptoms": {
+    "Dark circular spots with yellow halo": "بقع دائرية داكنة مع هالة صفراء",
+    "Progressive yellowing of leaves": "اصفرار تدريجي للأوراق",
+    "Premature leaf drop": "تساقط الأوراق قبل الأوان",
+    "Spots appear first on older leaves": "تظهر البقع أولاً على الأوراق القديمة"
+  },
+  "actions": {
+    "Inspect nearby plants for early spread": "افحص النباتات المجاورة للكشف المبكر عن الانتشار",
+    "Avoid overhead irrigation": "تجنب الري الرشي العلوي",
+    "Apply Mancozeb 75% WP at 2.5g/litre": "رش مانكوزيب 75% بمعدل 2.5 جرام/لتر",
+    "Improve field drainage and air circulation": "تحسين تصريف المياه والتهوية في الحقل",
+    "Remove and destroy heavily infected leaves": "إزالة الأوراق المصابة بشدة وإتلافها",
+    "Consult an agricultural extension officer": "استشر مرشداً زراعياً مختصاً"
+  },
+  "pdf": {
+    "title": "تقرير تشخيص صحة المحصول",
+    "cropLabel": "اسم المحصول",
+    "diseaseLabel": "المشكلة / المرض المكتشف",
+    "confidenceLabel": "مستوى الدقة",
+    "severityLabel": "درجة الخطورة",
+    "symptomsHeading": "الأعراض المرصودة",
+    "explanationHeading": "توضيح التشخيص",
+    "recommendationsHeading": "الإجراءات والعلاج الموصى به",
+    "preventionHeading": "نصائح الوقاية",
+    "expertReviewMessage": "التشخيص آلي وتوجيهي ولا يغني عن الاستشارة الزراعية المتخصصة.",
+    "dateLabel": "التاريخ",
+    "footer": "تم الإنشاء بواسطة كروبوكتور — منصة الذكاء الزراعي بريكس",
+    "downloading": "جاري إنشاء ملف PDF...",
+    "downloadButton": "تنزيل تقرير PDF"
+  },
+  "about": {
+    "version": "الإصدار 1.0.0",
+    "description": "منصة الذكاء الزراعي بريكس.",
+    "copyright": "© 2026 كروبوكتور. جميع الحقوق محفوظة."
+  },
+  "help": {
+    "subtitle": "الإجابات والإرشادات وسبل التواصل معنا.",
+    "searchPlaceholder": "البحث في مقالات المساعدة…",
+    "quickGuides": "أدلة سريعة",
+    "faqTitle": "الأسئلة الشائعة",
+    "noResults": "لم يتم العثور على نتائج",
+    "contactSupport": "التواصل مع فريق الدعم",
+    "rateApp": "تقييم كروبوكتور",
+    "rateFeedback": "ملاحظاتك تساعدنا في تقديم خدمة أفضل للمزارعين.",
+    "reportBug": "الإبلاغ عن مشكلة"
   }
 }

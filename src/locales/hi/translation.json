@@ -494,13 +494,14 @@
   },
   "diseases": {
     "Leaf Spot": "पत्ती धब्बा रोग",
+    "Cercospora Leaf Spot": "सर्कोस्पोरा पत्ती धब्बा रोग",
     "Healthy Crop": "स्वस्थ फसल"
   },
   "stages": {
-    "seedling": "અંકુરણ",
+    "seedling": "अंकुरण",
     "growing": "बढ़वार",
     "flowering": "फूल आना",
-    "Seedling": "અંકુરણ",
+    "Seedling": "अंकुरण",
     "Growing": "बढ़वार",
     "Flowering": "फूल आना"
   },
@@ -539,5 +540,51 @@
     "rainy": "बारिश",
     "stormy": "तूफानी",
     "Partly Cloudy": "आंशिक रूप से बादल"
+  },
+  "symptoms": {
+    "Dark circular spots with yellow halo": "पीले घेरे के साथ गहरे गोल धब्बे",
+    "Progressive yellowing of leaves": "पत्तियों का धीरे-धीरे पीला पड़ना",
+    "Premature leaf drop": "समय से पहले पत्तियों का गिरना",
+    "Spots appear first on older leaves": "धब्बे सबसे पहले पुरानी पत्तियों पर दिखाई देते हैं"
+  },
+  "actions": {
+    "Inspect nearby plants for early spread": "शुरुआती फैलाव के लिए पास के पौधों का निरीक्षण करें",
+    "Avoid overhead irrigation": "ऊपर से सिंचाई (फव्वारा सिंचाई) से बचें",
+    "Apply Mancozeb 75% WP at 2.5g/litre": "मैन्कोज़ेब 75% WP को 2.5 ग्राम/लीटर पानी में मिलाकर छिड़कें",
+    "Improve field drainage and air circulation": "खेत में जल निकासी और हवा का प्रवाह सुधारें",
+    "Remove and destroy heavily infected leaves": "गंभीर रूप से संक्रमित पत्तियों को हटाकर नष्ट कर दें",
+    "Consult an agricultural extension officer": "स्थानीय कृषि अधिकारी से सलाह लें"
+  },
+  "pdf": {
+    "title": "फसल स्वास्थ्य निदान रिपोर्ट",
+    "cropLabel": "फसल का नाम",
+    "diseaseLabel": "पहचाना गया रोग / समस्या",
+    "confidenceLabel": "सटीकता स्कोर",
+    "severityLabel": "गंभीरता का स्तर",
+    "symptomsHeading": "देखे गए लक्षण",
+    "explanationHeading": "निदान का विवरण",
+    "recommendationsHeading": "सुझाए गए उपाय एवं उपचार",
+    "preventionHeading": "रोकथाम के उपाय",
+    "expertReviewMessage": "एआई सलाह केवल जानकारी के लिए है। कृपया कृषि विशेषज्ञ से परामर्श लें।",
+    "dateLabel": "दिनांक",
+    "footer": "क्रॉपोक्टर द्वारा निर्मित — BRICS कृषि बुद्धिमत्ता मंच",
+    "downloading": "पीडीएफ तैयार हो रहा है...",
+    "downloadButton": "पीडीएफ रिपोर्ट डाउनलोड करें"
+  },
+  "about": {
+    "version": "संस्करण 1.0.0",
+    "description": "BRICS कृषि बुद्धिमत्ता मंच।",
+    "copyright": "© 2026 क्रॉपोक्टर। सर्वाधिकार सुरक्षित।"
+  },
+  "help": {
+    "subtitle": "उत्तर, मार्गदर्शन और संपर्क माध्यम।",
+    "searchPlaceholder": "सहायता लेख खोजें…",
+    "quickGuides": "त्वरित मार्गदर्शन",
+    "faqTitle": "अक्सर पूछे जाने वाले प्रश्न",
+    "noResults": "कोई परिणाम नहीं मिला",
+    "contactSupport": "सहायता टीम से संपर्क करें",
+    "rateApp": "क्रॉपोक्टर को रेट करें",
+    "rateFeedback": "आपकी प्रतिक्रिया से किसानों के लिए सुधार करने में मदद मिलती है।",
+    "reportBug": "समस्या की रिपोर्ट करें"
   }
 }

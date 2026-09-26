@@ -494,6 +494,7 @@
   },
   "diseases": {
     "Leaf Spot": "પાંદડાના ટપકાંનો રોગ",
+    "Cercospora Leaf Spot": "સર્કોસ્પોરા ટપકાંનો રોગ",
     "Healthy Crop": "સ્વસ્થ પાક"
   },
   "stages": {
@@ -505,9 +506,13 @@
     "Flowering": "ફૂલ આવવા"
   },
   "soils": {
+    "loamy": "ગોરાડુ જમીન",
     "Loamy": "ગોરાડુ જમીન",
+    "black": "કાળી જમીન",
     "Black Cotton": "કાળી જમીન",
+    "alluvial": "કાંપની જમીન",
     "Alluvial": "કાંપની જમીન",
+    "sandy": "રેતાળ જમીન",
     "Sandy": "રેતાળ જમીન"
   },
   "time": {
@@ -533,5 +538,51 @@
     "rainy": "વરસાદી",
     "stormy": "વાવાઝોડું",
     "Partly Cloudy": "અંશતઃ વાદળછાયું"
+  },
+  "symptoms": {
+    "Dark circular spots with yellow halo": "પીળી ધારવાળા ઘાટા ગોળ ટપકાં",
+    "Progressive yellowing of leaves": "પાંદડાં ધીમે ધીમે પીળાં પડવાં",
+    "Premature leaf drop": "સમય પહેલાં પાંદડાં ખરી પડવાં",
+    "Spots appear first on older leaves": "ટપકાં સૌથી પહેલાં જૂના પાંદડાં પર દેખાય છે"
+  },
+  "actions": {
+    "Inspect nearby plants for early spread": "રોગના ફેલાવા માટે નજીકના છોડ ચકાસો",
+    "Avoid overhead irrigation": "ઉપરથી પિયત આપવાનું ટાળો",
+    "Apply Mancozeb 75% WP at 2.5g/litre": "મેન્કોઝેબ 75% WP લિટર દીઠ 2.5 ગ્રામ મુજબ છાંટો",
+    "Improve field drainage and air circulation": "ખેતરમાં પાણીના નિકાલ અને હવાની અવરજવર સુધારો",
+    "Remove and destroy heavily infected leaves": "વધારે અસરગ્રસ્ત પાંદડાં દૂર કરી નાશ કરો",
+    "Consult an agricultural extension officer": "સ્થાનિક કૃષિ નિષ્ણાતની સલાહ લો"
+  },
+  "pdf": {
+    "title": "પાક સ્વાસ્થ્ય નિદાન રિપોર્ટ",
+    "cropLabel": "પાકનું નામ",
+    "diseaseLabel": "ઓળખાયેલ રોગ / સમસ્યા",
+    "confidenceLabel": "સચોટતા સ્કોર",
+    "severityLabel": "ગંભીરતાનું સ્તર",
+    "symptomsHeading": "જોવાયેલા લક્ષણો",
+    "explanationHeading": "નિદાનની વિગત",
+    "recommendationsHeading": "સૂચવેલા પગલાં અને ઉપચાર",
+    "preventionHeading": "અટકાયતી પગલાં",
+    "expertReviewMessage": "AI નિદાન ફક્ત માહિતી માટે છે. કૃપા કરીને કૃષિ નિષ્ણાતની સલાહ લો.",
+    "dateLabel": "તારીખ",
+    "footer": "Cropoctor દ્વારા નિર્મિત — BRICS ખેતી પ્લેટફોર્મ",
+    "downloading": "પીડીએફ ડાઉનલોડ થઈ રહ્યું છે...",
+    "downloadButton": "પીડીએફ રિપોર્ટ ડાઉનલોડ કરો"
+  },
+  "about": {
+    "version": "આવૃત્તિ 1.0.0",
+    "description": "BRICS ખેતી પ્લેટફોર્મ.",
+    "copyright": "© 2026 Cropoctor. સર્વાધિકાર સુરક્ષિત."
+  },
+  "help": {
+    "subtitle": "જવાબો, માર્ગદર્શિકા અને સંપર્ક સ્ત્રોતો.",
+    "searchPlaceholder": "મદદ લેખ શોધો…",
+    "quickGuides": "ઝડપી માર્ગદર્શિકા",
+    "faqTitle": "વારંવાર પૂછાતા પ્રશ્નો",
+    "noResults": "કોઈ પરિણામ મળ્યું નથી",
+    "contactSupport": "સપોર્ટ ટીમનો સંપર્ક કરો",
+    "rateApp": "Cropoctor ને રેટ કરો",
+    "rateFeedback": "તમારો પ્રતિભાવ ખેડૂતો માટે સેવા સુધારવામાં મદદ કરે છે.",
+    "reportBug": "સમસ્યાની જાણ કરો"
   }
 }

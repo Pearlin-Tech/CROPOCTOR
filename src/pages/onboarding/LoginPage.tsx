@@ -203,9 +203,9 @@ const LoginPage: React.FC = () => {
           </div>
 
           <div className="text-center mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 tracking-tight mb-1">Welcome Back!</h2>
+            <h2 className="text-2xl font-bold text-gray-900 tracking-tight mb-1">{t('auth.welcomeBack', 'Welcome Back!')}</h2>
             <p className="text-gray-500 text-sm font-medium">
-              Sign in to continue.
+              {t('auth.signInToContinue', 'Sign in to continue.')}
             </p>
           </div>
 
@@ -325,13 +325,13 @@ const LoginPage: React.FC = () => {
                 loading={loading}
                 className="bg-[#2E7D32] hover:bg-[#256629] text-white py-3.5 rounded-xl font-semibold text-base shadow-md transition-colors"
               >
-                {loading ? t('auth.signingIn') : 'Sign In'}
+                {loading ? t('auth.signingIn') : t('auth.signin', 'Sign In')}
               </Button>
             </form>
           )}
 
           <p className="text-center text-sm text-gray-500">
-            Don't have an account?{' '}
+            {t('auth.noAccount', "Don't have an account?")}{' '}
             <button onClick={() => navigate('/signup')} className="text-[#2E7D32] font-semibold hover:underline">
               {t('auth.createAccount')}
             </button>
@@ -341,7 +341,7 @@ const LoginPage: React.FC = () => {
         {/* Security Indicator at Bottom */}
         <div className="flex items-center justify-center gap-1.5 pt-4 text-xs text-gray-400 border-t border-gray-200/60">
           <ShieldCheck className="w-3.5 h-3.5 text-[#2E7D32]" />
-          <span>256-bit Encrypted & Secure Connection</span>
+          <span>{t('auth.securityNotice', '256-bit Encrypted & Secure Connection')}</span>
         </div>
       </div>
     </motion.div>

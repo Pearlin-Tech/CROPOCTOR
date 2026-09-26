@@ -13,11 +13,12 @@ import { useTranslation } from 'react-i18next'
 
 const LANGUAGES = [
   { code: 'en', name: 'English', native: 'English' },
+  { code: 'hi', name: 'Hindi', native: 'हिन्दी' },
+  { code: 'gu', name: 'Gujarati', native: 'ગુજરાતી' },
+  { code: 'ar', name: 'Arabic', native: 'العربية' },
   { code: 'pt-BR', name: 'Portuguese', native: 'Português' },
   { code: 'ru', name: 'Russian', native: 'Русский' },
-  { code: 'hi', name: 'Hindi', native: 'हिन्दी' },
   { code: 'zh-CN', name: 'Chinese', native: '简体中文' },
-  { code: 'ar', name: 'Arabic', native: 'العربية (Egypt/UAE/Saudi Arabia)' },
   { code: 'am', name: 'Amharic', native: 'አማርኛ' },
   { code: 'fa', name: 'Persian', native: 'فارسی' },
   { code: 'id', name: 'Indonesian', native: 'Bahasa Indonesia' },

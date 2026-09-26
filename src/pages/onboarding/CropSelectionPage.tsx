@@ -19,18 +19,18 @@ const CropSelectionPage: React.FC = () => {
       <button onClick={() => navigate(-1)} className="w-10 h-10 flex items-center justify-center rounded-xl bg-green-pastel/30 text-green-forest mb-6 shadow-sm hover:bg-green-pastel/50 transition-colors">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="w-5 h-5"><path d="M15 18l-6-6 6-6" /></svg>
       </button>
-      <h1 className="text-2xl font-bold text-green-forest mb-1">{t('farm.location.cropTitle', 'Select Your Crop')}</h1>
-      <p className="text-text-secondary text-sm mb-8 font-medium">{t('farm.location.cropSubtitle', 'Choose the primary crop for this farm.')}</p>
+      <h1 className="text-2xl font-bold text-green-forest mb-1">{t('farm.crop.title', 'Select Your Crop')}</h1>
+      <p className="text-text-secondary text-sm mb-8 font-medium">{t('farm.crop.subtitle', 'Choose the primary crop for this farm.')}</p>
 
       <div className="flex-1">
         <SearchableSelect
-          label={t('farm.location.primaryCrop', 'Primary Crop')}
+          label={t('farm.details.primaryCrop', 'Primary crop')}
           required
-          options={cropOptions}
+          options={cropOptions.map(c => ({ ...c, name: t(`crops.${c.id}`, c.name) }))}
           value={cropId}
           onChange={setCropId}
-          placeholder={t('farm.location.selectCrop', 'Select Crop')}
-          searchPlaceholder={t('farm.location.searchCrops', 'Search crops...')}
+          placeholder={t('farm.crop.select', 'Select Crop')}
+          searchPlaceholder={t('farm.crop.search', 'Search crops...')}
           grouped
         />
 
