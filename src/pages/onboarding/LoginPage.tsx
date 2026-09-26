@@ -12,11 +12,12 @@ import { PhoneInput } from '@/components/ui/PhoneInput'
 import { Divider } from '@/components/ui/index'
 import { IMAGES } from '@/config/images'
 
-import { MOCK_FARMER } from '@/mock/farmer'
 import { useApp } from '@/store/AppContext'
 import { useUser } from '@/store/UserContext'
 import { useTranslation } from 'react-i18next'
 import { authService } from '@/services/authService'
+import { userService } from '@/services/userService'
+import type { Farmer } from '@/types'
 
 const schema = z.object({
   email:    z.string().min(1, 'This field is required.').email('Please enter a valid email address.'),
@@ -59,9 +60,27 @@ const LoginPage: React.FC = () => {
   const onSubmit = async (data: FormData) => {
     setLoading(true)
     const { user, error } = await authService.loginWithEmail(data.email, data.password)
+    if (error || !user) {
+      setLoading(false)
+      toast.error(error || 'Login failed')
+      return
+    }
+
+    const { data: profile } = await userService.getUserProfile(user.uid)
+    const farmerData: Farmer = {
+      id: user.uid,
+      name: profile?.name || user.displayName || 'Farmer',
+      email: user.email || '',
+      phone: profile?.phone || user.phoneNumber || '',
+      experience: profile?.experience || 'beginner',
+      country: profile?.country || 'IN',
+      preferredLanguage: profile?.preferredLanguage || 'en',
+      createdAt: profile?.createdAt || new Date().toISOString(),
+    }
+    
     setLoading(false)
-    if (error) { toast.error(error); return }
-    login({ ...MOCK_FARMER, name: user!.displayName || MOCK_FARMER.name, email: user!.email || MOCK_FARMER.email })
+    login(farmerData)
+    // ProtectedRoute will redirect to verify-email if unverified
     navigate('/home')
     toast.success('Successfully logged in!')
   }
@@ -69,9 +88,27 @@ const LoginPage: React.FC = () => {
   const handleGoogleAuth = async () => {
     setLoading(true)
     const { user, error } = await authService.signInWithGoogle()
+    
+    if (error || !user) {
+      setLoading(false)
+      toast.error(error || 'Failed to sign in with Google')
+      return
+    }
+
+    const { data: profile } = await userService.getUserProfile(user.uid)
+    const farmerData: Farmer = {
+      id: user.uid,
+      name: profile?.name || user.displayName || 'Farmer',
+      email: user.email || '',
+      phone: profile?.phone || user.phoneNumber || '',
+      experience: profile?.experience || 'beginner',
+      country: profile?.country || 'IN',
+      preferredLanguage: profile?.preferredLanguage || 'en',
+      createdAt: profile?.createdAt || new Date().toISOString(),
+    }
+    
     setLoading(false)
-    if (error || !user) { toast.error(error || 'Failed to sign in with Google'); return }
-    login({ ...MOCK_FARMER, name: user.displayName || MOCK_FARMER.name, email: user.email || MOCK_FARMER.email })
+    login(farmerData)
     navigate('/home')
     toast.success('Logged in with Google!')
   }
@@ -108,9 +145,26 @@ const LoginPage: React.FC = () => {
     if (!otp) { toast.error('Please enter the OTP.'); return }
     setLoading(true)
     const { user, error } = await authService.verifyPhoneOtp(confirmationResult, otp)
+    if (error || !user) {
+      setLoading(false)
+      toast.error(error || 'Failed to verify OTP')
+      return
+    }
+
+    const { data: profile } = await userService.getUserProfile(user.uid)
+    const farmerData: Farmer = {
+      id: user.uid,
+      name: profile?.name || user.displayName || 'Farmer',
+      email: user.email || '',
+      phone: profile?.phone || user.phoneNumber || '',
+      experience: profile?.experience || 'beginner',
+      country: profile?.country || 'IN',
+      preferredLanguage: profile?.preferredLanguage || 'en',
+      createdAt: profile?.createdAt || new Date().toISOString(),
+    }
+
     setLoading(false)
-    if (error || !user) { toast.error(error || 'Failed to verify OTP'); return }
-    login({ ...MOCK_FARMER, phone: user.phoneNumber || MOCK_FARMER.phone })
+    login(farmerData)
     navigate('/home')
     toast.success('Logged in with Phone!')
   }

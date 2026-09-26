@@ -17,6 +17,7 @@ export interface AnalyzeCropParams {
     soilType?: string
     location?: string
   }
+  language?: string
 }
 
 export type SeverityLevel = 'healthy' | 'mild' | 'moderate' | 'severe' | 'unknown'
@@ -166,7 +167,7 @@ function validateAndNormalizeDiagnosis(
 export async function analyzeCropWithGeminiModule(
   params: AnalyzeCropParams
 ): Promise<AnalyzeCropResponse> {
-  const { imageBase64, mimeType = 'image/jpeg', imageUrl, isSample, farmContext } = params
+  const { imageBase64, mimeType = 'image/jpeg', imageUrl, isSample, farmContext, language } = params
 
   // 1. Validate Input Presence
   if (!imageBase64 && !imageUrl && !isSample) {
@@ -273,13 +274,28 @@ export async function analyzeCropWithGeminiModule(
       }
     }
 
-    // Append agronomic prompt context
     const cropInfo = farmContext?.crop ? `Primary Farm Crop: ${farmContext.crop}` : 'Crop: Agricultural plant leaf'
     const stageInfo = farmContext?.cropStage ? `Growth Stage: ${farmContext.cropStage}` : ''
     const soilInfo = farmContext?.soilType ? `Soil Type: ${farmContext.soilType}` : ''
     const locationInfo = farmContext?.location ? `Location: ${farmContext.location}` : ''
+    const languageMap: Record<string, string> = {
+      'en': 'English',
+      'hi': 'Hindi',
+      'gu': 'Gujarati',
+      'mr': 'Marathi',
+      'pt': 'Portuguese',
+      'ru': 'Russian',
+      'zh': 'Chinese',
+      'ar': 'Arabic',
+      'am': 'Amharic',
+      'fa': 'Persian',
+      'id': 'Indonesian'
+    }
+    const targetLangName = language ? (languageMap[language] || language) : '';
+    
+    const langInstruction = targetLangName ? `\nCRITICAL LANGUAGE INSTRUCTION: You MUST translate ALL human-readable text (diseaseName, symptoms, analysis, recommendations, immediateActions, treatment, prevention, etc.) into ${targetLangName}. However, the JSON schema keys MUST remain exactly as specified in English. The disease identifier string MUST remain in English or Latin.` : '';
 
-    const fullPrompt = `${AI_CONFIG.SYSTEM_PROMPT}
+    const fullPrompt = `${AI_CONFIG.SYSTEM_PROMPT}${langInstruction}
 
 [FARM CONTEXT]
 - ${cropInfo}

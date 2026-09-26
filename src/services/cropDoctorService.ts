@@ -89,7 +89,8 @@ export const cropDoctorService = {
       }
 
       const currentUser = auth.currentUser
-      const userId = currentUser?.uid || 'guest-user'
+      console.log(`[Diagnosis] authenticated UID: ${currentUser?.uid || 'null — user not signed in'}`)
+      const userId = currentUser?.uid || null
 
       // 2. Deterministic Image Hashing & Caching
       const imageStringForHash = imageBase64 || params.imageUrl || 'sample'
@@ -107,7 +108,7 @@ export const cropDoctorService = {
               success: true,
               diagnosis: {
                 id: diagnosisId,
-                userId,
+                userId: data.userId || userId || currentUser.uid,
                 farmId: data.farmId,
                 imageUrl: data.imageUrl,
                 crop: data.crop,
@@ -170,7 +171,8 @@ export const cropDoctorService = {
             mimeType: file?.type || 'image/jpeg',
             imageUrl: params.imageUrl,
             isSample: Boolean(isSample),
-            farmContext
+            farmContext,
+            language: localStorage.getItem('agri_ai_language') || 'en'
           })
         })
       } catch (fetchErr: any) {
@@ -182,15 +184,23 @@ export const cropDoctorService = {
         // Read body ONCE as text to avoid "body is disturbed or locked"
         const errText = await response.text()
         let errMessage = `Diagnostic server error: HTTP ${response.status}`
+        let errCode = 'SERVER_ERROR'
         try {
           const errJson = JSON.parse(errText)
-          errMessage = errJson.error || errJson.message || errMessage
+          if (errJson.code === 'NO_PLANT_DETECTED') {
+            return {
+              success: false,
+              error: errJson.message
+            }
+          }
+          errMessage = errJson.error?.message || errJson.message || errMessage
+          errCode = errJson.error?.code || errJson.code || errCode
         } catch {
           if (errText) errMessage = errText
         }
         
         console.error(`[cropDoctorService] Backend API returned ${response.status}:`, errMessage)
-        if (response.status === 429) {
+        if (response.status === 429 || errCode === 'RATE_LIMIT') {
           throw new Error('AI Quota Exceeded. The diagnosis service is temporarily unavailable due to high demand. Please try again later.')
         }
         throw new Error(errMessage)
@@ -198,20 +208,13 @@ export const cropDoctorService = {
 
       const apiResult = await response.json()
       if (!apiResult.success || !apiResult.data) {
-        throw new Error(apiResult.error || 'Diagnostic server returned invalid data format.')
+        throw new Error(apiResult.error?.message || apiResult.error || 'Diagnostic server returned invalid data format.')
       }
 
       const diagnosisData = apiResult.data
       const timestampIso = new Date().toISOString()
-
-      // Reject non-plant images with a clear message (BUG-5 fix)
+      
       const isPlantImage = typeof diagnosisData.isPlantImage === 'boolean' ? diagnosisData.isPlantImage : true
-      if (!isPlantImage) {
-        return {
-          success: false,
-          error: "This doesn't appear to be a plant or crop image. Please upload a clear photo of crops, leaves, or plant parts for an accurate diagnosis."
-        }
-      }
 
       const cropName = diagnosisData.cropName || diagnosisData.crop || farmContext?.crop || 'Groundnut'
       const diseaseName = diagnosisData.diseaseName || diagnosisData.disease || 'Unclear Leaf Condition'
@@ -235,7 +238,7 @@ export const cropDoctorService = {
 
       const diagnosisRecord: DiagnosisResult = {
         id: diagnosisId,
-        userId,
+        userId: userId || 'guest-user',
         farmId: farmContext?.farmId || 'farm-001',
         imageUrl: displayImageUrl,
         crop: cropName,
@@ -265,54 +268,62 @@ export const cropDoctorService = {
       }
 
       // 5. Persist metadata & structured result to Firestore or LocalStorage
-      if (currentUser && db && db.app) {
+      if (currentUser && userId && db && db.app) {
         try {
           if (isPlantImage && diseaseName.toLowerCase() !== 'non-plant image detected') {
-            const docRef = doc(db, 'users', currentUser.uid, 'diagnoses', diagnosisId)
-          await setDoc(docRef, {
-            cropName,
-            diseaseName,
-            crop: cropName,
-            disease: diseaseName,
-            confidence,
-            severity,
-            symptoms,
-            observedSymptoms,
-            positiveSigns,
-            possibleIssues,
-            analysis,
-            explanation,
-            recommendations,
-            immediateActions,
-            treatment,
-            prevention,
-            longTermPrevention,
-            whenToRecheck,
-            needsExpertReview,
-            isPlantImage,
-            source,
-            imageUrl: displayImageUrl,
-            farmId: farmContext?.farmId || 'farm-001',
-            isSample: Boolean(isSample),
-            imageHash,
-            createdAt: serverTimestamp()
-          })
-          console.log(`[Firestore] Diagnosis metadata persisted to users/${currentUser.uid}/diagnoses/${diagnosisId}`)
-          
-          if (diseaseName.toLowerCase() !== 'healthy plant' && diseaseName.toLowerCase() !== 'non-plant image detected') {
-            await notificationService.createNotification({
-              title: `New Diagnosis: ${cropName}`,
-              body: `${diseaseName} detected with ${severity} severity. Click to view treatment plan.`,
-              type: 'disease',
-              priority: severity === 'severe' ? 'high' : 'medium',
-              read: false,
-              actionRoute: `/farms/${farmContext?.farmId || 'farm-001'}`, // Or link directly to diagnosis history
-            });
+            console.log(`[Diagnosis] writing document: users/${userId}/diagnoses/${diagnosisId}`)
+            const docRef = doc(db, 'users', userId, 'diagnoses', diagnosisId)
+            await setDoc(docRef, {
+              userId,
+              cropName,
+              diseaseName,
+              crop: cropName,
+              disease: diseaseName,
+              confidence,
+              severity,
+              symptoms,
+              observedSymptoms,
+              positiveSigns,
+              possibleIssues,
+              analysis,
+              explanation,
+              recommendations,
+              immediateActions,
+              treatment,
+              prevention,
+              longTermPrevention,
+              whenToRecheck,
+              needsExpertReview,
+              isPlantImage,
+              source,
+              imageUrl: displayImageUrl,
+              farmId: farmContext?.farmId || 'farm-001',
+              isSample: Boolean(isSample),
+              imageHash,
+              language: localStorage.getItem('agri_ai_language') || 'en',
+              createdAt: serverTimestamp()
+            })
+            console.log(
+              `[Diagnosis] Firestore write successful: users/${userId}/diagnoses/${diagnosisId}`
+            )
+
+            if (diseaseName.toLowerCase() !== 'healthy plant' && diseaseName.toLowerCase() !== 'non-plant image detected') {
+              await notificationService.createNotification({
+                title: `New Diagnosis: ${cropName}`,
+                body: `${diseaseName} detected with ${severity} severity. Click to view treatment plan.`,
+                type: 'disease',
+                priority: severity === 'severe' ? 'high' : 'medium',
+                read: false,
+                actionRoute: `/farms/${farmContext?.farmId || 'farm-001'}`,
+              })
+            }
           }
-          }
-        } catch (firestoreErr) {
-          console.warn('[cropDoctorService] Error persisting diagnosis to Firestore:', firestoreErr)
-          // We don't throw here to still allow the UI to show the result if Firestore saves fail
+        } catch (firestoreErr: any) {
+          console.error(
+            `[Diagnosis] FIRESTORE WRITE FAILED: users/${userId}/diagnoses/${diagnosisId}` +
+            ` error=${firestoreErr?.code || firestoreErr?.message}`
+          )
+          // Do not throw — UI must still show the result even if persistence fails
         }
       } else {
         // Fallback for guest users
@@ -346,41 +357,68 @@ export const cropDoctorService = {
   /**
    * Fetches recent diagnoses for current authenticated user from Firestore: `users/{uid}/diagnoses`
    * Sorted newest first (`orderBy('createdAt', 'desc')`).
+   * Waits for Firebase Auth to be ready before querying.
    */
   getRecentDiagnoses: async (limitCount = 10, farmId?: string): Promise<DiagnosisResult[]> => {
-    try {
-      const currentUser = auth.currentUser
-      if (!currentUser || !db || !db.app) {
-        // Retrieve from localStorage for guest users
-        try {
-          const stored = localStorage.getItem('guest_diagnoses')
-          if (stored) {
-            const parsed = JSON.parse(stored)
-            const filtered = farmId ? parsed.filter((d: any) => d.farmId === farmId) : parsed
-            return filtered.slice(0, limitCount)
-          }
-        } catch (e) {
-          console.warn('[cropDoctorService] Failed to read guest diagnoses from localStorage', e)
-        }
-        return []
-      }
+    // Ensure auth is resolved — auth.currentUser may be null on first render
+    const currentUser: any = await new Promise(resolve => {
+      const u = auth.currentUser
+      if (u !== null) return resolve(u)
+      // Auth hasn't fired yet — wait for one state change event
+      const unsub = auth.onAuthStateChanged(user => {
+        unsub()
+        resolve(user)
+      })
+    })
 
-      const diagnosesCol = collection(db, 'users', currentUser.uid, 'diagnoses')
-      // Use simple orderBy-only query to avoid requiring a Firestore composite index.
-      // Client-side farmId filter is applied after fetch.
+    console.log(`[Diagnosis] loading recent diagnoses: uid=${currentUser?.uid || 'null'}`)
+
+    if (!currentUser || !db || !db.app) {
+      console.log('[Diagnosis] no authenticated user — reading from localStorage')
+      // Guest: read from localStorage
+      try {
+        const stored = localStorage.getItem('guest_diagnoses')
+        if (stored) {
+          const parsed = JSON.parse(stored)
+          const filtered = farmId ? parsed.filter((d: any) => d.farmId === farmId) : parsed
+          return filtered.slice(0, limitCount)
+        }
+      } catch (e) {
+        console.warn('[cropDoctorService] Failed to read guest diagnoses from localStorage', e)
+      }
+      return []
+    }
+
+    try {
+      const uid = currentUser.uid
+      console.log(`[Diagnosis] history query path: users/${uid}/diagnoses (orderBy createdAt desc limit ${limitCount})`)
+      const diagnosesCol = collection(db, 'users', uid, 'diagnoses')
       const q = query(diagnosesCol, orderBy('createdAt', 'desc'), limit(farmId ? limitCount * 5 : limitCount))
 
       const snap = await getDocs(q)
+      console.log(`[Diagnosis] history documents: ${snap.size} returned from Firestore`)
 
-      let results: DiagnosisResult[] = []
+      const results: DiagnosisResult[] = []
       snap.forEach(docSnap => {
         const data = docSnap.data()
         const cropName = data.cropName || data.crop || 'Groundnut'
         const diseaseName = data.diseaseName || data.disease || 'Diagnosed Issue'
 
+        // Safe timestamp conversion — serverTimestamp() may still be null during pending writes
+        let timestamp: string
+        if (data.createdAt && typeof data.createdAt.toDate === 'function') {
+          timestamp = data.createdAt.toDate().toISOString()
+        } else if (data.createdAt && typeof data.createdAt.seconds === 'number') {
+          timestamp = new Date(data.createdAt.seconds * 1000).toISOString()
+        } else if (data.timestamp) {
+          timestamp = data.timestamp
+        } else {
+          timestamp = new Date().toISOString()
+        }
+
         results.push({
           id: docSnap.id,
-          userId: currentUser.uid,
+          userId: data.userId || uid,
           farmId: data.farmId || 'farm-001',
           imageUrl: data.imageUrl || '/images/disease_leaf_1787238259522.jpg',
           crop: cropName,
@@ -406,18 +444,21 @@ export const cropDoctorService = {
           needsExpertReview: Boolean(data.needsExpertReview),
           isDemo: Boolean(data.isSample),
           isSample: Boolean(data.isSample),
-          timestamp: data.createdAt?.toDate
-            ? data.createdAt.toDate().toISOString()
-            : data.timestamp || new Date().toISOString()
+          timestamp
         })
       })
 
-      // Apply JS-side farmId filter to avoid requiring Firestore composite index
       const filtered = farmId ? results.filter(d => d.farmId === farmId).slice(0, limitCount) : results
+      console.log(`[Diagnosis] loading history: ${filtered.length} records after farmId filter`)
       return filtered
-    } catch (err) {
-      console.warn('[cropDoctorService] Error retrieving diagnoses from Firestore:', err)
-      return []
+    } catch (err: any) {
+      // Distinguish permission-denied from network/empty errors
+      if (err?.code === 'permission-denied') {
+        console.error(`[Diagnosis] PERMISSION DENIED reading users/${currentUser.uid}/diagnoses — check deployed Firestore rules`)
+        throw new Error('FIRESTORE_PERMISSION_DENIED')
+      }
+      console.error('[cropDoctorService] Error retrieving diagnoses from Firestore:', err)
+      throw err
     }
   },
 

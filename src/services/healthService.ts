@@ -1,5 +1,6 @@
 import type { Farm, WeatherData, DiagnosisResult } from '@/types'
 import type { NDVIResult } from '@/services/satelliteService'
+import { DEFAULT_HEALTH_WEIGHTS, type HealthWeightsConfig } from '@/config/healthWeights'
 
 export interface HealthFactor {
   name: string
@@ -23,7 +24,8 @@ export function calculateFarmHealthScore(
   farm?: Farm | null,
   diagnosis?: DiagnosisResult | null,
   satellite?: NDVIResult | null,
-  weather?: WeatherData | null
+  weather?: WeatherData | null,
+  weights: HealthWeightsConfig = DEFAULT_HEALTH_WEIGHTS
 ): FarmHealth {
   const factors: HealthFactor[] = []
   
@@ -50,7 +52,7 @@ export function calculateFarmHealthScore(
     factors.push({
       name: 'Crop Diagnosis',
       score: diagScore,
-      weight: 0.4,
+      weight: weights.diagnosis,
       explanation
     })
   }
@@ -78,7 +80,7 @@ export function calculateFarmHealthScore(
     factors.push({
       name: 'Satellite NDVI',
       score: satScore,
-      weight: 0.3,
+      weight: weights.satellite,
       explanation
     })
   }
@@ -122,7 +124,7 @@ export function calculateFarmHealthScore(
     factors.push({
       name: 'Weather Stress',
       score: weatherScore,
-      weight: 0.2,
+      weight: weights.weather,
       explanation
     })
   }
@@ -136,7 +138,7 @@ export function calculateFarmHealthScore(
     factors.push({
       name: 'Farm Context',
       score: contextScore,
-      weight: 0.1,
+      weight: weights.farmContext,
       explanation
     })
   }

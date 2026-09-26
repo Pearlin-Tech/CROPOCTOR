@@ -79,9 +79,48 @@
 - Supports `--dry-run` (default) and `--delete` modes
 - Shows full table of what would be deleted before committing
 
-## Open Items (Phases 3-8)
-- Phase 3: FarmDetailPage satellite data display (NDVI, moisture, date, source)
-- Phase 4: Full cron monitor implementation (alert rules, deduplication, push)
-- Phase 5: Transparent health score with "How calculated?" drawer
-- Phase 6: FCM web push notifications
-- Phase 8: Browser walkthrough + FINAL_REPORT.md
+## Phase 3 — Farm Profile + Satellite Data (completed)
+- FarmDetailPage enhanced with: NDVI display, moisture index, image date, cloud %, radar fallback notice
+- Health drawer ("How calculated?") added with per-factor breakdown, formula, confidence indicator
+- Weather card shows source (Open-Meteo), last updated time, and Demo badge when isDemo
+- Refresh button on FarmDetailPage header — re-fetches all farm data on demand
+
+## Phase 4 — Continuous Monitoring Pipeline (completed)
+### Full monitorService.ts implemented
+- Per-farm weather fetch via Open-Meteo (temp, precipitation, humidity, soil moisture)
+- Alert rule evaluation against crop-specific thresholds (getRulesForCrop)
+- 6-hour deduplication window: same alert (by alertKey = "{farmId}:{metric}") won't re-fire within cooldown
+- Writes alerts to Firestore users/{uid}/notifications with type, severity, alertKey, actionRoute
+- Writes audit record to monitorRuns/{runId}
+- Dry-run mode when FIREBASE_ADMIN_KEY_BASE64 is absent (logs but no writes)
+- /api/cron/monitor now calls runFarmMonitor instead of returning stub
+
+### Rate Limiting (P7.4)
+- In-memory rate limiter added to api/index.ts (100 req/min per IP)
+- Prunes stale entries every 5 minutes to avoid memory leaks
+- Returns 429 with Retry-After header when limit exceeded
+
+## Phase 5 — Transparent Health Score (completed)
+### P5.1 — Tunable weights config
+- Extracted health score weights to src/config/healthWeights.ts
+- DEFAULT_HEALTH_WEIGHTS: diagnosis 40%, satellite 30%, weather 20%, farmContext 10%
+- calculateFarmHealthScore() accepts optional weights override parameter
+- healthService.ts now imports from config — no more hard-coded literals
+
+### P5.4 — Unit tests
+- src/services/__tests__/healthService.test.ts — 12 test cases
+- Covers: baseline (no data), per-factor (diagnosis/satellite/weather/context), normalization, custom weights, ISO timestamp
+- Excluded from main tsconfig via tsconfig.json exclude pattern (browser build stays clean)
+
+## Phase 7 (additions)
+### P7.4 Rate limiting — see Phase 4 section above
+### P7.6 Gate (passed)
+- npm run build → EXIT 0 ✅
+- npx tsc --noEmit → EXIT 0 (0 type errors) ✅
+- Security scan: no hardcoded secrets in source ✅
+- .env confirmed in .gitignore ✅
+
+## Open Items (Phase 6 only — blocked on external keys)
+- Phase 6: FCM web push (firebase-messaging-sw.js, token registration, per-farm toggles, quiet hours)
+  - BLOCKER: FIREBASE_ADMIN_KEY_BASE64 (server-side push send)
+  - BLOCKER: VITE_FCM_VAPID_KEY (web push subscription)

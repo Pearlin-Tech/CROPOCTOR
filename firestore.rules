@@ -6,37 +6,44 @@ service cloud.firestore {
     match /users/{userId} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
 
-      // Farm documents — only the owner can read/write
+      // Farm documents — owner read/write only
       match /farms/{farmId} {
         allow read, write: if request.auth != null && request.auth.uid == userId;
 
-        // Satellite/weather observations cached per farm+date
-        match /observations/{observationId} {
-          allow read: if request.auth != null && request.auth.uid == userId;
-          allow write: if false; // Written server-side only
+        // Farm subcollections (observations, snapshots, etc.) — owner only
+        match /{subcollection}/{documentId} {
+          allow read, write: if request.auth != null && request.auth.uid == userId;
         }
       }
 
-      // Diagnosis records
+      // Diagnosis records — written by client after AI analysis
+      // Path: users/{uid}/diagnoses/{diagnosisId}
       match /diagnoses/{diagnosisId} {
         allow read, write: if request.auth != null && request.auth.uid == userId;
       }
 
-      // In-app notifications
+      // In-app notifications — written by server monitor, read/deleted by client
+      // Path: users/{uid}/notifications/{notificationId}
       match /notifications/{notificationId} {
         allow read, write: if request.auth != null && request.auth.uid == userId;
       }
 
-      // FCM device tokens — client registers, server reads for push
-      match /devices/{deviceId} {
+      // FCM push tokens — registered by client, read by server monitor for push
+      // Path: users/{uid}/fcmTokens/{tokenId}
+      match /fcmTokens/{tokenId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+
+      // AI Advisor conversation history
+      // Path: users/{uid}/advisorConversations/{conversationId}
+      match /advisorConversations/{conversationId} {
         allow read, write: if request.auth != null && request.auth.uid == userId;
       }
     }
 
-    // ── Monitor run logs (server-side write only) ─────────────────────────────
+    // ── Monitor run logs (server-side write only via Admin SDK — never client) ──
     match /monitorRuns/{runId} {
-      allow read: if false;
-      allow write: if false;
+      allow read, write: if false;
     }
 
     // ── Deny everything else ──────────────────────────────────────────────────

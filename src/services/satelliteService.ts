@@ -15,11 +15,12 @@ export const satelliteService = {
   /**
    * Fetch satellite and NDVI data for a given farm.
    */
-  getSatelliteData: async (farmId: string, lat?: number, lng?: number): Promise<NDVIResult> => {
+  getSatelliteData: async (farmId: string, lat?: number, lng?: number, boundary?: any[]): Promise<NDVIResult> => {
     try {
       const queryParams = new URLSearchParams();
       if (lat !== undefined) queryParams.append('lat', lat.toString());
       if (lng !== undefined) queryParams.append('lng', lng.toString());
+      if (boundary && boundary.length > 0) queryParams.append('boundary', JSON.stringify(boundary));
       
       const queryString = queryParams.toString() ? `?${queryParams.toString()}` : '';
       const response = await fetch(`/api/farms/${farmId}/satellite${queryString}`);

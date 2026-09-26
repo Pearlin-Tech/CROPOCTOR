@@ -11,6 +11,7 @@ import { MOCK_FARMS } from '@/mock/farms'
 import { getMockAIResponse } from '@/mock/aiResponses'
 import { FirebaseNotificationService } from './notificationService'
 import { FirebaseFarmService } from './farmService'
+import { FirebaseInsightsService } from './insightsService'
 
 const delay = (ms: number) => new Promise(r => setTimeout(r, ms))
 
@@ -41,16 +42,18 @@ class GeminiAIService implements IAIService {
         },
         body: JSON.stringify({
           question,
-          farmContext: context
+          farmContext: context,
+          language: localStorage.getItem('agri_ai_language') || 'en'
         })
       })
 
       if (!res.ok) {
         let errorMsg = `API returned ${res.status}`
+        let errorCode = 'UNKNOWN'
         try {
           const errData = await res.json()
-          if (errData.error) errorMsg = errData.error
-          if (errData.message) errorMsg += `: ${errData.message}`
+          if (errData.error?.message) errorMsg = errData.error.message
+          if (errData.error?.code) errorCode = errData.error.code
         } catch (e) {
           // ignore parsing error
         }
@@ -59,12 +62,16 @@ class GeminiAIService implements IAIService {
 
       const data = await res.json()
       
+      if (!data.success) {
+         throw new Error(data.error?.message || 'Failed to get recommendation')
+      }
+
       return {
         id: `ai-${Date.now()}`,
         role: 'assistant',
-        content: data.recommendation,
-        structured: data,
-        timestamp: new Date().toISOString()
+        content: data.answer || data.structured?.recommendation,
+        structured: data.structured,
+        timestamp: data.timestamp || new Date().toISOString()
       }
     } catch (err) {
       console.error('[GeminiAIService] /api/advisor request failed:', err)
@@ -209,6 +216,7 @@ export interface INotificationService {
   createNotification(notification: Omit<AppNotification, 'id' | 'timestamp'>): Promise<void>
   deleteNotification(id: string): Promise<void>
   deleteAllNotifications(): Promise<void>
+  registerFCMToken(): Promise<void>
 }
 
 // ─── Insights Service ─────────────────────────────────────────────────────────
@@ -327,7 +335,7 @@ export const weatherService: IWeatherService     = new ApiWeatherService()
 export const farmService: IFarmService           = new FirebaseFarmService()
 export const diagnosisService: IDiagnosisService = new MockDiagnosisService()
 export const notificationService: INotificationService = new FirebaseNotificationService()
-export const insightsService: IInsightsService   = new MockInsightsService()
+export const insightsService: IInsightsService   = new FirebaseInsightsService()
 export const locationService: ILocationService   = new ApiLocationService()
 export const voiceService: IVoiceService         = new MockVoiceService()
 

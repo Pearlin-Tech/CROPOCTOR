@@ -1,6 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
+import { getMessaging, isSupported } from "firebase/messaging";
 
 // Your web app's Firebase configuration (Spark Free Plan)
 export const firebaseConfig = {
@@ -15,6 +16,15 @@ export const firebaseConfig = {
 export const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
+
+// Initialize Firebase Cloud Messaging (Web Push)
+// It may not be supported in all environments (e.g. some mobile browsers / incognito)
+export const messagingPromise = isSupported().then(supported => {
+  if (supported) {
+    return getMessaging(app);
+  }
+  return null;
+});
 
 // Diagnostic: confirm which Firebase project is connected (no secrets printed)
 console.log('[firebase.ts] Firebase project:', firebaseConfig.projectId);

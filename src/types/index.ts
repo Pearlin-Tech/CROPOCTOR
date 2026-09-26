@@ -27,6 +27,8 @@ export interface Farm {
   healthScore: number // 0–100
   boundary?: LatLng[]
   imageUrl?: string
+  lastWeatherSnapshot?: any
+  lastNdviObservation?: any
   createdAt: string
   updatedAt: string
 }

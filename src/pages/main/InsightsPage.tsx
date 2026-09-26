@@ -38,11 +38,16 @@ const InsightsPage: React.FC = () => {
     if (tab === 'satellite' && activeFarm) {
       let isMounted = true;
       setSatelliteLoading(true);
-      satelliteService.getSatelliteData(activeFarm.id, activeFarm.location?.lat, activeFarm.location?.lng)
+      satelliteService.getSatelliteData(activeFarm.id, activeFarm.location?.lat, activeFarm.location?.lng, activeFarm.boundary)
         .then(data => {
           if (isMounted) {
             setSatelliteData(data);
             setSatelliteLoading(false);
+            
+            // Save this observation to the farm state for dynamic insights
+            import('@/services').then(({ farmService }) => {
+              farmService.updateFarm(activeFarm.id, { lastNdviObservation: data }).catch(console.error);
+            });
           }
         })
         .catch(err => {

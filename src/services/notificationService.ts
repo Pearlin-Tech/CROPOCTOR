@@ -142,4 +142,50 @@ export class FirebaseNotificationService implements INotificationService {
       console.error("Failed to delete all notifications:", error);
     }
   }
+
+  /**
+   * Request push notification permission and register FCM token to Firestore
+   */
+  async registerFCMToken(): Promise<void> {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    try {
+      const { messagingPromise } = await import('./firebase');
+      const { getToken } = await import('firebase/messaging');
+      
+      const messaging = await messagingPromise;
+      if (!messaging) {
+        console.log('[FCM] Web Push not supported in this environment');
+        return;
+      }
+
+      // Check permissions
+      const permission = await Notification.requestPermission();
+      if (permission === 'granted') {
+        // VAPID key would ideally be in env, but if it's not we try to proceed or fail gracefully
+        // For standard Firebase setups, passing vapidKey is highly recommended.
+        const vapidKey = import.meta.env.VITE_FIREBASE_VAPID_KEY;
+        const currentToken = await getToken(messaging, { vapidKey });
+        
+        if (currentToken) {
+          // Save to Firestore: users/{uid}/fcmTokens/{token}
+          const tokenRef = doc(db, 'users', user.uid, 'fcmTokens', currentToken);
+          await setDoc(tokenRef, {
+            token: currentToken,
+            device: navigator.userAgent,
+            createdAt: serverTimestamp(),
+            lastUpdated: serverTimestamp()
+          });
+          console.log('[FCM] Token registered successfully.');
+        } else {
+          console.log('[FCM] No registration token available. Request permission to generate one.');
+        }
+      } else {
+        console.log('[FCM] Permission denied for Web Push notifications.');
+      }
+    } catch (error) {
+      console.warn('[FCM] Failed to register token:', error);
+    }
+  }
 }

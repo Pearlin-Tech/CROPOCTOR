@@ -8,9 +8,12 @@ import { Button } from '@/components/ui/Button'
 import { Badge } from '@/components/ui/index'
 import { ProgressBar } from '@/components/ui/index'
 import { useApp } from '@/store/AppContext'
+import { useFarm } from '@/store/FarmContext'
 import { useTranslation } from 'react-i18next'
 import type { DiagnosisResult } from '@/types'
-import { ChevronLeft, RotateCcw, Volume2, VolumeX, ShieldCheck, MessageSquare, AlertTriangle, UserCheck, Stethoscope } from 'lucide-react'
+import { ChevronLeft, RotateCcw, Volume2, VolumeX, ShieldCheck, MessageSquare, AlertTriangle, UserCheck, Stethoscope, Download } from 'lucide-react'
+import { PDFDownloadLink } from '@react-pdf/renderer'
+import DiagnosisReportPDF from '@/components/pdf/DiagnosisReportPDF'
 
 const severityColor = {
   healthy: 'green',
@@ -23,19 +26,51 @@ const severityColor = {
 const DiagnosisResultPage: React.FC = () => {
   const navigate = useNavigate()
   const location = useLocation()
-  const { toast } = useApp()
+  const { toast, language } = useApp()
+  const { activeFarm } = useFarm()
   const { t } = useTranslation()
   const [isPlayingAudio, setIsPlayingAudio] = useState(false)
 
   // Read diagnosis object passed via navigation state
   const locationState = (location.state as any) || {}
-  const d: DiagnosisResult | null = locationState.diagnosis || null
+  const [d, setD] = useState<DiagnosisResult | null>(locationState.diagnosis || null)
+  const [isTranslating, setIsTranslating] = useState(false)
 
   React.useEffect(() => {
-    if (!d) {
+    if (!d && !locationState.diagnosis) {
       navigate('/diagnose', { replace: true })
     }
-  }, [d, navigate])
+  }, [d, navigate, locationState.diagnosis])
+
+  const didTranslateRef = React.useRef(false)
+
+  // Translate the diagnosis if the stored language doesn't match the current app language.
+  // Runs on initial load AND when language changes.
+  React.useEffect(() => {
+    if (!d) return
+    const diagLang = (d as any).language || 'en'
+    if (diagLang === language) {
+      didTranslateRef.current = false
+      return
+    }
+    setIsTranslating(true)
+    didTranslateRef.current = true
+    fetch('/api/translate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: d, targetLanguage: language })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success && data.translatedData) {
+        setD((prev: any) => ({ ...data.translatedData, language, id: prev?.id }))
+      }
+    })
+    .catch(err => console.error('[DiagnosisResultPage] Translation failed:', err))
+    .finally(() => setIsTranslating(false))
+  // Run on initial mount (when d loads) and when language changes
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [language, d?.id])
 
   if (!d) return null // Wait for redirect
 
@@ -78,6 +113,12 @@ const DiagnosisResultPage: React.FC = () => {
       <MobileHeader title={t('dashboard.actions.diagnose', 'Diagnosis Result')} onBack={() => navigate('/diagnose')} />
 
       <PageLayout className="pt-4 pb-8 space-y-4">
+        {isTranslating && (
+          <div className="bg-blue-50 text-blue-800 p-4 rounded-xl flex items-center justify-center gap-2 mb-4">
+            <span className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></span>
+            <span className="font-medium text-sm">Translating history to your language...</span>
+          </div>
+        )}
         
         {/* Prominent "Diagnose Another Crop" CTA Header Banner */}
         <div className="bg-cream border border-brown-pastel/40 p-4 rounded-3xl flex items-center justify-between gap-4 shadow-sm">
@@ -90,15 +131,31 @@ const DiagnosisResultPage: React.FC = () => {
               Result saved to your farm history. You can scan another plant anytime.
             </p>
           </div>
-          <Button
-            variant="primary"
-            size="md"
-            icon={<RotateCcw className="w-4 h-4" />}
-            onClick={handleDiagnoseAnother}
-            className="shrink-0 bg-green-forest hover:bg-green-dark text-white font-bold shadow-md"
-          >
-            Diagnose Another Crop
-          </Button>
+          <div className="flex flex-col sm:flex-row gap-2 shrink-0">
+            {activeFarm && d && (
+              <PDFDownloadLink
+                document={<DiagnosisReportPDF diagnosis={d} farm={activeFarm} language={language} weather={activeFarm.lastWeatherSnapshot} />}
+                fileName={`diagnosis-report-${d.id}.pdf`}
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 border-2 border-green-forest text-green-forest font-bold rounded-xl hover:bg-green-50 transition-colors shadow-sm text-sm"
+              >
+                {({ loading }) => (
+                  <>
+                    <Download className="w-4 h-4" />
+                    <span>{loading ? 'Preparing PDF...' : 'Download Report'}</span>
+                  </>
+                )}
+              </PDFDownloadLink>
+            )}
+            <Button
+              variant="primary"
+              size="md"
+              icon={<RotateCcw className="w-4 h-4" />}
+              onClick={handleDiagnoseAnother}
+              className="w-full sm:w-auto bg-green-forest hover:bg-green-dark text-white font-bold shadow-md"
+            >
+              Diagnose Another Crop
+            </Button>
+          </div>
         </div>
 
         {/* Non-Plant Image Banner */}

@@ -31,7 +31,15 @@ const authenticateEE = (): Promise<void> => {
     let privateKey = process.env.EE_PRIVATE_KEY;
 
     if (!clientEmail || !privateKey) {
-      if (process.env.EE_KEY_PATH) {
+      if (process.env.EE_SERVICE_ACCOUNT_JSON) {
+        try {
+          const keyData = JSON.parse(process.env.EE_SERVICE_ACCOUNT_JSON);
+          clientEmail = keyData.client_email;
+          privateKey = keyData.private_key;
+        } catch (e: any) {
+          return reject(new Error(`Failed to parse EE_SERVICE_ACCOUNT_JSON: ${e.message}`));
+        }
+      } else if (process.env.EE_KEY_PATH) {
         try {
           const keyPath = path.resolve(process.cwd(), process.env.EE_KEY_PATH);
           const keyData = JSON.parse(fs.readFileSync(keyPath, 'utf8'));
@@ -41,12 +49,12 @@ const authenticateEE = (): Promise<void> => {
           return reject(new Error(`Failed to read EE key file: ${e.message}`));
         }
       } else {
-        return reject(new Error('Missing Earth Engine credentials (neither EE_PRIVATE_KEY nor EE_KEY_PATH provided)'));
+        return reject(new Error('Missing Earth Engine credentials (neither EE_SERVICE_ACCOUNT_JSON nor EE_KEY_PATH provided)'));
       }
     }
 
     if (!clientEmail || !privateKey) {
-      return reject(new Error('Earth Engine credentials file missing client_email or private_key'));
+      return reject(new Error('Earth Engine credentials missing client_email or private_key'));
     }
 
     privateKey = privateKey.replace(/\\n/g, '\n');
@@ -74,7 +82,7 @@ const getNDVILabel = (value: number): string => {
   return 'Excellent Vegetation';
 };
 
-export const getSatelliteDataForFarm = async (farmId: string, lat?: number, lng?: number): Promise<NDVIResponse> => {
+export const getSatelliteDataForFarm = async (farmId: string, lat?: number, lng?: number, boundary?: {lat: number, lng: number}[]): Promise<NDVIResponse> => {
   if (!lat || !lng) {
     throw new Error("Latitude and longitude are required for real satellite data");
   }
@@ -93,11 +101,20 @@ export const getSatelliteDataForFarm = async (farmId: string, lat?: number, lng?
       const startDate = new Date();
       startDate.setMonth(startDate.getMonth() - 6);
       
-      const point = ee.Geometry.Point([lng, lat]);
+      let geometryToUse;
+      if (boundary && boundary.length >= 3) {
+        // Build a polygon if we have at least 3 points
+        const coords = boundary.map(pt => [pt.lng, pt.lat]);
+        // Close the polygon
+        coords.push([boundary[0].lng, boundary[0].lat]);
+        geometryToUse = ee.Geometry.Polygon([coords]);
+      } else {
+        geometryToUse = ee.Geometry.Point([lng, lat]);
+      }
       
       // Use Sentinel-2 Surface Reflectance
       const collection = ee.ImageCollection('COPERNICUS/S2_SR_HARMONIZED')
-        .filterBounds(point)
+        .filterBounds(geometryToUse)
         .filterDate(startDate.toISOString().split('T')[0], endDate.toISOString().split('T')[0])
         .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', 20))
         .sort('system:time_start', false); // Most recent first
@@ -107,10 +124,10 @@ export const getSatelliteDataForFarm = async (farmId: string, lat?: number, lng?
       // Compute NDVI: (NIR - Red) / (NIR + Red) for Sentinel-2 is (B8 - B4) / (B8 + B4)
       const ndviImage = latestImage.normalizedDifference(['B8', 'B4']).rename('NDVI');
 
-      // 1. Extract numerical NDVI value at the coordinate
+      // 1. Extract numerical NDVI value at the coordinate/polygon
       const ndviDict = ndviImage.reduceRegion({
         reducer: ee.Reducer.mean(),
-        geometry: point,
+        geometry: geometryToUse,
         scale: 10, // Sentinel-2 resolution
         maxPixels: 1e9
       });
@@ -123,7 +140,7 @@ export const getSatelliteDataForFarm = async (farmId: string, lat?: number, lng?
       };
 
       // Buffer of ~300 meters for a tighter visual context and higher relative resolution
-      const region = point.buffer(300);
+      const region = geometryToUse.buffer(300);
 
       // Evaluate the numerical value
       ndviDict.evaluate((result: any, evalError: any) => {

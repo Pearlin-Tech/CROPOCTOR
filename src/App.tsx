@@ -20,9 +20,13 @@ const NotificationManager = () => {
 }
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { isAuthenticated, isAuthLoading } = useUser()
+  const { isAuthenticated, isAuthLoading, authUser } = useUser()
   if (isAuthLoading) return <Fallback />
   if (!isAuthenticated) return <Navigate to="/welcome" replace />
+  // Block email/password users who haven't verified their email yet
+  if (authUser && !authUser.emailVerified && authUser.providerData?.[0]?.providerId === 'password') {
+    return <Navigate to="/verify-email" replace />
+  }
   return <>{children}</>
 }
 
@@ -33,6 +37,7 @@ const LanguagePage        = lazy(() => import('@/pages/onboarding/LanguagePage')
 const CountryPage         = lazy(() => import('@/pages/onboarding/CountryPage'))
 const LoginPage           = lazy(() => import('@/pages/onboarding/LoginPage'))
 const SignUpPage           = lazy(() => import('@/pages/onboarding/SignUpPage'))
+const EmailVerificationPage = lazy(() => import('@/pages/onboarding/EmailVerificationPage'))
 const FarmerProfilePage   = lazy(() => import('@/pages/onboarding/FarmerProfilePage'))
 const FarmLocationPage    = lazy(() => import('@/pages/onboarding/FarmLocationPage'))
 const FarmBoundaryPage    = lazy(() => import('@/pages/onboarding/FarmBoundaryPage'))
@@ -61,6 +66,7 @@ const ProfilePage           = lazy(() => import('@/pages/main/ProfilePage'))
 const SettingsPage          = lazy(() => import('@/pages/main/SettingsPage'))
 const LanguageSettingsPage  = lazy(() => import('@/pages/main/LanguageSettingsPage'))
 const VoiceSettingsPage     = lazy(() => import('@/pages/main/VoiceSettingsPage'))
+const NotificationSettingsPage = lazy(() => import('@/pages/main/NotificationSettingsPage'))
 const HelpPage              = lazy(() => import('@/pages/main/HelpPage'))
 const AboutPage             = lazy(() => import('@/pages/main/AboutPage'))
 const HistoryPage           = lazy(() => import('@/pages/main/FarmHistoryPage'))
@@ -84,6 +90,7 @@ const App: React.FC = () => (
                   <Route path="/country"  element={<CountryPage />} />
                   <Route path="/login"    element={<LoginPage />} />
                   <Route path="/signup"   element={<SignUpPage />} />
+                  <Route path="/verify-email" element={<EmailVerificationPage />} />
                 <Route path="/onboarding">
                   <Route path="profile"      element={<FarmerProfilePage />} />
                   <Route path="location"     element={<FarmLocationPage />} />
@@ -116,6 +123,7 @@ const App: React.FC = () => (
                   <Route path="/settings"   element={<SettingsPage />} />
                   <Route path="/settings/language" element={<LanguageSettingsPage />} />
                   <Route path="/settings/voice"    element={<VoiceSettingsPage />} />
+                  <Route path="/settings/notifications" element={<NotificationSettingsPage />} />
                   <Route path="/help"       element={<HelpPage />} />
                   <Route path="/about"      element={<AboutPage />} />
                 </Route>

@@ -46,6 +46,85 @@ export const timeAgo = (isoString: string): string => {
   return new Date(isoString).toLocaleDateString()
 }
 
+/**
+ * Single canonical function for converting any Firestore timestamp shape
+ * (Firestore Timestamp object, ISO string, Date, serialized {seconds, nanoseconds})
+ * into a display string. Used by diagnosis history throughout the app.
+ */
+export const formatDiagnosisTimestamp = (
+  ts: any,
+  opts: { relative?: boolean; date?: boolean; time?: boolean } = { date: true, time: true }
+): string => {
+  let d: Date | null = null
+
+  if (!ts) return 'Unknown date'
+
+  // Firestore Timestamp with .toDate()
+  if (ts && typeof ts.toDate === 'function') {
+    d = ts.toDate()
+  // Serialized Firestore timestamp {seconds, nanoseconds}
+  } else if (ts && typeof ts.seconds === 'number') {
+    d = new Date(ts.seconds * 1000)
+  // ISO string or numeric epoch
+  } else if (typeof ts === 'string' || typeof ts === 'number') {
+    d = new Date(ts)
+  } else if (ts instanceof Date) {
+    d = ts
+  }
+
+  if (!d || isNaN(d.getTime())) return 'Unknown date'
+
+  if (opts.relative) {
+    const diff = Date.now() - d.getTime()
+    const mins = Math.floor(diff / 60000)
+    const hours = Math.floor(diff / 3600000)
+    const days = Math.floor(diff / 86400000)
+    if (mins < 1) return 'Just now'
+    if (mins < 60) return `${mins}m ago`
+    if (hours < 24) return `${hours}h ago`
+    if (days < 2) return 'Yesterday'
+  }
+
+  const dateStr = d.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })
+  const timeStr = d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })
+
+  if (opts.date && opts.time) return `${dateStr}, ${timeStr}`
+  if (opts.date) return dateStr
+  if (opts.time) return timeStr
+  return dateStr
+}
+
+/** Group diagnosis records by relative day label (Today / Yesterday / date string) */
+export const groupByDiagnosisDay = <T extends { timestamp: any }>(
+  items: T[]
+): { label: string; items: T[] }[] => {
+  const groups = new Map<string, T[]>()
+  const now = new Date()
+  const todayStr = now.toDateString()
+  const yesterdayStr = new Date(now.getTime() - 86400000).toDateString()
+
+  for (const item of items) {
+    let d: Date | null = null
+    const ts = item.timestamp
+    if (ts && typeof ts.toDate === 'function') d = ts.toDate()
+    else if (ts && typeof ts.seconds === 'number') d = new Date(ts.seconds * 1000)
+    else if (ts) d = new Date(ts)
+
+    let label = 'Earlier'
+    if (d && !isNaN(d.getTime())) {
+      const dayStr = d.toDateString()
+      if (dayStr === todayStr) label = 'Today'
+      else if (dayStr === yesterdayStr) label = 'Yesterday'
+      else label = d.toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' })
+    }
+
+    if (!groups.has(label)) groups.set(label, [])
+    groups.get(label)!.push(item)
+  }
+
+  return Array.from(groups.entries()).map(([label, items]) => ({ label, items }))
+}
+
 /** Greeting based on time of day */
 export const getGreeting = (): 'morning' | 'afternoon' | 'evening' => {
   const h = new Date().getHours()

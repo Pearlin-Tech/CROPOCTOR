@@ -24,6 +24,7 @@ const ProfilePage: React.FC = () => {
         { icon: Globe, label: t('profile.language', 'Language'), value: language.toUpperCase(), route: '/settings/language' },
         { icon: Flag,  label: t('profile.country', 'Country'), value: farmer?.country || 'India 🇮🇳', route: '/country' },
         { icon: Mic,   label: t('profile.voiceSettings', 'Voice Settings'), value: null, route: '/settings/voice' },
+        { icon: Bell,  label: t('profile.notificationsSettings', 'Push Notifications'), value: null, route: '/settings/notifications' },
       ],
     },
     {

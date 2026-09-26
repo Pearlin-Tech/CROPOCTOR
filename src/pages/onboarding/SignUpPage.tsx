@@ -11,12 +11,13 @@ import { Input } from '@/components/ui/Input'
 import { PhoneInput } from '@/components/ui/PhoneInput'
 
 import { useUser } from '@/store/UserContext'
-import { MOCK_FARMER } from '@/mock/farmer'
 import { useApp } from '@/store/AppContext'
 import { IMAGES } from '@/config/images'
 import { useTranslation } from 'react-i18next'
 import { authService } from '@/services/authService'
+import { userService } from '@/services/userService'
 import { auth } from '@/services/firebase'
+import type { Farmer } from '@/types'
 
 const emailSchema = z.object({
   name:     z.string().min(2, 'Please enter your full name.'),
@@ -76,8 +77,18 @@ const SignUpPage: React.FC = () => {
       toast.error(verifyError)
       return // Stop here if verification email fails to send
     }
-    toast.success('Verification email sent!')
-    login({ ...MOCK_FARMER, name: data.name, email: data.email })
+    const farmerData: Farmer = {
+      id: user.uid,
+      name: data.name,
+      email: data.email,
+      phone: '',
+      experience: 'beginner',
+      country: 'IN',
+      preferredLanguage: 'en',
+      createdAt: new Date().toISOString()
+    }
+    await userService.saveUserProfile(farmerData)
+    login(farmerData)
     setResendCooldown(60)
     setEmailSent(true)
   }
@@ -123,8 +134,20 @@ const SignUpPage: React.FC = () => {
     if (!phoneName.trim()) { toast.error('Please enter your name.'); return }
     setLoading(true)
     if (authUser) await authService.updateUserProfile(authUser, { displayName: phoneName })
-    setLoading(false)
-    login({ ...MOCK_FARMER, name: phoneName, phone })
+    const farmerData: Farmer = {
+      id: authUser?.uid || `phone-${Date.now()}`,
+      name: phoneName,
+      email: '',
+      phone: phone,
+      experience: 'beginner',
+      country: 'IN',
+      preferredLanguage: 'en',
+      createdAt: new Date().toISOString()
+    }
+    if (authUser?.uid) {
+      await userService.saveUserProfile(farmerData)
+    }
+    login(farmerData)
     navigate('/onboarding/profile')
     toast.success('Account created successfully!')
   }

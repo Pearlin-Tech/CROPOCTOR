@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Camera, Upload, FlaskConical, ChevronRight, RefreshCw, AlertCircle, Stethoscope, AlertTriangle, RotateCcw } from 'lucide-react'
+import { Camera, Upload, FlaskConical, ChevronRight, RefreshCw, AlertCircle, Stethoscope, AlertTriangle, RotateCcw, ShieldAlert } from 'lucide-react'
 import { pageVariants } from '@/animations/variants'
 import { PageLayout, MobileHeader } from '@/components/layout/AppShell'
 import { Button } from '@/components/ui/Button'
@@ -13,6 +13,7 @@ import { useUser } from '@/store/UserContext'
 import { useFarm } from '@/store/FarmContext'
 import { cropDoctorService, validateCropImage } from '@/services/cropDoctorService'
 import { compressImageWithFallback } from '@/utils/imageCompressor'
+import { formatDiagnosisTimestamp } from '@/utils/format'
 import type { DiagnosisResult } from '@/types'
 import { CameraModal } from '@/components/ui/CameraModal'
 
@@ -53,6 +54,8 @@ const CropDoctorPage: React.FC = () => {
   // History State
   const [recentDiagnoses, setRecentDiagnoses] = useState<DiagnosisResult[]>([])
   const [isLoadingHistory, setIsLoadingHistory] = useState<boolean>(true)
+  const [historyError, setHistoryError] = useState<string | null>(null)
+  const [diagnosisRefreshKey, setDiagnosisRefreshKey] = useState(0)
 
   // Handle "Diagnose Another Crop" state reset triggered via router
   useEffect(() => {
@@ -67,20 +70,24 @@ const CropDoctorPage: React.FC = () => {
   useEffect(() => {
     let isMounted = true
     setIsLoadingHistory(true)
+    setHistoryError(null)
 
     cropDoctorService.getRecentDiagnoses(5, activeFarm?.id).then(list => {
       if (!isMounted) return
-      if (list && list.length > 0) {
-        setRecentDiagnoses(list)
-      }
+      setRecentDiagnoses(list)
       setIsLoadingHistory(false)
     }).catch(err => {
-      console.warn('[CropDoctorPage] Failed to fetch diagnosis history:', err)
-      if (isMounted) setIsLoadingHistory(false)
+      if (!isMounted) return
+      setIsLoadingHistory(false)
+      if (err?.message === 'FIRESTORE_PERMISSION_DENIED') {
+        setHistoryError('Permission denied reading diagnosis history. Check Firestore rules.')
+      } else {
+        console.warn('[CropDoctorPage] Failed to fetch diagnosis history:', err)
+      }
     })
 
     return () => { isMounted = false }
-  }, [authUser?.uid, isAnalyzing, activeFarm?.id])
+  }, [authUser?.uid, activeFarm?.id, diagnosisRefreshKey])
 
   /**
    * Resets current image selection in memory
@@ -280,7 +287,8 @@ const CropDoctorPage: React.FC = () => {
         return
       }
 
-      // On Success: Navigate to Diagnosis Result Page displaying structured diagnosis
+      // On Success: Trigger history refresh then navigate to result page
+      setDiagnosisRefreshKey(k => k + 1)
       navigate('/diagnosis-result', {
         state: {
           diagnosis: result.diagnosis,
@@ -497,36 +505,85 @@ const CropDoctorPage: React.FC = () => {
 
             {/* History List Card */}
             <Card padding="md" className="border-brown-pastel/30 bg-off-white shadow-sm">
-              <h3 className="font-bold text-brown-earth mb-3 flex items-center gap-2">
-                <span className="text-lg">📋</span> {t('diagnose.recentTitle', 'Recent Diagnoses History')}
-              </h3>
-              
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="font-bold text-brown-earth flex items-center gap-2">
+                  <span className="text-lg">📋</span> {t('diagnose.recentTitle', 'Recent Diagnoses')}
+                </h3>
+                {recentDiagnoses.length > 0 && (
+                  <button
+                    onClick={() => setDiagnosisRefreshKey(k => k + 1)}
+                    className="text-xs text-green-forest font-semibold flex items-center gap-1 hover:underline"
+                  >
+                    <RefreshCw className="w-3 h-3" />
+                    Refresh
+                  </button>
+                )}
+              </div>
+
               {isLoadingHistory ? (
                 <div className="py-6 text-center text-sm text-gray-500 flex items-center justify-center gap-2">
                   <RefreshCw className="w-4 h-4 animate-spin text-green-forest" />
-                  Loading history from Firestore...
+                  Loading from Firestore...
+                </div>
+              ) : historyError ? (
+                <div className="flex flex-col items-center gap-2 py-5 px-3 bg-red-50 rounded-xl border border-red-100">
+                  <ShieldAlert className="w-7 h-7 text-red-400" />
+                  <p className="text-xs font-semibold text-red-700 text-center">Permission Denied</p>
+                  <p className="text-xs text-red-500 text-center">{historyError}</p>
                 </div>
               ) : recentDiagnoses.length === 0 ? (
-                <p className="text-xs text-gray-500 text-center py-4">No recent diagnoses found.</p>
+                <div className="flex flex-col items-center gap-2 py-6 text-center">
+                  <span className="text-3xl">🌿</span>
+                  <p className="text-sm font-semibold text-gray-600">No diagnoses yet</p>
+                  <p className="text-xs text-gray-400">Upload a crop photo above to get your first diagnosis</p>
+                </div>
               ) : (
-                <div className="space-y-3">
-                  {recentDiagnoses.map(d => (
-                    <button
-                      key={d.id}
-                      onClick={() => navigate('/diagnosis-result', { state: { diagnosis: d } })}
-                      className="w-full flex items-center gap-4 p-3 bg-white border border-brown-pastel/30 rounded-2xl shadow-sm hover:border-green-pastel hover:bg-green-pastel/10 transition-all text-left"
-                    >
-                      <img src={d.imageUrl} alt={d.disease} className="w-14 h-14 rounded-xl object-cover border border-brown-pastel/20 bg-gray-100" />
-                      <div className="flex-1 min-w-0">
-                        <p className="font-bold text-text-main text-sm truncate">{(d as any).diseaseName || d.disease}</p>
-                        <p className="text-xs text-text-secondary font-medium mt-0.5">{(d as any).cropName || d.crop} · <span className="text-green-forest font-bold">{d.confidence}% match</span></p>
-                        <p className="text-xs text-brown-earth/60 mt-0.5">{(d as any).timestamp?.slice(0, 10) || 'Recently'}</p>
-                      </div>
-                      <span className="w-8 h-8 rounded-full bg-green-pastel/20 flex items-center justify-center shrink-0">
-                        <ChevronRight className="w-4 h-4 text-green-forest" />
-                      </span>
-                    </button>
-                  ))}
+                <div className="space-y-2.5">
+                  {recentDiagnoses.map(d => {
+                    const severityColor =
+                      d.severity === 'severe'
+                        ? 'text-red-600 bg-red-50'
+                        : d.severity === 'moderate'
+                        ? 'text-amber-600 bg-amber-50'
+                        : 'text-green-700 bg-green-50'
+
+                    return (
+                      <button
+                        key={d.id}
+                        onClick={() => navigate('/diagnosis-result', { state: { diagnosis: d } })}
+                        className="w-full flex items-start gap-3 p-3.5 bg-white border border-brown-pastel/30 rounded-2xl shadow-sm hover:border-green-forest/40 hover:shadow-card-lg transition-all text-left group"
+                      >
+                        <div className="w-12 h-12 rounded-xl overflow-hidden bg-gray-100 shrink-0 border border-brown-pastel/20">
+                          <img
+                            src={d.imageUrl || '/images/disease_leaf_1787238259522.jpg'}
+                            alt={d.diseaseName || d.disease}
+                            className="w-full h-full object-cover"
+                            onError={(e) => { (e.target as HTMLImageElement).src = '/images/disease_leaf_1787238259522.jpg' }}
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-bold text-text-main text-sm leading-tight">
+                            {d.diseaseName || d.disease || 'Issue Detected'}
+                          </p>
+                          <p className="text-xs text-text-secondary font-medium mt-0.5">
+                            🌿 {d.cropName || d.crop}
+                          </p>
+                          <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                            <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${severityColor}`}>
+                              {d.severity ? d.severity.charAt(0).toUpperCase() + d.severity.slice(1) : 'Unknown'}
+                            </span>
+                            <span className="text-xs text-green-forest font-bold">
+                              {d.confidence}% confidence
+                            </span>
+                          </div>
+                          <p className="text-xs text-gray-400 mt-1">
+                            {formatDiagnosisTimestamp(d.timestamp)}
+                          </p>
+                        </div>
+                        <ChevronRight className="w-4 h-4 text-green-forest shrink-0 mt-1 group-hover:translate-x-0.5 transition-transform" />
+                      </button>
+                    )
+                  })}
                 </div>
               )}
             </Card>

@@ -7,6 +7,9 @@ export interface UserProfileData {
   country?: string;
   email?: string;
   name?: string;
+  phone?: string;
+  experience?: 'beginner' | 'intermediate' | 'expert';
+  createdAt?: string;
   updatedAt?: any;
 }
 
@@ -76,6 +79,31 @@ export const userService = {
       return { success: true, error: null };
     } catch (err: any) {
       console.warn("[userService] Error saving user country:", err?.message || err);
+      return { success: false, error: err?.message || String(err) };
+    }
+  },
+
+  /**
+   * Saves/updates full user profile in Firestore
+   */
+  saveUserProfile: async (profile: Partial<UserProfileData> & { id: string }): Promise<{ success: boolean; error: string | null }> => {
+    try {
+      if (!db || !db.app) {
+        return { success: false, error: "Firestore not initialized" };
+      }
+      const userRef = doc(db, "users", profile.id);
+      const { id, ...data } = profile;
+      await setDoc(
+        userRef,
+        {
+          ...data,
+          updatedAt: serverTimestamp(),
+        },
+        { merge: true }
+      );
+      return { success: true, error: null };
+    } catch (err: any) {
+      console.warn("[userService] Error saving user profile:", err?.message || err);
       return { success: false, error: err?.message || String(err) };
     }
   },

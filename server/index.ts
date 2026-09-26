@@ -300,6 +300,15 @@ function getFallbackAdvisory(weather: any, soil: any) {
   }
 }
 
+// GET /api/health endpoint
+app.get('/api/health', (req: Request, res: Response) => {
+  res.json({
+    ok: true,
+    service: 'cropdoctor-api',
+    timestamp: new Date().toISOString()
+  });
+});
+
 // GET /api/weather endpoint
 app.get('/api/weather', async (req: Request, res: Response) => {
   try {
@@ -735,21 +744,33 @@ Provide your response strictly in raw JSON format (no markdown formatting, no co
  */
 app.post('/api/analyze-crop', async (req: Request, res: Response) => {
   try {
-    const { imageBase64, mimeType, imageUrl, isSample, farmContext } = req.body
+    const { imageBase64, mimeType, imageUrl, isSample, farmContext, language } = req.body
 
     const result = await analyzeCropWithGeminiModule({
       imageBase64,
       mimeType,
       imageUrl,
       isSample: Boolean(isSample),
-      farmContext
+      farmContext,
+      language
     })
 
     if (!result.success || !result.data) {
       const isRateLimit = result.error?.includes('429') || result.error?.toLowerCase().includes('quota');
       return res.status(isRateLimit ? 429 : 400).json({
         success: false,
-        error: result.error || 'Failed to process crop diagnosis.'
+        error: {
+          code: isRateLimit ? 'RATE_LIMIT' : 'AI_ERROR',
+          message: result.error || 'Failed to process crop diagnosis.'
+        }
+      })
+    }
+
+    if (!result.data.isPlantImage) {
+      return res.status(400).json({
+        success: false,
+        code: 'NO_PLANT_DETECTED',
+        message: 'Please upload a clear image of a plant leaf or crop.'
       })
     }
 
@@ -761,7 +782,10 @@ app.post('/api/analyze-crop', async (req: Request, res: Response) => {
     console.error('[Server Error /api/analyze-crop]:', err?.message || err)
     return res.status(500).json({
       success: false,
-      error: 'An internal server error occurred while processing crop diagnosis.'
+      error: {
+        code: 'INTERNAL_ERROR',
+        message: 'An internal server error occurred while processing crop diagnosis.'
+      }
     })
   }
 })
@@ -774,10 +798,18 @@ app.post('/api/advisor', async (req: Request, res: Response) => {
   }
 
   try {
-    const { question, farmContext } = req.body
+    const { question, farmContext, language } = req.body
     if (!question) {
       return res.status(400).json({ error: 'Question is required' })
     }
+
+    const languageMap: Record<string, string> = {
+      'en': 'English', 'hi': 'Hindi', 'gu': 'Gujarati', 'mr': 'Marathi',
+      'pt': 'Portuguese', 'ru': 'Russian', 'zh': 'Chinese', 'ar': 'Arabic',
+      'am': 'Amharic', 'fa': 'Persian', 'id': 'Indonesian'
+    }
+    const targetLangName = language ? (languageMap[language] || language) : '';
+    const langInstruction = targetLangName ? `\nCRITICAL LANGUAGE INSTRUCTION:\nYou MUST generate all your textual responses (recommendation, why, whatToDo, currentCondition, risks, whatToMonitor, whenToAct, prosCons) translated into this language: ${targetLangName}. However, the JSON schema keys MUST remain in English.` : '';
 
     const prompt = `
 You are an expert agricultural agronomy advisor. Return ONLY a raw JSON object (no markdown formatting, no code blocks) matching the exact schema below based on the real farm context and the user's question.
@@ -786,7 +818,7 @@ CRITICAL SAFETY RULES:
 - Never fabricate NDVI, satellite observations, weather, disease symptoms, diagnosis confidence, treatment effectiveness, or farm measurements.
 - Use actual available data.
 - If data is missing or satellite data is unavailable, say: "Data unavailable" or "Not enough information" rather than hallucinating it.
-- Do NOT claim that NDVI proves a specific disease. Satellite data should be treated as supporting farm-level vegetation information.
+- Do NOT claim that NDVI proves a specific disease. Satellite data should be treated as supporting farm-level vegetation information.${langInstruction}
 
 [USER QUESTION]
 ${question}
@@ -840,16 +872,83 @@ ${question}
     const parsed = JSON.parse(response.text || '{}')
 
     if (parsed && parsed.recommendation && parsed.why && parsed.whatToDo && parsed.dataUsed) {
-      return res.json(parsed)
+      return res.json({
+        success: true,
+        answer: parsed.recommendation,
+        recommendations: parsed.whatToDo,
+        timestamp: new Date().toISOString(),
+        structured: parsed
+      })
     }
     
     throw new Error('Gemini response schema mismatch')
   } catch (err: any) {
     console.error('[Server Error /api/advisor]:', err)
     if (err.status === 429 || (err.message && err.message.includes('429'))) {
-      return res.status(429).json({ error: 'AI Quota Exceeded', message: 'The AI service is temporarily unavailable due to high demand. Please try again in a minute.' })
+      return res.status(429).json({ 
+        success: false, 
+        error: { code: 'RATE_LIMIT', message: 'The AI service is temporarily unavailable due to high demand. Please try again in a minute.' } 
+      })
     }
-    return res.status(500).json({ error: 'Failed to generate AI recommendation', message: err.message })
+    if (err.status === 503 || (err.message && err.message.includes('503'))) {
+      return res.status(503).json({ 
+        success: false, 
+        error: { code: 'SERVICE_UNAVAILABLE', message: 'The AI model is experiencing high demand. Please try again later.' } 
+      })
+    }
+    return res.status(500).json({ 
+      success: false, 
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to generate AI recommendation. ' + err.message } 
+    })
+  }
+})
+
+/**
+ * POST /api/translate
+ * Translates historical text payloads on the fly for legacy/historical data localization.
+ */
+app.post('/api/translate', async (req: Request, res: Response) => {
+  const { text, targetLanguage } = req.body
+  if (!text || !targetLanguage) {
+    return res.status(400).json({ error: 'text and targetLanguage are required' })
+  }
+
+  const geminiKey = process.env.GEMINI_API_KEY
+  if (!geminiKey) {
+    return res.status(500).json({ error: 'GEMINI_API_KEY is missing' })
+  }
+
+  try {
+    const prompt = `Translate the following JSON object to ${targetLanguage}. ONLY translate string values. Do NOT translate keys. Return raw JSON only, no markdown formatting.\n\n${JSON.stringify(text)}`
+    
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiKey}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { temperature: 0.1 }
+      })
+    })
+
+    if (!response.ok) {
+      throw new Error('Gemini API request failed')
+    }
+
+    const data = await response.json()
+    let translatedText = data.candidates?.[0]?.content?.parts?.[0]?.text || ''
+    translatedText = translatedText.replace(/```json/g, '').replace(/```/g, '').trim()
+
+    let translatedObj;
+    try {
+      translatedObj = JSON.parse(translatedText)
+    } catch (e) {
+      translatedObj = text // fallback
+    }
+
+    res.json({ success: true, translatedData: translatedObj })
+  } catch (err: any) {
+    console.error('[Translation API Error]', err)
+    res.status(500).json({ success: false, error: 'Translation failed', details: err.message })
   }
 })
 

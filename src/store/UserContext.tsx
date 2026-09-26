@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, type ReactNode }
 import type { Farmer } from '@/types'
 import { authService } from '@/services/authService'
 import { userService } from '@/services/userService'
+import { notificationService } from '@/services'
 import { useApp } from '@/store/AppContext'
 import type { User } from 'firebase/auth'
 
@@ -39,6 +40,12 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         setAuthUser(user)
         if (user) {
           setIsAuth(true)
+          
+          // Request and register FCM push token when user logs in
+          setTimeout(() => {
+            notificationService.registerFCMToken().catch(e => console.warn('[FCM] registration failed', e));
+          }, 2000);
+
           const saved = localStorage.getItem('cropoctor-farmer')
           if (saved) {
             try { setFarmer(JSON.parse(saved)) } catch {}

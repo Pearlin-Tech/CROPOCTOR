@@ -19,11 +19,42 @@ import { processAssistantRequest } from '../server/services/geminiAssistantServi
 import { synthesizeTextToSpeech } from '../server/services/ttsService'
 import { analyzeCropWithGeminiModule } from '../server/services/geminiDiagnosisModule'
 import { getSatelliteDataForFarm } from '../server/services/satelliteService'
+import { runFarmMonitor } from '../server/services/monitorService'
 import { AI_CONFIG } from '../server/config/aiConfig'
 
 const app = express()
 
+// ── Rate limiting (in-memory, per IP) ─────────────────────────────────────────
+const RATE_LIMIT_WINDOW_MS = 60_000  // 1 minute
+const RATE_LIMIT_MAX_REQUESTS = 100  // per window per IP
+const rateLimitMap = new Map<string, { count: number; windowStart: number }>()
+
+function rateLimit(req: Request, res: Response, next: () => void) {
+  const ip = (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || req.socket.remoteAddress || 'unknown'
+  const now = Date.now()
+  const entry = rateLimitMap.get(ip)
+  if (!entry || now - entry.windowStart > RATE_LIMIT_WINDOW_MS) {
+    rateLimitMap.set(ip, { count: 1, windowStart: now })
+  } else {
+    entry.count++
+    if (entry.count > RATE_LIMIT_MAX_REQUESTS) {
+      res.setHeader('Retry-After', '60')
+      return res.status(429).json({ error: 'Too many requests', retryAfterSeconds: 60 })
+    }
+  }
+  next()
+}
+
+// Prune stale entries every 5 minutes to avoid memory leak
+setInterval(() => {
+  const cutoff = Date.now() - RATE_LIMIT_WINDOW_MS * 2
+  for (const [ip, entry] of rateLimitMap.entries()) {
+    if (entry.windowStart < cutoff) rateLimitMap.delete(ip)
+  }
+}, 5 * 60 * 1000).unref()
+
 app.use(cors({ origin: true }))
+app.use(rateLimit)
 app.use(express.json({ limit: '10mb' }))
 
 // ── In-memory server cache ────────────────────────────────────────────────────
@@ -226,24 +257,37 @@ app.post('/api/analyze-crop', async (req: Request, res: Response) => {
   try {
     const { imageBase64, mimeType, imageUrl, isSample, farmContext } = req.body
     const result = await analyzeCropWithGeminiModule({ imageBase64, mimeType, imageUrl, isSample: Boolean(isSample), farmContext })
+    
     if (!result.success || !result.data) {
       const isRateLimit = result.error?.includes('429') || result.error?.toLowerCase().includes('quota')
-      return res.status(isRateLimit ? 429 : 400).json({ success: false, error: result.error || 'Failed to process crop diagnosis.' })
+      return res.status(isRateLimit ? 429 : 400).json({
+        success: false,
+        error: { code: isRateLimit ? 'RATE_LIMIT' : 'AI_ERROR', message: result.error || 'Failed to process crop diagnosis.' }
+      })
     }
+    
+    if (!result.data.isPlantImage) {
+      return res.status(400).json({
+        success: false,
+        code: 'NO_PLANT_DETECTED',
+        message: 'Please upload a clear image of a plant leaf or crop.'
+      })
+    }
+
     return res.json({ success: true, data: result.data })
   } catch (err: any) {
-    return res.status(500).json({ success: false, error: 'Internal error during crop diagnosis.' })
+    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal error during crop diagnosis.' } })
   }
 })
 
 // ── /api/advisor ──────────────────────────────────────────────────────────────
 app.post('/api/advisor', async (req: Request, res: Response) => {
   const geminiKey = process.env.GEMINI_API_KEY
-  if (!geminiKey) return res.status(503).json({ error: 'AI features unavailable — GEMINI_API_KEY not set.' })
+  if (!geminiKey) return res.status(503).json({ success: false, error: { code: 'CONFIG_MISSING', message: 'AI features unavailable — GEMINI_API_KEY not set.' } })
 
   try {
     const { question, farmContext } = req.body
-    if (!question) return res.status(400).json({ error: 'question is required' })
+    if (!question) return res.status(400).json({ success: false, error: { code: 'BAD_REQUEST', message: 'question is required' } })
 
     const prompt = `You are an expert agricultural agronomy advisor. Return ONLY a raw JSON object (no markdown, no code blocks).
 
@@ -262,13 +306,25 @@ Return JSON: {"recommendation":"","why":"","currentCondition":"","risks":"","wha
     const ai = new GoogleGenAI({ apiKey: geminiKey })
     const response = await ai.models.generateContent({ model: AI_CONFIG.TEXT_MODEL, contents: prompt, config: { responseMimeType: 'application/json' } })
     const parsed = JSON.parse(response.text || '{}')
-    if (parsed?.recommendation && parsed?.whatToDo && parsed?.dataUsed) return res.json(parsed)
+    
+    if (parsed?.recommendation && parsed?.whatToDo && parsed?.dataUsed) {
+      return res.json({
+        success: true,
+        answer: parsed.recommendation,
+        recommendations: parsed.whatToDo,
+        timestamp: new Date().toISOString(),
+        structured: parsed
+      })
+    }
     throw new Error('Schema mismatch')
   } catch (err: any) {
     if (err.status === 429 || err.message?.includes('429')) {
-      return res.status(429).json({ error: 'AI Quota Exceeded', message: 'AI service temporarily unavailable. Please try again shortly.' })
+      return res.status(429).json({ success: false, error: { code: 'RATE_LIMIT', message: 'AI service temporarily unavailable. Please try again shortly.' } })
     }
-    return res.status(500).json({ error: 'Failed to generate AI recommendation', message: err.message })
+    if (err.status === 503 || err.message?.includes('503')) {
+      return res.status(503).json({ success: false, error: { code: 'SERVICE_UNAVAILABLE', message: 'The AI model is experiencing high demand. Please try again later.' } })
+    }
+    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: err.message } })
   }
 })
 
@@ -278,10 +334,38 @@ app.get('/api/farms/:farmId/satellite', async (req: Request, res: Response) => {
     const { farmId } = req.params
     const lat = req.query.lat ? parseFloat(req.query.lat as string) : undefined
     const lng = req.query.lng ? parseFloat(req.query.lng as string) : undefined
-    const data = await getSatelliteDataForFarm(farmId, lat, lng)
+    let boundary: {lat: number, lng: number}[] | undefined = undefined;
+    if (req.query.boundary) {
+      try {
+        boundary = JSON.parse(req.query.boundary as string);
+      } catch (e) {
+        console.warn('Invalid boundary json passed to satellite endpoint');
+      }
+    }
+    const data = await getSatelliteDataForFarm(farmId, lat, lng, boundary)
     res.json({ success: true, data })
   } catch (error: any) {
     res.status(500).json({ success: false, error: error.message || 'Failed to fetch satellite data' })
+  }
+})
+
+// ── /api/notifications/subscribe ───────────────────────────────────────────────
+app.post('/api/notifications/subscribe', verifyFirebaseAuth as any, async (req: Request, res: Response) => {
+  try {
+    const { token } = req.body
+    if (!token) return res.status(400).json({ error: 'token is required' })
+    const userId = (req as AuthenticatedRequest).user?.uid
+    if (!userId) return res.status(401).json({ error: 'Unauthorized' })
+
+    const admin = await import('firebase-admin')
+    const db = admin.firestore()
+    await db.collection('users').doc(userId).collection('fcmTokens').doc(token).set({
+      token,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp()
+    })
+    return res.json({ success: true })
+  } catch (err: any) {
+    return res.status(500).json({ success: false, error: err.message })
   }
 })
 
@@ -329,8 +413,18 @@ app.post('/api/cron/monitor', async (req: Request, res: Response) => {
   if (cronSecret && authHeader !== `Bearer ${cronSecret}` && authHeader !== cronSecret) {
     return res.status(401).json({ error: 'Unauthorized' })
   }
-  // Stub — full implementation in Phase 4
-  res.json({ success: true, message: 'Monitor job triggered (stub — Phase 4 implements full logic)', timestamp: new Date().toISOString() })
+
+  const dryRun = req.query.dry_run === 'true' || req.body?.dry_run === true
+
+  try {
+    console.log(`[/api/cron/monitor] Starting farm monitor run (dryRun=${dryRun})...`)
+    const result = await runFarmMonitor({ dryRun })
+    console.log(`[/api/cron/monitor] Completed. farmsProcessed=${result.farmsProcessed} alertsFired=${result.alertsFired} alertsDeduplicated=${result.alertsDeduplicated} errors=${result.errors.length}`)
+    return res.json({ success: true, ...result })
+  } catch (err: any) {
+    console.error('[/api/cron/monitor] Fatal error:', err.message)
+    return res.status(500).json({ success: false, error: err.message })
+  }
 })
 
 // Export for Vercel serverless + local Express listen
