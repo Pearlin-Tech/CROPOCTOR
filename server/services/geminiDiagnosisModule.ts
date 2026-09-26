@@ -232,6 +232,7 @@ export async function analyzeCropWithGeminiModule(
     parts.push({ text: fullPrompt })
 
     const modelName = AI_CONFIG.VISION_MODEL
+    console.log(`[AI DIAGNOSIS] Vision model: ${modelName}`)
     const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${geminiKey}`
 
     const controller = new AbortController()

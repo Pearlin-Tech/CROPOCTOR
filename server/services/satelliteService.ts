@@ -168,7 +168,7 @@ export const getSatelliteDataForFarm = async (farmId: string, lat?: number, lng?
 
         // Use a much larger buffer (1000m) to get a wider context and avoid extreme pixelation
         // Evaluate the geometry locally to a GeoJSON representation before requesting the URL
-        const bufferGeo = point.buffer(1000);
+        const bufferGeo = geometryToUse.buffer(1000);
         bufferGeo.evaluate((regionData: any, geoError: any) => {
           if (geoError) return reject(new Error(`GEE Geometry Error: ${geoError}`));
           

@@ -921,7 +921,7 @@ app.post('/api/translate', async (req: Request, res: Response) => {
   try {
     const prompt = `Translate the following JSON object to ${targetLanguage}. ONLY translate string values. Do NOT translate keys. Return raw JSON only, no markdown formatting.\n\n${JSON.stringify(text)}`
     
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiKey}`, {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${AI_CONFIG.TEXT_MODEL}:generateContent?key=${geminiKey}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -954,6 +954,7 @@ app.post('/api/translate', async (req: Request, res: Response) => {
 
 app.listen(PORT, () => {
   console.log(`⚡ Agri AI Backend Server running on http://localhost:${PORT}`)
+  console.log(`[INIT] Configured Vision Model: ${process.env.GEMINI_VISION_MODEL || 'gemini-3.1-pro-preview'}`)
 })
 
 

@@ -122,6 +122,7 @@ Return ONLY a raw JSON object (no markdown formatting, no code blocks) matching 
     parts.push({ text: promptText })
 
     const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${AI_CONFIG.VISION_MODEL}:generateContent?key=${geminiKey}`
+    console.log(`[AI DIAGNOSIS] Vision model: ${AI_CONFIG.VISION_MODEL}`)
     
     const response = await fetch(apiUrl, {
       method: 'POST',

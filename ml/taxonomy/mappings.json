@@ -1,0 +1,22 @@
+{
+  "datasets": {
+    "PlantVillage": {
+      "Tomato___Early_blight": {
+        "cropCode": "tomato",
+        "diagnosisCode": "early blight"
+      },
+      "Tomato___Late_blight": {
+        "cropCode": "tomato",
+        "diagnosisCode": "late blight"
+      },
+      "Tomato___healthy": {
+        "cropCode": "tomato",
+        "diagnosisCode": "healthy"
+      },
+      "Peanut___rust": {
+        "cropCode": "groundnut",
+        "diagnosisCode": "rust"
+      }
+    }
+  }
+}
