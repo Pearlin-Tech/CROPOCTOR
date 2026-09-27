@@ -27,4 +27,4 @@ dist-ssr
 *.sw?
 
 .gee-key.json
-
+.env.example
