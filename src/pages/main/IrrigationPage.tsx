@@ -30,8 +30,8 @@ const IrrigationPage: React.FC = () => {
     {
       id: 'today',
       label: 'TODAY',
-      title: 'Skip Irrigation',
-      reason: 'Rain expected (35–50mm). Soil moisture is adequate.',
+      title: t('irrigation.skip', 'Skip Irrigation'),
+      reason: t('irrigation.skipReason', 'Rain expected (35–50mm). Soil moisture is adequate.'),
       status: 'skip' as const,
       confidence: 94,
       icon: '⛔',
@@ -39,8 +39,8 @@ const IrrigationPage: React.FC = () => {
     {
       id: 'tomorrow',
       label: 'TOMORROW',
-      title: 'Monitor after rain',
-      reason: 'Check soil drainage and field conditions post-rain.',
+      title: t('irrigation.monitor', 'Monitor after rain'),
+      reason: t('irrigation.monitorReason', 'Check soil drainage and field conditions post-rain.'),
       status: 'monitor' as const,
       confidence: 88,
       icon: '👁️',
@@ -48,8 +48,8 @@ const IrrigationPage: React.FC = () => {
     {
       id: 'day3',
       label: 'IN 2 DAYS',
-      title: 'Light irrigation if needed',
-      reason: 'If rain < 20mm, apply 25mm of supplemental irrigation.',
+      title: t('irrigation.conditional', 'Light irrigation if needed'),
+      reason: t('irrigation.conditionalReason', 'If rain < 20mm, apply 25mm of supplemental irrigation.'),
       status: 'conditional' as const,
       confidence: 72,
       icon: '💧',
@@ -64,10 +64,10 @@ const IrrigationPage: React.FC = () => {
   } as const
 
   const tips = [
-    { icon: '🌱', title: 'Flowering Stage', text: 'Your crop is in flowering. Avoid water stress — but also avoid waterlogging which causes flower drop.' },
-    { icon: '🕓', title: 'Best Time to Irrigate', text: 'If irrigation is needed, do it in the early morning (6–8 AM) to minimize evaporation losses.' },
-    { icon: '📏', title: 'Recommended Amount', text: 'Groundnut at flowering needs 25–35mm per week. Current soil has adequate moisture from recent rain.' },
-    { icon: '🌡️', title: 'Soil Moisture Check', text: 'Insert a finger 6 inches into soil near root zone. If it still feels moist, skip irrigation today.' },
+    { icon: '🌱', title: t('irrigation.tip1.title', 'Flowering Stage'), text: t('irrigation.tip1.text', 'Your crop is in flowering. Avoid water stress — but also avoid waterlogging which causes flower drop.') },
+    { icon: '🕓', title: t('irrigation.tip2.title', 'Best Time to Irrigate'), text: t('irrigation.tip2.text', 'If irrigation is needed, do it in the early morning (6–8 AM) to minimize evaporation losses.') },
+    { icon: '📏', title: t('irrigation.tip3.title', 'Recommended Amount'), text: t('irrigation.tip3.text', 'Groundnut at flowering needs 25–35mm per week. Current soil has adequate moisture from recent rain.') },
+    { icon: '🌡️', title: t('irrigation.tip4.title', 'Soil Moisture Check'), text: t('irrigation.tip4.text', 'Insert a finger 6 inches into soil near root zone. If it still feels moist, skip irrigation today.') },
   ]
 
   return (
@@ -78,7 +78,7 @@ const IrrigationPage: React.FC = () => {
         <div className="hidden lg:flex items-center justify-between mb-2">
           <div>
             <h1 className="text-2xl font-bold text-gray-800">{t('dashboard.actions.irrigation', 'Irrigation Intelligence')}</h1>
-            <p className="text-sm text-gray-500 mt-1">AI-powered smart irrigation scheduling based on weather & soil data.</p>
+            <p className="text-sm text-gray-500 mt-1">{t('irrigation.subtitle', 'AI-powered smart irrigation scheduling based on weather & soil data.')}</p>
           </div>
           <button onClick={() => { setLoading(true); weatherService.getWeather(activeFarm?.id || '').then(w => { setWeather(w); setLoading(false); toast.success('Updated!') }) }}
             className="flex items-center gap-2 px-4 py-2 bg-green-light text-green-forest rounded-xl text-sm font-semibold hover:bg-green-pastel/50 transition-colors">
@@ -94,20 +94,20 @@ const IrrigationPage: React.FC = () => {
               <p className="font-semibold text-gray-800 text-sm">{activeFarm.name}</p>
               <p className="text-xs text-gray-400">{activeFarm.primaryCrop} · {activeFarm.area} acres · {activeFarm.cropStage}</p>
             </div>
-            <Badge variant="green" size="sm" className="ml-auto">Active Farm</Badge>
+            <Badge variant="green" size="sm" className="ml-auto">{t('farm.details.activeFarm', 'Active Farm')}</Badge>
           </div>
         )}
 
         {/* Current weather context */}
         {loading ? <WeatherSkeleton /> : weather && (
           <Card className="bg-gradient-to-br from-[#1565C0] to-[#1976D2] text-white border-none" padding="md">
-            <p className="text-blue-100 text-xs font-bold uppercase tracking-wider mb-3">Current Conditions</p>
+            <p className="text-blue-100 text-xs font-bold uppercase tracking-wider mb-3">{t('farm.details.currentWeather', 'Current Conditions')}</p>
             <div className="grid grid-cols-4 gap-3">
               {[
-                { icon: Thermometer, label: 'Temp', value: `${weather.temperature}°C` },
-                { icon: Droplets,    label: 'Rain', value: `${weather.rainChance}%` },
-                { icon: Droplets,    label: 'Humidity', value: `${weather.humidity}%` },
-                { icon: Wind,        label: 'Wind', value: `${weather.windSpeed} km/h` },
+                { icon: Thermometer, label: t('dashboard.weatherCard.temp', 'Temp'), value: `${weather.temperature}°C` },
+                { icon: Droplets,    label: t('dashboard.weatherCard.rain', 'Rain'), value: `${weather.rainChance}%` },
+                { icon: Droplets,    label: t('dashboard.weatherCard.humidity', 'Humidity'), value: `${weather.humidity}%` },
+                { icon: Wind,        label: t('dashboard.weatherCard.wind', 'Wind'), value: `${weather.windSpeed} km/h` },
               ].map(({ icon: Icon, label, value }) => (
                 <div key={label} className="bg-white/15 rounded-xl p-2.5 text-center">
                   <Icon className="w-4 h-4 mx-auto text-blue-200 mb-1" />
@@ -116,13 +116,13 @@ const IrrigationPage: React.FC = () => {
                 </div>
               ))}
             </div>
-            {weather.isDemo && <Badge variant="demo" size="sm" className="mt-3">Demo Data</Badge>}
+            {weather.isDemo && <Badge variant="demo" size="sm" className="mt-3">{t('weather.demo', 'Demo Data')}</Badge>}
           </Card>
         )}
 
         {/* AI Schedule */}
         <div>
-          <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">AI Irrigation Schedule</p>
+          <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">{t('irrigation.scheduleTitle', 'AI Irrigation Schedule')}</p>
           <motion.div variants={listVariants} animate="animate" className="space-y-3">
             {schedules.map(s => (
               <motion.div key={s.id} variants={cardVariants}>
@@ -131,11 +131,11 @@ const IrrigationPage: React.FC = () => {
                     <span className="text-2xl">{s.icon}</span>
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <Badge variant="gray" size="sm">{s.label}</Badge>
+                        <Badge variant="gray" size="sm">{t(`irrigation.day.${s.id}`, s.label)}</Badge>
                         <Badge variant={statusColors[s.status]} size="sm" dot>
-                          {s.status === 'skip' ? 'Skip' : s.status === 'monitor' ? 'Monitor' : 'Conditional'}
+                          {s.status === 'skip' ? t('irrigation.status.skip', 'Skip') : s.status === 'monitor' ? t('irrigation.status.monitor', 'Monitor') : t('irrigation.status.conditional', 'Conditional')}
                         </Badge>
-                        <span className="ml-auto text-xs text-gray-400">{s.confidence}% confidence</span>
+                        <span className="ml-auto text-xs text-gray-400">{s.confidence}% {t('diagnosis.result.confidence', 'confidence')}</span>
                       </div>
                       <p className="font-semibold text-gray-800">{s.title}</p>
                       <p className="text-xs text-gray-500 mt-1">{s.reason}</p>
@@ -149,7 +149,7 @@ const IrrigationPage: React.FC = () => {
 
         {/* Tips */}
         <div>
-          <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Smart Irrigation Tips</p>
+          <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">{t('irrigation.tipsTitle', 'Smart Irrigation Tips')}</p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {tips.map(tip => (
               <Card key={tip.title} padding="sm" variant="flat">

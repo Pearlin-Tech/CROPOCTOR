@@ -116,7 +116,7 @@ const DiagnosisResultPage: React.FC = () => {
         {isTranslating && (
           <div className="bg-blue-50 text-blue-800 p-4 rounded-xl flex items-center justify-center gap-2 mb-4">
             <span className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></span>
-            <span className="font-medium text-sm">Translating history to your language...</span>
+            <span className="font-medium text-sm">{t('diagnosis.result.translating', 'Translating history to your language...')}</span>
           </div>
         )}
         
@@ -125,10 +125,10 @@ const DiagnosisResultPage: React.FC = () => {
           <div>
             <h2 className="font-bold text-green-forest text-base flex items-center gap-2">
               <Stethoscope className="w-5 h-5 text-green-forest" />
-              <span>Crop Analysis Completed</span>
+              <span>{t('diagnosis.result.completed', 'Crop Analysis Completed')}</span>
             </h2>
             <p className="text-xs text-brown-earth/80 mt-0.5 font-medium">
-              Result saved to your farm history. You can scan another plant anytime.
+              {t('diagnosis.result.saved', 'Result saved to your farm history. You can scan another plant anytime.')}
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-2 shrink-0">
@@ -141,7 +141,7 @@ const DiagnosisResultPage: React.FC = () => {
                 {({ loading }) => (
                   <>
                     <Download className="w-4 h-4" />
-                    <span>{loading ? 'Preparing PDF...' : 'Download Report'}</span>
+                    <span>{loading ? t('diagnosis.result.preparingPdf', 'Preparing PDF...') : t('diagnosis.result.downloadReport', 'Download Report')}</span>
                   </>
                 )}
               </PDFDownloadLink>
@@ -153,7 +153,7 @@ const DiagnosisResultPage: React.FC = () => {
               onClick={handleDiagnoseAnother}
               className="w-full sm:w-auto bg-green-forest hover:bg-green-dark text-white font-bold shadow-md"
             >
-              Diagnose Another Crop
+              {t('dashboard.actions.diagnose', 'Diagnose Another Crop')}
             </Button>
           </div>
         </div>
@@ -163,9 +163,9 @@ const DiagnosisResultPage: React.FC = () => {
           <div className="p-4 bg-amber-50 border-2 border-amber-300 rounded-3xl flex items-start gap-3 shadow-sm">
             <AlertTriangle className="w-6 h-6 text-amber-600 shrink-0 mt-0.5" />
             <div>
-              <h3 className="font-bold text-amber-900 text-sm">Non-Plant Image Detected</h3>
+              <h3 className="font-bold text-amber-900 text-sm">{t('diagnosis.result.nonPlant', 'Non-Plant Image Detected')}</h3>
               <p className="text-xs text-amber-800 mt-0.5">
-                The image uploaded does not clearly show a plant, crop, or leaf. Please capture a clear, well-lit photo of affected plant foliage.
+                {t('diagnosis.result.nonPlantDesc', 'The image uploaded does not clearly show a plant, crop, or leaf. Please capture a clear, well-lit photo of affected plant foliage.')}
               </p>
             </div>
           </div>
@@ -176,9 +176,9 @@ const DiagnosisResultPage: React.FC = () => {
           <div className="p-3.5 bg-blue-50 border border-blue-200 rounded-2xl flex items-center justify-between gap-3 text-xs text-blue-900 shadow-sm">
             <div className="flex items-center gap-2 font-medium">
               <UserCheck className="w-4 h-4 text-blue-600 shrink-0" />
-              <span>Recommended: Have a local agricultural extension officer confirm this diagnosis.</span>
+              <span>{t('diagnosis.result.expertReview', 'Recommended: Have a local agricultural extension officer confirm this diagnosis.')}</span>
             </div>
-            <Badge variant="earth" size="sm">Expert Review</Badge>
+            <Badge variant="earth" size="sm">{t('diagnosis.result.expertBadge', 'Expert Review')}</Badge>
           </div>
         )}
 
@@ -194,7 +194,7 @@ const DiagnosisResultPage: React.FC = () => {
                 </Badge>
               </div>
               <div className="absolute bottom-3 right-3 bg-white/90 backdrop-blur-sm rounded-2xl px-3 py-2 shadow-sm">
-                <p className="text-xs text-gray-500 font-medium">Certainty</p>
+                <p className="text-xs text-gray-500 font-medium">{t('diagnosis.result.certainty', 'Certainty')}</p>
                 <p className="text-xl font-bold text-green-forest capitalize">{d.certainty || 'Moderate'}</p>
               </div>
             </div>
@@ -220,7 +220,7 @@ const DiagnosisResultPage: React.FC = () => {
               {/* Explanation Text */}
               {(d.analysis || d.explanation) && (
                 <div className="mt-4 pt-3 border-t border-brown-soft/20 text-sm text-text-secondary leading-relaxed font-medium">
-                  💡 <span className="text-brown-earth font-bold">Analysis:</span> {d.analysis || d.explanation}
+                  💡 <span className="text-brown-earth font-bold">{t('diagnosis.result.analysis', 'Analysis')}:</span> {d.analysis || d.explanation}
                 </div>
               )}
             </Card>
@@ -268,7 +268,7 @@ const DiagnosisResultPage: React.FC = () => {
               <Card padding="md" className="border-red-200 bg-red-50 shadow-sm">
                 <h3 className="font-bold text-red-900 mb-3 flex items-center gap-2">
                   <AlertTriangle className="w-4 h-4 text-red-600 shrink-0" />
-                  <span>Contradicting Evidence</span>
+                  <span>{t('diagnosis.result.contradicting', 'Contradicting Evidence')}</span>
                 </h3>
                 <ul className="space-y-2">
                   {d.contradictingEvidence.map((s: string) => (
@@ -285,7 +285,7 @@ const DiagnosisResultPage: React.FC = () => {
             {d.limitations && d.limitations.length > 0 && (
               <Card padding="md" className="border-gray-200 bg-gray-50 shadow-sm">
                 <h3 className="font-bold text-gray-700 mb-2.5 flex items-center gap-2 text-sm">
-                  <span className="text-lg">ℹ️</span> Limitations
+                  <span className="text-lg">ℹ️</span> {t('diagnosis.result.limitations', 'Limitations')}
                 </h3>
                 <ul className="space-y-1.5 text-xs text-gray-700 font-medium">
                   {d.limitations.map((l: string) => (
@@ -390,7 +390,7 @@ const DiagnosisResultPage: React.FC = () => {
                 onClick={handleDiagnoseAnother}
                 className="bg-green-forest hover:bg-green-dark text-white font-bold shadow-md flex-1"
               >
-                Diagnose Another Crop
+                {t('dashboard.actions.diagnose', 'Diagnose Another Crop')}
               </Button>
 
               <button
@@ -406,7 +406,7 @@ const DiagnosisResultPage: React.FC = () => {
                 className="flex items-center gap-2 text-sm font-bold text-white bg-brown-earth px-4 py-2.5 rounded-xl hover:bg-brown-earth/90 transition-colors shadow-sm w-full justify-center"
               >
                 <MessageSquare className="w-4 h-4" />
-                <span>Ask AI Advisor about this</span>
+                <span>{t('diagnosis.result.askAI', 'Ask AI Advisor about this')}</span>
               </button>
             </div>
 

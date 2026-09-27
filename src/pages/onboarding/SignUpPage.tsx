@@ -272,16 +272,12 @@ const SignUpPage: React.FC = () => {
               <Input label="Confirm Password" type="password" placeholder="••••••••" icon={<Lock className="w-4 h-4" />} error={errors.confirmPassword?.message} {...register('confirmPassword')} />
               <Button type="submit" variant="primary" size="lg" fullWidth loading={isSubmitting} className="bg-[#2E7D32] hover:bg-[#256629] text-white py-3.5 rounded-xl font-semibold text-base shadow-md transition-colors">{t('auth.createAccount')}</Button>
             </form>
-            <div className="text-center mb-6">
-              <button type="button" onClick={() => setAuthMode('phone')} className="text-sm text-gray-500 hover:underline">
-                <Smartphone className="w-4 h-4 inline-block mr-1" /> Sign up with Phone Number instead
-              </button>
-            </div>
+
           </>
         )}
 
         <p className="text-center text-sm text-gray-500">
-          Already have an account?{' '}
+          {t('auth.alreadyHaveAccount')} {' '}
           <button onClick={() => navigate('/login')} className="text-[#2E7D32] font-semibold hover:underline">{t('welcome.signin').split('?')[1]?.trim() || 'Sign In'}</button>
         </p>
 

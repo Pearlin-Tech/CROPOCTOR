@@ -257,9 +257,9 @@ const LoginPage: React.FC = () => {
           </div>
 
           <div className="text-center mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 tracking-tight mb-1">Welcome Back!</h2>
+            <h2 className="text-2xl font-bold text-gray-900 tracking-tight mb-1">{t('auth.welcomeBack')}</h2>
             <p className="text-gray-500 text-sm font-medium">
-              Sign in to continue.
+              {t('auth.signInToContinue')}
             </p>
           </div>
 
@@ -275,15 +275,7 @@ const LoginPage: React.FC = () => {
               {t('auth.google')}
             </button>
 
-            <button
-              onClick={() => setPhoneMode(true)}
-              type="button"
-              disabled={loading}
-              className="w-full flex items-center justify-center gap-3 px-5 py-3 bg-white border border-gray-200 rounded-xl font-medium text-sm text-gray-700 shadow-sm hover:bg-gray-50 hover:border-gray-300 transition-all disabled:opacity-60"
-            >
-              <Smartphone className="w-4 h-4 text-gray-500" />
-              {t('auth.phone')}
-            </button>
+
           </div>
 
           <Divider label="or" />
@@ -379,13 +371,13 @@ const LoginPage: React.FC = () => {
                 loading={loading}
                 className="bg-[#2E7D32] hover:bg-[#256629] text-white py-3.5 rounded-xl font-semibold text-base shadow-md transition-colors"
               >
-                {loading ? t('auth.signingIn') : 'Sign In'}
+                {loading ? t('auth.signingIn') : (t('welcome.signin').split('?')[1]?.trim() || 'Sign In')}
               </Button>
             </form>
           )}
 
           <p className="text-center text-sm text-gray-500">
-            Don't have an account?{' '}
+            {t('auth.noAccount')} {' '}
             <button onClick={() => navigate('/signup')} className="text-[#2E7D32] font-semibold hover:underline">
               {t('auth.createAccount')}
             </button>

@@ -246,7 +246,7 @@ const AIAdvisorPage: React.FC = () => {
                 className="flex items-center gap-2 bg-green-forest/10 hover:bg-green-forest/20 text-green-forest px-4 py-2 rounded-xl font-bold transition-colors text-sm"
               >
                 <Plus className="w-4 h-4" />
-                New Conversation
+                {t('advisor.newConversation', 'New Conversation')}
               </button>
             </div>
 
@@ -261,16 +261,16 @@ const AIAdvisorPage: React.FC = () => {
                   )}
                 </div>
                 <div className="flex-1">
-                  <p className="text-[10px] font-bold text-green-forest uppercase tracking-widest mb-0.5">Active Context</p>
+                  <p className="text-[10px] font-bold text-green-forest uppercase tracking-widest mb-0.5">{t('advisor.activeContext', 'Active Context')}</p>
                   <p className="text-sm font-bold text-text-main leading-tight">{activeDiagnosis.disease}</p>
-                  <p className="text-xs text-text-secondary mt-0.5">I have analyzed your recent diagnosis. Ask me how to treat it!</p>
+                  <p className="text-xs text-text-secondary mt-0.5">{t('advisor.activeContextDesc', 'I have analyzed your recent diagnosis. Ask me how to treat it!')}</p>
                 </div>
                 {messages.length === 0 && (
                   <button 
                     onClick={() => askQuestion(`What is the recommended treatment for ${activeDiagnosis.disease}?`)}
                     className="shrink-0 bg-green-forest text-white text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-green-dark transition-colors shadow-sm mt-1"
                   >
-                    Ask Treatment
+                    {t('advisor.askTreatment', 'Ask Treatment')}
                   </button>
                 )}
               </motion.div>
@@ -328,14 +328,14 @@ const AIAdvisorPage: React.FC = () => {
                             {/* Current Condition */}
                             {msg.structured.currentCondition && (
                               <div className="bg-blue-50/50 border border-blue-200/50 rounded-xl p-3 mt-3">
-                                <p className="text-[10px] font-bold text-blue-800 uppercase tracking-widest mb-1.5">Current Condition</p>
+                                <p className="text-[10px] font-bold text-blue-800 uppercase tracking-widest mb-1.5">{t('advisor.result.currentCondition', 'Current Condition')}</p>
                                 <p className="text-sm text-blue-900 font-medium">{msg.structured.currentCondition}</p>
                               </div>
                             )}
                             {/* Risks */}
                             {msg.structured.risks && (
                               <div className="bg-red-50/50 border border-red-200/50 rounded-xl p-3 mt-3">
-                                <p className="text-[10px] font-bold text-red-800 uppercase tracking-widest mb-1.5">Potential Risks</p>
+                                <p className="text-[10px] font-bold text-red-800 uppercase tracking-widest mb-1.5">{t('advisor.result.potentialRisks', 'Potential Risks')}</p>
                                 <p className="text-sm text-red-900 font-medium">{msg.structured.risks}</p>
                               </div>
                             )}
@@ -354,7 +354,7 @@ const AIAdvisorPage: React.FC = () => {
                             {/* What to monitor */}
                             {msg.structured.whatToMonitor && msg.structured.whatToMonitor.length > 0 && (
                               <div className="mt-4">
-                                <p className="text-[10px] font-bold text-amber-800 uppercase tracking-widest mb-2">What to Monitor</p>
+                                <p className="text-[10px] font-bold text-amber-800 uppercase tracking-widest mb-2">{t('advisor.result.whatToMonitor', 'What to Monitor')}</p>
                                 <ul className="space-y-2">
                                   {msg.structured.whatToMonitor.map((item, i) => (
                                     <li key={i} className="flex gap-2.5 text-sm text-text-secondary font-medium">
@@ -368,14 +368,14 @@ const AIAdvisorPage: React.FC = () => {
                             {/* When to act */}
                             {msg.structured.whenToAct && (
                               <div className="mt-3">
-                                <p className="text-[10px] font-bold text-purple-800 uppercase tracking-widest mb-1.5">When to Act</p>
+                                <p className="text-[10px] font-bold text-purple-800 uppercase tracking-widest mb-1.5">{t('advisor.result.whenToAct', 'When to Act')}</p>
                                 <p className="text-sm text-purple-900 font-medium">{msg.structured.whenToAct}</p>
                               </div>
                             )}
                             {/* Pros / Cons */}
                             {msg.structured.prosCons && (
                               <div className="bg-gray-50/50 border border-gray-200/50 rounded-xl p-3 mt-3">
-                                <p className="text-[10px] font-bold text-gray-700 uppercase tracking-widest mb-1.5">Pros / Cons & Trade-offs</p>
+                                <p className="text-[10px] font-bold text-gray-700 uppercase tracking-widest mb-1.5">{t('advisor.result.prosCons', 'Pros / Cons & Trade-offs')}</p>
                                 <p className="text-sm text-gray-800 font-medium">{msg.structured.prosCons}</p>
                               </div>
                             )}

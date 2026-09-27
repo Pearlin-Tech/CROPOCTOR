@@ -103,15 +103,15 @@ const HelpPage: React.FC = () => {
       <PageLayout className="pt-4 pb-8 space-y-5 max-w-4xl mx-auto">
         {/* Header */}
         <div>
-          <h1 className="text-xl lg:text-2xl font-bold text-green-forest tracking-tight">Help & Support</h1>
+          <h1 className="text-xl lg:text-2xl font-bold text-green-forest tracking-tight">{t('settings.items.help', 'Help & Support')}</h1>
           <p className="text-xs lg:text-sm text-brown-earth/80 font-medium mt-0.5">
-            Find quick answers and learn how to use CROPOCTOR.
+            {t('help.subtitle', 'Find quick answers and learn how to use CROPOCTOR.')}
           </p>
         </div>
 
         {/* SECTION 1 — Getting Started */}
         <div className="space-y-2">
-          <p className="text-xs font-bold text-brown-earth/80 uppercase tracking-wider px-1">Getting Started</p>
+          <p className="text-xs font-bold text-brown-earth/80 uppercase tracking-wider px-1">{t('help.gettingStarted', 'Getting Started')}</p>
           <div className="space-y-2">
             {GETTING_STARTED_GUIDES.map((guide, idx) => {
               const Icon = guide.icon
@@ -162,7 +162,7 @@ const HelpPage: React.FC = () => {
 
         {/* SECTION 2 — Frequently Asked Questions */}
         <div className="space-y-2">
-          <p className="text-xs font-bold text-brown-earth/80 uppercase tracking-wider px-1">Frequently Asked Questions</p>
+          <p className="text-xs font-bold text-brown-earth/80 uppercase tracking-wider px-1">{t('help.faq', 'Frequently Asked Questions')}</p>
           <div className="space-y-2">
             {FAQS.map((faq, i) => {
               const isOpen = openFaq === i
@@ -203,14 +203,14 @@ const HelpPage: React.FC = () => {
 
         {/* SECTION 3 — Contact Support */}
         <div className="space-y-2">
-          <p className="text-xs font-bold text-brown-earth/80 uppercase tracking-wider px-1">Contact Support</p>
+          <p className="text-xs font-bold text-brown-earth/80 uppercase tracking-wider px-1">{t('help.contactSupport', 'Contact Support')}</p>
           <Card padding="md" className="border-brown-pastel/30 bg-white shadow-sm flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 border border-blue-200">
                 <Mail className="w-4 h-4" />
               </div>
               <div>
-                <p className="font-bold text-text-main text-xs lg:text-sm">Email Support</p>
+                <p className="font-bold text-text-main text-xs lg:text-sm">{t('help.emailSupport', 'Email Support')}</p>
                 <p className="text-xs text-text-secondary font-medium">support@cropdoctor.ai</p>
               </div>
             </div>
@@ -218,14 +218,14 @@ const HelpPage: React.FC = () => {
               onClick={handleEmailSupport}
               className="px-3.5 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold rounded-xl border border-blue-200 transition-colors shrink-0"
             >
-              Send Email
+              {t('help.sendEmail', 'Send Email')}
             </button>
           </Card>
         </div>
 
         {/* SECTION 4 — Report a Bug */}
         <div className="space-y-2 pt-1">
-          <p className="text-xs font-bold text-brown-earth/80 uppercase tracking-wider px-1">App Feedback</p>
+          <p className="text-xs font-bold text-brown-earth/80 uppercase tracking-wider px-1">{t('help.appFeedback', 'App Feedback')}</p>
           <button
             onClick={handleReportBug}
             className="w-full flex items-center gap-3 px-4 py-3 bg-white hover:bg-red-50/60 border border-brown-pastel/30 rounded-2xl transition-colors shadow-sm text-left group"
@@ -234,8 +234,8 @@ const HelpPage: React.FC = () => {
               <Bug className="w-4 h-4 text-muted-danger" />
             </div>
             <div className="flex-1">
-              <p className="text-xs lg:text-sm font-bold text-text-main group-hover:text-muted-danger transition-colors">Report a Bug</p>
-              <p className="text-[11px] text-text-secondary font-medium">Submit issues or error reports to support@cropdoctor.ai</p>
+              <p className="text-xs lg:text-sm font-bold text-text-main group-hover:text-muted-danger transition-colors">{t('help.reportBug', 'Report a Bug')}</p>
+              <p className="text-[11px] text-text-secondary font-medium">{t('help.reportBugDesc', 'Submit issues or error reports to support@cropdoctor.ai')}</p>
             </div>
           </button>
         </div>

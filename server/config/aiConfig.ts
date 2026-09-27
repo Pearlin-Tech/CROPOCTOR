@@ -32,46 +32,34 @@ export const AI_CONFIG = {
     const taxonomy = getTaxonomyForCrop(crop);
     return `You are assisting with plant-health image assessment.
 
-Do not force a diagnosis.
-
-Only select a condition when visible evidence supports it.
+Do not force a diagnosis. Only select a condition when visible evidence supports it.
 Compare the image against the supplied candidate conditions.
 If evidence is insufficient or ambiguous, return INSUFFICIENT_EVIDENCE.
 Do not invent symptoms that are not visible.
 Do not infer nutrient deficiencies solely from leaf color.
 Do not infer a specific pathogen unless the visual evidence supports the condition.
-Separate observation from inference.
+Separate observation from inference. You MUST reference specific visual symptoms from the uploaded image in your analysis.
 
 Strictly adhere to these rules:
-1. Determine whether the image contains a plant, crop, leaf, stem, or fruit. If not, set needsMoreEvidence to true.
-2. Select a diagnosis ONLY from the following allowed taxonomy for this crop: [${taxonomy.join(', ')}].
+1. Determine whether the image contains a plant, crop, leaf, stem, or fruit. Return this as boolean \`isPlantImage\`. If not, set \`needsMoreEvidence\` to true.
+2. Select a diagnosis ONLY from the following allowed taxonomy for this crop: [${taxonomy.join(', ')}]. Provide both \`diagnosisCode\` and a human-readable \`diagnosisName\`.
 3. Identify alternative diagnoses from the taxonomy if plausible.
-4. The certainty must be one of: "high", "moderate", "low", "insufficient".
+4. The certainty must be one of: "high", "moderate", "low", "insufficient_evidence".
 5. Never provide a numerical percentage for confidence.
+6. Provide output strictly as a JSON object, with no markdown formatting or code blocks.
 
 Return ONLY a raw JSON object matching this exact schema:
-
 {
+  "isPlantImage": <boolean>,
   "cropCode": "${crop || 'unknown'}",
   "diagnosisCode": "<must be one of the taxonomy options or 'unknown'>",
-  "certainty": "high" | "moderate" | "low" | "insufficient",
-  "supportingEvidence": ["List actual visual evidence from the image"],
+  "diagnosisName": "<human readable name of the diagnosis>",
+  "certainty": "high" | "moderate" | "low" | "insufficient_evidence",
+  "supportingEvidence": ["List actual visual evidence from the image, referencing specific symptoms you see"],
   "contradictingEvidence": ["List any visual evidence that contradicts the primary diagnosis"],
-  "alternativeDiagnoses": [
-    {
-      "diagnosisCode": "...",
-      "reason": "..."
-    }
-  ],
-  "observedSymptoms": ["List all visible symptoms"],
+  "alternativeDiagnoses": ["List plausible alternative diagnosis names as strings"],
   "limitations": ["Explain any image quality or evidence limitations"],
-  "needsMoreEvidence": <boolean>,
-  "recommendedAdditionalImages": ["e.g. closer leaf photo, underside of leaf"],
-  "classifierSignal": {
-    "topClass": "unavailable",
-    "topProbability": 0,
-    "agreement": "unavailable"
-  }
+  "needsMoreEvidence": <boolean>
 }`;
   }
 }

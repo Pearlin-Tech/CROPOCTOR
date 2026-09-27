@@ -71,16 +71,16 @@ function validateAndNormalizeDiagnosis(
   }
 
   const result: CropDiagnosisResult = {
-    isPlantImage: !needsMoreEvidence || parsed.isPlantImage !== false,
+    isPlantImage: typeof parsed.isPlantImage === 'boolean' ? parsed.isPlantImage : !needsMoreEvidence,
     cropCode: parsed.cropCode || farmContext?.crop || 'unknown',
     diagnosisCode: parsed.diagnosisCode || 'unknown',
     diagnosisName: parsed.diagnosisName || 'Unknown Issue',
     certainty,
     confidenceBand: certainty,
-    supportingEvidence: Array.isArray(parsed.supportingEvidence) ? parsed.supportingEvidence : [],
-    contradictingEvidence: Array.isArray(parsed.contradictingEvidence) ? parsed.contradictingEvidence : [],
-    alternativeDiagnoses: Array.isArray(parsed.alternativeDiagnoses) ? parsed.alternativeDiagnoses : [],
-    limitations: Array.isArray(parsed.limitations) ? parsed.limitations : [],
+    supportingEvidence: Array.isArray(parsed.supportingEvidence) ? parsed.supportingEvidence.filter((s: any) => typeof s === 'string') : [],
+    contradictingEvidence: Array.isArray(parsed.contradictingEvidence) ? parsed.contradictingEvidence.filter((s: any) => typeof s === 'string') : [],
+    alternativeDiagnoses: Array.isArray(parsed.alternativeDiagnoses) ? parsed.alternativeDiagnoses.filter((s: any) => typeof s === 'string') : [],
+    limitations: Array.isArray(parsed.limitations) ? parsed.limitations.filter((s: any) => typeof s === 'string') : [],
     needsMoreEvidence
   };
 

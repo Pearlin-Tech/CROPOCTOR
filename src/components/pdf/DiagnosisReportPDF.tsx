@@ -1,6 +1,7 @@
 import React from 'react';
 import { Document, Page, Text, View, StyleSheet, Font, Image } from '@react-pdf/renderer';
 import type { DiagnosisResult, Farm, WeatherData, FarmInsights } from '@/types';
+import i18n from '@/locales/i18n';
 
 // Register fonts to support Unicode / Indian languages
 Font.register({
@@ -15,7 +16,7 @@ Font.register({
 
 Font.register({
   family: 'Roboto',
-  src: 'https://cdnjs.cloudflare.com/ajax/libs/ink/3.1.10/fonts/Roboto/roboto-regular-webfont.ttf'
+  src: 'https://fonts.gstatic.com/s/roboto/v30/KFOmCnqEu92Fr1Me5WZLCzYlKw.ttf'
 });
 
 const styles = StyleSheet.create({
@@ -102,6 +103,8 @@ interface Props {
 }
 
 const DiagnosisReportPDF: React.FC<Props> = ({ diagnosis, farm, weather, satelliteImageUrl, language }) => {
+  const t = (key: string, defaultVal: string) => i18n.t(key, { defaultValue: defaultVal, lng: language });
+
   // Determine font family based on language for Unicode support
   let fontFamily = 'Roboto';
   if (language === 'hi' || language === 'mr') fontFamily = 'Noto Sans Devanagari';
@@ -114,8 +117,8 @@ const DiagnosisReportPDF: React.FC<Props> = ({ diagnosis, farm, weather, satelli
         {/* Header */}
         <View style={styles.header}>
           <View>
-            <Text style={styles.title}>CROPOCTOR</Text>
-            <Text style={styles.subtitle}>Farm Diagnosis Report</Text>
+            <Text style={styles.title}>{t('app.name', 'CROPOCTOR').toUpperCase()}</Text>
+            <Text style={styles.subtitle}>{t('diagnosis.result.title', 'Farm Diagnosis Report')}</Text>
           </View>
           <View style={{ alignItems: 'flex-end' }}>
             <Text style={styles.subtitle}>Date: {new Date(diagnosis.timestamp).toLocaleDateString()}</Text>
@@ -125,30 +128,30 @@ const DiagnosisReportPDF: React.FC<Props> = ({ diagnosis, farm, weather, satelli
 
         {/* Farm Information */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Farm Information</Text>
+          <Text style={styles.sectionTitle}>{t('farm.context.title', 'Farm Information')}</Text>
           <View style={styles.row}>
-            <Text style={styles.label}>Farm Name:</Text>
+            <Text style={styles.label}>{t('farm.details.name', 'Farm Name')}:</Text>
             <Text style={styles.value}>{farm.name}</Text>
           </View>
           <View style={styles.row}>
-            <Text style={styles.label}>Crop:</Text>
-            <Text style={styles.value}>{farm.primaryCrop} (Stage: {farm.cropStage})</Text>
+            <Text style={styles.label}>{t('farm.context.crop', 'Crop')}:</Text>
+            <Text style={styles.value}>{farm.primaryCrop} ({t('farm.context.stage', 'Stage')}: {farm.cropStage})</Text>
           </View>
           <View style={styles.row}>
-            <Text style={styles.label}>Location:</Text>
+            <Text style={styles.label}>{t('farm.context.location', 'Location')}:</Text>
             <Text style={styles.value}>{farm.location.displayName}</Text>
           </View>
           <View style={styles.row}>
-            <Text style={styles.label}>Soil Type:</Text>
+            <Text style={styles.label}>{t('farm.context.soil', 'Soil Type')}:</Text>
             <Text style={styles.value}>{farm.soilType}</Text>
           </View>
         </View>
 
         {/* Diagnosis */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Diagnosis Result</Text>
+          <Text style={styles.sectionTitle}>{t('diagnosis.result.title', 'Diagnosis Result')}</Text>
           <View style={styles.row}>
-            <Text style={styles.label}>Detected Condition:</Text>
+            <Text style={styles.label}>{t('diagnosis.result.possibleIssue', 'Detected Condition')}:</Text>
             <Text style={styles.value}>{diagnosis.diseaseName || diagnosis.disease}</Text>
           </View>
           <View style={styles.row}>
@@ -161,13 +164,13 @@ const DiagnosisReportPDF: React.FC<Props> = ({ diagnosis, farm, weather, satelli
           </View>
           
           {diagnosis.imageUrl && (
-             <Image src={diagnosis.imageUrl} style={styles.image} />
+             <Image src={diagnosis.imageUrl.startsWith('/') ? (typeof window !== 'undefined' ? window.location.origin : '') + diagnosis.imageUrl : diagnosis.imageUrl} style={styles.image} />
           )}
         </View>
 
         {/* Symptoms / Evidence */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Symptoms & Evidence</Text>
+          <Text style={styles.sectionTitle}>{t('diagnosis.result.symptoms', 'Symptoms & Evidence')}</Text>
           {diagnosis.symptoms.map((s, i) => (
             <View style={styles.bulletItem} key={i}>
               <Text style={styles.bullet}>•</Text>
@@ -178,7 +181,7 @@ const DiagnosisReportPDF: React.FC<Props> = ({ diagnosis, farm, weather, satelli
 
         {/* Recommended Actions */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Recommended Actions</Text>
+          <Text style={styles.sectionTitle}>{t('diagnosis.result.actions', 'Recommended Actions')}</Text>
           {diagnosis.actions.map((a, i) => (
             <View style={styles.bulletItem} key={i}>
               <Text style={styles.bullet}>•</Text>
@@ -189,22 +192,22 @@ const DiagnosisReportPDF: React.FC<Props> = ({ diagnosis, farm, weather, satelli
 
         {/* Environmental Context */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Environmental Context</Text>
+          <Text style={styles.sectionTitle}>{t('weather.farmImpact', 'Environmental Context')}</Text>
           
           <View style={styles.row}>
-            <Text style={styles.label}>Current Weather:</Text>
+            <Text style={styles.label}>{t('dashboard.currentWeather', 'Current Weather')}:</Text>
             <Text style={styles.value}>
               {weather ? `${weather.temperature}°C, ${weather.description}, Humidity: ${weather.humidity}%` : 'Weather data unavailable'}
             </Text>
           </View>
           
           <View style={styles.row}>
-            <Text style={styles.label}>Soil Nutrients:</Text>
+            <Text style={styles.label}>{t('insights.soilHealth', 'Soil Nutrients')}:</Text>
             <Text style={styles.value}>Nutrient data unavailable (No soil test found)</Text>
           </View>
           
           <View style={styles.row}>
-            <Text style={styles.label}>Satellite Status:</Text>
+            <Text style={styles.label}>{t('insights.satellite', 'Satellite Status')}:</Text>
             <Text style={styles.value}>
               {farm.lastNdviObservation ? `NDVI: ${farm.lastNdviObservation.ndvi.value} (${farm.lastNdviObservation.ndvi.label})` : 'Awaiting next satellite observation'}
             </Text>
@@ -213,7 +216,7 @@ const DiagnosisReportPDF: React.FC<Props> = ({ diagnosis, farm, weather, satelli
 
         {/* Predictions */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Prediction & Risk</Text>
+          <Text style={styles.sectionTitle}>{t('weather.diseaseRisk', 'Prediction & Risk')}</Text>
           <View style={styles.row}>
             <Text style={styles.label}>Forecast:</Text>
             <Text style={styles.value}>Prediction unavailable due to insufficient historical data.</Text>
@@ -223,7 +226,7 @@ const DiagnosisReportPDF: React.FC<Props> = ({ diagnosis, farm, weather, satelli
         {/* Footer */}
         <View style={{ marginTop: 'auto', paddingTop: 20, borderTopWidth: 1, borderTopColor: '#e2e8f0' }}>
           <Text style={{ fontSize: 8, color: '#a0aec0', textAlign: 'center' }}>
-            Generated by CROPOCTOR Agricultural Intelligence Platform. This report is based on available data and AI analysis. Always consult an agronomist for critical decisions.
+            {t('diagnosis.result.disclaimer', 'Generated by CROPOCTOR Agricultural Intelligence Platform. This report is based on available data and AI analysis. Always consult an agronomist for critical decisions.')}
           </Text>
         </View>
       </Page>

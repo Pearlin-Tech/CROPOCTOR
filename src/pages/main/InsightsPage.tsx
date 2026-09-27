@@ -79,7 +79,7 @@ const InsightsPage: React.FC = () => {
                 <Card padding="md" className="bg-cream border-brown-pastel/40 shadow-sm">
                   <div className="flex items-center justify-between mb-4">
                     <div>
-                      <p className="text-[11px] uppercase tracking-widest text-brown-earth/80 font-bold mb-0.5">{t('insights.cropHealth', 'Crop Health')} Score</p>
+                      <p className="text-[11px] uppercase tracking-widest text-brown-earth/80 font-bold mb-0.5">{t('insights.cropHealth', 'Crop Health')} {t('insights.score', 'Score')}</p>
                       <h2 className="text-4xl font-bold text-green-forest">{insights.cropHealth.score}<span className="text-xl text-brown-earth/60">/100</span></h2>
                       <Badge variant="green" dot className="mt-1">
                         {insights.cropHealth.trend === 'up' ? t('insights.trend.improving', '↑ Improving') : insights.cropHealth.trend === 'down' ? t('insights.trend.declining', '↓ Declining') : t('insights.trend.stable', '→ Stable')}
@@ -107,15 +107,15 @@ const InsightsPage: React.FC = () => {
                 <Card padding="md" className="bg-cream border-brown-pastel/40 shadow-sm">
                   <div className="flex items-center justify-between mb-4">
                     <div>
-                      <p className="text-[11px] uppercase tracking-widest text-brown-earth/80 font-bold mb-0.5">{t('insights.soilHealth', 'Soil Health')} Score</p>
+                      <p className="text-[11px] uppercase tracking-widest text-brown-earth/80 font-bold mb-0.5">{t('insights.soilHealth', 'Soil Health')} {t('insights.score', 'Score')}</p>
                       <h2 className="text-4xl font-bold text-brown-deep">{insights.soilHealth.score}<span className="text-xl text-brown-earth/60">/100</span></h2>
-                      <Badge variant="earth" className="mt-1">Moisture: {insights.soilHealth.moisture}</Badge>
+                      <Badge variant="earth" className="mt-1">{t('insights.soil.moisture', 'Moisture')}: {insights.soilHealth.moisture}</Badge>
                     </div>
                     <div className="text-5xl">🪨</div>
                   </div>
                   <ProgressBar value={insights.soilHealth.score} color="earth" size="md" />
                   <div className="mt-4 p-3 bg-white border border-brown-pastel/30 rounded-xl shadow-sm">
-                    <p className="text-[10px] font-bold text-brown-earth uppercase tracking-widest mb-1">Nutrient Status</p>
+                    <p className="text-[10px] font-bold text-brown-earth uppercase tracking-widest mb-1">{t('insights.soil.nutrientStatus', 'Nutrient Status')}</p>
                     <p className="text-sm text-text-main font-medium">{insights.soilHealth.nutrients}</p>
                   </div>
                 </Card>
@@ -131,26 +131,26 @@ const InsightsPage: React.FC = () => {
                     <div className="relative">
                       <img src={satelliteData.satelliteImageUrl} alt="Satellite farm view" className="w-full h-[30vh] sm:h-64 md:h-80 lg:h-[400px] object-cover" />
                       <div className="absolute top-3 right-3 flex gap-2">
-                        {satelliteData.source === 'demo' && <Badge variant="demo">Demo Synthetic Data</Badge>}
-                        {satelliteData.source === 'error' && <Badge variant="danger">Connection Error</Badge>}
+                        {satelliteData.source === 'demo' && <Badge variant="demo">{t('insights.demo', 'Demo Synthetic Data')}</Badge>}
+                        {satelliteData.source === 'error' && <Badge variant="danger">{t('insights.error', 'Connection Error')}</Badge>}
                       </div>
                       {/* High-res satellite image is shown above without the blurry NDVI overlay */}
                     </div>
                     <div className="p-5">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-[11px] uppercase tracking-widest text-brown-earth/80 font-bold mb-0.5">NDVI Index</p>
+                          <p className="text-[11px] uppercase tracking-widest text-brown-earth/80 font-bold mb-0.5">{t('insights.ndvi', 'NDVI Index')}</p>
                           <div className="flex items-baseline gap-2">
                             <p className="text-3xl font-bold text-green-forest">{satelliteData.ndvi.value}</p>
                             <Badge variant="green" dot>{satelliteData.ndvi.label}</Badge>
                           </div>
                         </div>
                         <div className="text-right">
-                          <p className="text-[10px] font-bold text-brown-earth uppercase tracking-widest mb-1.5">Range</p>
+                          <p className="text-[10px] font-bold text-brown-earth uppercase tracking-widest mb-1.5">{t('insights.range', 'Range')}</p>
                           <div className="flex items-center gap-2 mt-1">
-                            <span className="text-xs text-text-secondary font-medium">Poor</span>
+                            <span className="text-xs text-text-secondary font-medium">{t('insights.range.poor', 'Poor')}</span>
                             <div className="w-24 h-2 rounded-full" style={{background: 'linear-gradient(to right, #ff4444, #ffaa00, #44aa44, #006600)'}} />
-                            <span className="text-xs text-text-secondary font-medium">Excellent</span>
+                            <span className="text-xs text-text-secondary font-medium">{t('insights.range.excellent', 'Excellent')}</span>
                           </div>
                         </div>
                       </div>
@@ -158,20 +158,20 @@ const InsightsPage: React.FC = () => {
                     {satelliteData.source === 'error' && satelliteData.errorDetails && (
                       <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm p-6 text-center">
                         <div className="bg-red-50 text-red-900 border border-red-200 rounded-xl p-4 max-w-md shadow-lg">
-                          <p className="font-bold mb-1">Earth Engine Connection Error</p>
+                          <p className="font-bold mb-1">{t('insights.eeError', 'Earth Engine Connection Error')}</p>
                           <p className="text-xs break-words">{satelliteData.errorDetails}</p>
                         </div>
                       </div>
                     )}
                   </Card>
                 ) : (
-                  <div className="p-8 text-center text-brown-earth/60">No satellite data available.</div>
+                  <div className="p-8 text-center text-brown-earth/60">{t('insights.noData', 'No satellite data available.')}</div>
                 )}
                 
                 {satelliteData?.source === 'demo' && (
                   <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-xl p-3 shadow-sm">
                     <span>🛰️</span>
-                    <p className="text-xs text-amber-700 font-medium">Satellite data shown is synthetic demo data based on coordinates ({satelliteData.latitude?.toFixed(4)}, {satelliteData.longitude?.toFixed(4)}). Live Earth Engine integration pending.</p>
+                    <p className="text-xs text-amber-700 font-medium">{t('insights.syntheticData', 'Satellite data shown is synthetic demo data based on coordinates')} ({satelliteData.latitude?.toFixed(4)}, {satelliteData.longitude?.toFixed(4)}). {t('insights.livePending', 'Live Earth Engine integration pending.')}</p>
                   </div>
                 )}
               </div>

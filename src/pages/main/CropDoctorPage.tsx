@@ -356,15 +356,15 @@ const CropDoctorPage: React.FC = () => {
                     {acquiredImage.source === 'camera' && <Camera className="w-3.5 h-3.5 text-green-400" />}
                     {acquiredImage.source === 'upload' && <Upload className="w-3.5 h-3.5 text-blue-400" />}
                     {acquiredImage.source === 'sample' && <FlaskConical className="w-3.5 h-3.5 text-amber-400" />}
-                    <span className="capitalize">{acquiredImage.source} Image</span>
+                    <span className="capitalize">{acquiredImage.source} {t('common.image', 'Image')}</span>
                   </div>
 
                   {/* Loading State Overlay */}
                   {isAnalyzing && (
                     <div className="absolute inset-0 bg-black/75 backdrop-blur-sm flex flex-col items-center justify-center text-white p-6 z-20">
                       <RefreshCw className="w-10 h-10 text-green-400 animate-spin mb-3" />
-                      <p className="font-bold text-lg text-center animate-pulse">Analyzing your crop...</p>
-                      <p className="text-xs text-gray-300 mt-1 font-mono">Gemini Multimodal AI processing</p>
+                      <p className="font-bold text-lg text-center animate-pulse">{t('diagnose.analyzing', 'Analyzing your crop...')}</p>
+                      <p className="text-xs text-gray-300 mt-1 font-mono">{t('diagnose.processing', 'Gemini Multimodal AI processing')}</p>
                     </div>
                   )}
                 </>
@@ -396,10 +396,10 @@ const CropDoctorPage: React.FC = () => {
               <div className="p-3.5 bg-amber-50 border border-amber-300 rounded-2xl text-xs text-amber-900 space-y-1.5 shadow-sm">
                 <div className="flex items-center gap-1.5 font-bold text-amber-800">
                   <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
-                  <span>Diagnosis Error</span>
+                  <span>{t('diagnose.error', 'Diagnosis Error')}</span>
                 </div>
                 <p className="leading-relaxed">{analysisError}</p>
-                <p className="text-[11px] font-semibold text-amber-700">Your selected image is preserved. Tap "Diagnose Crop" below to retry.</p>
+                <p className="text-[11px] font-semibold text-amber-700">{t('diagnose.errorDesc', 'Your selected image is preserved. Tap "Diagnose Crop" below to retry.')}</p>
               </div>
             )}
 
@@ -426,7 +426,7 @@ const CropDoctorPage: React.FC = () => {
                   onClick={handleDiagnoseCrop}
                   className="py-3.5 text-base font-bold shadow-md bg-green-forest hover:bg-green-dark"
                 >
-                  {isAnalyzing ? 'Analyzing your crop...' : 'Diagnose Crop'}
+                  {isAnalyzing ? t('diagnose.analyzing', 'Analyzing your crop...') : t('dashboard.actions.diagnose', 'Diagnose Crop')}
                 </Button>
 
                 <Button
@@ -437,7 +437,7 @@ const CropDoctorPage: React.FC = () => {
                   onClick={clearAcquiredImage}
                   disabled={isAnalyzing || isProcessingImage}
                 >
-                  Change Image
+                  {t('diagnose.changeImage', 'Change Image')}
                 </Button>
               </div>
             )}
@@ -515,7 +515,7 @@ const CropDoctorPage: React.FC = () => {
                     className="text-xs text-green-forest font-semibold flex items-center gap-1 hover:underline"
                   >
                     <RefreshCw className="w-3 h-3" />
-                    Refresh
+                    {t('history.refresh', 'Refresh')}
                   </button>
                 )}
               </div>
@@ -523,19 +523,19 @@ const CropDoctorPage: React.FC = () => {
               {isLoadingHistory ? (
                 <div className="py-6 text-center text-sm text-gray-500 flex items-center justify-center gap-2">
                   <RefreshCw className="w-4 h-4 animate-spin text-green-forest" />
-                  Loading from Firestore...
+                  {t('history.loading', 'Loading from Firestore...')}
                 </div>
               ) : historyError ? (
                 <div className="flex flex-col items-center gap-2 py-5 px-3 bg-red-50 rounded-xl border border-red-100">
                   <ShieldAlert className="w-7 h-7 text-red-400" />
-                  <p className="text-xs font-semibold text-red-700 text-center">Permission Denied</p>
+                  <p className="text-xs font-semibold text-red-700 text-center">{t('history.unavailable', 'Permission Denied')}</p>
                   <p className="text-xs text-red-500 text-center">{historyError}</p>
                 </div>
               ) : recentDiagnoses.length === 0 ? (
                 <div className="flex flex-col items-center gap-2 py-6 text-center">
                   <span className="text-3xl">🌿</span>
-                  <p className="text-sm font-semibold text-gray-600">No diagnoses yet</p>
-                  <p className="text-xs text-gray-400">Upload a crop photo above to get your first diagnosis</p>
+                  <p className="text-sm font-semibold text-gray-600">{t('diagnose.noHistoryTitle', 'No diagnoses yet')}</p>
+                  <p className="text-xs text-gray-400">{t('diagnose.noHistoryDesc', 'Upload a crop photo above to get your first diagnosis')}</p>
                 </div>
               ) : (
                 <div className="space-y-2.5">
@@ -570,10 +570,10 @@ const CropDoctorPage: React.FC = () => {
                           </p>
                           <div className="flex items-center gap-2 mt-1.5 flex-wrap">
                             <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${severityColor}`}>
-                              {d.severity ? d.severity.charAt(0).toUpperCase() + d.severity.slice(1) : 'Unknown'}
+                              {d.severity ? d.severity.charAt(0).toUpperCase() + d.severity.slice(1) : t('common.unknown', 'Unknown')}
                             </span>
                             <span className="text-xs text-green-forest font-bold">
-                              {d.confidence}% confidence
+                              {d.confidence}% {t('diagnosis.result.confidence', 'confidence')}
                             </span>
                           </div>
                           <p className="text-xs text-gray-400 mt-1">

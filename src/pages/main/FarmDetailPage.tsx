@@ -17,7 +17,9 @@ import { calculateFarmHealthScore, type FarmHealth } from '@/services/healthServ
 import type { WeatherData, DiagnosisResult } from '@/types'
 
 // ── Health Score Drawer ───────────────────────────────────────────────────────
-const HealthDrawer = ({ health, open, onClose }: { health: FarmHealth; open: boolean; onClose: () => void }) => (
+const HealthDrawer = ({ health, open, onClose }: { health: FarmHealth; open: boolean; onClose: () => void }) => {
+  const { t } = useTranslation();
+  return (
   <AnimatePresence>
     {open && (
       <>
@@ -33,8 +35,8 @@ const HealthDrawer = ({ health, open, onClose }: { health: FarmHealth; open: boo
         >
           <div className="flex items-center justify-between mb-5">
             <div>
-              <h3 className="text-lg font-bold text-gray-800">How is this calculated?</h3>
-              <p className="text-xs text-gray-500 mt-0.5">Calculated {new Date(health.calculatedAt).toLocaleTimeString()}</p>
+              <h3 className="text-lg font-bold text-gray-800">{t('farm.details.howCalculated', 'How is this calculated?')}</h3>
+              <p className="text-xs text-gray-500 mt-0.5">{t('farm.details.calculatedAt', 'Calculated')} {new Date(health.calculatedAt).toLocaleTimeString()}</p>
             </div>
             <button onClick={onClose} className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors">
               <X className="w-4 h-4 text-gray-600" />
@@ -43,11 +45,11 @@ const HealthDrawer = ({ health, open, onClose }: { health: FarmHealth; open: boo
 
           {/* Formula */}
           <div className="bg-green-50 border border-green-100 rounded-2xl p-4 mb-5">
-            <p className="text-xs font-bold text-green-800 uppercase tracking-wider mb-1">Formula</p>
+            <p className="text-xs font-bold text-green-800 uppercase tracking-wider mb-1">{t('farm.details.formula', 'Formula')}</p>
             <p className="text-sm text-green-900 font-mono">
               Score = Σ(factor_score × weight) / Σ(weights present)
             </p>
-            <p className="text-xs text-green-700 mt-1">Missing data is excluded — remaining weights are renormalized.</p>
+            <p className="text-xs text-green-700 mt-1">{t('farm.details.missingData', 'Missing data is excluded — remaining weights are renormalized.')}</p>
           </div>
 
           {/* Factors */}
@@ -70,20 +72,20 @@ const HealthDrawer = ({ health, open, onClose }: { health: FarmHealth; open: boo
             })}
 
             {health.factors.length === 0 && (
-              <p className="text-sm text-gray-500 text-center py-4">No factor data available yet. Health score is the default baseline.</p>
+              <p className="text-sm text-gray-500 text-center py-4">{t('farm.details.noFactorData', 'No factor data available yet. Health score is the default baseline.')}</p>
             )}
           </div>
 
           {/* Confidence */}
           <div className="mt-5 pt-4 border-t border-gray-100 flex items-center justify-between">
             <div>
-              <p className="text-xs text-gray-500">Confidence</p>
+              <p className="text-xs text-gray-500">{t('farm.details.confidence', 'Confidence')}</p>
               <p className="text-sm font-bold text-gray-800">
                 {health.factors.length >= 3 ? '🟢 High' : health.factors.length >= 2 ? '🟡 Medium' : '🔴 Low'}
               </p>
             </div>
             <div className="text-right">
-              <p className="text-xs text-gray-500">Data sources active</p>
+              <p className="text-xs text-gray-500">{t('farm.details.dataSources', 'Data sources active')}</p>
               <p className="text-sm font-bold text-gray-800">{health.factors.length} / 4</p>
             </div>
           </div>
@@ -91,10 +93,12 @@ const HealthDrawer = ({ health, open, onClose }: { health: FarmHealth; open: boo
       </>
     )}
   </AnimatePresence>
-)
+  );
+}
 
 // ── Satellite Data Panel ──────────────────────────────────────────────────────
 const SatellitePanel = ({ satellite, loading }: { satellite: NDVIResult | null; loading: boolean }) => {
+  const { t } = useTranslation();
   if (loading) {
     return (
       <Card padding="md">
@@ -126,14 +130,14 @@ const SatellitePanel = ({ satellite, loading }: { satellite: NDVIResult | null; 
             <Satellite className="w-4 h-4 text-blue-600" />
           </div>
           <div>
-            <h3 className="font-bold text-gray-800 text-sm">Satellite Data</h3>
-            <p className="text-[10px] text-gray-400">{satellite.source === 'error' ? 'Unavailable' : satellite.source || 'Earth Engine'}</p>
+            <h3 className="font-bold text-gray-800 text-sm">{t('farm.details.satelliteData', 'Satellite Data')}</h3>
+            <p className="text-[10px] text-gray-400">{satellite.source === 'error' ? t('farm.details.unavailable', 'Unavailable') : satellite.source || 'Earth Engine'}</p>
           </div>
         </div>
         {isUnavailable ? (
-          <Badge variant="warning" size="sm">Unavailable</Badge>
+          <Badge variant="warning" size="sm">{t('farm.details.unavailable', 'Unavailable')}</Badge>
         ) : (
-          <Badge variant="green" size="sm">Live</Badge>
+          <Badge variant="green" size="sm">{t('farm.details.live', 'Live')}</Badge>
         )}
       </div>
 
@@ -147,7 +151,7 @@ const SatellitePanel = ({ satellite, loading }: { satellite: NDVIResult | null; 
           {/* NDVI */}
           <div className="flex items-center justify-between p-3 bg-green-50 rounded-xl">
             <div>
-              <p className="text-xs text-gray-500 font-medium">NDVI (Vegetation Index)</p>
+              <p className="text-xs text-gray-500 font-medium">{t('farm.details.ndvi', 'NDVI (Vegetation Index)')}</p>
               <p className={`text-2xl font-black ${ndviColor(satellite.ndvi.value)}`}>
                 {satellite.ndvi.value.toFixed(3)}
               </p>
@@ -162,7 +166,7 @@ const SatellitePanel = ({ satellite, loading }: { satellite: NDVIResult | null; 
           {(satellite as any).moisture && (
             <div className="flex items-center justify-between p-3 bg-blue-50 rounded-xl">
               <div>
-                <p className="text-xs text-gray-500 font-medium">Moisture Index (NDMI)</p>
+                <p className="text-xs text-gray-500 font-medium">{t('farm.details.moistureIndex', 'Moisture Index (NDMI)')}</p>
                 <p className="text-lg font-bold text-blue-700">
                   {(satellite as any).moisture.value?.toFixed(3) || 'N/A'}
                 </p>
@@ -176,13 +180,13 @@ const SatellitePanel = ({ satellite, loading }: { satellite: NDVIResult | null; 
           <div className="grid grid-cols-2 gap-2">
             {(satellite as any).imageDate && (
               <div className="p-2.5 bg-gray-50 rounded-xl">
-                <p className="text-[10px] text-gray-400 font-medium">Image Date</p>
+                <p className="text-[10px] text-gray-400 font-medium">{t('farm.details.imageDate', 'Image Date')}</p>
                 <p className="text-xs font-bold text-gray-700">{new Date((satellite as any).imageDate).toLocaleDateString()}</p>
               </div>
             )}
             {(satellite as any).cloudPercentage !== undefined && (
               <div className="p-2.5 bg-gray-50 rounded-xl">
-                <p className="text-[10px] text-gray-400 font-medium">Cloud Cover</p>
+                <p className="text-[10px] text-gray-400 font-medium">{t('farm.details.cloudCover', 'Cloud Cover')}</p>
                 <p className="text-xs font-bold text-gray-700">{(satellite as any).cloudPercentage}%</p>
               </div>
             )}
@@ -262,7 +266,7 @@ const FarmDetailPage: React.FC = () => {
     <div className="p-8 text-center text-gray-500">
       <p className="text-4xl mb-3">🌾</p>
       <p>{t('farm.notFound', 'Farm not found.')}</p>
-      <button onClick={() => navigate('/farms')} className="mt-4 text-green-600 font-semibold text-sm hover:underline">← Back to My Farms</button>
+      <button onClick={() => navigate('/farms')} className="mt-4 text-green-600 font-semibold text-sm hover:underline">← {t('farm.details.back', 'Back to My Farms')}</button>
     </div>
   )
 
@@ -295,7 +299,7 @@ const FarmDetailPage: React.FC = () => {
               <Badge variant="green" size="sm">🌱 {farm.primaryCrop}</Badge>
               <Badge variant="earth" size="sm">📐 {farm.area} acres</Badge>
               <Badge variant="gray" size="sm">🌸 {farm.cropStage}</Badge>
-              {weather?.isDemo && <Badge variant="demo" size="sm">Demo Data</Badge>}
+              {weather?.isDemo && <Badge variant="demo" size="sm">{t('weather.demo', 'Demo Data')}</Badge>}
             </div>
           </div>
         </div>
@@ -310,7 +314,7 @@ const FarmDetailPage: React.FC = () => {
                 className="flex items-center gap-1 text-xs text-green-700 font-semibold hover:underline"
               >
                 <Info className="w-3 h-3" />
-                How calculated?
+                {t('farm.details.howCalculatedShort', 'How calculated?')}
               </button>
             </div>
             <div className="flex items-center gap-4 mb-3">
@@ -325,14 +329,14 @@ const FarmDetailPage: React.FC = () => {
               <div>
                 <p className="text-2xl font-bold text-gray-800">{healthScoreVal}<span className="text-lg text-gray-400">/100</span></p>
                 <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${healthColor(healthStatus)}`}>{healthStatus}</span>
-                {loadingData && <p className="text-[10px] text-gray-400 mt-1">Calculating…</p>}
+                {loadingData && <p className="text-[10px] text-gray-400 mt-1">{t('farm.details.calculating', 'Calculating…')}</p>}
               </div>
             </div>
             <ProgressBar value={healthScoreVal} color="green" />
 
             {farmHealth && farmHealth.factors.length > 0 && (
               <div className="mt-4 pt-3 border-t border-gray-100 space-y-2">
-                <p className="text-[10px] uppercase tracking-wider font-bold text-gray-400">Factors Used</p>
+                <p className="text-[10px] uppercase tracking-wider font-bold text-gray-400">{t('farm.details.factorsUsed', 'Factors Used')}</p>
                 {farmHealth.factors.map(f => (
                   <div key={f.name} className="flex items-center justify-between text-xs">
                     <span className="text-gray-600">{f.name}</span>
@@ -371,7 +375,7 @@ const FarmDetailPage: React.FC = () => {
             {/* Recent Diagnosis */}
             {diagnosis && (
               <div className="mt-4 pt-3 border-t border-gray-100">
-                <p className="text-[10px] uppercase tracking-wider font-bold text-gray-400 mb-2">Latest Diagnosis</p>
+                <p className="text-[10px] uppercase tracking-wider font-bold text-gray-400 mb-2">{t('farm.details.latestDiagnosis', 'Latest Diagnosis')}</p>
                 <div className="flex items-center gap-2">
                   <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
                     diagnosis.severity === 'healthy' ? 'bg-green-100 text-green-800' :
@@ -398,7 +402,7 @@ const FarmDetailPage: React.FC = () => {
                   <Thermometer className="w-4 h-4 text-sky-600" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-gray-800 text-sm">Current Weather</h3>
+                  <h3 className="font-bold text-gray-800 text-sm">{t('farm.details.currentWeather', 'Current Weather')}</h3>
                   <p className="text-[10px] text-gray-400">
                     {weather.isDemo ? '⚠️ Demo data — start server for live weather' : `${weather.source?.weather || 'Open-Meteo'} · ${new Date(weather.updatedAt || '').toLocaleTimeString()}`}
                   </p>
@@ -411,15 +415,15 @@ const FarmDetailPage: React.FC = () => {
             </div>
             <div className="grid grid-cols-3 gap-2">
               <div className="bg-gray-50 rounded-xl p-2 text-center">
-                <p className="text-[10px] text-gray-400">Humidity</p>
+                <p className="text-[10px] text-gray-400">{t('dashboard.weatherCard.humidity', 'Humidity')}</p>
                 <p className="text-sm font-bold text-gray-700">{weather.humidity}%</p>
               </div>
               <div className="bg-gray-50 rounded-xl p-2 text-center">
-                <p className="text-[10px] text-gray-400">Rain</p>
+                <p className="text-[10px] text-gray-400">{t('dashboard.weatherCard.rain', 'Rain')}</p>
                 <p className="text-sm font-bold text-gray-700">{weather.rainChance}%</p>
               </div>
               <div className="bg-gray-50 rounded-xl p-2 text-center">
-                <p className="text-[10px] text-gray-400">Wind</p>
+                <p className="text-[10px] text-gray-400">{t('dashboard.weatherCard.wind', 'Wind')}</p>
                 <p className="text-sm font-bold text-gray-700">{weather.windSpeed} km/h</p>
               </div>
             </div>

@@ -16,6 +16,7 @@ const LANGUAGES = [
   { code: 'pt-BR', name: 'Portuguese', native: 'Português' },
   { code: 'ru', name: 'Russian', native: 'Русский' },
   { code: 'hi', name: 'Hindi', native: 'हिन्दी' },
+  { code: 'gu', name: 'Gujarati', native: 'ગુજરાતી' },
   { code: 'zh-CN', name: 'Chinese', native: '简体中文' },
   { code: 'ar', name: 'Arabic', native: 'العربية (Egypt/UAE/Saudi Arabia)' },
   { code: 'am', name: 'Amharic', native: 'አማርኛ' },

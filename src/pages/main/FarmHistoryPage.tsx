@@ -20,6 +20,7 @@ type TimelineItem =
 // ── Diagnosis Detail Modal ────────────────────────────────────────────────────
 
 const DiagnosisDetailModal: React.FC<{ diagnosis: DiagnosisResult; onClose: () => void }> = ({ diagnosis: d, onClose }) => {
+  const { t } = useTranslation();
   const severityColor =
     d.severity === 'severe'
       ? 'text-red-700 bg-red-100'
@@ -51,15 +52,15 @@ const DiagnosisDetailModal: React.FC<{ diagnosis: DiagnosisResult; onClose: () =
           >
             <X className="w-4 h-4 text-white" />
           </button>
-          <p className="text-xs font-bold text-green-pastel/80 uppercase tracking-widest mb-1">Diagnosis Details</p>
+          <p className="text-xs font-bold text-green-pastel/80 uppercase tracking-widest mb-1">{t('history.detail.title', 'Diagnosis Details')}</p>
           <h2 className="text-xl font-bold text-white leading-tight">{d.diseaseName || d.disease || 'Diagnosed Issue'}</h2>
           <p className="text-green-pastel/90 text-sm mt-1">🌿 {d.cropName || d.crop}</p>
           <div className="flex items-center gap-2 mt-3 flex-wrap">
             <span className={`text-xs font-bold px-3 py-1 rounded-full bg-white/20 text-white`}>
-              {d.severity ? d.severity.charAt(0).toUpperCase() + d.severity.slice(1) : 'Unknown'} severity
+              {d.severity ? d.severity.charAt(0).toUpperCase() + d.severity.slice(1) : 'Unknown'} {t('diagnosis.result.severity', 'severity')}
             </span>
             <span className="text-xs font-bold px-3 py-1 rounded-full bg-white/20 text-white">
-              {d.confidence}% confidence
+              {d.confidence}% {t('diagnosis.result.confidence', 'confidence')}
             </span>
           </div>
         </div>
@@ -87,7 +88,7 @@ const DiagnosisDetailModal: React.FC<{ diagnosis: DiagnosisResult; onClose: () =
           {/* Analysis */}
           {d.analysis && (
             <section>
-              <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">Analysis</h4>
+              <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">{t('diagnosis.result.analysis', 'Analysis')}</h4>
               <p className="text-sm text-gray-700 leading-relaxed">{d.analysis}</p>
             </section>
           )}
@@ -95,7 +96,7 @@ const DiagnosisDetailModal: React.FC<{ diagnosis: DiagnosisResult; onClose: () =
           {/* Symptoms */}
           {d.symptoms && d.symptoms.length > 0 && (
             <section>
-              <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Symptoms</h4>
+              <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">{t('diagnosis.result.symptoms', 'Symptoms')}</h4>
               <ul className="space-y-1.5">
                 {d.symptoms.map((s: string, i: number) => (
                   <li key={i} className="flex gap-2 text-sm text-gray-700">
@@ -110,7 +111,7 @@ const DiagnosisDetailModal: React.FC<{ diagnosis: DiagnosisResult; onClose: () =
           {/* Treatment */}
           {d.treatment && d.treatment.length > 0 && (
             <section className="bg-green-50 rounded-2xl p-4">
-              <h4 className="text-xs font-bold text-green-800 uppercase tracking-wider mb-2">Recommended Treatment</h4>
+              <h4 className="text-xs font-bold text-green-800 uppercase tracking-wider mb-2">{t('diagnosis.result.actions', 'Recommended Treatment')}</h4>
               <ul className="space-y-1.5">
                 {(Array.isArray(d.treatment) ? d.treatment : [d.treatment]).map((t: string, i: number) => (
                   <li key={i} className="flex gap-2 text-sm text-green-900">
@@ -125,7 +126,7 @@ const DiagnosisDetailModal: React.FC<{ diagnosis: DiagnosisResult; onClose: () =
           {/* Prevention */}
           {d.prevention && d.prevention.length > 0 && (
             <section>
-              <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Prevention</h4>
+              <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">{t('diagnosis.result.prevention', 'Prevention')}</h4>
               <ul className="space-y-1.5">
                 {d.prevention.map((p: string, i: number) => (
                   <li key={i} className="flex gap-2 text-sm text-gray-700">
@@ -142,7 +143,7 @@ const DiagnosisDetailModal: React.FC<{ diagnosis: DiagnosisResult; onClose: () =
             <section className="flex items-start gap-3 bg-amber-50 rounded-2xl p-4">
               <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
               <div>
-                <h4 className="text-xs font-bold text-amber-800 uppercase tracking-wider mb-0.5">Recheck</h4>
+                <h4 className="text-xs font-bold text-amber-800 uppercase tracking-wider mb-0.5">{t('diagnosis.result.recheck', 'Recheck')}</h4>
                 <p className="text-sm text-amber-900">{d.whenToRecheck}</p>
               </div>
             </section>
@@ -152,7 +153,7 @@ const DiagnosisDetailModal: React.FC<{ diagnosis: DiagnosisResult; onClose: () =
             onClick={onClose}
             className="w-full py-3 rounded-2xl bg-green-forest text-white font-bold text-sm hover:bg-green-dark transition-colors"
           >
-            Close
+            {t('common.close', 'Close')}
           </button>
         </div>
       </motion.div>
@@ -249,7 +250,7 @@ const FarmHistoryPage: React.FC = () => {
             className="flex items-center gap-1.5 text-sm font-semibold text-green-forest hover:underline"
           >
             <RefreshCw className="w-4 h-4" />
-            Refresh
+            {t('history.refresh', 'Refresh')}
           </button>
         </div>
 
@@ -257,7 +258,7 @@ const FarmHistoryPage: React.FC = () => {
         {isLoading ? (
           <div className="py-16 flex flex-col items-center justify-center gap-3 text-gray-500">
             <RefreshCw className="w-6 h-6 animate-spin text-green-forest" />
-            <span className="text-sm font-medium">Loading from Firestore…</span>
+            <span className="text-sm font-medium">{t('history.loading', 'Loading from Firestore…')}</span>
           </div>
 
         /* ERROR (permission denied — separate from empty) */
@@ -266,13 +267,13 @@ const FarmHistoryPage: React.FC = () => {
             <div className="w-14 h-14 rounded-full bg-red-50 flex items-center justify-center mb-3">
               <ShieldAlert className="w-7 h-7 text-red-400" />
             </div>
-            <h3 className="text-base font-bold text-red-700 mb-1">History Unavailable</h3>
+            <h3 className="text-base font-bold text-red-700 mb-1">{t('history.unavailable', 'History Unavailable')}</h3>
             <p className="text-sm text-red-600 max-w-sm text-center">{historyError}</p>
             <button
               onClick={fetchHistory}
               className="mt-4 text-sm font-bold text-green-forest hover:underline flex items-center gap-1"
             >
-              <RefreshCw className="w-3.5 h-3.5" /> Retry
+              <RefreshCw className="w-3.5 h-3.5" /> {t('history.retry', 'Retry')}
             </button>
           </div>
 
@@ -280,15 +281,15 @@ const FarmHistoryPage: React.FC = () => {
         ) : timeline.length === 0 ? (
           <div className="py-16 flex flex-col items-center justify-center bg-white rounded-2xl border border-brown-pastel/30 shadow-sm p-6">
             <div className="w-16 h-16 rounded-full bg-green-pastel/20 flex items-center justify-center text-3xl mb-4">🌱</div>
-            <h3 className="text-lg font-bold text-green-forest mb-2">No History Yet</h3>
+            <h3 className="text-lg font-bold text-green-forest mb-2">{t('history.emptyTitle', 'No History Yet')}</h3>
             <p className="text-sm text-text-secondary max-w-sm text-center mb-6">
-              Run a crop diagnosis or ask the AI Advisor to start building your history.
+              {t('history.emptyDesc', 'Run a crop diagnosis or ask the AI Advisor to start building your history.')}
             </p>
             <button
               onClick={() => navigate('/diagnose')}
               className="bg-green-forest hover:bg-green-dark text-white font-bold py-2.5 px-6 rounded-xl shadow-md transition-colors"
             >
-              Diagnose Crop
+              {t('dashboard.actions.diagnose', 'Diagnose Crop')}
             </button>
           </div>
 
@@ -329,7 +330,7 @@ const FarmHistoryPage: React.FC = () => {
                         {/* Content */}
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-1.5 mb-0.5">
-                            <span className="text-xs font-bold text-green-forest uppercase tracking-wider">🔬 Diagnosis</span>
+                            <span className="text-xs font-bold text-green-forest uppercase tracking-wider">🔬 {t('nav.diagnose', 'Diagnosis')}</span>
                           </div>
                           <p className="font-bold text-text-main text-sm leading-tight truncate">
                             {d.diseaseName || d.disease || 'Issue Detected'}
@@ -350,7 +351,7 @@ const FarmHistoryPage: React.FC = () => {
 
                         {/* Arrow */}
                         <div className="flex flex-col items-end gap-1 shrink-0 pt-1">
-                          <span className="text-xs font-semibold text-green-forest group-hover:underline">View →</span>
+                          <span className="text-xs font-semibold text-green-forest group-hover:underline">{t('weather.viewDetails', 'View')} →</span>
                         </div>
                       </motion.button>
                     )
@@ -362,7 +363,7 @@ const FarmHistoryPage: React.FC = () => {
             {/* Advisor sessions (no grouping needed for now) */}
             {timeline.filter(i => i.type === 'advisor').length > 0 && (
               <section>
-                <h2 className="text-xs font-bold text-brown-earth/60 uppercase tracking-widest mb-2 px-1">AI Advisor Sessions</h2>
+                <h2 className="text-xs font-bold text-brown-earth/60 uppercase tracking-widest mb-2 px-1">{t('history.advisorSessions', 'AI Advisor Sessions')}</h2>
                 <div className="space-y-2.5">
                   {timeline.filter(i => i.type === 'advisor').map((item, idx) => {
                     const c = item.data as AdvisorConversation
@@ -377,7 +378,7 @@ const FarmHistoryPage: React.FC = () => {
                             <MessageSquare className="w-6 h-6 text-green-forest" />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <span className="text-xs font-bold text-green-forest uppercase tracking-wider">🤖 AI Advisor</span>
+                            <span className="text-xs font-bold text-green-forest uppercase tracking-wider">🤖 {t('nav.advisor', 'AI Advisor')}</span>
                             <p className="font-bold text-text-main text-sm truncate">{c.title || 'Conversation'}</p>
                             <p className="text-xs text-gray-400 mt-0.5">{formatDiagnosisTimestamp(c.updatedAt)}</p>
                           </div>
@@ -393,7 +394,7 @@ const FarmHistoryPage: React.FC = () => {
         )}
 
         <p className="text-xs text-center text-brown-earth/50 font-medium pt-2">
-          ✨ Synced with Firestore · {timeline.length} record{timeline.length !== 1 ? 's' : ''} loaded
+          ✨ {t('history.synced', 'Synced with Firestore')} · {timeline.length} {timeline.length !== 1 ? t('history.records', 'records') : t('history.record', 'record')} {t('history.loaded', 'loaded')}
         </p>
       </PageLayout>
 
