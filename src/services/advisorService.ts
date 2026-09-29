@@ -1,4 +1,4 @@
-import { collection, doc, setDoc, getDocs, query, where, orderBy, limit } from 'firebase/firestore'
+import { collection, doc, setDoc, getDocs, query, where, orderBy, limit, deleteDoc } from 'firebase/firestore'
 import { db } from './firebase'
 import type { AdvisorConversation } from '@/types'
 
@@ -71,6 +71,30 @@ class AdvisorService {
     } catch (err) {
       console.error('[AdvisorService] Failed to fetch conversations:', err)
       return []
+    }
+  }
+
+  /**
+   * Deletes all AI Advisor conversations for a user
+   */
+  async deleteAllConversations(userId?: string): Promise<boolean> {
+    try {
+      if (userId) {
+        const q = query(collection(db, 'users', userId, 'advisorConversations'))
+        const snap = await getDocs(q)
+        
+        const deletePromises = snap.docs.map(docSnap => deleteDoc(doc(db, 'users', userId, 'advisorConversations', docSnap.id)))
+        await Promise.all(deletePromises)
+        
+        console.log(`[AdvisorService] Deleted all ${snap.size} conversations for user ${userId}`)
+        return true
+      } else {
+        localStorage.removeItem(CONVERSATION_KEY)
+        return true
+      }
+    } catch (err) {
+      console.error('[AdvisorService] Failed to delete all conversations:', err)
+      return false
     }
   }
 }

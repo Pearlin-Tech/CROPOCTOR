@@ -5,7 +5,7 @@
 ### BLOCKER-1: Earth Engine Service Account
 - **What**: A Google Earth Engine service account JSON key file + registered GEE project ID.
 - **Why needed**: Server-side satellite NDVI/moisture data requires EE authentication.
-- **Current state**: `.gee-key.json` exists at repo root (may be valid). `EE_KEY_PATH=".gee-key.json"` is set in `.env`.
+- **Current state**: A local service account JSON key file exists at repo root (may be valid), referenced via `EE_KEY_PATH` in `.env`.
 - **Action required**: Verify the service account is still valid and the project has EE API enabled.
 - **Impact if missing**: Satellite data will return fallback "unavailable" values with clear labeling.
 

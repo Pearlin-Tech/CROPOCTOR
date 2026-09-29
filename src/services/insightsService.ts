@@ -24,8 +24,8 @@ export class FirebaseInsightsService implements IInsightsService {
       // --- DYNAMIC CALCULATION ---
       
       // NDVI / Satellite parsing
-      const hasRealNdvi = farmData.lastNdviObservation?.ndvi != null
-      let ndviVal = hasRealNdvi ? farmData.lastNdviObservation.ndvi : 0.65
+      const hasRealNdvi = farmData.lastNdviObservation?.ndvi?.value != null
+      let ndviVal = hasRealNdvi ? farmData.lastNdviObservation.ndvi.value : 0.65
       
       // Calculate Crop Health Score (out of 100)
       let cropScore = 80 // Base score
@@ -40,15 +40,17 @@ export class FirebaseInsightsService implements IInsightsService {
 
       const weather = farmData.lastWeatherSnapshot
       if (weather) {
-        if (weather.soilMoisture !== null) {
+        if (typeof weather.soilMoisture === 'number') {
            cropScore += 5;
            factors.push(`Soil moisture recorded at ${weather.soilMoisture.toFixed(1)}%`)
         } else {
            factors.push('No direct soil moisture sensor data')
         }
         
-        if (weather.precipitation24h > 0) {
+        if (typeof weather.precipitation24h === 'number' && weather.precipitation24h > 0) {
            factors.push('Recent rainfall observed')
+        } else if (weather.rainChance > 50) {
+           factors.push('High chance of rain soon')
         }
       }
 
@@ -69,7 +71,7 @@ export class FirebaseInsightsService implements IInsightsService {
 
       // Nutrient reality check (Requirement #8)
       const nutrientsLabel = 'Nutrient data unavailable (No soil test found)'
-      const soilScore = weather?.soilMoisture ? 70 + (weather.soilMoisture * 10) : 50;
+      const soilScore = typeof weather?.soilMoisture === 'number' ? 70 + (weather.soilMoisture * 10) : 50;
 
       return {
         cropHealth: {
@@ -79,7 +81,7 @@ export class FirebaseInsightsService implements IInsightsService {
         },
         soilHealth: {
           score: Math.round(Math.max(0, Math.min(100, soilScore))),
-          moisture: weather?.soilMoisture > 0.4 ? 'wet' : weather?.soilMoisture < 0.2 ? 'dry' : 'optimal',
+          moisture: typeof weather?.soilMoisture === 'number' ? (weather.soilMoisture > 0.4 ? 'wet' : weather.soilMoisture < 0.2 ? 'dry' : 'optimal') : 'optimal',
           nutrients: nutrientsLabel
         },
         ndvi: {

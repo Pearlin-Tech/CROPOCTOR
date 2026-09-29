@@ -35,8 +35,7 @@ export interface CropDiagnosisResult {
   limitations: string[]
   needsMoreEvidence: boolean
 
-  // Map to legacy fields so we don't completely break old components immediately,
-  // though we will update DiagnosisResultPage.
+  // Legacy fields for UI backwards-compatibility
   cropName?: string
   diseaseName?: string
   confidence?: number
@@ -46,6 +45,7 @@ export interface CropDiagnosisResult {
   treatment?: string[]
   immediateActions?: string[]
   longTermPrevention?: string[]
+  whenToRecheck?: string
 }
 
 export interface AnalyzeCropResponse {
@@ -55,233 +55,305 @@ export interface AnalyzeCropResponse {
 }
 
 /**
- * Validates and normalizes raw JSON returned by Gemini against required schema.
+ * Calls Gemini API with cascade model fallback.
+ * Tries each model in AI_CONFIG.MODEL_CASCADE until one succeeds.
+ * Returns { ok, status, data } or throws on network error.
  */
-function validateAndNormalizeDiagnosis(
-  parsed: any,
-  farmContext?: AnalyzeCropParams['farmContext']
-): CropDiagnosisResult {
-  const needsMoreEvidence = typeof parsed.needsMoreEvidence === 'boolean' ? parsed.needsMoreEvidence : false;
-  let certainty: CertaintyLevel = 'moderate';
-  if (['high', 'moderate', 'low', 'insufficient_evidence'].includes(parsed.certainty)) {
-    certainty = parsed.certainty;
-  }
-  if (needsMoreEvidence) {
-    certainty = 'insufficient_evidence';
-  }
+async function callGeminiCascade(parts: any[], geminiKey: string): Promise<{ ok: boolean; status: number; data: any }> {
+  const modelsToTry = AI_CONFIG.MODEL_CASCADE
 
-  const result: CropDiagnosisResult = {
-    isPlantImage: typeof parsed.isPlantImage === 'boolean' ? parsed.isPlantImage : !needsMoreEvidence,
-    cropCode: parsed.cropCode || farmContext?.crop || 'unknown',
-    diagnosisCode: parsed.diagnosisCode || 'unknown',
-    diagnosisName: parsed.diagnosisName || 'Unknown Issue',
-    certainty,
-    confidenceBand: certainty,
-    supportingEvidence: Array.isArray(parsed.supportingEvidence) ? parsed.supportingEvidence.filter((s: any) => typeof s === 'string') : [],
-    contradictingEvidence: Array.isArray(parsed.contradictingEvidence) ? parsed.contradictingEvidence.filter((s: any) => typeof s === 'string') : [],
-    alternativeDiagnoses: Array.isArray(parsed.alternativeDiagnoses) ? parsed.alternativeDiagnoses.filter((s: any) => typeof s === 'string') : [],
-    limitations: Array.isArray(parsed.limitations) ? parsed.limitations.filter((s: any) => typeof s === 'string') : [],
-    needsMoreEvidence
-  };
-
-  // Backwards compat mappings for UI temporarily until fully refactored
-  result.cropName = result.cropCode;
-  result.diseaseName = result.diagnosisName;
-  result.confidence = certainty === 'high' ? 90 : certainty === 'moderate' ? 60 : certainty === 'low' ? 30 : 0;
-  result.severity = 'moderate';
-  result.symptoms = result.supportingEvidence;
-  result.analysis = result.supportingEvidence.join('. ');
-
-  // Treatment Safety Gate
-  if (certainty === 'high') {
-    result.treatment = ['Specific treatment recommendation based on ' + result.diagnosisCode];
-    result.immediateActions = ['Apply targeted fungicide or pesticide as per local guidelines for ' + result.diagnosisCode];
-  } else if (certainty === 'moderate') {
-    result.treatment = ['Recommend verification before aggressive intervention.'];
-    result.immediateActions = ['Monitor the crop closely', 'Consult local extension officer for ' + result.diagnosisCode];
-  } else if (certainty === 'low') {
-    result.treatment = ['General supportive advice only. Avoid aggressive chemical treatment.'];
-    result.immediateActions = ['Ensure proper watering and nutrition.'];
-  } else {
-    result.treatment = [];
-    result.immediateActions = ['Please take a clearer picture for diagnosis.'];
-    result.isPlantImage = false; // Trigger UI warning
-  }
-  
-  result.longTermPrevention = ['Practice good field sanitation', 'Crop rotation'];
-
-  return result;
-}
-
-/**
- * Stage 2: Evidence Verification
- * We use the Text Model to double-check the vision model's output.
- */
-async function verifyDiagnosisEvidence(
-  visionDiagnosis: any,
-  geminiKey: string
-): Promise<any> {
-  if (visionDiagnosis.needsMoreEvidence || visionDiagnosis.certainty === 'insufficient_evidence') {
-    return visionDiagnosis; // Already abstained
-  }
-
-  const prompt = `You are a strict agricultural AI auditor. Review the following proposed diagnosis and its visual evidence:
-
-Diagnosis: ${visionDiagnosis.diagnosisName} (${visionDiagnosis.diagnosisCode})
-Supporting Evidence: ${JSON.stringify(visionDiagnosis.supportingEvidence)}
-Contradicting Evidence: ${JSON.stringify(visionDiagnosis.contradictingEvidence)}
-Certainty: ${visionDiagnosis.certainty}
-
-Does the supporting evidence firmly support this diagnosis? Are there contradictions?
-If the evidence is weak, downgrade the certainty (e.g. high -> moderate, moderate -> low).
-If the evidence contradicts, return insufficient_evidence.
-
-Return ONLY JSON:
-{
-  "verifiedCertainty": "high" | "moderate" | "low" | "insufficient_evidence",
-  "reason": "explanation of why it was kept or downgraded"
-}`;
-
-  try {
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${AI_CONFIG.TEXT_MODEL}:generateContent?key=${geminiKey}`;
-    const response = await fetch(apiUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { temperature: 0 }
-      })
-    });
-    
-    if (response.ok) {
-      const resData = await response.json();
-      const rawText = resData.candidates?.[0]?.content?.parts?.[0]?.text || '';
-      const cleanJsonText = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
-      const parsed = JSON.parse(cleanJsonText);
-      
-      if (parsed.verifiedCertainty) {
-        visionDiagnosis.certainty = parsed.verifiedCertainty;
-        visionDiagnosis.confidenceBand = parsed.verifiedCertainty;
-        if (parsed.verifiedCertainty === 'insufficient_evidence') {
-          visionDiagnosis.needsMoreEvidence = true;
-        }
-        visionDiagnosis.limitations = [...(visionDiagnosis.limitations || []), parsed.reason];
-      }
-    }
-  } catch (err) {
-    console.warn('[GeminiDiagnosisModule] Evidence verification failed, proceeding with original.', err);
-  }
-
-  return visionDiagnosis;
-}
-
-/**
- * Isolated Gemini Multimodal Crop Diagnostic Service Module
- */
-export async function analyzeCropWithGeminiModule(
-  params: AnalyzeCropParams
-): Promise<AnalyzeCropResponse> {
-  const { imageBase64, mimeType = 'image/jpeg', imageUrl, isSample, farmContext, language } = params
-
-  if (!imageBase64 && !imageUrl && !isSample) {
-    return { success: false, error: 'An image payload is required.' }
-  }
-
-  const normalizedMime = mimeType.toLowerCase()
-  const geminiKey = process.env.GEMINI_API_KEY
-  if (!geminiKey) return { success: false, error: 'GEMINI_API_KEY is not configured.' }
-
-  try {
-    const parts: any[] = []
-    let rawBase64 = imageBase64 || ''
-    if (rawBase64.startsWith('data:')) {
-      const match = rawBase64.match(/^data:(image\/[a-zA-Z+]+);base64,(.+)$/)
-      if (match) rawBase64 = match[2]
-      else rawBase64 = rawBase64.split(',')[1] || rawBase64
-    }
-
-    if (rawBase64) {
-      parts.push({ inlineData: { mimeType: normalizedMime, data: rawBase64 } })
-    } else if (imageUrl && (imageUrl.startsWith('http://') || imageUrl.startsWith('https://'))) {
-      try {
-        const fetchRes = await fetch(imageUrl)
-        if (fetchRes.ok) {
-          const arrayBuffer = await fetchRes.arrayBuffer()
-          const buffer = Buffer.from(arrayBuffer)
-          parts.push({ inlineData: { mimeType: fetchRes.headers.get('content-type') || 'image/jpeg', data: buffer.toString('base64') } })
-        }
-      } catch (err) { }
-    } else if (isSample || (imageUrl && imageUrl.startsWith('/'))) {
-      try {
-        const targetUrl = imageUrl || '/images/disease_leaf_1787238259522.jpg'
-        const imagePath = path.join(process.cwd(), 'public', targetUrl)
-        if (fs.existsSync(imagePath)) {
-          const buffer = fs.readFileSync(imagePath)
-          const ext = path.extname(imagePath).toLowerCase()
-          let mime = 'image/jpeg'
-          if (ext === '.png') mime = 'image/png'
-          else if (ext === '.webp') mime = 'image/webp'
-          parts.push({ inlineData: { mimeType: mime, data: buffer.toString('base64') } })
-        }
-      } catch (err) { }
-    }
-
-    if (parts.length === 0) return { success: false, error: 'No valid image data.' }
-
-    const fullPrompt = AI_CONFIG.getSystemPrompt(farmContext?.crop);
-    parts.push({ text: fullPrompt })
-
-    const modelName = AI_CONFIG.VISION_MODEL
-    console.log(`[AI DIAGNOSIS] Vision model: ${modelName}`)
+  for (const modelName of modelsToTry) {
     const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${geminiKey}`
+    console.log(`[GeminiDiagnosis] Trying model: ${modelName}`)
 
     const controller = new AbortController()
     const timeoutId = setTimeout(() => controller.abort(), AI_CONFIG.TIMEOUT_MS)
 
-    const response = await fetch(apiUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ parts }],
-        generationConfig: { temperature: AI_CONFIG.TEMPERATURE }
-      }),
-      signal: controller.signal
-    }).finally(() => clearTimeout(timeoutId))
+    try {
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts }],
+          generationConfig: {
+            temperature: AI_CONFIG.TEMPERATURE,
+            maxOutputTokens: AI_CONFIG.MAX_OUTPUT_TOKENS
+          }
+        }),
+        signal: controller.signal
+      }).finally(() => clearTimeout(timeoutId))
 
-    if (!response.ok) {
-      const errText = await response.text()
-      if (response.status === 503 || response.status === 429) {
-          return { success: true, data: getFallbackCropDiagnosis(params) }
+      const resData = await response.json()
+
+      if (response.ok) {
+        console.log(`[GeminiDiagnosis] SUCCESS with model: ${modelName}`)
+        return { ok: true, status: response.status, data: resData }
       }
-      throw new Error(`Gemini API HTTP ${response.status}: ${errText}`)
+
+      const statusCode = response.status
+      const errMsg = resData.error?.message || 'Unknown error'
+      console.warn(`[GeminiDiagnosis] Model ${modelName} failed HTTP ${statusCode}: ${errMsg.substring(0, 100)}`)
+
+      // 404 = model not found, skip immediately
+      // 400 = bad request (likely image format issue), skip
+      // 503/429 = try next model
+      if (statusCode === 404 || statusCode === 400) continue
+      if (statusCode === 503 || statusCode === 429) {
+        // Wait briefly before trying next model
+        await new Promise(r => setTimeout(r, 1500))
+        continue
+      }
+      // Other errors - still try next model
+      continue
+
+    } catch (err: any) {
+      if (err.name === 'AbortError') {
+        console.warn(`[GeminiDiagnosis] Model ${modelName} timed out`)
+      } else {
+        console.warn(`[GeminiDiagnosis] Model ${modelName} network error:`, err.message)
+      }
+      continue
     }
-
-    const resData = await response.json()
-    const rawText = resData.candidates?.[0]?.content?.parts?.[0]?.text || ''
-    const cleanJsonText = rawText.replace(/```json/g, '').replace(/```/g, '').trim()
-    let parsed = JSON.parse(cleanJsonText)
-
-    // Stage 2: Verification
-    parsed = await verifyDiagnosisEvidence(parsed, geminiKey);
-
-    const normalizedData = validateAndNormalizeDiagnosis(parsed, farmContext)
-
-    return { success: true, data: normalizedData }
-  } catch (err: any) {
-    return { success: true, data: getFallbackCropDiagnosis(params) }
   }
+
+  return { ok: false, status: 503, data: { error: { message: 'All models failed' } } }
 }
 
-function getFallbackCropDiagnosis(params: AnalyzeCropParams): CropDiagnosisResult {
-  return validateAndNormalizeDiagnosis({
-    cropCode: params.farmContext?.crop || 'unknown',
-    diagnosisCode: 'fungal blight',
-    diagnosisName: 'Fungal Leaf Blight',
-    certainty: 'moderate',
-    supportingEvidence: ['Irregular brown necrotic lesions', 'Yellow chlorotic halos'],
-    contradictingEvidence: [],
-    alternativeDiagnoses: ['Nutrient Deficiency'],
-    limitations: ['Fallback diagnosis due to API limit'],
-    needsMoreEvidence: false
-  }, params.farmContext);
+/**
+ * Normalizes and validates parsed Gemini JSON into the CropDiagnosisResult schema.
+ */
+function normalizeResult(parsed: any, farmContext?: AnalyzeCropParams['farmContext']): CropDiagnosisResult {
+  const VALID_CERTAINTY: CertaintyLevel[] = ['high', 'moderate', 'low', 'insufficient_evidence']
+  let certainty: CertaintyLevel = 'moderate'
+  if (VALID_CERTAINTY.includes(parsed.certainty)) certainty = parsed.certainty
+  if (parsed.needsMoreEvidence === true && certainty === 'high') certainty = 'moderate'
+
+  const result: CropDiagnosisResult = {
+    isPlantImage: typeof parsed.isPlantImage === 'boolean' ? parsed.isPlantImage : true,
+    cropCode: parsed.cropCode || farmContext?.crop || 'unknown',
+    diagnosisCode: (parsed.diagnosisCode || 'unknown').toLowerCase().trim(),
+    diagnosisName: parsed.diagnosisName || 'Unknown Condition',
+    certainty,
+    confidenceBand: certainty,
+    supportingEvidence: Array.isArray(parsed.supportingEvidence)
+      ? parsed.supportingEvidence.filter((s: any) => typeof s === 'string' && s.trim().length > 3)
+      : [],
+    contradictingEvidence: Array.isArray(parsed.contradictingEvidence)
+      ? parsed.contradictingEvidence.filter((s: any) => typeof s === 'string' && s.trim().length > 3)
+      : [],
+    alternativeDiagnoses: Array.isArray(parsed.alternativeDiagnoses)
+      ? parsed.alternativeDiagnoses.filter((s: any) => typeof s === 'string' && s.trim().length > 3)
+      : [],
+    limitations: Array.isArray(parsed.limitations)
+      ? parsed.limitations.filter((s: any) => typeof s === 'string' && s.trim().length > 3)
+      : [],
+    needsMoreEvidence: Boolean(parsed.needsMoreEvidence),
+    treatment: Array.isArray(parsed.treatment)
+      ? parsed.treatment.filter((s: any) => typeof s === 'string' && s.trim().length > 3)
+      : [],
+    immediateActions: Array.isArray(parsed.immediateActions)
+      ? parsed.immediateActions.filter((s: any) => typeof s === 'string' && s.trim().length > 3)
+      : [],
+    longTermPrevention: Array.isArray(parsed.longTermPrevention)
+      ? parsed.longTermPrevention.filter((s: any) => typeof s === 'string' && s.trim().length > 3)
+      : [],
+    whenToRecheck: typeof parsed.whenToRecheck === 'string' ? parsed.whenToRecheck : ''
+  }
+
+  // Legacy UI field mappings
+  result.cropName = result.cropCode
+  result.diseaseName = result.diagnosisName
+  result.confidence = certainty === 'high' ? 90
+    : certainty === 'moderate' ? 65
+    : certainty === 'low' ? 35 : 0
+  result.severity = certainty === 'high' ? 'severe' : certainty === 'moderate' ? 'moderate' : 'mild'
+  
+  if (certainty === 'insufficient_evidence' || !result.isPlantImage) {
+    result.confidence = 0
+    result.severity = 'unknown'
+    result.treatment = []
+    result.immediateActions = []
+    result.longTermPrevention = []
+    result.symptoms = result.supportingEvidence || []
+    result.analysis = result.limitations?.join('. ') || 'Insufficient evidence for diagnosis.'
+  } else {
+    result.symptoms = result.supportingEvidence
+    result.analysis = result.supportingEvidence.slice(0, 2).join('. ')
+    
+    // Ensure minimum content if AI response was sparse
+    if (result.immediateActions.length === 0) {
+      result.immediateActions = [
+        'Isolate or flag plants showing symptoms to track progression',
+        'Avoid overhead irrigation — use drip or furrow to reduce leaf wetness',
+        'Remove and destroy severely affected leaves to reduce disease spread'
+      ]
+    }
+    if (result.treatment.length === 0) {
+      result.treatment = ['Consult your local agricultural extension officer for confirmed treatment recommendations']
+    }
+    if (result.longTermPrevention.length === 0) {
+      result.longTermPrevention = [
+        'Practice crop rotation every 2-3 seasons',
+        'Maintain proper plant spacing for air circulation',
+        'Remove crop debris after harvest'
+      ]
+    }
+    if (!result.whenToRecheck) {
+      result.whenToRecheck = 'Recheck within 3-5 days after treatment'
+    }
+  }
+
+  return result
+}
+
+/**
+ * Loads image data as base64 from various sources.
+ * Returns { base64, mimeType } or null if image cannot be loaded.
+ */
+async function resolveImageData(params: AnalyzeCropParams): Promise<{ base64: string; mimeType: string } | null> {
+  const { imageBase64, mimeType = 'image/jpeg', imageUrl, isSample } = params
+
+  // Priority 1: direct base64 payload
+  if (imageBase64) {
+    let raw = imageBase64
+    let resolvedMime = mimeType
+
+    if (raw.startsWith('data:')) {
+      const match = raw.match(/^data:(image\/[a-zA-Z+]+);base64,(.+)$/)
+      if (match) {
+        resolvedMime = match[1]
+        raw = match[2]
+      } else {
+        raw = raw.split(',')[1] || raw
+      }
+    }
+    if (raw.length > 100) return { base64: raw, mimeType: resolvedMime }
+  }
+
+  // Priority 2: HTTP/HTTPS URL — fetch and encode
+  if (imageUrl && (imageUrl.startsWith('http://') || imageUrl.startsWith('https://'))) {
+    try {
+      const controller = new AbortController()
+      const tid = setTimeout(() => controller.abort(), 15000)
+      const fetchRes = await fetch(imageUrl, { signal: controller.signal }).finally(() => clearTimeout(tid))
+      if (fetchRes.ok) {
+        const buf = Buffer.from(await fetchRes.arrayBuffer())
+        const mime = (fetchRes.headers.get('content-type') || 'image/jpeg').split(';')[0].trim()
+        return { base64: buf.toString('base64'), mimeType: mime }
+      }
+    } catch (e) {
+      console.warn('[GeminiDiagnosis] Failed to fetch image URL:', e)
+    }
+  }
+
+  // Priority 3: local static sample file
+  if (isSample || (imageUrl && imageUrl.startsWith('/'))) {
+    const candidates = [
+      imageUrl ? path.join(process.cwd(), 'public', imageUrl) : null,
+      path.join(process.cwd(), 'public', 'images', 'disease_leaf_1787238259522.jpg'),
+      path.join(process.cwd(), 'public', 'images', 'crop_leaf_1787238240934.jpg')
+    ].filter(Boolean) as string[]
+
+    for (const p of candidates) {
+      if (fs.existsSync(p)) {
+        const buf = fs.readFileSync(p)
+        const ext = path.extname(p).toLowerCase()
+        const mime = ext === '.png' ? 'image/png' : ext === '.webp' ? 'image/webp' : 'image/jpeg'
+        return { base64: buf.toString('base64'), mimeType: mime }
+      }
+    }
+  }
+
+  return null
+}
+
+/**
+ * Main entry point — orchestrates image loading, Gemini call cascade,
+ * JSON parsing, and result normalization.
+ */
+export async function analyzeCropWithGeminiModule(params: AnalyzeCropParams): Promise<AnalyzeCropResponse> {
+  const { farmContext } = params
+
+  const geminiKey = process.env.GEMINI_API_KEY
+  if (!geminiKey) return { success: false, error: 'GEMINI_API_KEY is not configured.' }
+
+  // 1. Resolve image to base64
+  const imageData = await resolveImageData(params)
+  if (!imageData) {
+    return { success: false, error: 'No valid image data could be processed. Please provide a clear photo of the affected plant.' }
+  }
+
+  console.log(`[GeminiDiagnosis] Processing image: ${imageData.mimeType}, ${Math.round(imageData.base64.length * 0.75 / 1024)}KB`)
+  console.log(`[GeminiDiagnosis] Farm context: crop=${farmContext?.crop || 'unknown'}, stage=${farmContext?.cropStage || 'unknown'}`)
+
+  // 2. Build the multimodal request parts
+  const systemPrompt = AI_CONFIG.getSystemPrompt(farmContext?.crop)
+  const parts = [
+    { inlineData: { mimeType: imageData.mimeType, data: imageData.base64 } },
+    { text: systemPrompt }
+  ]
+
+  // 3. Call Gemini with model cascade
+  let { ok, status, data: resData } = await callGeminiCascade(parts, geminiKey)
+
+  if (!ok) {
+    console.warn('[GeminiDiagnosis] Vision cascade failed. Attempting dynamic text-based fallback...')
+    
+    // Dynamic text-based fallback using the same system prompt but without the image.
+    // This allows the model to guess the most likely issues based on crop and stage.
+    const textFallbackPrompt = `The vision API is currently overloaded. Please provide a hypothetical but highly probable disease diagnosis for a ${farmContext?.crop || 'crop'} at the ${farmContext?.cropStage || 'current'} stage in ${farmContext?.soilType || 'typical'} soil in ${farmContext?.location || 'this region'}. Make it sound like a suspected fallback diagnosis. Follow the exact JSON structure requested in your system prompt, setting certainty to "insufficient_evidence" and noting that this is a fallback in the limitations.`
+    
+    const textParts = [
+      { text: systemPrompt },
+      { text: textFallbackPrompt }
+    ]
+    
+    const fallbackRes = await callGeminiCascade(textParts, geminiKey)
+    if (fallbackRes.ok) {
+      ok = true
+      resData = fallbackRes.data
+    } else {
+      console.error('[GeminiDiagnosis] Text fallback also failed. Returning high demand error.')
+      return {
+        success: false,
+        error: 'AI service is temporarily unavailable due to high demand. Please try again in a few minutes.'
+      }
+    }
+  }
+
+  // 4. Extract and clean the response text
+  const rawText: string = resData.candidates?.[0]?.content?.parts?.[0]?.text || ''
+  if (!rawText || rawText.trim().length < 10) {
+    console.error('[GeminiDiagnosis] Empty or near-empty response from Gemini')
+    return { success: false, error: 'AI returned an empty response. Please retry.' }
+  }
+
+  // 5. Clean JSON (remove markdown fencing if model added it)
+  const cleanJson = rawText
+    .replace(/^[\s\S]*?```json\s*/i, '')
+    .replace(/^```\s*/i, '')
+    .replace(/\s*```[\s\S]*$/i, '')
+    .trim()
+
+  // Extract first JSON object if there's extra text
+  const jsonMatch = cleanJson.match(/\{[\s\S]*\}/)
+  if (!jsonMatch) {
+    console.error('[GeminiDiagnosis] Could not extract JSON from response:', rawText.substring(0, 300))
+    return { success: false, error: 'AI response was not valid JSON. Please retry.' }
+  }
+
+  let parsed: any
+  try {
+    parsed = JSON.parse(jsonMatch[0])
+  } catch (e) {
+    console.error('[GeminiDiagnosis] JSON parse error:', (e as any).message)
+    console.error('[GeminiDiagnosis] Raw text:', rawText.substring(0, 400))
+    return { success: false, error: 'Failed to parse AI response. Please retry.' }
+  }
+
+  // 6. Validate and normalize
+  const normalized = normalizeResult(parsed, farmContext)
+
+  console.log(`[GeminiDiagnosis] Result: ${normalized.diagnosisCode} | certainty=${normalized.certainty} | isPlant=${normalized.isPlantImage}`)
+  return { success: true, data: normalized }
 }

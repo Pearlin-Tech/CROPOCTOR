@@ -40,7 +40,7 @@ export default async function handler(req: Request, res: Response) {
   }
 
   try {
-    const { imageBase64, mimeType, imageUrl, isSample, farmContext } = req.body || {}
+    const { imageBase64, mimeType, imageUrl, isSample, farmContext, language } = req.body || {}
 
     // 2. Validate Presence of Image Data
     if (!imageBase64 && !imageUrl && !isSample) {
@@ -79,7 +79,8 @@ export default async function handler(req: Request, res: Response) {
       mimeType: mimeType || 'image/jpeg',
       imageUrl,
       isSample: Boolean(isSample),
-      farmContext
+      farmContext,
+      language: language || 'en'
     })
 
     if (!result.success || !result.data) {

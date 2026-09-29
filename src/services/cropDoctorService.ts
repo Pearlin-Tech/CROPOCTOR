@@ -1,4 +1,4 @@
-import { doc, setDoc, collection, query, orderBy, limit, getDocs, getDoc, serverTimestamp } from 'firebase/firestore'
+import { doc, setDoc, collection, query, orderBy, limit, getDocs, getDoc, serverTimestamp, deleteDoc } from 'firebase/firestore'
 import { auth, db } from './firebase'
 import { compressImageWithFallback } from '@/utils/imageCompressor'
 import type { DiagnosisResult } from '@/types'
@@ -95,7 +95,7 @@ export const cropDoctorService = {
       // 2. Deterministic Image Hashing & Caching
       const imageStringForHash = imageBase64 || params.imageUrl || 'sample'
       const imageHash = await generateImageHash(imageStringForHash)
-      const diagnosisId = `diag_${imageHash}`
+      const diagnosisId = `diag_v2_${imageHash}`
       const displayImageUrl = thumbnailDataUrl || params.imageUrl || '/images/disease_leaf_1787238259522.jpg'
 
       if (currentUser && db && db.app) {
@@ -524,6 +524,61 @@ export const cropDoctorService = {
     } catch (err) {
       console.warn('[cropDoctorService] Error retrieving diagnosis by ID from Firestore:', err)
       return null
+    }
+  },
+
+  /**
+   * Deletes a single diagnosis record by ID from Firestore: `users/{uid}/diagnoses/{diagnosisId}`
+   */
+  deleteDiagnosis: async (diagnosisId: string): Promise<boolean> => {
+    try {
+      const currentUser = auth.currentUser
+      if (!currentUser || !db || !db.app) {
+        // Handle guest localStorage deletion
+        try {
+          const stored = localStorage.getItem('guest_diagnoses')
+          if (stored) {
+            const parsed = JSON.parse(stored)
+            const filtered = parsed.filter((d: any) => d.id !== diagnosisId)
+            localStorage.setItem('guest_diagnoses', JSON.stringify(filtered))
+            return true
+          }
+        } catch (e) {}
+        return false
+      }
+
+      const docRef = doc(db, 'users', currentUser.uid, 'diagnoses', diagnosisId)
+      await deleteDoc(docRef)
+      console.log(`[Diagnosis] Deleted diagnosis ${diagnosisId}`)
+      return true
+    } catch (err) {
+      console.error('[cropDoctorService] Error deleting diagnosis:', err)
+      return false
+    }
+  },
+
+  /**
+   * Deletes all diagnosis records for the current user
+   */
+  deleteAllDiagnoses: async (): Promise<boolean> => {
+    try {
+      const currentUser = auth.currentUser
+      if (!currentUser || !db || !db.app) {
+        localStorage.removeItem('guest_diagnoses')
+        return true
+      }
+
+      const diagnosesCol = collection(db, 'users', currentUser.uid, 'diagnoses')
+      const snap = await getDocs(diagnosesCol)
+      
+      const deletePromises = snap.docs.map(docSnap => deleteDoc(doc(db, 'users', currentUser.uid, 'diagnoses', docSnap.id)))
+      await Promise.all(deletePromises)
+      
+      console.log(`[Diagnosis] Deleted all ${snap.size} diagnoses`)
+      return true
+    } catch (err) {
+      console.error('[cropDoctorService] Error deleting all diagnoses:', err)
+      return false
     }
   }
 }

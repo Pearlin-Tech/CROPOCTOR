@@ -10,7 +10,7 @@ import { advisorService } from '@/services/advisorService'
 import { useUser } from '@/store/UserContext'
 import { useFarm } from '@/store/FarmContext'
 import type { DiagnosisResult, AdvisorConversation } from '@/types'
-import { RefreshCw, ChevronRight, MessageSquare, ShieldAlert, X, AlertCircle } from 'lucide-react'
+import { RefreshCw, ChevronRight, MessageSquare, ShieldAlert, X, AlertCircle, Trash2 } from 'lucide-react'
 import { formatDiagnosisTimestamp, groupByDiagnosisDay } from '@/utils/format'
 
 type TimelineItem =
@@ -19,7 +19,7 @@ type TimelineItem =
 
 // ── Diagnosis Detail Modal ────────────────────────────────────────────────────
 
-const DiagnosisDetailModal: React.FC<{ diagnosis: DiagnosisResult; onClose: () => void }> = ({ diagnosis: d, onClose }) => {
+const DiagnosisDetailModal: React.FC<{ diagnosis: DiagnosisResult; onClose: () => void; onDelete: (id: string) => void }> = ({ diagnosis: d, onClose, onDelete }) => {
   const { t } = useTranslation();
   const severityColor =
     d.severity === 'severe'
@@ -149,12 +149,24 @@ const DiagnosisDetailModal: React.FC<{ diagnosis: DiagnosisResult; onClose: () =
             </section>
           )}
 
-          <button
-            onClick={onClose}
-            className="w-full py-3 rounded-2xl bg-green-forest text-white font-bold text-sm hover:bg-green-dark transition-colors"
-          >
-            {t('common.close', 'Close')}
-          </button>
+          <div className="flex gap-3">
+            <button
+              onClick={() => {
+                if (window.confirm(t('history.detail.confirmDelete', 'Are you sure you want to delete this diagnosis?'))) {
+                  onDelete(d.id)
+                }
+              }}
+              className="px-6 py-3 rounded-2xl border-2 border-red-100 text-red-600 font-bold text-sm hover:bg-red-50 transition-colors shrink-0"
+            >
+              {t('common.delete', 'Delete')}
+            </button>
+            <button
+              onClick={onClose}
+              className="flex-1 py-3 rounded-2xl bg-green-forest text-white font-bold text-sm hover:bg-green-dark transition-colors"
+            >
+              {t('common.close', 'Close')}
+            </button>
+          </div>
         </div>
       </motion.div>
     </motion.div>
@@ -232,6 +244,34 @@ const FarmHistoryPage: React.FC = () => {
 
   const grouped = groupByDiagnosisDay(diagnosisItems)
 
+  const handleDeleteDiagnosis = async (diagnosisId: string) => {
+    const success = await cropDoctorService.deleteDiagnosis(diagnosisId)
+    if (success) {
+      setTimeline(prev => prev.filter(item => !(item.type === 'diagnosis' && item.data.id === diagnosisId)))
+      setSelectedDiagnosis(null)
+    } else {
+      alert(t('history.deleteError', 'Failed to delete diagnosis.'))
+    }
+  }
+
+  const handleClearAllHistory = async () => {
+    if (window.confirm(t('history.confirmClearAll', 'Are you sure you want to completely delete your entire history? This action cannot be undone.'))) {
+      setIsLoading(true)
+      const [diagSuccess, advSuccess] = await Promise.all([
+        cropDoctorService.deleteAllDiagnoses(),
+        advisorService.deleteAllConversations(authUser?.uid)
+      ])
+      
+      if (diagSuccess && advSuccess) {
+        setTimeline([])
+        setSelectedDiagnosis(null)
+      } else {
+        alert(t('history.clearAllError', 'Failed to clear all history.'))
+      }
+      setIsLoading(false)
+    }
+  }
+
   return (
     <motion.div variants={pageVariants} initial="initial" animate="animate" className="min-h-screen bg-background">
       <MobileHeader
@@ -240,18 +280,29 @@ const FarmHistoryPage: React.FC = () => {
       />
 
       <PageLayout className="pt-4 pb-8 space-y-4">
-        <div className="hidden lg:flex items-center justify-between mb-4">
-          <div>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-3">
+          <div className="hidden lg:block">
             <h1 className="text-2xl font-bold text-green-forest tracking-tight">{t('history.title', 'Farm History')}</h1>
             <p className="text-sm text-brown-earth/80 font-medium">{t('history.subtitle', 'Crop diagnoses and AI advisor sessions')}</p>
           </div>
-          <button
-            onClick={fetchHistory}
-            className="flex items-center gap-1.5 text-sm font-semibold text-green-forest hover:underline"
-          >
-            <RefreshCw className="w-4 h-4" />
-            {t('history.refresh', 'Refresh')}
-          </button>
+          <div className="flex items-center gap-4 self-end sm:self-auto w-full lg:w-auto justify-between lg:justify-end">
+            {timeline.length > 0 && (
+              <button
+                onClick={handleClearAllHistory}
+                className="flex items-center gap-1.5 text-sm font-semibold text-red-500 hover:text-red-700 hover:underline transition-colors"
+              >
+                <Trash2 className="w-4 h-4" />
+                {t('history.clearAll', 'Clear All')}
+              </button>
+            )}
+            <button
+              onClick={fetchHistory}
+              className="flex items-center gap-1.5 text-sm font-semibold text-green-forest hover:underline transition-colors"
+            >
+              <RefreshCw className="w-4 h-4" />
+              {t('history.refresh', 'Refresh')}
+            </button>
+          </div>
         </div>
 
         {/* LOADING */}
@@ -404,6 +455,7 @@ const FarmHistoryPage: React.FC = () => {
           <DiagnosisDetailModal
             diagnosis={selectedDiagnosis}
             onClose={() => setSelectedDiagnosis(null)}
+            onDelete={handleDeleteDiagnosis}
           />
         )}
       </AnimatePresence>

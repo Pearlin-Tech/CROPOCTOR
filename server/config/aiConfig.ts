@@ -1,65 +1,130 @@
 /**
  * Centralized Gemini AI Backend Configuration
- * Single source of truth for model names, generation parameters, and system prompts.
- * Allows changing models or parameters without modifying frontend code.
+ * Models confirmed working (tested live): gemini-3.5-flash-lite, gemini-3.1-flash-lite
+ * Model cascade: try primary -> fallback models in order until one succeeds
  */
 
 import { getTaxonomyForCrop } from './cropTaxonomy'
 
+export function getLanguageName(code: string): string {
+  const map: Record<string, string> = {
+    en: 'English',
+    'en-IN': 'English (India)',
+    hi: 'Hindi',
+    gu: 'Gujarati',
+    mr: 'Marathi',
+    ta: 'Tamil',
+    te: 'Telugu',
+    pa: 'Punjabi',
+    bn: 'Bengali',
+    kn: 'Kannada',
+    ml: 'Malayalam',
+    or: 'Odia',
+    ur: 'Urdu',
+    zh: 'Chinese',
+    ar: 'Arabic',
+    ru: 'Russian',
+    pt: 'Portuguese'
+  }
+  return map[code] || 'English'
+}
+
 export const AI_CONFIG = {
-  // Primary multimodal vision model for crop disease diagnosis
-  VISION_MODEL: process.env.GEMINI_VISION_MODEL || 'gemini-3.1-pro-preview',
-  
-  // Primary text model for AI Advisor
-  TEXT_MODEL: process.env.GEMINI_TEXT_MODEL || 'gemini-3.8-flash',
+  // Primary model (confirmed working with vision + text)
+  VISION_MODEL: process.env.GEMINI_VISION_MODEL || 'gemini-3.5-flash-lite',
+  TEXT_MODEL: process.env.GEMINI_TEXT_MODEL || 'gemini-3.5-flash-lite',
 
-  // Generation parameters
-  TEMPERATURE: 0, // Temperature=0 for fully deterministic, reproducible diagnosis output on the same image
-  MAX_OUTPUT_TOKENS: 2048,
-  TIMEOUT_MS: 30000, // 30-second request timeout
-
-  // Default allowed MIME types
-  ALLOWED_IMAGE_MIME_TYPES: [
-    'image/jpeg',
-    'image/jpg',
-    'image/png',
-    'image/webp',
-    'image/heic',
-    'image/heif'
+  // Cascade of fallback models tried in order if primary is 503/429
+  // Each has been confirmed to support generateContent
+  MODEL_CASCADE: [
+    process.env.GEMINI_VISION_MODEL || 'gemini-3.5-flash-lite',
+    'gemini-3.6-flash',
+    'gemini-3.1-flash-lite',
+    'gemini-2.5-flash',
+    'gemini-2.5-pro',
+    'gemini-3.1-pro-preview',
+    'gemini-3.7-flash',
+    'gemini-3.5-flash',
+    'gemini-3.8-flash'
   ],
 
+  // Generation parameters
+  TEMPERATURE: 0.1,
+  ADVISOR_TEMPERATURE: 0.35,
+  MAX_OUTPUT_TOKENS: 4096,
+  TIMEOUT_MS: 60000,   // 60s - generous for multimodal
+
+  ALLOWED_IMAGE_MIME_TYPES: [
+    'image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/heic', 'image/heif'
+  ],
+
+  /**
+   * Enhanced crop diagnosis system prompt for high-quality, image-grounded output.
+   */
   getSystemPrompt: (crop?: string) => {
-    const taxonomy = getTaxonomyForCrop(crop);
-    return `You are assisting with plant-health image assessment.
+    const taxonomy = getTaxonomyForCrop(crop)
+    const cropContext = crop
+      ? `The farmer reports this is a ${crop} crop.`
+      : 'Crop type is not specified — identify from image context if possible.'
 
-Do not force a diagnosis. Only select a condition when visible evidence supports it.
-Compare the image against the supplied candidate conditions.
-If evidence is insufficient or ambiguous, return INSUFFICIENT_EVIDENCE.
-Do not invent symptoms that are not visible.
-Do not infer nutrient deficiencies solely from leaf color.
-Do not infer a specific pathogen unless the visual evidence supports the condition.
-Separate observation from inference. You MUST reference specific visual symptoms from the uploaded image in your analysis.
+    return `You are an expert plant pathologist and agronomist AI specializing in South Asian tropical crops. ${cropContext}
 
-Strictly adhere to these rules:
-1. Determine whether the image contains a plant, crop, leaf, stem, or fruit. Return this as boolean \`isPlantImage\`. If not, set \`needsMoreEvidence\` to true.
-2. Select a diagnosis ONLY from the following allowed taxonomy for this crop: [${taxonomy.join(', ')}]. Provide both \`diagnosisCode\` and a human-readable \`diagnosisName\`.
-3. Identify alternative diagnoses from the taxonomy if plausible.
-4. The certainty must be one of: "high", "moderate", "low", "insufficient_evidence".
-5. Never provide a numerical percentage for confidence.
-6. Provide output strictly as a JSON object, with no markdown formatting or code blocks.
+YOUR TASK: Analyze the uploaded plant image and provide a structured disease diagnosis.
 
-Return ONLY a raw JSON object matching this exact schema:
+STRICT RULES — EVERY RULE MUST BE FOLLOWED:
+1. ONLY diagnose based on what you can actually SEE in the image. Do NOT make up symptoms.
+2. diagnosisCode MUST be one of the allowed taxonomy values: [${taxonomy.join(', ')}]
+3. If the image is not a plant (it could be a person, object, text, etc.), set isPlantImage=false and needsMoreEvidence=true.
+4. Each "supportingEvidence" entry MUST describe a specific, visible feature (e.g., "circular brown spots with yellow halos on lower leaves", not "yellowing").
+5. Be HONEST about certainty — if image quality is poor or symptoms are ambiguous, use "low" or "insufficient_evidence".
+6. Provide PRACTICAL farmer advice in immediateActions and treatment — specific products with dosages.
+7. Output ONLY raw JSON — no markdown, no code blocks, no text outside the JSON.
+
+CERTAINTY LEVELS:
+- "high": Multiple hallmark symptoms clearly visible and pathognomonic for the condition
+- "moderate": Some key symptoms visible but image angle/quality limits full confirmation  
+- "low": Symptoms present but nonspecific; differential diagnosis needed
+- "insufficient_evidence": Image too blurry/dark/small, or does not show affected area clearly
+
+Return this EXACT JSON — every field is required:
 {
-  "isPlantImage": <boolean>,
+  "isPlantImage": <true if shows plant/leaf/stem/fruit/root, false otherwise>,
   "cropCode": "${crop || 'unknown'}",
-  "diagnosisCode": "<must be one of the taxonomy options or 'unknown'>",
-  "diagnosisName": "<human readable name of the diagnosis>",
-  "certainty": "high" | "moderate" | "low" | "insufficient_evidence",
-  "supportingEvidence": ["List actual visual evidence from the image, referencing specific symptoms you see"],
-  "contradictingEvidence": ["List any visual evidence that contradicts the primary diagnosis"],
-  "alternativeDiagnoses": ["List plausible alternative diagnosis names as strings"],
-  "limitations": ["Explain any image quality or evidence limitations"],
-  "needsMoreEvidence": <boolean>
-}`;
+  "diagnosisCode": "<MUST be exactly one of: ${taxonomy.join(', ')}>",
+  "diagnosisName": "<Full descriptive name, e.g. 'Early Leaf Spot (Cercospora arachidicola)'>",
+  "certainty": "<high|moderate|low|insufficient_evidence>",
+  "supportingEvidence": [
+    "<Specific visible symptom you can see — describe color, shape, texture, distribution>",
+    "<Second specific symptom>",
+    "<Third symptom if clearly visible>"
+  ],
+  "contradictingEvidence": [
+    "<Evidence that argues against this diagnosis, if any>"
+  ],
+  "alternativeDiagnoses": [
+    "<Alternative 1: condition name — brief reason why it's plausible>",
+    "<Alternative 2 if applicable>"
+  ],
+  "limitations": [
+    "<Image quality or coverage issue that limits certainty>"
+  ],
+  "needsMoreEvidence": <true if certainty is low/insufficient, false if high/moderate>,
+  "immediateActions": [
+    "<Concrete action farmer should take TODAY — specific and actionable>",
+    "<Second immediate action>",
+    "<Third action>"
+  ],
+  "treatment": [
+    "<Specific chemical treatment: product name, active ingredient, dosage per litre>",
+    "<Biological/organic alternative if available>",
+    "<Application timing and method>"
+  ],
+  "longTermPrevention": [
+    "<Cultural practice 1 — crop rotation, spacing, resistant variety>",
+    "<Practice 2 — soil/sanitation management>",
+    "<Monitoring practice>"
+  ],
+  "whenToRecheck": "<Specific recheck timeline with conditions, e.g. 'Check within 3-5 days after first spray; if new lesions appear within 48 hours of treatment, consult a local agronomist'>"
+}`
   }
 }
