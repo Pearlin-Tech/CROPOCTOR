@@ -2,6 +2,8 @@ import '../server/loadEnv.js'
 import express, { type Request, type Response } from 'express'
 import cors from 'cors'
 import dns from 'dns'
+import fs from 'node:fs'
+import path from 'node:path'
 
 
 dns.setDefaultResultOrder('ipv4first')
@@ -224,7 +226,8 @@ app.get('/api/health', (_req: Request, res: Response) => {
     integrations: {
       firebaseAuthVerification: !!(process.env.VITE_FIREBASE_API_KEY || process.env.FIREBASE_API_KEY),
       gemini: !!process.env.GEMINI_API_KEY,
-      earthEngine: !!process.env.EE_KEY_PATH || !!process.env.EE_SERVICE_ACCOUNT_JSON,
+      earthEngine: !!process.env.EE_SERVICE_ACCOUNT_JSON || !!(process.env.EE_CLIENT_EMAIL && process.env.EE_PRIVATE_KEY) ||
+        (!!process.env.EE_KEY_PATH && fs.existsSync(path.resolve(process.cwd(), process.env.EE_KEY_PATH))),
       googleWeather: !!process.env.GOOGLE_WEATHER_API_KEY,
       firebaseAdmin: !!process.env.FIREBASE_ADMIN_KEY_BASE64,
       cronSecret: !!process.env.CRON_SECRET,

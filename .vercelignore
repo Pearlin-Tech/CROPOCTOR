@@ -1,8 +1,8 @@
 # Legacy duplicate backends. On Vercel every file in api/ becomes its own function and
 # takes precedence over the /api/(.*) -> /api/index rewrite, so these would shadow the
 # real routes in api/index.ts. All API traffic must go through api/index.ts.
-api/analyze-crop.ts
-api/diagnose.ts
+api/_legacy-analyze-crop.ts
+api/_legacy-diagnose.ts
 server/index.ts
 server/services/diagnosisService.ts
 
