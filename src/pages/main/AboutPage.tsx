@@ -74,7 +74,7 @@ const AboutPage: React.FC = () => {
         {/* Desktop Title Header */}
         <div className="hidden lg:block mb-1">
           <h1 className="text-2xl font-bold text-green-forest tracking-tight">{t('settings.items.about', 'About CROPOCTOR')}</h1>
-          <p className="text-sm text-brown-earth/80 font-medium">Smarter decisions for every farm</p>
+          <p className="text-sm text-brown-earth/80 font-medium">{t("ui.aboutPage.smarterDecisionsForEveryFarm", "Smarter decisions for every farm")}</p>
         </div>
 
         {/* 1. HERO */}
@@ -87,13 +87,13 @@ const AboutPage: React.FC = () => {
             </div>
           </div>
           <p className="text-xs lg:text-sm text-green-pastel/95 leading-relaxed font-medium pt-1">
-            CROPOCTOR is an AI-powered agricultural assistant designed to help farmers make faster and more informed decisions about crop health, farm management, weather, and everyday farming questions.
+            {t("ui.aboutPage.cropoctorIsAnAiPowered", "CROPOCTOR is an AI-powered agricultural assistant designed to help farmers make faster and more informed decisions about crop health, farm management, weather, and everyday farming questions.")}
           </p>
         </Card>
 
         {/* 2. WHAT CROPOCTOR HELPS WITH */}
         <div className="space-y-2">
-          <p className="text-xs font-bold text-brown-earth/80 uppercase tracking-wider px-1">What CROPOCTOR Helps With</p>
+          <p className="text-xs font-bold text-brown-earth/80 uppercase tracking-wider px-1">{t("ui.aboutPage.whatCropoctorHelpsWith", "What CROPOCTOR Helps With")}</p>
           <Card padding="none" className="overflow-hidden divide-y divide-brown-pastel/20 border-brown-pastel/30 bg-white shadow-sm">
             {CAPABILITIES.map(({ icon: Icon, title, desc }) => (
               <div key={title} className="flex items-start gap-3.5 px-4 py-3.5">
@@ -111,7 +111,7 @@ const AboutPage: React.FC = () => {
 
         {/* 3. HOW IT WORKS */}
         <div className="space-y-2">
-          <p className="text-xs font-bold text-brown-earth/80 uppercase tracking-wider px-1">How It Works</p>
+          <p className="text-xs font-bold text-brown-earth/80 uppercase tracking-wider px-1">{t("ui.aboutPage.howItWorks", "How It Works")}</p>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5">
             {WORKFLOW_STEPS.map(({ step, icon: Icon, title, desc }) => (
               <Card key={title} padding="sm" className="border-brown-pastel/30 bg-white shadow-sm flex flex-col justify-between">
@@ -132,28 +132,28 @@ const AboutPage: React.FC = () => {
 
         {/* 4. AI DISCLAIMER */}
         <div className="space-y-2">
-          <p className="text-xs font-bold text-brown-earth/80 uppercase tracking-wider px-1">Important Notice</p>
+          <p className="text-xs font-bold text-brown-earth/80 uppercase tracking-wider px-1">{t("ui.aboutPage.importantNotice", "Important Notice")}</p>
           <div className="p-4 bg-amber-50/80 rounded-2xl border border-amber-200/80 shadow-sm text-left">
             <div className="flex items-center gap-2 mb-2 text-amber-800 font-bold text-xs lg:text-sm">
               <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
-              <span>AI-assisted guidance</span>
+              <span>{t("ui.aboutPage.aiAssistedGuidance", "AI-assisted guidance")}</span>
             </div>
             <p className="text-xs text-amber-900/90 leading-relaxed font-medium mb-2">
-              CROPOCTOR uses artificial intelligence to provide agricultural guidance and crop-health assessments. AI results may be incorrect, especially when images are unclear, symptoms are unusual, or multiple conditions look similar.
+              {t("ui.aboutPage.cropoctorUsesArtificialIntelligenceTo", "CROPOCTOR uses artificial intelligence to provide agricultural guidance and crop-health assessments. AI results may be incorrect, especially when images are unclear, symptoms are unusual, or multiple conditions look similar.")}
             </p>
             <p className="text-xs text-amber-900/90 leading-relaxed font-medium">
-              For serious crop damage, uncertain diagnoses, or high-risk agricultural decisions, farmers should consult a qualified agricultural expert or local agricultural authority.
+              {t("ui.aboutPage.forSeriousCropDamageUncertain", "For serious crop damage, uncertain diagnoses, or high-risk agricultural decisions, farmers should consult a qualified agricultural expert or local agricultural authority.")}
             </p>
           </div>
         </div>
 
         {/* 5. PRIVACY / DATA NOTE */}
         <div className="space-y-2">
-          <p className="text-xs font-bold text-brown-earth/80 uppercase tracking-wider px-1">Privacy & Data Handling</p>
+          <p className="text-xs font-bold text-brown-earth/80 uppercase tracking-wider px-1">{t("ui.aboutPage.privacyDataHandling", "Privacy & Data Handling")}</p>
           <Card padding="md" className="border-brown-pastel/30 bg-white shadow-sm flex items-start gap-3">
             <ShieldCheck className="w-5 h-5 text-green-forest shrink-0 mt-0.5" />
             <p className="text-xs text-text-secondary leading-relaxed font-medium">
-              Your farm data is processed to generate personalized agronomic insights. Diagnostic images are processed temporarily in memory to analyze crop health and are not retained as high-resolution files.
+              {t("ui.aboutPage.yourFarmDataIsProcessed", "Your farm data is processed to generate personalized agronomic insights. Diagnostic images are processed temporarily in memory to analyze crop health and are not retained as high-resolution files.")}
             </p>
           </Card>
         </div>
@@ -161,7 +161,7 @@ const AboutPage: React.FC = () => {
         {/* 6. VERSION & COPYRIGHT */}
         <div className="text-center pt-2 pb-4 space-y-1">
           <p className="text-xs font-bold text-brown-earth/80">CROPOCTOR</p>
-          <p className="text-[11px] text-text-secondary font-medium">Version 1.0.0</p>
+          <p className="text-[11px] text-text-secondary font-medium">{t("ui.aboutPage.version100", "Version 1.0.0")}</p>
           <p className="text-[11px] text-brown-earth/60 font-medium">© 2026 CROPOCTOR. All rights reserved.</p>
         </div>
       </PageLayout>

@@ -108,7 +108,8 @@ class ApiWeatherService implements IWeatherService {
         crop: farm.primaryCrop || '',
         cropStage: farm.cropStage || '',
         soilType: farm.soilType || '',
-        displayName: farm.location.displayName || `${lat.toFixed(4)}, ${lng.toFixed(4)}`
+        displayName: farm.location.displayName || `${lat.toFixed(4)}, ${lng.toFixed(4)}`,
+        language: localStorage.getItem('agri_ai_language') || 'en'
       })
 
       const res = await fetch(`/api/weather?${params}`)

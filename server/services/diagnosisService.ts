@@ -1,5 +1,5 @@
 import dotenv from 'dotenv'
-import { AI_CONFIG } from '../config/aiConfig.ts'
+import { AI_CONFIG } from '../config/aiConfig.js'
 
 dotenv.config()
 

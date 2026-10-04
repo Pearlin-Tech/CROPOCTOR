@@ -24,7 +24,8 @@
     "headline": "बेहतर फैसले। स्वस्थ फसलें।",
     "subheading": "आपकी खेती के लिए एआई आधारित कृषि सलाह।",
     "cta": "शुरू करें",
-    "signin": "पहले से खाता है? साइन इन करें"
+    "signin": "पहले से खाता है? साइन इन करें",
+    "subtitle": "हर खेत के लिए समझदारी भरे फैसले।"
   },
   "auth": {
     "google": "गूगल के साथ जारी रखें",
@@ -46,8 +47,20 @@
       "required": "यह जानकारी आवश्यक है।",
       "invalidEmail": "कृपया सही ईमेल दर्ज करें।",
       "weakPassword": "पासवर्ड कम से कम 6 अक्षरों का होना चाहिए।",
-      "authFailed": "साइन इन विफल। पुनः प्रयास करें।"
-    }
+      "authFailed": "साइन इन विफल। पुनः प्रयास करें।",
+      "noSession": "यूज़र सेशन नहीं है। कृपया दोबारा साइन इन करें।",
+      "notVerified": "ईमेल अभी वेरीफाई नहीं हुआ है। कृपया पहले अपने ईमेल में दिए गए लिंक पर क्लिक करें।"
+    },
+    "verified": "ईमेल वेरीफाई हो गया! Cropoctor में आपका स्वागत है।",
+    "verificationResent": "वेरिफिकेशन ईमेल दोबारा भेज दिया गया है!",
+    "verifyEmailTitle": "अपना ईमेल वेरीफाई करें",
+    "verifyEmailDesc": "हमने इस पर वेरिफिकेशन लिंक भेजा है",
+    "verifyEmailInstructions": "ईमेल में दिए गए लिंक पर क्लिक करें, फिर नीचे दिए गए बटन को दबाएं।",
+    "iHaveVerified": "मैंने अपना ईमेल वेरीफाई कर लिया है — आगे बढ़ें",
+    "resendIn": "${resendCooldown}s में दोबारा भेजें",
+    "resendVerification": "वेरिफिकेशन ईमेल दोबारा भेजें",
+    "signOut": "साइन आउट करें",
+    "checkSpam": "ईमेल नहीं मिल रहा? अपना स्पैम या जंक फोल्डर चेक करें।"
   },
   "language": {
     "title": "भाषा चुनें",
@@ -87,7 +100,10 @@
     "farmer": "किसान",
     "myFarms": "मेरे खेत",
     "farmsRegistered": "{{count}} खेत पंजीकृत",
-    "version": "संस्करण"
+    "version": "संस्करण",
+    "notificationsSettings": "पुश नोटिफिकेशन",
+    "notificationsSection": "नोटिफिकेशन्स",
+    "fullName": "पूरा नाम"
   },
   "farms": {
     "farm-001": {
@@ -123,7 +139,38 @@
       "pickOnMap": "मानचित्र पर चुनें",
       "useThisLocation": "इस स्थान का उपयोग करें",
       "locating": "स्थान खोजा जा रहा है...",
-      "locationError": "स्थान नहीं मिल सका। कृपया खोजें।"
+      "locationError": "स्थान नहीं मिल सका। कृपया खोजें।",
+      "soilTitle": "मिट्टी",
+      "locationLabel": "स्थान",
+      "primaryCrop": "फसल",
+      "stageTitle": "अवस्था",
+      "areaLabel": "क्षेत्रफल",
+      "cropTitle": "अपनी फसल चुनें",
+      "cropSubtitle": "इस खेत के लिए मुख्य फसल चुनें।",
+      "selectCrop": "फसल चुनें",
+      "searchCrops": "फसलें खोजें...",
+      "selected": "चुनी गई",
+      "category": "श्रेणी",
+      "stageSubtitle": "आपकी फसल अभी किस अवस्था में है?",
+      "selectStage": "फसल की अवस्था चुनें",
+      "searchStages": "अवस्थाएं खोजें...",
+      "plantingDate": "आपने बुवाई कब की थी? (वैकल्पिक)",
+      "plantingHint": "इससे हमें खाद और सिंचाई का सही समय तय करने में मदद मिलती है।",
+      "almostDone": "बस होने ही वाला है",
+      "markArea": "खेत की सीमा",
+      "tapMap": "अपने खेत की सीमा बनाएं या क्षेत्रफल दर्ज करें।",
+      "enterArea": "खेत का आकार",
+      "confirmArea": "सीमा कन्फर्म करें",
+      "detailsTitle": "खेत की जानकारी",
+      "detailsSubtitle": "अपने खेत की सेटअप प्रक्रिया पूरी करें।",
+      "farmName": "खेत का नाम",
+      "setFromMap": "नक्शे से चुनें।",
+      "areaCalculated": "आपके खेत की सीमा के हिसाब से क्षेत्रफल निकाल लिया गया है।",
+      "saveContinue": "सेव करें और आगे बढ़ें",
+      "soilSubtitle": "अपने खेत की मिट्टी का प्रकार चुनें।",
+      "soilHint": "पक्का नहीं पता? \"अज्ञात\" चुनें — AI फिर भी आपकी मदद कर सकता है।",
+      "selectSoil": "मिट्टी का प्रकार चुनें",
+      "searchSoils": "मिट्टी के प्रकार खोजें..."
     },
     "boundary": {
       "title": "खेत की सीमा तय करें",
@@ -144,7 +191,29 @@
       "cropStage": "फसल की अवस्था",
       "plantingDate": "बुवाई की तिथि (वैकल्पिक)",
       "save": "सहेजें",
-      "setActive": "सक्रिय खेत"
+      "setActive": "सक्रिय खेत",
+      "howCalculated": "इसकी गणना कैसे की जाती है?",
+      "calculatedAt": "गणना की गई",
+      "formula": "सूत्र",
+      "missingData": "गायब डेटा को हटा दिया गया है — बचे हुए वेट को दोबारा एडजस्ट किया गया है।",
+      "noFactorData": "अभी कोई डेटा उपलब्ध नहीं है। स्वास्थ्य स्कोर डिफ़ॉल्ट आधार है।",
+      "confidence": "विश्वास",
+      "dataSources": "सक्रिय डेटा स्रोत",
+      "satelliteData": "सैटेलाइट डेटा",
+      "unavailable": "उपलब्ध नहीं है",
+      "live": "लाइव",
+      "ndvi": "NDVI (वनस्पति सूचकांक)",
+      "moistureIndex": "नमी सूचकांक (NDMI)",
+      "imageDate": "तस्वीर की तारीख",
+      "cloudCover": "बादल छाए रहना",
+      "back": "मेरे खेतों पर वापस जाएं",
+      "health": "खेत का स्वास्थ्य",
+      "howCalculatedShort": "गणना कैसे हुई?",
+      "calculating": "गणना हो रही है…",
+      "factorsUsed": "इस्तेमाल किए गए कारक",
+      "latestDiagnosis": "नवीनतम जाँच",
+      "currentWeather": "वर्तमान मौसम",
+      "activeFarm": "सक्रिय खेत"
     },
     "crop": {
       "title": "फसल चुनें",
@@ -186,7 +255,9 @@
       "weather": "मौसम",
       "health": "स्वास्थ्य",
       "hint": "एआई सलाह देने के लिए आपके खेत की जानकारी का उपयोग करता है।"
-    }
+    },
+    "notFound": "खेत नहीं मिला।",
+    "deleted": "खेत सफलतापूर्वक डिलीट कर दिया गया"
   },
   "dashboard": {
     "title": "क्रॉपोक्टर डैशबोर्ड",
@@ -210,7 +281,8 @@
     "weatherCard": {
       "rain": "बारिश",
       "humidity": "नमी",
-      "wind": "हवा"
+      "wind": "हवा",
+      "temp": "तापमान"
     },
     "nba": {
       "action": "सिंचाई से पहले मिट्टी की नमी जांचें।"
@@ -219,6 +291,16 @@
       "title": "कल भारी बारिश की संभावना है।",
       "desc": "सिंचाई रोकने और जल निकासी जांचने पर विचार करें।",
       "why": "क्यों?"
+    },
+    "actions": {
+      "diagnose": "फसल की जाँच करें",
+      "recommendation": "फसल की सलाह",
+      "askAdvisor": "AI सलाहकार से पूछें",
+      "irrigation": "सिंचाई इंटेलिजेंस",
+      "nba": "अगला सबसे अच्छा काम"
+    },
+    "overview": {
+      "acres": "एड़"
     }
   },
   "advisor": {
@@ -245,7 +327,19 @@
       "q4": "कौन सा उर्वरक उपयोग करें?",
       "q5": "क्या समय पर बारिश की उम्मीद है?",
       "q6": "फसल स्वास्थ्य कैसे सुधारें?"
-    }
+    },
+    "newConversation": "नई बातचीत",
+    "activeContext": "मौजूदा विषय",
+    "activeContextDesc": "मैंने आपकी हाल की जाँच का विश्लेषण कर लिया है। मुझसे पूछें कि इसका इलाज कैसे करें!",
+    "askTreatment": "इलाज के बारे में पूछें",
+    "result": {
+      "currentCondition": "मौजूदा स्थिति",
+      "potentialRisks": "संभावित खतरे",
+      "whatToMonitor": "किन चीज़ों पर नज़र रखें",
+      "whenToAct": "कब कदम उठाएं",
+      "prosCons": "फायदे / नुकसान और विकल्प"
+    },
+    "askTreatmentQuestion": "{{disease}} के लिए सुझाया गया इलाज क्या है?"
   },
   "voice": {
     "title": "वॉयस असिस्टेंट",
@@ -302,6 +396,55 @@
         "moderate": "मध्यम",
         "severe": "गंभीर"
       }
+    },
+    "progress": {
+      "prepare": "तस्वीर तैयार की जा रही है",
+      "analyze": "तस्वीर की जाँच की जा रही है और लक्षणों का विश्लेषण किया जा रहा है",
+      "elapsed": "{{s}} से — AI विश्लेषण में आमतौर पर 5–20 से लगते हैं"
+    },
+    "outcome": {
+      "insufficientTitle": "बीमारी का पता लगाने के लिए पर्याप्त जानकारी नहीं है",
+      "insufficientDesc": "AI इस तस्वीर से किसी बीमारी की पहचान नहीं कर पाया, इसलिए कोई बीमारी या इलाज नहीं सुझाया गया है। आपके इतिहास (history) में कुछ भी सेव नहीं हुआ है।",
+      "observed": "AI क्या देख पाया",
+      "whyNot": "यह फैसला क्यों नहीं लिया जा सका",
+      "nextSteps": "सही परिणाम कैसे पाएं",
+      "retake": "साफ फोटो लें",
+      "noDiagnosis": "कोई बीमारी तय नहीं हुई और कुछ भी सेव नहीं किया गया। आपकी फोटो सुरक्षित है ताकि आप दोबारा कोशिश कर सकें।",
+      "retryIn": "दोबारा कोशिश करें ({{s}} सेकंड रुकें)",
+      "tryAnother": "दूसरी तस्वीर आज़माएं"
+    },
+    "guidance": {
+      "daylight": "दिन की रोशनी में दोबारा फोटो लें, फ्लैश का इस्तेमाल न करें, और कैमरे को पत्ते से 20–30 सेमी दूर रखें।",
+      "fill": "फ्रेम में एक प्रभावित पत्ते को पूरा भर लें और उसे बिल्कुल साफ (फोकस में) रखें।",
+      "bothSides": "पत्ते के ऊपर और नीचे दोनों तरफ का दूसरा फोटो लें।",
+      "expert": "अगर लक्षण तेजी से फैल रहे हैं, तो पौधे को अपने नजदीकी कृषि अधिकारी (कृषि विस्तार अधिकारी) को दिखाएं।"
+    },
+    "notSaved": "जाँच को आपके इतिहास (history) में सेव नहीं किया जा सका।",
+    "changeImage": "तस्वीर बदलें",
+    "noHistoryTitle": "अभी तक कोई जाँच नहीं की गई है",
+    "noHistoryDesc": "अपनी पहली जाँच के लिए ऊपर फसल की फोटो अपलोड करें",
+    "reason": {
+      "MISSING": "कोई फ़ोटो नहीं दी गई।",
+      "TOO_SMALL": "जांच करने के लिए फ़ोटो फ़ाइल बहुत छोटी है।",
+      "TOO_LARGE": "यह फ़ोटो अपलोड करने के लिए बहुत बड़ी है। कृपया छोटी फ़ोटो इस्तेमाल करें।",
+      "UNSUPPORTED_FORMAT": "यह फ़ोटो फ़ॉर्मैट समर्थित नहीं है। कृपया JPEG, PNG, WebP या HEIC फ़ोटो का उपयोग करें।",
+      "CORRUPT": "फ़ोटो फ़ाइल अधूरी या खराब है — कृपया दोबारा फ़ोटो लें।",
+      "LOW_RESOLUTION": "फ़ोटो की क्वालिटी बहुत कम है। कृपया पास से और साफ़ फ़ोटो लें।",
+      "TOO_DARK": "यह फ़ोटो जांच के लिए बहुत अंधेरे में है। कृपया दिन की रोशनी में दोबारा फ़ोटो लें।",
+      "OVEREXPOSED": "इस फ़ोटो में रोशनी बहुत ज़्यादा है। कृपया सीधी धूप या फ्लैश के बिना दोबारा फ़ोटो लें।",
+      "BLURRY": "यह फ़ोटो बहुत धुंधली है। कैमरे को स्थिर रखें और फोकस करने के लिए पत्ते पर टैप करें।",
+      "UNREADABLE": "इस फ़ोटो को पढ़ा नहीं जा सका। यह खराब हो सकती है — कृपया दूसरी फ़ोटो चुनें।"
+    },
+    "errorMsg": {
+      "NOT_A_PLANT": "इस फ़ोटो में कोई पौधा नहीं दिख रहा है। कृपया किसी पत्ते या फसल के प्रभावित हिस्से की फ़ोटो लें।",
+      "RATE_LIMITED": "AI जांच सेवा अभी व्यस्त है। कृपया एक मिनट बाद दोबारा कोशिश करें।",
+      "AI_SERVICE_UNAVAILABLE": "AI जांच अभी कुछ समय के लिए उपलब्ध नहीं है। कृपया थोड़ी देर बाद कोशिश करें।",
+      "AUTHENTICATION_ERROR": "कृपया दोबारा साइन इन करें, या बाद में कोशिश करें।",
+      "TIMEOUT": "AI जांच का जवाब आने में बहुत समय लग गया। कृपया दोबारा कोशिश करें।",
+      "NETWORK_ERROR": "जांच सेवा से संपर्क नहीं हो पाया। अपना इंटरनेट कनेक्शन जांचें और दोबारा कोशिश करें।",
+      "INVALID_AI_RESPONSE": "AI ने सही जवाब नहीं दिया, इसलिए जांच नहीं हो सकी। कृपया दोबारा कोशिश करें।",
+      "INVALID_REQUEST": "जांच का अनुरोध अस्वीकार कर दिया गया। कृपया दूसरी फ़ोटो आज़माएं।",
+      "GENERAL_ERROR": "जांच के दौरान कुछ गड़बड़ हो गई। कृपया दोबारा कोशिश करें।"
     }
   },
   "weather": {
@@ -334,7 +477,9 @@
     "demo": "डेमो मौसम डेटा",
     "updatedJustNow": "अभी अपडेट किया गया",
     "updatedMinAgo": "{{count}} मिनट पहले अपडेट किया गया",
-    "feelsLike": "अनुभव {{temp}}°"
+    "feelsLike": "अनुभव {{temp}}°",
+    "error": "{{farmName}} के लिए मौसम की जानकारी अभी उपलब्ध नहीं है।",
+    "farmLocation": "खेत की लोकेशन"
   },
   "insights": {
     "title": "खेत विश्लेषण",
@@ -362,6 +507,21 @@
       "Adequate nutrient levels": "पर्याप्त पोषक तत्व",
       "No confirmed disease": "कोई रोग नहीं",
       "Good canopy development": "अच्छा पत्ती विकास"
+    },
+    "score": "स्कोर",
+    "soil": {
+      "moisture": "नमी",
+      "nutrientStatus": "पोषक तत्वों की स्थिति"
+    },
+    "error": "कनेक्शन त्रुटि",
+    "range": "दायरा",
+    "eeError": "Earth Engine कनेक्शन त्रुटि",
+    "noData": "कोई उपग्रह डेटा उपलब्ध नहीं है।",
+    "syntheticData": "दिखाया गया उपग्रह डेटा कोऑर्डिनेट्स पर आधारित सिंथेटिक डेमो डेटा है",
+    "livePending": "लाइव Earth Engine एकीकरण बाकी है।",
+    "rangeLabels": {
+      "poor": "खराब",
+      "excellent": "उत्कृष्ट"
     }
   },
   "history": {
@@ -389,7 +549,27 @@
         "title": "उर्वरक का उपयोग किया गया",
         "summary": "प्रति एकड़ 10 किग्रा यूरिया का छिड़काव किया गया।"
       }
-    }
+    },
+    "refresh": "रीफ्रेश करें",
+    "loading": "Firestore से लोड हो रहा है...",
+    "unavailable": "अनुमति नहीं है (Permission Denied)",
+    "deleted": "जाँच हटाई गई।",
+    "deleteError": "इस जाँच को हटाया नहीं जा सका। अपना कनेक्शन जाँचें और दोबारा प्रयास करें।",
+    "confirmClearAll": "क्या आप वाकई अपना पूरा इतिहास पूरी तरह से मिटाना चाहते हैं? इस कार्रवाई को पूर्ववत नहीं किया जा सकता।",
+    "clearAllError": "सारा इतिहास मिटाने में विफल।",
+    "clearAll": "सभी साफ़ करें",
+    "retry": "पुनः प्रयास करें",
+    "emptyTitle": "अभी तक कोई इतिहास नहीं है",
+    "emptyDesc": "अपना इतिहास बनाना शुरू करने के लिए फसल की जांच करें या AI सलाहकार से पूछें।",
+    "unreliable": "अविश्वसनीय पुराना रिकॉर्ड",
+    "deleteOne": "जांच हटाएं: {{name}}",
+    "advisorSessions": "AI सलाहकार सत्र",
+    "synced": "Firestore के साथ सिंक हो गया",
+    "records": "रिकॉर्ड",
+    "record": "रिकॉर्ड",
+    "loaded": "लोड हो गया",
+    "confirmDeleteTitle": "क्या आप इस जांच को हटाना चाहते हैं?",
+    "confirmDeleteDesc": "केवल यह रिकॉर्ड हटाया जाएगा। इसे पूर्ववत नहीं किया जा सकता।"
   },
   "notifications": {
     "title": "सूचनाएं",
@@ -429,7 +609,8 @@
     },
     "emptyTitle": "अभी कोई सूचना नहीं है",
     "emptyDesc": "जब आपको अपने खेत या मौसम के बारे में अलर्ट मिलेंगे, तो वे यहाँ दिखाई देंगे।",
-    "errorTitle": "कुछ गलत हो गया"
+    "errorTitle": "कुछ गलत हो गया",
+    "clearing": "साफ किया जा रहा है..."
   },
   "settings": {
     "title": "सेटिंग्स",
@@ -465,7 +646,22 @@
     "notifications": "सूचनाएं",
     "privacy": "गोपनीयता नीति",
     "help": "सहायता और सहायता",
-    "about": "क्रॉपोक्टर के बारे में"
+    "about": "क्रॉपोक्टर के बारे में",
+    "items": {
+      "about": "CROPOCTOR के बारे में",
+      "help": "सहायता और समर्थन"
+    },
+    "notificationsPage": {
+      "unsupported": "आपका ब्राउज़र नोटिफिकेशन सपोर्ट नहीं करता है।",
+      "title": "नोटिफिकेशन सेटिंग्स",
+      "enabled": "नोटिफिकेशन्स चालू हैं",
+      "enabledDesc": "आपको जरूरी अलर्ट और खेत की अपडेट मिलती रहेंगी।",
+      "blocked": "नोटिफिकेशन्स ब्लॉक हैं",
+      "blockedDesc": "अलर्ट पाने के लिए कृपया अपने ब्राउज़र की सेटिंग में नोटिफिकेशन चालू करें।",
+      "disabled": "पुश नोटिफिकेशन चालू करें",
+      "disabledDesc": "Cropoctor को फसल की सेहत, मौसम में बदलाव और AI सलाह के बारे में अलर्ट भेजने की अनुमति दें।",
+      "enableBtn": "नोटिफिकेशन्स की अनुमति दें"
+    }
   },
   "states": {
     "loading": "लोड हो रहा है...",
@@ -475,7 +671,8 @@
     "offlineHint": "आपकी सहेजी गई जानकारी उपलब्ध है।",
     "empty": "यहाँ अभी कुछ नहीं है।",
     "lastUpdated": "अंतिम अपडेट",
-    "reload": "ऐप पुनः लोड करें"
+    "reload": "ऐप पुनः लोड करें",
+    "unavailable": "उपलब्ध नहीं"
   },
   "toast": {
     "farmSaved": "खेत सफलतापूर्वक सहेजा गया।",
@@ -548,5 +745,358 @@
     "rainy": "बारिश",
     "stormy": "तूफानी",
     "Partly Cloudy": "आंशिक रूप से बादल"
+  },
+  "common": {
+    "retry": "दोबारा कोशिश करें",
+    "image": "तस्वीर",
+    "unknown": "अज्ञात",
+    "delete": "हटाएं",
+    "cancel": "रद्द करें",
+    "refresh": "रीफ्रेश करें"
+  },
+  "diagnosis": {
+    "result": {
+      "title": "खेती की जाँच रिपोर्ट",
+      "possibleIssue": "पाई गई समस्या",
+      "symptoms": "लक्षण और सबूत",
+      "actions": "करने योग्य उपाय",
+      "disclaimer": "CROPOCTOR एग्रीकल्चरल इंटेलिजेंस प्लेटफॉर्म द्वारा तैयार किया गया। यह रिपोर्ट उपलब्ध डेटा और AI विश्लेषण पर आधारित है। जरूरी फैसलों के लिए हमेशा कृषि विशेषज्ञ (एग्रोनॉमिस्ट) से सलाह लें।",
+      "translating": "इतिहास को आपकी भाषा में अनुवाद किया जा रहा है...",
+      "completed": "फसल का विश्लेषण पूरा हुआ",
+      "analyzedAt": "विश्लेषण किया गया",
+      "preparingPdf": "PDF तैयार किया जा रहा है...",
+      "downloadReport": "रिपोर्ट डाउनलोड करें",
+      "nonPlant": "गैर-पौधे की तस्वीर का पता चला",
+      "nonPlantDesc": "अपलोड की गई तस्वीर में कोई पौधा, फसल या पत्ती साफ़ नहीं दिख रही है। कृपया प्रभावित पौधे की पत्तियों की एक साफ़ और अच्छी रोशनी वाली तस्वीर खींचें।",
+      "unreliableTitle": "अविश्वसनीय पुराना रिकॉर्ड",
+      "unreliableDesc": "यह रिकॉर्ड ऐप के पुराने वर्शन से बनाया गया था जो आपकी फोटो का विश्लेषण किए बिना परिणाम दे सकता था। इलाज की सलाह छिपाई गई है। कृपया पौधे की दोबारा जाँच करें और इतिहास से इस रिकॉर्ड को डिलीट करें।",
+      "legacyNote": "पुराना रिकॉर्ड — परिणामों के सत्यापित होने से पहले बनाया गया। इसे सावधानी से लें और संदेह होने पर दोबारा जाँच करें।",
+      "expertReview": "सुझाव: इस जाँच की पुष्टि किसी स्थानीय कृषि अधिकारी से करवा लें।",
+      "expertBadge": "विशेषज्ञ समीक्षा",
+      "photoAlt": "जाँची गई फसल की फोटो",
+      "noPhoto": "फोटो सहेजी नहीं गई है",
+      "aiBadge": "AI छवि विश्लेषण",
+      "certainty": "निश्चितता",
+      "uncalibrated": "AI अनुमान, कैलिब्रेटेड नहीं",
+      "analysis": "विश्लेषण",
+      "contradicting": "विरोधी साक्ष्य",
+      "limitations": "सीमाएँ",
+      "askAI": "इसके बारे में AI सलाहकार से पूछें",
+      "confidence": "विश्वास",
+      "translationFailed": "अभी अनुवाद उपलब्ध नहीं है, इसलिए यह परिणाम मूल भाषा (अंग्रेज़ी) में दिखाया गया है।",
+      "voiceUnsupported": "आपके डिवाइस में इस भाषा के लिए आवाज़ इंस्टॉल नहीं है।",
+      "stopAudio": "ऑडियो बंद करें"
+    },
+    "demo": "नमूना तस्वीर",
+    "possibleIssue": "पहचानी गई समस्या",
+    "positiveSigns": "सकारात्मक संकेत",
+    "symptoms": "सहायक साक्ष्य",
+    "possibleIssues": "अन्य संभावित बीमारियाँ और जोखिम",
+    "immediateActions": "तत्काल कदम",
+    "recommendedActions": "सुझाया गया इलाज",
+    "longTermPrevention": "दीर्घकालिक रोकथाम के उपाय",
+    "whenToRecheck": "दुबारा कब जाँचें",
+    "listen": "उपाय सुनें",
+    "disclaimer": "AI द्वारा की गई जाँच केवल जानकारी के लिए है और यह कृषि संबंधी पेशेवर सलाह का विकल्प नहीं है। खेत में पक्के इलाज के लिए अपने स्थानीय कृषि अधिकारी से संपर्क करें।",
+    "certainty": {
+      "legacyPercent": "{{value}}% (पुराना रिकॉर्ड)",
+      "unknown": "िश्चितता दर्ज नहीं है",
+      "high": "उच्च निश्चितता",
+      "moderate": "मध्यम निश्चितता",
+      "low": "कम निश्चितता",
+      "insufficient_evidence": "पर्याप्त सबूत नहीं हैं"
+    },
+    "severity": {
+      "healthy": "स्वस्थ",
+      "mild": "हल्का",
+      "moderate": "मध्यम",
+      "severe": "गंभीर",
+      "unknown": "गंभीरता अज्ञात"
+    }
+  },
+  "cropRec": {
+    "subtitle": "आपकी मिट्टी और मौसम के लिए AI के सुझाव",
+    "description": "आपकी मिट्टी के प्रकार, जगह और स्थानीय मौसम के आधार पर AI द्वारा फसल के सुझाव।",
+    "aiAnalyzed": "AI द्वारा विश्लेषित",
+    "allSeasons": "सभी मौसम",
+    "match": "मेल खाता है",
+    "profitPotential": "मुनाफे की संभावना",
+    "waterNeed": "पानी की जरूरत",
+    "saveToPlan": "योजना में सेव करें",
+    "askAiMore": "AI से और पूछें",
+    "disclaimer": "AI की सलाह आपकी मिट्टी के प्रकार, स्थानीय मौसम और पुरानी फसलों पर आधारित है। फसल बदलने से पहले हमेशा स्थानीय कृषि अधिकारियों से सलाह लें।",
+    "askCustom": "AI से खास सलाह मांगें"
+  },
+  "help": {
+    "subtitle": "त्वरित उत्तर पाएं और CROPOCTOR का उपयोग करना सीखें।",
+    "gettingStarted": "शुरुआत कैसे करें",
+    "faq": "अक्सर पूछे जाने वाले प्रश्न",
+    "contactSupport": "सहायता टीम से संपर्क करें",
+    "emailSupport": "ईमेल सहायता",
+    "sendEmail": "ईमेल भेजें",
+    "appFeedback": "ऐप फीडबैक",
+    "reportBug": "समस्या (बग) की रिपोर्ट करें",
+    "reportBugDesc": "support@cropdoctor.ai पर समस्याएं या त्रुटि रिपोर्ट भेजें"
+  },
+  "irrigation": {
+    "skip": "सिंचाई छोड़ें",
+    "skipReason": "बारिश की उम्मीद है (35–50mm)। मिट्टी में नमी पर्याप्त है।",
+    "monitor": "बारिश के बाद निगरानी करें",
+    "monitorReason": "बारिश के बाद मिट्टी की निकासी और खेत की स्थिति की जाँच करें।",
+    "conditional": "ज़रूरत पड़ने पर हल्की सिंचाई करें",
+    "conditionalReason": "यदि बारिश < 20mm हो, तो 25mm अतिरिक्त सिंचाई करें।",
+    "tip1": {
+      "title": "फूल आने की अवस्था",
+      "text": "आपकी फसल में फूल आ रहे हैं। पानी की कमी से बचें — लेकिन जलभराव से भी बचें जिससे फूल झड़ सकते हैं।"
+    },
+    "tip2": {
+      "title": "सिंचाई का सबसे अच्छा समय",
+      "text": "यदि सिंचाई की आवश्यकता है, तो वाष्पीकरण को कम करने के लिए इसे सुबह-सुबह (6–8 बजे) करें।"
+    },
+    "tip3": {
+      "title": "अनुशंसित मात्रा",
+      "text": "फूल आते समय मूंगफली को प्रति सप्ताह 25–35mm पानी की आवश्यकता होती है। हाल ही की बारिश से वर्तमान मिट्टी में पर्याप्त नमी है।"
+    },
+    "tip4": {
+      "title": "मिट्टी की नमी की जांच",
+      "text": "जड़ के पास मिट्टी में 6 इंच अंदर उंगली डालें। यदि यह अभी भी नम महसूस होती है, तो आज सिंचाई न करें।"
+    },
+    "subtitle": "मौसम और मिट्टी के डेटा पर आधारित AI-संचालित स्मार्ट सिंचाई शेड्यूलिंग।",
+    "scheduleTitle": "AI सिंचाई अनुसूची",
+    "status": {
+      "skip": "छोड़ें",
+      "monitor": "निगरानी करें",
+      "conditional": "शर्त के अनुसार"
+    },
+    "tipsTitle": "स्मार्ट सिंचाई सुझाव"
+  },
+  "nba": {
+    "subtitle": "अब आपको क्या करना चाहिए?",
+    "description": "आज आपके खेत के लिए खास सलाह।",
+    "priority": "प्राथमिकता",
+    "why": "क्यों?",
+    "benefit": "फायदा",
+    "save": "सेव करें",
+    "remind": "याद दिलाएं",
+    "askAi": "AI से पूछें"
+  },
+  "ui": {
+    "errorBoundary": {
+      "somethingWentWrong": "कुछ गलत हो गया।",
+      "weReSorryForThe": "हमें असुविधा के लिए खेद है। कृपया ऐप को फिर से लोड करें।",
+      "reloadApp": "ऐप रीलोड करें"
+    },
+    "searchableSelect": {
+      "noResults": "कोई परिणाम नहीं"
+    },
+    "cameraModal": {
+      "takePhoto": "फोटो लें",
+      "retry": "फिर से कोशिश करें"
+    },
+    "button": {
+      "loading": "लोड हो रहा है…"
+    },
+    "toast": {
+      "notifications": "सूचनाएं"
+    },
+    "appShell": {
+      "goBack": "वापस जाएं"
+    },
+    "navigation": {
+      "mainNavigation": "मुख्य नेविगेशन",
+      "sidebarNavigation": "साइडबार नेविगेशन",
+      "tabletNavigation": "टै블릿 नेविगेशन"
+    },
+    "diagnosisReportPDF": {
+      "severity": "गंभीरता:",
+      "certainty": "निश्चितता:",
+      "nutrientDataUnavailableNoSoil": "पोषण डेटा उपलब्ध नहीं है (कोई मिट्टी परीक्षण नहीं मिला)",
+      "forecast": "पूर्वानुमान:",
+      "predictionUnavailableDueToInsufficient": "पर्याप्त ऐतिहासिक डेटा न होने के कारण भविष्यवाणी उपलब्ध नहीं है।"
+    },
+    "insightsPage": {
+      "satelliteFarmView": "सैटेलाइट खेत का दृश्य"
+    },
+    "diagnosisResultPage": {
+      "readingDiagnosisRemediesAloud": "जांच के उपाय बोलकर बताए जा रहे हैं...",
+      "audioReadoutUnavailableOnThis": "इस ब्राउज़र पर ऑडियो सुनना उपलब्ध नहीं है।"
+    },
+    "voiceSettingsPage": {
+      "voiceSettings": "आवाज़ की सेटिंग",
+      "outputLanguage": "आउटपुट भाषा",
+      "speechRate": "बोलने की गति",
+      "aiVoiceType": "AI आवाज़ का प्रकार",
+      "testVoiceSample": "आवाज़ का नमूना जांचें",
+      "voiceOutputUsesYourDevice": "आवाज़ आउटपुट आपके डिवाइस के इन-बिल्ट स्पीच इंजन का उपयोग करता है। गुणवत्ता इंस्टॉल की गई भाषा पैक पर निर्भर करती है।",
+      "voiceLanguageUpdated": "आवाज़ की भाषा अपडेट कर दी गई है।",
+      "voiceNotSupportedOnThis": "इस डिवाइस पर आवाज़ समर्थित नहीं है।",
+      "playingVoiceSample": "आवाज़ का नमूना चलाया जा रहा है…",
+      "speechRateV0": "बोलने की गति: {{v0}}",
+      "voiceV0": "आवाज़: {{v0}}"
+    },
+    "profilePage": {
+      "manageYourFarmerProfilePreferences": "अपनी किसान प्रोफाइल, प्राथमिकताएं और खाता प्रबंधित करें"
+    },
+    "aboutPage": {
+      "smarterDecisionsForEveryFarm": "हर खेत के लिए समझदारी भरे फैसले",
+      "cropoctorIsAnAiPowered": "CROPOCTOR एक AI-संचालित कृषि सहायक है जिसे किसानों को फसल के स्वास्थ्य, खेत के प्रबंधन, मौसम और खेती से जुड़े रोजमर्रा के सवालों पर तेजी से और बेहतर निर्णय लेने में मदद करने के लिए डिज़ाइन किया गया है।",
+      "whatCropoctorHelpsWith": "CROPOCTOR किन चीज़ों में मदद करता है",
+      "howItWorks": "यह कैसे काम करता है",
+      "importantNotice": "महत्वपूर्ण सूचना",
+      "aiAssistedGuidance": "AI-सहायता प्राप्त मार्गदर्शन",
+      "cropoctorUsesArtificialIntelligenceTo": "CROPOCTOR कृषि संबंधी मार्गदर्शन और फसल स्वास्थ्य आकलन प्रदान करने के लिए कृत्रिम बुद्धिमत्ता (AI) का उपयोग करता है। AI के परिणाम गलत हो सकते हैं, खासकर जब तस्वीरें स्पष्ट न हों, लक्षण असामान्य हों, या कई स्थितियां एक जैसी दिखती हों।",
+      "forSeriousCropDamageUncertain": "फसल को गंभीर नुकसान, अनिश्चित निदान, या उच्च जोखिम वाले कृषि निर्णयों के लिए, किसानों को किसी योग्य कृषि विशेषज्ञ या स्थानीय कृषि अधिकारी से सलाह लेनी चाहिए।",
+      "privacyDataHandling": "गोपनीयता और डेटा प्रबंधन",
+      "yourFarmDataIsProcessed": "व्यक्तिगत कृषि संबंधी जानकारी तैयार करने के लिए आपके खेत के डेटा को प्रोसेस किया जाता है। फसल के स्वास्थ्य का विश्लेषण करने के लिए निदान छवियों को मेमोरी में अस्थायी रूप से प्रोसेस किया जाता है और उच्च-रिज़ॉल्यूशन फ़ाइलों के रूप में नहीं रखा जाता है।",
+      "version100": "संस्करण 1.0.0"
+    },
+    "myFarmsPage": {
+      "thisWillPermanentlyRemoveThis": "इससे यह खेत और इससे जुड़ा डेटा हमेशा के लिए हट जाएगा। इस कार्रवाई को पूर्ववत नहीं किया जा सकता है।",
+      "typeDeleteToConfirm": "पुष्टि करने के लिए DELETE टाइप करें",
+      "cancel": "रद्द करें"
+    },
+    "cropRecommendationPage": {
+      "kharif": "खरीफ",
+      "rabi": "रबी",
+      "v0SavedToYourCrop": "{{v0}} आपकी फसल योजना में सहेज लिया गया है।"
+    },
+    "farmDetailPage": {
+      "refreshAllData": "सारा डेटा ताज़ा करें"
+    },
+    "imageAnalysisPage": {
+      "cropBeingDiagnosed": "फसल की जांच की जा रही है"
+    },
+    "helpPage": {
+      "supportEmailSupportCropdoctorAi": "सहायता ईमेल: support@cropdoctor.ai",
+      "reportBugsToSupportCropdoctor": "बग्स की रिपोर्ट यहाँ करें: support@cropdoctor.ai"
+    },
+    "voicePage": {
+      "cropoctorVoiceAi": "Cropoctor Voice AI",
+      "googleCloudSpeechGeminiAi": "Google Cloud Speech & Gemini AI",
+      "activeSelectedFarm": "सक्रिय चयनित खेत",
+      "switchFarm": "खेत बदलें",
+      "transcribingAudio": "ऑडियो को टेक्स्ट में बदला जा रहा है",
+      "sendingAudioToGoogleCloud": "Google Cloud Speech-to-Text सेवा को ऑडियो भेजा जा रहा है…",
+      "analyzingWithGeminiAi": "Gemini AI के साथ विश्लेषण किया जा रहा है",
+      "voiceTranscript": "बोलकर लिखा गया पाठ",
+      "geminiAiAgronomicAdvisory": "Gemini AI कृषि सलाह",
+      "stopSpeaking": "बोलना बंद करें",
+      "speakAnswer": "उत्तर बोलें",
+      "askAnother": "दूसرا सवाल पूछें",
+      "openInAdvisor": "सलाहकार में खोलें",
+      "askInEnglishEnIn": "अंग्रेजी (en-IN), हिंदी (hi-IN), या गुजराती (gu-IN) में पूछें",
+      "voiceAssistantError": "वॉयस असिस्टेंट में त्रुटि",
+      "retryRecording": "फिर से रिकॉर्ड करें",
+      "closeVoiceAssistant": "वॉयस असिस्टेंट बंद करें",
+      "sendTypedQuestion": "टाइप किया हुआ सवाल भेजें"
+    },
+    "irrigationPage": {
+      "updated": "अपडेट हो गया!"
+    },
+    "aIAdvisorPage": {
+      "playingAdviceAudio": "सलाह का ऑडियो चल रहा है…",
+      "uploadImage": "फोटो अपलोड करें",
+      "send": "भेजें",
+      "voiceInput": "बोलकर इनपुट दें"
+    },
+    "cropDoctorPage": {
+      "photoAcquiredOptimizedV0V1": "फोटो मिल गई! बेहतर किया गया ({{v0}} → {{v1}})",
+      "sampleLeafImageSelected": "पत्ती का सैंपल फोटो चुना गया।",
+      "pleaseSelectAnImageOr": "कृपया पहले कोई फोटो चुनें या खींचें।",
+      "acquiredLeaf": "पत्ती मिल गई",
+      "cropLeaf": "पत्ती काटें"
+    },
+    "homePage": {
+      "farmSunrise": "खेत में सूर्योदय"
+    },
+    "nextBestActionPage": {
+      "actionSavedToFarmLog": "एक्शन फार्म लॉग में सेव हो गया।",
+      "reminderSet": "रिमाइंडर सेट हो गया।"
+    },
+    "loginPage": {
+      "cropoctorPlatform": "Cropoctor प्लेटफॉर्म",
+      "growingABertterTomorrow": "एक बेहतर कल की ओर",
+      "empowerYourAgriculturalDecisionsWith": "AI की सटीक जांच और रियल-टाइम खेत की जानकारी के साथ अपने खेती के फैसले मजबूत करें।",
+      "smartFarming": "स्मार्ट खेती",
+      "aiPrecision": "AI की सटीकता",
+      "cropHealth": "फसल की सेहत",
+      "earlyDetection": "बीमारी की समय पर पहचान",
+      "betterYield": "बेहतर पैदावार",
+      "optimizedRoi": "मुनाफे में बढ़ोतरी",
+      "farmIntelligencePlatform": "फार्म इंटेलिजेंस प्लेटफॉर्म",
+      "sendOtp": "OTP भेजें",
+      "verifySignIn": "वेरीफाई करें और साइन इन करें",
+      "resetPassword": "पासवर्ड रीसेट करें",
+      "passwordResetEmailSentTo": "पासवर्ड रीसेट करने का ईमेल यहाँ भेजा गया है",
+      "backToSignIn": "वापस साइन इन पर जाएं",
+      "sendResetEmail": "रीसेट ईमेल भेजें",
+      "successfullyLoggedIn": "सफलतापूर्वक लॉगिन हो गया!",
+      "loggedInWithGoogle": "Google से लॉगिन हो गया!",
+      "pleaseEnterAPhoneNumber": "कृपया फोन नंबर दर्ज करें।",
+      "recaptchaFailedToInitializePlease": "reCAPTCHA शुरू नहीं हो पाया। कृपया रिफ्रेश करके दोबारा कोशिश करें।",
+      "otpSentToYourPhone": "आपके फोन पर OTP भेज दिया गया है!",
+      "pleaseEnterTheOtp": "कृपया OTP दर्ज करें।",
+      "loggedInWithPhone": "फोन से लॉगिन हो गया!",
+      "pleaseEnterYourEmailAddress": "कृपया अपना ईमेल पता दर्ज करें।",
+      "modernCropFieldWithTractor": "सूर्योदय के समय ट्रैक्टर के साथ काम करता आधुनिक खेत",
+      "youExampleCom": "you@example.com",
+      "togglePassword": "पासवर्ड दिखाएं/छुपाएं",
+      "growingABetterTomorrow": "बेहतर कल की खेती"
+    },
+    "farmerProfilePage": {
+      "step1Of3": "स्टेप 1 का 3",
+      "eGRahulPatel": "जैसे: राहुल पटेल"
+    },
+    "welcomePage": {
+      "lushAgriculturalFarmFieldAt": "सूर्योदय के समय हरा-भरा खेत"
+    },
+    "countryPage": {
+      "back": "पीछे",
+      "failedToSyncCountryOnline": "देश की जानकारी ऑनलाइन सिंक नहीं हो पाई। लोकल रूप से सेव कर ली गई है।",
+      "countryUpdatedToV0V1": "देश बदलकर {{v0}} {{v1}} हो गया है",
+      "countrySetToV0V1": "देश {{v0}} {{v1}} सेट कर दिया गया है",
+      "unableToSaveCountrySelection": "देश का चयन सेव नहीं हो सका।"
+    },
+    "signUpPage": {
+      "joinCropoctor": "Cropoctor से जुड़ें।",
+      "transformYourFarmWithIntelligent": "स्मार्ट AI फसल प्रबंधन के साथ अपने खेत को बेहतर बनाएं।",
+      "joinCropoctorToGetPersonalized": "खेती की अपनी खास जानकारी पाने के लिए Cropoctor से जुड़ें।",
+      "verifyYourEmail": "अपना ईमेल वेरिफाई करें",
+      "weVeSentAVerification": "हमने आपके ईमेल पर एक वेरिफ़िकेशन लिंक भेजा है। लिंक पर क्लिक करें, फिर यहाँ वापस आएं और 'जारी रखें' दबाएं।",
+      "iVeVerifiedMyEmail": "मैंने अपना ईमेल वेरिफाई कर लिया है — आगे बढ़ें",
+      "goBack": "वापस जाएं",
+      "sendVerificationCode": "वेरिफ़िकेशन कोड भेजें",
+      "verifyCode": "कोड वेरिफाई करें",
+      "signUpWithEmailInstead": "इसके बजाय ईमेल से साइन अप करें",
+      "completeSetup": "सेटअप पूरा करें",
+      "byCreatingAnAccountYou": "खाता बनाकर, आप हमारी सेवा की शर्तों और गोपनीयता नीति से सहमत होते हैं।",
+      "pleaseEnterAPhoneNumber": "कृपया फोन नंबर दर्ज करें।",
+      "recaptchaFailedToInitializePlease": "reCAPTCHA शुरू नहीं हो सका। कृपया रीफ्रेश करके दोबारा कोशिश करें।",
+      "otpSent": "OTP भेज दिया गया है!",
+      "pleaseEnterTheOtp": "कृपया OTP दर्ज करें।",
+      "phoneVerifiedEnterYourName": "फोन वेरिफाई हो गया है! सेटअप पूरा करने के लिए अपना नाम दर्ज करें।",
+      "pleaseEnterYourName": "कृपया अपना नाम दर्ज करें।",
+      "accountCreatedSuccessfully": "खाता सफलतापूर्वक बन गया है!",
+      "noUserSessionFoundPlease": "कोई यूजर सेशन नहीं मिला। कृपया दोबारा साइन इन करें।",
+      "emailNotVerifiedYetPlease": "ईमेल अभी वेरिफाई नहीं हुआ है। कृपया पहले अपने ईमेल में दिए गए लिंक पर क्लिक करें।",
+      "emailVerifiedWelcomeToCropoctor": "ईमेल वेरिफाई हो गया है! Cropoctor में आपका स्वागत है।",
+      "noUserSessionFound": "कोई यूजर सेशन नहीं मिला।",
+      "verificationEmailResent": "वेरिफ़िकेशन ईमेल दोबारा भेज दिया गया है!",
+      "farmAtSunrise": "सुबह के समय खेत",
+      "rahulPatel": "राहुल पटेल",
+      "youExampleCom": "you@example.com"
+    },
+    "farmBoundaryPage": {
+      "finishDrawing": "ड्रॉइंग पूरी करें",
+      "redraw": "फिर से बनाएं",
+      "acres": "एकड़"
+    },
+    "farmDetailsPage": {
+      "eGRajkotGroundnutFarm": "जैसे - राजकोट मूंगफली फार्म"
+    },
+    "farmLocationPage": {
+      "orTapAnywhereOnThe": "या पिन लगाने के लिए नक्शे पर कहीं भी टैप करें",
+      "searchVillageTalukDistrict": "गांव, तालुका, जिला खोजें..."
+    }
   }
 }

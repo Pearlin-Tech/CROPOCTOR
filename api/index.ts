@@ -1,26 +1,21 @@
-import express, { Request, Response } from 'express'
+import '../server/loadEnv.js'
+import express, { type Request, type Response } from 'express'
 import cors from 'cors'
-import dotenv from 'dotenv'
 import dns from 'dns'
 
-dotenv.config()
 
 dns.setDefaultResultOrder('ipv4first')
 
-// Pre-bind iconv encodings to resolve tsx bundle lookup issue
-import iconv from 'iconv-lite'
-import encodings from 'iconv-lite/encodings'
-;(iconv as any).encodings = encodings
-
-import { GoogleGenAI } from '@google/genai'
-import { verifyFirebaseAuth, AuthenticatedRequest } from '../server/middleware/auth'
-import { transcribeAudio } from '../server/services/sttService'
-import { processAssistantRequest } from '../server/services/geminiAssistantService'
-import { synthesizeTextToSpeech } from '../server/services/ttsService'
-import { analyzeCropWithGeminiModule } from '../server/services/geminiDiagnosisModule'
-import { getSatelliteDataForFarm } from '../server/services/satelliteService'
-import { runFarmMonitor } from '../server/services/monitorService'
-import { AI_CONFIG } from '../server/config/aiConfig'
+import { verifyFirebaseAuth, type AuthenticatedRequest } from '../server/middleware/auth.js'
+import { transcribeAudio } from '../server/services/sttService.js'
+import { processAssistantRequest } from '../server/services/geminiAssistantService.js'
+import { synthesizeTextToSpeech } from '../server/services/ttsService.js'
+import { analyzeCropWithGeminiModule, STATUS_HTTP } from '../server/services/geminiDiagnosisModule.js'
+import { getSatelliteDataForFarm } from '../server/services/satelliteService.js'
+import { runFarmMonitor } from '../server/services/monitorService.js'
+import { AI_CONFIG, getLanguageName } from '../server/config/aiConfig.js'
+import { translateContent, isTranslatable } from '../server/services/translationService.js'
+import { ensureLanguage, textFields } from '../server/services/languageGuard.js'
 
 const app = express()
 
@@ -74,21 +69,22 @@ function mapWeatherCode(code: number): { condition: string; icon: string } {
   return { condition: 'Partly Cloudy', icon: 'partly-cloudy' }
 }
 
-async function fetchSoilMoisture(lat: number, lng: number): Promise<{ moisture: number; status: 'LOW' | 'ADEQUATE' | 'HIGH' }> {
+async function fetchSoilMoisture(lat: number, lng: number): Promise<{ moisture: number | null; status: 'LOW' | 'ADEQUATE' | 'HIGH' | 'UNAVAILABLE' }> {
   try {
     const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&hourly=soil_moisture_0_to_7cm&timezone=auto`
     const res = await fetch(url)
     if (!res.ok) throw new Error(`Open-Meteo soil HTTP ${res.status}`)
     const json = await res.json()
     const values: number[] = json.hourly?.soil_moisture_0_to_7cm || []
-    const latestValue = values.length > 0 ? values[0] : 0.28
+    const latestValue = values.find(v => typeof v === 'number')
+    if (latestValue === undefined) return { moisture: null, status: 'UNAVAILABLE' }
     const rounded = Math.round(latestValue * 100) / 100
     let status: 'LOW' | 'ADEQUATE' | 'HIGH' = 'ADEQUATE'
     if (rounded < 0.15) status = 'LOW'
     else if (rounded > 0.35) status = 'HIGH'
     return { moisture: rounded, status }
   } catch {
-    return { moisture: 0.28, status: 'ADEQUATE' }
+    return { moisture: null, status: 'UNAVAILABLE' }
   }
 }
 
@@ -139,7 +135,10 @@ function getFallbackAdvisory(weather: any, soil: any) {
   const isHighWind = weather.current.windSpeed > 15
   const isHighHumidity = weather.current.humidity > 70
   return {
-    irrigation: { status: isHighRain || soil.status === 'HIGH' ? 'delay' : 'proceed', reason: isHighRain ? `High rain chance (${rainProb}%) expected.` : `Soil moisture is ${soil.status.toLowerCase()}.` },
+    irrigation: {
+      status: isHighRain || soil.status === 'HIGH' ? 'delay' : soil.status === 'UNAVAILABLE' ? 'monitor' : 'proceed',
+      reason: isHighRain ? `High rain chance (${rainProb}%) expected.` : soil.status === 'UNAVAILABLE' ? 'Soil moisture data is unavailable — check the soil by hand before irrigating.' : `Soil moisture is ${soil.status.toLowerCase()}.`
+    },
     spraying: { status: isHighRain || isHighWind ? 'postpone' : 'proceed', reason: isHighRain ? 'Rain expected — spraying will wash off.' : isHighWind ? 'High wind causes chemical drift.' : 'Conditions favorable for spraying.' },
     diseaseRisk: { level: isHighHumidity && isHighRain ? 'elevated' : 'moderate', reason: isHighHumidity ? 'High humidity increases fungal risk.' : 'Normal threat level.' },
     summary: 'Monitor weather before scheduling field operations.',
@@ -147,9 +146,23 @@ function getFallbackAdvisory(weather: any, soil: any) {
   }
 }
 
-async function getGeminiAgriculturalAdvisory(farmContext: any, weather: any, soil: any, language?: string) {
+async function getGeminiAgriculturalAdvisory(farmContext: any, weather: any, soil: any, language = 'en') {
   const geminiKey = process.env.GEMINI_API_KEY
-  if (!geminiKey) return getFallbackAdvisory(weather, soil)
+  const langName = getLanguageName(language)
+  const localizedFallback = async () => {
+    const fb = getFallbackAdvisory(weather, soil)
+    if (langName === 'English') return fb
+    const tr = await translateContent({
+      irrigation: fb.irrigation.reason, spraying: fb.spraying.reason, diseaseRisk: fb.diseaseRisk.reason, summary: fb.summary
+    }, language)
+    if (!tr.ok) return fb
+    return { ...fb,
+      irrigation: { ...fb.irrigation, reason: tr.translated.irrigation as string },
+      spraying: { ...fb.spraying, reason: tr.translated.spraying as string },
+      diseaseRisk: { ...fb.diseaseRisk, reason: tr.translated.diseaseRisk as string },
+      summary: tr.translated.summary as string }
+  }
+  if (!geminiKey) return localizedFallback()
   try {
     const prompt = `You are an expert agricultural agronomy advisor. Analyze this farm's real-time data and provide operational decisions. Return ONLY a raw JSON object (no markdown, no code blocks).
 
@@ -166,12 +179,13 @@ REAL-TIME WEATHER (Open-Meteo):
 - Condition: ${weather.current.condition}
 
 SOIL DATA:
-- Soil Moisture: ${soil.moisture} m³/m³ (Status: ${soil.status})
+- Soil Moisture: ${soil.moisture === null ? 'UNAVAILABLE — do not assume a value' : `${soil.moisture} m³/m³ (Status: ${soil.status})`}
 
 Based on this data, determine: should the farmer irrigate, spray pesticides, and what is the fungal disease risk level?
 
 Return ONLY this JSON (status must be one of: "delay", "proceed", "postpone", "monitor"):
-{"irrigation":{"status":"","reason":""},"spraying":{"status":"","reason":""},"diseaseRisk":{"level":"","reason":""},"summary":"","confidence":""}`
+{"irrigation":{"status":"","reason":""},"spraying":{"status":"","reason":""},"diseaseRisk":{"level":"","reason":""},"summary":"","confidence":""}
+Keep the status and level values and JSON keys in English. Write every "reason" and the "summary" in ${langName}.`
 
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${AI_CONFIG.TEXT_MODEL}:generateContent?key=${geminiKey}`, {
       method: 'POST',
@@ -185,11 +199,19 @@ Return ONLY this JSON (status must be one of: "delay", "proceed", "postpone", "m
     const resData = await response.json()
     const rawText = resData.candidates?.[0]?.content?.parts?.[0]?.text || ''
     const parsed = JSON.parse(rawText.replace(/```json/gi, '').replace(/```/g, '').trim())
-    if (parsed?.irrigation && parsed?.spraying && parsed?.diseaseRisk) return parsed
+    if (parsed?.irrigation && parsed?.spraying && parsed?.diseaseRisk) {
+      const reasons = { irrigation: String(parsed.irrigation.reason || ''), spraying: String(parsed.spraying.reason || ''), diseaseRisk: String(parsed.diseaseRisk.reason || ''), summary: String(parsed.summary || '') }
+      const { content } = await ensureLanguage(reasons, language)
+      return { ...parsed,
+        irrigation: { ...parsed.irrigation, reason: content.irrigation },
+        spraying: { ...parsed.spraying, reason: content.spraying },
+        diseaseRisk: { ...parsed.diseaseRisk, reason: content.diseaseRisk },
+        summary: content.summary }
+    }
     throw new Error('Schema mismatch')
   } catch (err) {
     console.warn('[Weather Advisory] Gemini fallback triggered:', (err as any).message)
-    return getFallbackAdvisory(weather, soil)
+    return localizedFallback()
   }
 }
 
@@ -198,7 +220,9 @@ app.get('/api/health', (_req: Request, res: Response) => {
   res.json({
     status: 'ok',
     timestamp: new Date().toISOString(),
+    models: { vision: AI_CONFIG.VISION_MODEL, text: AI_CONFIG.TEXT_MODEL },
     integrations: {
+      firebaseAuthVerification: !!(process.env.VITE_FIREBASE_API_KEY || process.env.FIREBASE_API_KEY),
       gemini: !!process.env.GEMINI_API_KEY,
       earthEngine: !!process.env.EE_KEY_PATH || !!process.env.EE_SERVICE_ACCOUNT_JSON,
       googleWeather: !!process.env.GOOGLE_WEATHER_API_KEY,
@@ -225,8 +249,9 @@ app.get('/api/weather', async (req: Request, res: Response) => {
     const cropStage = (req.query.cropStage as string) || 'Unknown'
     const soilType = (req.query.soilType as string) || 'Unknown'
     const displayName = (req.query.displayName as string) || `${lat.toFixed(4)}, ${lng.toFixed(4)}`
+    const language = (req.query.language as string) || 'en'
 
-    const cacheKey = `${lat.toFixed(3)}_${lng.toFixed(3)}_${crop}`
+    const cacheKey = `${lat.toFixed(3)}_${lng.toFixed(3)}_${crop}_${language}`
     const cached = weatherCache.get(cacheKey)
     if (cached && (Date.now() - cached.timestamp < CACHE_TTL_MS)) {
       return res.json(cached.data)
@@ -239,7 +264,7 @@ app.get('/api/weather', async (req: Request, res: Response) => {
 
     const advisory = await getGeminiAgriculturalAdvisory(
       { displayName, crop, cropStage, soilType, lat, lng },
-      weatherResult, soilResult
+      weatherResult, soilResult, language
     )
 
     const payload = {
@@ -256,7 +281,7 @@ app.get('/api/weather', async (req: Request, res: Response) => {
       },
       source: {
         weather: weatherResult.sourceName,
-        soilMoisture: 'Open-Meteo',
+        soilMoisture: soilResult.moisture === null ? 'Unavailable' : 'Open-Meteo',
         interpretation: process.env.GEMINI_API_KEY ? 'Gemini AI' : 'Agronomic Engine',
         updatedAt: weatherResult.updatedAt
       },
@@ -272,31 +297,43 @@ app.get('/api/weather', async (req: Request, res: Response) => {
 })
 
 // ── /api/analyze-crop ─────────────────────────────────────────────────────────
-app.post('/api/analyze-crop', async (req: Request, res: Response) => {
+// Response contract (see docs/DIAGNOSIS_PIPELINE.md):
+//   200 { success: true,  status: 'SUCCESS' | 'INSUFFICIENT_EVIDENCE', data }
+//   4xx/5xx { success: false, status, code, error: { code, message }, retryAfterSeconds? }
+// A failed AI call never produces a diagnosis.
+app.post('/api/analyze-crop', verifyFirebaseAuth as any, async (req: Request, res: Response) => {
   try {
-    const { imageBase64, mimeType, imageUrl, isSample, farmContext, language } = req.body
-    const result = await analyzeCropWithGeminiModule({ imageBase64, mimeType, imageUrl, isSample: Boolean(isSample), farmContext, language: language || 'en' })
-    
-    if (!result.success || !result.data) {
-      const isRateLimit = result.error?.includes('429') || result.error?.toLowerCase().includes('quota')
-      return res.status(isRateLimit ? 429 : 400).json({
-        success: false,
-        error: { code: isRateLimit ? 'RATE_LIMIT' : 'AI_ERROR', message: result.error || 'Failed to process crop diagnosis.' }
-      })
-    }
-    
-    if (!result.data.isPlantImage) {
-      return res.status(400).json({
-        success: false,
-        code: 'NO_PLANT_DETECTED',
-        message: 'Please upload a clear image of a plant leaf or crop.'
-      })
-    }
+    const { imageBase64, mimeType, farmContext, language } = req.body || {}
+    const result = await analyzeCropWithGeminiModule({ imageBase64, mimeType, farmContext, language: language || 'en' })
 
-    return res.json({ success: true, data: result.data })
+    if (result.success) {
+      return res.status(STATUS_HTTP[result.status]).json({ success: true, status: result.status, data: result.data })
+    }
+    if (result.retryAfterSeconds) res.setHeader('Retry-After', String(result.retryAfterSeconds))
+    return res.status(STATUS_HTTP[result.status]).json({
+      success: false,
+      status: result.status,
+      code: result.status === 'NOT_A_PLANT' ? 'NO_PLANT_DETECTED' : result.status,
+      error: { code: result.status, message: result.message },
+      reason: result.reason,
+      retryAfterSeconds: result.retryAfterSeconds
+    })
   } catch (err: any) {
-    return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal error during crop diagnosis.' } })
+    console.error('[/api/analyze-crop] Unexpected error:', err?.message)
+    return res.status(500).json({ success: false, status: 'GENERAL_ERROR', code: 'GENERAL_ERROR', error: { code: 'GENERAL_ERROR', message: 'Something went wrong during diagnosis. Please try again.' } })
   }
+})
+
+// ── /api/translate ────────────────────────────────────────────────────────────
+// Presentation translation of AI-generated text. Body: { content: {key: string|string[]}, targetLanguage }
+app.post('/api/translate', verifyFirebaseAuth as any, async (req: Request, res: Response) => {
+  const { content, targetLanguage } = req.body || {}
+  if (typeof targetLanguage !== 'string' || !isTranslatable(content)) {
+    return res.status(400).json({ success: false, error: 'content (object of strings) and targetLanguage are required' })
+  }
+  const result = await translateContent(content, targetLanguage)
+  if (!result.ok) return res.status(result.status).json({ success: false, error: result.error })
+  return res.json({ success: true, translated: result.translated, cached: result.cached })
 })
 
 // ── /api/advisor ──────────────────────────────────────────────────────────────
@@ -351,97 +388,6 @@ async function callGeminiAdvisorCascade(body: any, geminiKey: string, timeoutMs:
   return { ok: false, status: 503, _errText: 'All models failed' }
 }
 
-/**
- * Builds a smart agronomic fallback when Gemini is unavailable.
- * Uses rule-based logic to generate useful farm-specific advice.
- */
-function buildAdvisorFallback(question: string, farmContext: any): any {
-  const crop = farmContext?.crop || 'your crop'
-  const stage = farmContext?.cropStage || 'current'
-  const soil = farmContext?.soilType || 'your soil'
-  const location = farmContext?.location || 'your area'
-  const q = question.toLowerCase()
-
-  // Determine question type
-  const isIrrigation = q.includes('irrigat') || q.includes('water') || q.includes('पिया') || q.includes('piyo')
-  const isPest = q.includes('pest') || q.includes('insect') || q.includes('bug') || q.includes('spray')
-  const isFertilizer = q.includes('fertiliz') || q.includes('nutrient') || q.includes('manure') || q.includes('urea')
-  const isDisease = q.includes('diseas') || q.includes('blight') || q.includes('spot') || q.includes('yellow') || q.includes('पाती')
-  const isHarvest = q.includes('harvest') || q.includes('pick') || q.includes('ready')
-
-  let recommendation, why, whatToDo: string[], whatToMonitor: string[]
-
-  if (isIrrigation) {
-    recommendation = `For ${crop} at ${stage} stage in ${soil} soil, check your topsoil moisture (0-10cm depth) by pressing your thumb into the soil. If soil sticks together and stays clumped, soil moisture is adequate. If it crumbles immediately, irrigation is needed. During the ${stage} stage, ${crop} has moderate-to-high water demand.`
-    why = `The ${stage} stage is a critical growth period for ${crop}. Water stress during this phase can directly reduce yield by 20-40%. ${soil} soil has specific water-holding capacity that determines irrigation frequency.`
-    whatToDo = [
-      'Check soil moisture at 0-10cm and 10-20cm depths using the thumb test or a moisture meter',
-      `If soil is dry below 10cm, apply ${soil.toLowerCase().includes('sandy') ? '25-30mm' : '35-40mm'} of water per irrigation`,
-      'Irrigate in the early morning (5AM-8AM) or late evening (5PM-7PM) to reduce evaporation losses',
-      'For flood irrigation, let water reach all field ends before stopping; for drip, run for 2-4 hours'
-    ]
-    whatToMonitor = [
-      'Leaf wilting in the afternoon (mild wilting is normal; persistent morning wilting indicates water stress)',
-      'Soil color at 10cm depth — dark brown = moist, light brown/grey = dry',
-      `Groundnut: watch for flower/peg development — water stress during pegging stage is very harmful`
-    ]
-  } else if (isDisease) {
-    recommendation = `For disease management in ${crop} at ${stage} stage in ${location}, first confirm the disease visually by examining leaf symptoms closely. Take clear photos and use the Crop Doctor feature for AI diagnosis. Preventive fungicide application every 10-14 days is recommended during humid conditions.`
-    why = `During the ${stage} stage, ${crop} canopy is dense which creates humid microclimate conditions favorable for fungal diseases. Early intervention when less than 10% of leaves are affected is far more effective and economical than treating advanced infections.`
-    whatToDo = [
-      'Examine 10-15 plants from different parts of the field to estimate disease spread percentage',
-      'Use the Crop Doctor feature (camera icon) to photograph affected leaves for AI diagnosis',
-      'If fungal spots are confirmed: spray Mancozeb 75% WP at 2.5g/litre or Copper Oxychloride 50% WP at 3g/litre',
-      'Remove and destroy severely infected leaves to reduce disease inoculum in the field'
-    ]
-    whatToMonitor = [
-      'Disease progression rate — check every 3-5 days to see if new lesions are appearing',
-      'Percentage of leaves affected — above 20% indicates urgent intervention needed',
-      'Weather conditions: high humidity (>75%) and moderate temperatures (20-30°C) accelerate most fungal diseases'
-    ]
-  } else if (isFertilizer) {
-    recommendation = `For ${crop} at ${stage} stage, fertilizer application timing and type depends on the specific nutrient need. Yellowing leaves typically indicate nitrogen deficiency; purple/reddish tints suggest phosphorus deficiency; brown leaf edges point to potassium deficiency. Soil testing is the most accurate method to determine exact needs.`
-    why = `Fertilizer applied at the wrong growth stage can cause more harm than good — excess nitrogen during flowering can cause vegetative growth at the expense of yield. The ${stage} stage of ${crop} has specific nutrient priorities.`
-    whatToDo = [
-      'Visually diagnose nutrient deficiency: check symptom location (older vs younger leaves) and pattern (interveinal vs marginal)',
-      'For nitrogen deficiency (yellowing old leaves): apply urea at 20-25 kg/acre dissolved in irrigation water',
-      'For immediate correction: foliar spray of 1% urea solution (10g/litre) on leaf surfaces in the evening',
-      'Get a soil test done for accurate nutrient status — contact your local Krishi Vigyan Kendra (KVK)'
-    ]
-    whatToMonitor = [
-      'New leaf color after 7-10 days of treatment — should show recovery toward healthy green color',
-      'Crop growth rate and canopy density compared to unaffected sections of the field',
-      'Soil pH — many nutrient deficiencies are secondary to pH being outside the optimal 6.0-7.0 range'
-    ]
-  } else {
-    recommendation = `As an expert agronomy advisor for your ${crop} farm at ${stage} stage in ${location}: the current period is critical for yield formation. Focus on preventive disease scouting, ensuring adequate soil moisture, and monitoring for any stress symptoms that could indicate nutritional or pest issues.`
-    why = `The ${stage} stage of ${crop} growth is when management decisions have the highest impact on final yield. Proper agronomic practices during this phase can determine 30-50% of the final crop output.`
-    whatToDo = [
-      'Scout your field at least twice a week — walk an X or W pattern through the field to check 20-30 plants',
-      'Check soil moisture every 2-3 days and irrigate based on crop need, not a fixed schedule',
-      'Look for early signs of pest damage: leaf holes, sticky residue, insect presence on undersides of leaves',
-      'Maintain field records of any symptoms, treatments applied, and their effectiveness'
-    ]
-    whatToMonitor = [
-      'Leaf color, size, and surface — any change from the normal healthy green is a symptom',
-      'Plant height and uniformity across the field — patchy growth indicates nutrient or soil variation',
-      'Weather forecast for the next 7-10 days — plan irrigation and spray schedules accordingly'
-    ]
-  }
-
-  return {
-    recommendation,
-    why,
-    currentCondition: `Your ${crop} is currently at the ${stage} stage on ${soil} soil in ${location}. Based on the available information, the crop appears to be in active growth phase. Weather data was not available for this response.`,
-    risks: `During the ${stage} stage, main risks include: fungal diseases in humid conditions, water stress affecting yield, and pest pressure. Monitor closely and act early if symptoms appear.`,
-    whatToDo,
-    whatToMonitor,
-    whenToAct: 'Act within the next 24-48 hours for any urgent symptoms. For preventive measures, begin monitoring and applications this week.',
-    prosCons: 'This is an agronomically-derived response based on crop science best practices. For the most precise recommendation tailored to your exact current conditions, please try the AI Advisor again when the service is fully available.',
-    dataUsed: [`Crop: ${crop}`, `Growth stage: ${stage}`, `Soil type: ${soil}`, `Location: ${location}`, 'Rule-based agronomy engine (AI service temporarily unavailable)']
-  }
-}
-
 app.post('/api/advisor', async (req: Request, res: Response) => {
   const geminiKey = process.env.GEMINI_API_KEY
   if (!geminiKey) {
@@ -455,17 +401,16 @@ app.post('/api/advisor', async (req: Request, res: Response) => {
     }
 
     const langCode = language || 'en'
-    const { getLanguageName } = await import('../server/config/aiConfig')
     const langName = getLanguageName(langCode)
-    const langInstruction = (langCode !== 'en' && langCode !== 'en-IN')
-      ? `\n\nIMPORTANT LANGUAGE INSTRUCTION: You MUST write ALL text values in the JSON response in ${langName} (language code: ${langCode}). Translate all recommendations, explanations, and action items into ${langName}. Keep JSON keys in English.`
-      : ''
+    const isEnglishLang = langCode === 'en' || langCode.startsWith('en-')
+    const langInstruction = isEnglishLang ? '' :
+      `\n\nLANGUAGE: The farmer reads ${langName}. Write EVERY text value in the JSON in ${langName} (keep JSON keys in English). The schema below describes each field in English only to explain it — do not copy English text.`
 
     const hasWeather = farmContext?.weather && farmContext.weather !== 'None'
     const hasDiagnosis = farmContext?.recentDiagnosis && farmContext.recentDiagnosis !== 'None'
     const hasSatellite = farmContext?.satelliteData && farmContext.satelliteData !== 'None'
 
-    const prompt = `You are an expert agricultural agronomy advisor with deep knowledge in crop science, soil management, integrated pest management, weather impacts on farming, and precision agriculture. You are advising a farmer in ${farmContext?.location || 'South Asia'}.
+    const prompt = `${isEnglishLang ? '' : `Respond only in ${langName}.\n\n`}You are an expert agricultural agronomy advisor with deep knowledge in crop science, soil management, integrated pest management, weather impacts on farming, and precision agriculture. You are advising a farmer in ${farmContext?.location || 'South Asia'}.
 
 FARMER'S QUESTION: "${question}"
 
@@ -484,7 +429,7 @@ INSTRUCTIONS FOR HIGH-QUALITY RESPONSE:
 1. Answer the farmer's specific question directly and comprehensively.
 2. Provide SPECIFIC, ACTIONABLE advice — not generic tips.
 3. Reference the actual farm data provided (crop type, stage, soil, weather) in your reasoning.
-4. For chemical recommendations, include product categories/active ingredients when relevant.
+4. Do NOT name specific pesticide products or give doses/application rates. If chemical control may be needed, say to use only a product registered for this crop and problem, at the label dose, after confirming with the local agricultural extension officer.
 5. Include the WHY behind every recommendation — explain the agronomic reasoning.
 6. If data is missing (weather, NDVI), clearly state that and give conditional advice.
 7. Tailor advice to the specific crop stage — what matters at seedling stage differs from flowering.
@@ -557,15 +502,17 @@ Return this EXACT JSON schema with ALL fields populated with rich, detailed cont
     try {
       parsed = JSON.parse(cleanText)
     } catch (parseErr) {
-      console.error('[/api/advisor] JSON parse failed, raw text:', rawText.substring(0, 500))
-      const fallback = buildAdvisorFallback(question, farmContext)
-      return res.json({ success: true, answer: fallback.recommendation, recommendations: fallback.whatToDo, timestamp: new Date().toISOString(), structured: fallback, isFallback: true })
+      console.error(`[/api/advisor] JSON parse failed (${rawText.length} chars)`)
+      return res.status(502).json({ success: false, error: { code: 'INVALID_AI_RESPONSE', message: 'The AI returned an unusable answer. Please ask again.' } })
     }
 
     if (!parsed?.recommendation) {
-      const fallback = buildAdvisorFallback(question, farmContext)
-      return res.json({ success: true, answer: fallback.recommendation, recommendations: fallback.whatToDo, timestamp: new Date().toISOString(), structured: fallback, isFallback: true })
+      return res.status(502).json({ success: false, error: { code: 'INVALID_AI_RESPONSE', message: 'The AI returned an incomplete answer. Please ask again.' } })
     }
+
+    // Lite models often answer in English despite the instruction — verify and translate if needed
+    const localized = await ensureLanguage(textFields(parsed), langCode)
+    parsed = { ...parsed, ...localized.content }
 
     return res.json({
       success: true,
@@ -578,8 +525,7 @@ Return this EXACT JSON schema with ALL fields populated with rich, detailed cont
 
   } catch (err: any) {
     if (err.name === 'AbortError') {
-      const fallback = buildAdvisorFallback(req.body?.question || '', req.body?.farmContext)
-      return res.json({ success: true, answer: fallback.recommendation, recommendations: fallback.whatToDo, timestamp: new Date().toISOString(), structured: fallback, isFallback: true })
+      return res.status(504).json({ success: false, error: { code: 'TIMEOUT', message: 'The AI took too long to answer. Please try again.' } })
     }
     console.error('[/api/advisor] Unexpected error:', err.message)
     return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: err.message } })
@@ -590,7 +536,7 @@ Return this EXACT JSON schema with ALL fields populated with rich, detailed cont
 // ── /api/farms/:farmId/satellite ──────────────────────────────────────────────
 app.get('/api/farms/:farmId/satellite', async (req: Request, res: Response) => {
   try {
-    const { farmId } = req.params
+    const farmId = String(req.params.farmId)
     const lat = req.query.lat ? parseFloat(req.query.lat as string) : undefined
     const lng = req.query.lng ? parseFloat(req.query.lng as string) : undefined
     let boundary: {lat: number, lng: number}[] | undefined = undefined;
@@ -616,11 +562,12 @@ app.post('/api/notifications/subscribe', verifyFirebaseAuth as any, async (req: 
     const userId = (req as AuthenticatedRequest).user?.uid
     if (!userId) return res.status(401).json({ error: 'Unauthorized' })
 
-    const admin = await import('firebase-admin')
-    const db = admin.firestore()
+    const { getAdminFirestore } = await import('../server/lib/firebaseAdmin.js')
+    const { FieldValue } = await import('firebase-admin/firestore')
+    const db = await getAdminFirestore()
     await db.collection('users').doc(userId).collection('fcmTokens').doc(token).set({
       token,
-      updatedAt: admin.firestore.FieldValue.serverTimestamp()
+      updatedAt: FieldValue.serverTimestamp()
     })
     return res.json({ success: true })
   } catch (err: any) {
@@ -666,8 +613,14 @@ app.post('/api/voice/assistant', verifyFirebaseAuth as any, async (req: Request,
 })
 
 // ── /api/cron/monitor ─────────────────────────────────────────────────────────
-app.post('/api/cron/monitor', async (req: Request, res: Response) => {
+// Vercel Cron invokes GET with `Authorization: Bearer $CRON_SECRET`;
+// the GitHub Actions workflow uses POST. Both are accepted.
+async function cronMonitorHandler(req: Request, res: Response) {
   const cronSecret = process.env.CRON_SECRET
+  const isProd = process.env.NODE_ENV === 'production' || !!process.env.VERCEL
+  if (!cronSecret && isProd) {
+    return res.status(503).json({ error: 'CRON_SECRET is not configured' })
+  }
   const authHeader = req.headers['authorization'] || req.headers['x-cron-secret']
   if (cronSecret && authHeader !== `Bearer ${cronSecret}` && authHeader !== cronSecret) {
     return res.status(401).json({ error: 'Unauthorized' })
@@ -684,7 +637,9 @@ app.post('/api/cron/monitor', async (req: Request, res: Response) => {
     console.error('[/api/cron/monitor] Fatal error:', err.message)
     return res.status(500).json({ success: false, error: err.message })
   }
-})
+}
+app.get('/api/cron/monitor', cronMonitorHandler)
+app.post('/api/cron/monitor', cronMonitorHandler)
 
 // Export for Vercel serverless + local Express listen
 export default app

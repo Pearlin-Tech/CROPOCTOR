@@ -1,3 +1,4 @@
+import i18n from '@/locales/i18n'
 import React from 'react'
 import { motion } from 'framer-motion'
 import { cn } from '@/utils/cn'
@@ -68,7 +69,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(({
           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
         </svg>
-        <span>Loading…</span>
+        <span>{i18n.t("ui.button.loading", "Loading…")}</span>
       </>
     ) : (
       <>

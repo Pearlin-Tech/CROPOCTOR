@@ -80,7 +80,7 @@ const IrrigationPage: React.FC = () => {
             <h1 className="text-2xl font-bold text-gray-800">{t('dashboard.actions.irrigation', 'Irrigation Intelligence')}</h1>
             <p className="text-sm text-gray-500 mt-1">{t('irrigation.subtitle', 'AI-powered smart irrigation scheduling based on weather & soil data.')}</p>
           </div>
-          <button onClick={() => { setLoading(true); weatherService.getWeather(activeFarm?.id || '').then(w => { setWeather(w); setLoading(false); toast.success('Updated!') }) }}
+          <button onClick={() => { setLoading(true); weatherService.getWeather(activeFarm?.id || '').then(w => { setWeather(w); setLoading(false); toast.success(t("ui.irrigationPage.updated", "Updated!")) }) }}
             className="flex items-center gap-2 px-4 py-2 bg-green-light text-green-forest rounded-xl text-sm font-semibold hover:bg-green-pastel/50 transition-colors">
             <RefreshCcw className="w-4 h-4" /> {t('common.refresh', 'Refresh')}
           </button>

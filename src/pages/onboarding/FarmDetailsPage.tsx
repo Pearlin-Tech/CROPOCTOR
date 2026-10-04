@@ -30,7 +30,7 @@ const FarmDetailsPage: React.FC = () => {
       <div className="space-y-4 flex-1">
         <Input
           label={t('farm.location.farmName', 'Farm name')}
-          placeholder="e.g. Rajkot Groundnut Farm"
+          placeholder={t("ui.farmDetailsPage.eGRajkotGroundnutFarm", "e.g. Rajkot Groundnut Farm")}
           value={name}
           onChange={e => setName(e.target.value)}
         />

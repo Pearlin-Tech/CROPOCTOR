@@ -86,7 +86,7 @@ const HomePage: React.FC = () => {
     <motion.div variants={pageVariants} initial="initial" animate="animate" className="min-h-screen bg-background pb-8">
       {/* Hero Header */}
       <div className="relative overflow-hidden w-full h-44 md:h-56 lg:h-64">
-        <img src={IMAGES.backgrounds.dashboard} alt="Farm Sunrise" className="absolute inset-0 w-full h-full object-cover" loading="eager" />
+        <img src={IMAGES.backgrounds.dashboard} alt={t("ui.homePage.farmSunrise", "Farm Sunrise")} className="absolute inset-0 w-full h-full object-cover" loading="eager" />
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-[#FAF8F3]/95" />
         <div className="absolute inset-0 px-4 md:px-6 lg:px-8 flex flex-col justify-between py-5 relative z-10">
           {/* Top header elements */}

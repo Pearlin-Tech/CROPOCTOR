@@ -1,3 +1,4 @@
+import i18n from '@/locales/i18n'
 import React from 'react'
 
 interface State { hasError: boolean; error?: Error }
@@ -21,15 +22,15 @@ export class ErrorBoundary extends React.Component<{ children: React.ReactNode }
       return (
         <div className="min-h-screen flex flex-col items-center justify-center bg-cream p-8 text-center">
           <div className="text-6xl mb-6">🌱</div>
-          <h1 className="text-2xl font-bold text-gray-800 mb-2">Something went wrong.</h1>
+          <h1 className="text-2xl font-bold text-gray-800 mb-2">{i18n.t("ui.errorBoundary.somethingWentWrong", "Something went wrong.")}</h1>
           <p className="text-gray-500 mb-8 max-w-sm">
-            We're sorry for the inconvenience. Please try reloading the app.
+            {i18n.t("ui.errorBoundary.weReSorryForThe", "We're sorry for the inconvenience. Please try reloading the app.")}
           </p>
           <button
             onClick={() => window.location.reload()}
             className="bg-green-forest text-white px-6 py-3 rounded-2xl font-semibold shadow-button hover:bg-[#256427] transition-colors"
           >
-            Reload App
+            {i18n.t("ui.errorBoundary.reloadApp", "Reload App")}
           </button>
         </div>
       )

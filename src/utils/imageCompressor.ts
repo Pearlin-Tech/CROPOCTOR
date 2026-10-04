@@ -12,6 +12,53 @@ export interface CompressionResult {
   width: number
   height: number
   format: 'image/jpeg' | 'image/webp'
+  quality: ImageQualityMetrics
+}
+
+export interface ImageQualityMetrics {
+  /** mean luminance 0–255 */
+  brightness: number
+  /** variance of the Laplacian on a ≤256px greyscale copy; low = blurry */
+  sharpness: number
+}
+
+/** Thresholds calibrated on sharp (≈1000–2400), blurred (≈2) and very dark (mean ≈9) photos. */
+export const QUALITY_LIMITS = { MIN_BRIGHTNESS: 35, MAX_BRIGHTNESS: 250, MIN_SHARPNESS: 15 }
+
+export function measureImageQuality(source: CanvasImageSource, width: number, height: number): ImageQualityMetrics {
+  const scale = Math.min(1, 256 / Math.max(width, height))
+  const w = Math.max(3, Math.round(width * scale))
+  const h = Math.max(3, Math.round(height * scale))
+  const c = document.createElement('canvas')
+  c.width = w; c.height = h
+  const ctx = c.getContext('2d', { willReadFrequently: true })
+  if (!ctx) return { brightness: 128, sharpness: Infinity }
+  ctx.drawImage(source, 0, 0, w, h)
+  const px = ctx.getImageData(0, 0, w, h).data
+  const g = new Float32Array(w * h)
+  let sum = 0
+  for (let i = 0; i < w * h; i++) {
+    g[i] = 0.299 * px[i * 4] + 0.587 * px[i * 4 + 1] + 0.114 * px[i * 4 + 2]
+    sum += g[i]
+  }
+  let lapSum = 0, lapSq = 0, n = 0
+  for (let y = 1; y < h - 1; y++) {
+    for (let x = 1; x < w - 1; x++) {
+      const i = y * w + x
+      const v = g[i - 1] + g[i + 1] + g[i - w] + g[i + w] - 4 * g[i]
+      lapSum += v; lapSq += v * v; n++
+    }
+  }
+  const mean = lapSum / n
+  return { brightness: sum / (w * h), sharpness: lapSq / n - mean * mean }
+}
+
+/** Returns a reason code and English description, or null if the photo is usable. */
+export function describeQualityProblem(q: ImageQualityMetrics): { reason: 'TOO_DARK' | 'OVEREXPOSED' | 'BLURRY'; message: string } | null {
+  if (q.brightness < QUALITY_LIMITS.MIN_BRIGHTNESS) return { reason: 'TOO_DARK', message: 'This photo is too dark to analyse. Please retake it in daylight.' }
+  if (q.brightness > QUALITY_LIMITS.MAX_BRIGHTNESS) return { reason: 'OVEREXPOSED', message: 'This photo is overexposed. Please retake it without direct glare or flash.' }
+  if (q.sharpness < QUALITY_LIMITS.MIN_SHARPNESS) return { reason: 'BLURRY', message: 'This photo is too blurry to analyse. Hold the camera steady and tap the leaf to focus.' }
+  return null
 }
 
 /**
@@ -103,6 +150,7 @@ export async function compressImage(
       }
 
       const thumbnailBase64 = thumbCanvas.toDataURL('image/jpeg', 0.55)
+      const qualityMetrics = measureImageQuality(canvas, targetWidth, targetHeight)
 
       // Calculate approximate byte size of compressed base64
       const base64Body = compressedBase64.split(',')[1] || ''
@@ -115,7 +163,8 @@ export async function compressImage(
         compressedSizeBytes,
         width: targetWidth,
         height: targetHeight,
-        format
+        format,
+        quality: qualityMetrics
       })
     }
 
@@ -136,6 +185,7 @@ export async function compressImageWithFallback(file: File | Blob): Promise<{
   thumbnailBase64: string
   compressedSizeBytes: number
   isFallback: boolean
+  quality?: ImageQualityMetrics
 }> {
   try {
     const res = await compressImage(file, 1024, 0.78)
@@ -143,7 +193,8 @@ export async function compressImageWithFallback(file: File | Blob): Promise<{
       compressedBase64: res.compressedBase64,
       thumbnailBase64: res.thumbnailBase64,
       compressedSizeBytes: res.compressedSizeBytes,
-      isFallback: false
+      isFallback: false,
+      quality: res.quality
     }
   } catch (err) {
     console.warn('[imageCompressor] Compression failed, operating in fallback mode:', err)

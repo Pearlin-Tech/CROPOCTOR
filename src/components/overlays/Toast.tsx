@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import React from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { CheckCircle, XCircle, Info, AlertTriangle, X } from 'lucide-react'
@@ -36,10 +37,11 @@ const ToastItem: React.FC<{ toast: Toast }> = ({ toast }) => {
 }
 
 export const ToastContainer: React.FC = () => {
+  const { t } = useTranslation()
   const { toasts } = useApp()
   return (
     <div
-      aria-label="Notifications"
+      aria-label={t("ui.toast.notifications", "Notifications")}
       className="fixed bottom-24 md:bottom-6 left-1/2 -translate-x-1/2 z-[9999] flex flex-col items-center gap-2 w-full px-4 pointer-events-none"
     >
       <AnimatePresence mode="popLayout">

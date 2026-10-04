@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import React, { useState, useRef, useEffect, useCallback } from 'react'
 import { Search, ChevronDown, Check, X } from 'lucide-react'
 import { cn } from '@/utils/cn'
@@ -34,6 +35,7 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
   grouped = false,
   required,
 }) => {
+  const { t } = useTranslation()
   const [open, setOpen]     = useState(false)
   const [query, setQuery]   = useState('')
   const containerRef        = useRef<HTMLDivElement>(null)
@@ -145,7 +147,7 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
             {/* Options */}
             <div className="max-h-60 overflow-y-auto py-1" role="listbox">
               {filtered.length === 0 ? (
-                <p className="px-4 py-3 text-sm text-gray-400 text-center">No results</p>
+                <p className="px-4 py-3 text-sm text-gray-400 text-center">{t("ui.searchableSelect.noResults", "No results")}</p>
               ) : grouped ? (
                 Object.entries(grouped_options).map(([cat, opts]) => (
                   <div key={cat}>

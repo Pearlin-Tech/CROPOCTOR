@@ -53,10 +53,10 @@ const NextBestActionPage: React.FC = () => {
                   </div>
                 </div>
                 <div className="flex gap-2">
-                  <button onClick={() => toast.success('Action saved to farm log.')} className="text-xs font-semibold text-green-forest bg-green-light px-3 py-1.5 rounded-xl hover:bg-green-pastel/50 transition-colors">
+                  <button onClick={() => toast.success(t("ui.nextBestActionPage.actionSavedToFarmLog", "Action saved to farm log."))} className="text-xs font-semibold text-green-forest bg-green-light px-3 py-1.5 rounded-xl hover:bg-green-pastel/50 transition-colors">
                     💾 {t('nba.save', 'Save')}
                   </button>
-                  <button onClick={() => toast.info('Reminder set.')} className="text-xs font-semibold text-brown-earth bg-beige-warm px-3 py-1.5 rounded-xl hover:bg-brown-soft/20 transition-colors">
+                  <button onClick={() => toast.info(t("ui.nextBestActionPage.reminderSet", "Reminder set."))} className="text-xs font-semibold text-brown-earth bg-beige-warm px-3 py-1.5 rounded-xl hover:bg-brown-soft/20 transition-colors">
                     🔔 {t('nba.remind', 'Remind me')}
                   </button>
                   <button onClick={() => navigate('/advisor')} className="text-xs font-semibold text-gray-600 bg-gray-100 px-3 py-1.5 rounded-xl hover:bg-gray-200 transition-colors">

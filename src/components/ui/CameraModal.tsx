@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import React, { useRef, useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Camera, X, RefreshCw } from 'lucide-react'
@@ -9,6 +10,7 @@ interface CameraModalProps {
 }
 
 export const CameraModal: React.FC<CameraModalProps> = ({ isOpen, onClose, onCapture }) => {
+  const { t } = useTranslation()
   const videoRef = useRef<HTMLVideoElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [stream, setStream] = useState<MediaStream | null>(null)
@@ -77,7 +79,7 @@ export const CameraModal: React.FC<CameraModalProps> = ({ isOpen, onClose, onCap
         className="fixed inset-0 z-[100] bg-black flex flex-col"
       >
         <div className="flex justify-between items-center p-4 bg-black/50 absolute top-0 left-0 right-0 z-10">
-          <h2 className="text-white font-bold text-lg">Take Photo</h2>
+          <h2 className="text-white font-bold text-lg">{t("ui.cameraModal.takePhoto", "Take Photo")}</h2>
           <button onClick={onClose} className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-white backdrop-blur-md">
             <X className="w-6 h-6" />
           </button>
@@ -88,7 +90,7 @@ export const CameraModal: React.FC<CameraModalProps> = ({ isOpen, onClose, onCap
             <div className="text-white text-center p-6 space-y-4">
               <p>{error}</p>
               <button onClick={startCamera} className="px-4 py-2 bg-green-500 rounded-lg flex items-center gap-2 mx-auto">
-                <RefreshCw className="w-4 h-4" /> Retry
+                <RefreshCw className="w-4 h-4" /> {t("ui.cameraModal.retry", "Retry")}
               </button>
             </div>
           ) : (

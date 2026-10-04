@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import React, { useEffect, useState, useRef } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -13,6 +14,7 @@ const STEPS = [
 ]
 
 const ImageAnalysisPage: React.FC = () => {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const location = useLocation()
   const [step, setStep] = useState(0)
@@ -102,7 +104,7 @@ const ImageAnalysisPage: React.FC = () => {
       {/* Image Preview & Scanning Effect */}
       {imageUrl && (
         <div className="relative w-full max-w-xs aspect-square rounded-3xl overflow-hidden mb-8 shadow-2xl border border-green-500/30">
-          <img src={imageUrl} alt="Crop being diagnosed" className="w-full h-full object-cover" />
+          <img src={imageUrl} alt={t("ui.imageAnalysisPage.cropBeingDiagnosed", "Crop being diagnosed")} className="w-full h-full object-cover" />
           
           {/* Scanning Bar */}
           <motion.div

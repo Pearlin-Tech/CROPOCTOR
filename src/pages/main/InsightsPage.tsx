@@ -129,7 +129,7 @@ const InsightsPage: React.FC = () => {
                 ) : satelliteData ? (
                   <Card padding="none" className="overflow-hidden bg-cream border-brown-pastel/40 shadow-sm">
                     <div className="relative">
-                      <img src={satelliteData.satelliteImageUrl} alt="Satellite farm view" className="w-full h-[30vh] sm:h-64 md:h-80 lg:h-[400px] object-cover" />
+                      <img src={satelliteData.satelliteImageUrl} alt={t("ui.insightsPage.satelliteFarmView", "Satellite farm view")} className="w-full h-[30vh] sm:h-64 md:h-80 lg:h-[400px] object-cover" />
                       <div className="absolute top-3 right-3 flex gap-2">
                         {satelliteData.source === 'demo' && <Badge variant="demo">{t('insights.demo', 'Demo Synthetic Data')}</Badge>}
                         {satelliteData.source === 'error' && <Badge variant="danger">{t('insights.error', 'Connection Error')}</Badge>}
@@ -148,9 +148,9 @@ const InsightsPage: React.FC = () => {
                         <div className="text-right">
                           <p className="text-[10px] font-bold text-brown-earth uppercase tracking-widest mb-1.5">{t('insights.range', 'Range')}</p>
                           <div className="flex items-center gap-2 mt-1">
-                            <span className="text-xs text-text-secondary font-medium">{t('insights.range.poor', 'Poor')}</span>
+                            <span className="text-xs text-text-secondary font-medium">{t('insights.rangeLabels.poor', 'Poor')}</span>
                             <div className="w-24 h-2 rounded-full" style={{background: 'linear-gradient(to right, #ff4444, #ffaa00, #44aa44, #006600)'}} />
-                            <span className="text-xs text-text-secondary font-medium">{t('insights.range.excellent', 'Excellent')}</span>
+                            <span className="text-xs text-text-secondary font-medium">{t('insights.rangeLabels.excellent', 'Excellent')}</span>
                           </div>
                         </div>
                       </div>

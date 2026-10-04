@@ -24,7 +24,8 @@
     "headline": "قرارات أفضل. محاصيل أصح.",
     "subheading": "ذكاء زراعي مدعوم بالذكاء الاصطناعي مخصص لمزرعتك.",
     "cta": "ابدأ الآن",
-    "signin": "لديك حساب بالفعل؟ تسجيل الدخول"
+    "signin": "لديك حساب بالفعل؟ تسجيل الدخول",
+    "subtitle": "قرارات أذكى لكل مزرعة."
   },
   "auth": {
     "google": "المتابعة باستخدام Google",
@@ -46,8 +47,20 @@
       "required": "هذا الحقل مطلوب.",
       "invalidEmail": "يرجى إدخال بريد إلكتروني صحيح.",
       "weakPassword": "يجب أن تكون كلمة المرور 6 أحرف على الأقل.",
-      "authFailed": "فشل تسجيل الدخول. يرجى المحاولة مرة أخرى."
-    }
+      "authFailed": "فشل تسجيل الدخول. يرجى المحاولة مرة أخرى.",
+      "noSession": "لا توجد جلسة مستخدم. يرجى تسجيل الدخول مرة أخرى.",
+      "notVerified": "لم يتم التحقق من البريد الإلكتروني بعد. يرجى النقر على الرابط في بريدك الإلكتروني أولاً."
+    },
+    "verified": "تم التحقق من البريد الإلكتروني! أهلاً بك في Cropoctor.",
+    "verificationResent": "تم إعادة إرسال بريد التحقق!",
+    "verifyEmailTitle": "تحقق من بريدك الإلكتروني",
+    "verifyEmailDesc": "أرسلنا رابط تحقق إلى",
+    "verifyEmailInstructions": "انقر على الرابط في البريد الإلكتروني، ثم اضغط على الزر أدناه.",
+    "iHaveVerified": "لقد تحققت من بريدي الإلكتروني — متابعة",
+    "resendIn": "إعادة الإرسال خلال ${resendCooldown} ثانية",
+    "resendVerification": "إعادة إرسال بريد التحقق",
+    "signOut": "تسجيل الخروج",
+    "checkSpam": "لا يمكنك العثور على البريد الإلكتروني؟ تحقق من مجلد البريد العشوائي (Spam) أو غير المرغوب فيه."
   },
   "language": {
     "title": "اختر اللغة",
@@ -87,7 +100,10 @@
     "farmer": "مزارع",
     "myFarms": "مزارعي",
     "farmsRegistered": "تم تسجيل {{count}} مزرعة",
-    "version": "الإصدار"
+    "version": "الإصدار",
+    "notificationsSettings": "الإشعارات الفورية",
+    "notificationsSection": "الإشعارات",
+    "fullName": "الاسم الكامل"
   },
   "farms": {
     "farm-001": {
@@ -123,7 +139,38 @@
       "pickOnMap": "تحديد على الخريطة",
       "useThisLocation": "استخدام هذا الموقع",
       "locating": "جاري تحديد الموقع...",
-      "locationError": "تعذر العثور على موقعك."
+      "locationError": "تعذر العثور على موقعك.",
+      "soilTitle": "التربة",
+      "locationLabel": "الموقع",
+      "primaryCrop": "المحصول",
+      "stageTitle": "المرحلة",
+      "areaLabel": "المساحة",
+      "cropTitle": "اختر محصولك",
+      "cropSubtitle": "اختر المحصول الأساسي لهذه المزرعة.",
+      "selectCrop": "اختر المحصول",
+      "searchCrops": "ابحث عن المحاصيل...",
+      "selected": "تم الاختيار",
+      "category": "الفئة",
+      "stageSubtitle": "في أي مرحلة ينمو محصولك؟",
+      "selectStage": "اختر مرحلة المحصول",
+      "searchStages": "ابحث عن المراحل...",
+      "plantingDate": "متى زرعت؟ (اختياري)",
+      "plantingHint": "هذا يساعدنا في حساب مواعيد التسميد والري.",
+      "almostDone": "أوشكت على الانتهاء",
+      "markArea": "حدود المزرعة",
+      "tapMap": "ارسم حدود مزرعتك أو أدخل المساحة.",
+      "enterArea": "مساحة المزرعة",
+      "confirmArea": "تأكيد الحدود",
+      "detailsTitle": "تفاصيل المزرعة",
+      "detailsSubtitle": "أكمل إعداد مزرعتك.",
+      "farmName": "اسم المزرعة",
+      "setFromMap": "التعيين من الخريطة.",
+      "areaCalculated": "تم حساب المساحة من حدود مزرعتك.",
+      "saveContinue": "حفظ ومتابعة",
+      "soilSubtitle": "اختر نوع التربة في مزرعتك.",
+      "soilHint": "لست متأكداً؟ اختر \"غير معروف\" — يمكن للذكاء الاصطناعي مساعدتك على أي حال.",
+      "selectSoil": "اختر نوع التربة",
+      "searchSoils": "البحث عن أنواع التربة..."
     },
     "boundary": {
       "title": "تحديد حدود المزرعة",
@@ -144,7 +191,29 @@
       "cropStage": "مرحلة المحصول",
       "plantingDate": "تاريخ الزراعة (اختياري)",
       "save": "حفظ المزرعة",
-      "setActive": "المزرعة النشطة"
+      "setActive": "المزرعة النشطة",
+      "howCalculated": "كيف يتم حساب هذا؟",
+      "calculatedAt": "تاريخ الحساب",
+      "formula": "المعادلة",
+      "missingData": "البيانات المفقودة مستبعدة - يتم إعادة حساب الأوزان المتبقية.",
+      "noFactorData": "لا توجد بيانات عوامل متاحة حتى الآن. درجة الصحة هي الأساس الافتراضي.",
+      "confidence": "مستوى الثقة",
+      "dataSources": "مصادر البيانات النشطة",
+      "satelliteData": "بيانات الأقمار الصناعية",
+      "unavailable": "غير متوفر",
+      "live": "مباشر",
+      "ndvi": "مؤشر الغطاء النباتي (NDVI)",
+      "moistureIndex": "مؤشر الرطوبة (NDMI)",
+      "imageDate": "تاريخ الصورة",
+      "cloudCover": "الغطاء السحابي",
+      "back": "العودة إلى مزارعي",
+      "health": "صحة المزرعة",
+      "howCalculatedShort": "كيف تم الحساب؟",
+      "calculating": "جاري الحساب…",
+      "factorsUsed": "العوامل المستخدمة",
+      "latestDiagnosis": "آخر تشخيص",
+      "currentWeather": "الطقس الحالي",
+      "activeFarm": "المزرعة النشطة"
     },
     "crop": {
       "title": "اختر المحصول",
@@ -186,7 +255,9 @@
       "weather": "الطقس",
       "health": "الصحة",
       "hint": "يستخدم الذكاء الاصطناعي سياق مزرعتك لتوليد التوصيات."
-    }
+    },
+    "notFound": "لم يتم العثور على المزرعة.",
+    "deleted": "تم حذف المزرعة بنجاح"
   },
   "dashboard": {
     "title": "لوحة التحكم",
@@ -210,7 +281,8 @@
     "weatherCard": {
       "rain": "المطر",
       "humidity": "الرطوبة",
-      "wind": "الرياح"
+      "wind": "الرياح",
+      "temp": "الحرارة"
     },
     "nba": {
       "action": "افحص رطوبة التربة قبل الري."
@@ -219,6 +291,16 @@
       "title": "أمطار غزيرة متوقعة غداً.",
       "desc": "يفضل تأجيل الري وفحص قنوات تصريف المياه.",
       "why": "لماذا؟"
+    },
+    "actions": {
+      "diagnose": "تشخيص المحصول",
+      "recommendation": "توصية المحصول",
+      "askAdvisor": "اسأل مستشار الذكاء الاصطناعي",
+      "irrigation": "ذكاء الري",
+      "nba": "أفضل خطوة تالية"
+    },
+    "overview": {
+      "acres": "فدان"
     }
   },
   "advisor": {
@@ -245,7 +327,19 @@
       "q4": "ما السماد الذي يجب أن أستخدمه؟",
       "q5": "هل يتوقع هطول الأمطار في الوقت المناسب؟",
       "q6": "كيف يمكنني تحسين صحة المحصول؟"
-    }
+    },
+    "newConversation": "محادثة جديدة",
+    "activeContext": "السياق النشط",
+    "activeContextDesc": "لقد قمت بتحليل تشخيصك الأخير. اسألني كيف تعالجه!",
+    "askTreatment": "اسأل عن العلاج",
+    "result": {
+      "currentCondition": "الحالة الحالية",
+      "potentialRisks": "المخاطر المحتملة",
+      "whatToMonitor": "ما يجب مراقبته",
+      "whenToAct": "متى يجب التحرك",
+      "prosCons": "الايجابيات / السلبيات والمفاضلات"
+    },
+    "askTreatmentQuestion": "ما العلاج الموصى به لـ {{disease}}؟"
   },
   "voice": {
     "title": "المساعد الصوتي",
@@ -302,6 +396,55 @@
         "moderate": "متوسط",
         "severe": "شديد"
       }
+    },
+    "progress": {
+      "prepare": "جاري تجهيز الصورة",
+      "analyze": "جاري التحقق من الصورة وتحليل الأعراض",
+      "elapsed": "{{s}} ث — عادةً يستغرق تحليل الذكاء الاصطناعي 5–20 ث"
+    },
+    "outcome": {
+      "insufficientTitle": "لا توجد أدلة كافية للتشخيص",
+      "insufficientDesc": "لم يتمكن الذكاء الاصطناعي من تحديد المشكلة من هذه الصورة، لذلك لا توجد توصية بمرض أو علاج. لم يتم حفظ أي شيء في سجلاتك.",
+      "observed": "ما رصده الذكاء الاصطناعي",
+      "whyNot": "لماذا تعذر اتخاذ القرار",
+      "nextSteps": "كيفية الحصول على نتيجة موثوقة",
+      "retake": "التقط صورة أوضح",
+      "noDiagnosis": "لم يتم إجراء أي تشخيص ولم يتم حفظ أي شيء. تم الاحتفاظ بصورتك لتتمكن من المحاولة مرة أخرى.",
+      "retryIn": "إعادة المحاولة (انتظر {{s}} ث)",
+      "tryAnother": "جرب صورة أخرى"
+    },
+    "guidance": {
+      "daylight": "أعد التقاط الصورة في ضوء النهار، بدون فلاش، مع إمساك الكاميرا على بعد 20–30 سم من الورقة.",
+      "fill": "اجعل ورقة واحدة مصابة تملأ الإطار وحافظ على وضوحها التركيز.",
+      "bothSides": "التقط صورة ثانية توضح السطحين العلوي والسفل للورقة.",
+      "expert": "إذا كانت الأعراض تنتشر بسرعة، اعرض النبتة على المرشد الزراعي المحلي."
+    },
+    "notSaved": "تعذر حفظ التشخيص في سجلاتك.",
+    "changeImage": "تغيير الصورة",
+    "noHistoryTitle": "لا توجد تشخيصات حتى الآن",
+    "noHistoryDesc": "ارفع صورة للمحصول أعلاه للحصول على تشخيصك الأول",
+    "reason": {
+      "MISSING": "لم يتم إرفاق أي صورة.",
+      "TOO_SMALL": "ملف الصورة صغير جداً للتحليل.",
+      "TOO_LARGE": "هذه الصورة أكبر من أن يتم رفعها. يرجى استخدام صورة أصغر.",
+      "UNSUPPORTED_FORMAT": "صيغة الصورة غير مدعومة. يرجى استخدام صورة بصيغة JPEG أو PNG أو WebP أو HEIC.",
+      "CORRUPT": "ملف الصورة غير مكتمل أو تالف - يرجى إعادة التقاط الصورة.",
+      "LOW_RESOLUTION": "دقة الصورة منخفضة جداً. يرجى التقاط صورة أقرب وأكثر وضوحاً.",
+      "TOO_DARK": "هذه الصورة مظلمة جداً للتحليل. يرجى إعادته في ضوء النهار.",
+      "OVEREXPOSED": "هذه الصورة ساطعة جداً. يرجى إعادته بدون إضاءة مباشرة أو فلاش.",
+      "BLURRY": "هذه الصورة مشوشة جداً للتحليل. ثبت الكاميرا واضغط على الورقة للتركيز.",
+      "UNREADABLE": "تعذر قراءة هذه الصورة. قد تكون تالفة - يرجى اختيار صورة أخرى."
+    },
+    "errorMsg": {
+      "NOT_A_PLANT": "لا تبدو هذه الصورة كأنها لنبات. يرجى تصوير ورقة أو الجزء المتضرر من المحصول.",
+      "RATE_LIMITED": "خدمة التشخيص الذكي مشغولة حالياً. يرجى المحاولة مرة أخرى بعد دقيقة.",
+      "AI_SERVICE_UNAVAILABLE": "التشخيص الذكي غير متوفر مؤقتاً. يرجى المحاولة مرة أخرى قريباً.",
+      "AUTHENTICATION_ERROR": "يرجى تسجيل الدخول مرة أخرى، أو المحاولة لاحقاً.",
+      "TIMEOUT": "استغرق التشخيص الذكي وقتاً طويلاً للرد. يرجى المحاولة مرة أخرى.",
+      "NETWORK_ERROR": "تعذر الوصول إلى خدمة التشخيص. تحقق من اتصالك بالإنترنت وحاول مرة أخرى.",
+      "INVALID_AI_RESPONSE": "أعاد الذكاء الاصطناعي رداً غير صالح، لذا لم يتم إجراء التشخيص. يرجى المحاولة مرة أخرى.",
+      "INVALID_REQUEST": "تم رفض طلب التشخيص. يرجى تجربة صورة مختلفة.",
+      "GENERAL_ERROR": "حدث خطأ ما أثناء التشخيص. يرجى المحاولة مرة أخرى."
     }
   },
   "weather": {
@@ -334,7 +477,9 @@
     "demo": "بيانات طقس توضيحية",
     "updatedJustNow": "تم التحديث للتو",
     "updatedMinAgo": "تم التحديث منذ {{count}} دقيقة",
-    "feelsLike": "الشعور وكأنها {{temp}}°"
+    "feelsLike": "الشعور وكأنها {{temp}}°",
+    "error": "بيانات الطقس غير متوفرة مؤقتاً لـ {{farmName}}.",
+    "farmLocation": "موقع المزرعة"
   },
   "insights": {
     "title": "تحليلات المزرعة",
@@ -362,6 +507,21 @@
       "Adequate nutrient levels": "مستويات مغذيات كافية",
       "No confirmed disease": "لا توجد أمراض مؤكدة",
       "Good canopy development": "نمو خضري ممتاز"
+    },
+    "score": "النتيجة",
+    "soil": {
+      "moisture": "الرطوبة",
+      "nutrientStatus": "حالة العناصر الغذائية"
+    },
+    "error": "خطأ في الاتصال",
+    "range": "النطاق",
+    "eeError": "خطأ في الاتصال بـ Earth Engine",
+    "noData": "لا توجد بيانات قمر صناعي متاحة.",
+    "syntheticData": "بيانات الأقمار الصناعية المعروضة هي بيانات تجريبية اصطناعية بناءً على الإحداثيات",
+    "livePending": "تكامل Earth Engine المباشر قيد الانتظار.",
+    "rangeLabels": {
+      "poor": "ضعيف",
+      "excellent": "ممتاز"
     }
   },
   "history": {
@@ -389,7 +549,27 @@
         "title": "تم تطبيق السماد",
         "summary": "تم إضافـة 10 كجم يوريا لكل فدان كسماد ورقي."
       }
-    }
+    },
+    "refresh": "تحديث",
+    "loading": "جاري التحميل من Firestore...",
+    "unavailable": "تم رفض الإذن",
+    "deleted": "تم حذف التشخيص.",
+    "deleteError": "تعذر حذف هذا التشخيص. تحقق من اتصالك واستر مجدداً.",
+    "confirmClearAll": "هل أنت متأكد من رغبتك في حذف سجلك بالكامل؟ لا يمكن التراجع عن هذا الإجراء.",
+    "clearAllError": "فشل في مسح السجل بالكامل.",
+    "clearAll": "مسح الكل",
+    "retry": "إعادة المحاولة",
+    "emptyTitle": "لا يوجد سجل بعد",
+    "emptyDesc": "قم بإجراء تشخيص للمحصول أو اسأل المرشد الذكي لبدء سجل التشخيصات.",
+    "unreliable": "سجل قديم غير موثوق",
+    "deleteOne": "حذف التشخيص: {{name}}",
+    "advisorSessions": "جلسات المرشد الذكي",
+    "synced": "تم التتمة مع Firestore",
+    "records": "سجلات",
+    "record": "سجل",
+    "loaded": "تم التحميل",
+    "confirmDeleteTitle": "حذف هذا التشخيص؟",
+    "confirmDeleteDesc": "سيتم حذف هذا السجل فقط. لا يمكن التراجع عن هذا الإجراء."
   },
   "notifications": {
     "title": "الإشعارات",
@@ -429,7 +609,8 @@
     },
     "emptyTitle": "لا توجد إشعارات بعد",
     "emptyDesc": "عندما تتلقى تنبيهات حول مزرعتك أو الطقس، ستظهر هنا.",
-    "errorTitle": "حدث خطأ ما"
+    "errorTitle": "حدث خطأ ما",
+    "clearing": "جاري الحذف..."
   },
   "settings": {
     "title": "الإعدادات",
@@ -465,7 +646,22 @@
     "notifications": "الإشعارات",
     "privacy": "سياسة الخصوصية",
     "help": "المساعدة والدعم",
-    "about": "حول Cropoctor"
+    "about": "حول Cropoctor",
+    "items": {
+      "about": "حول CROPOCTOR",
+      "help": "المساعدة والدعم"
+    },
+    "notificationsPage": {
+      "unsupported": "متصفحك لا يدعم الإشعارات.",
+      "title": "إعدادات الإشعارات",
+      "enabled": "الإشعارات مفعلة",
+      "enabledDesc": "ستتلقى تنبيهات مهمة وتحديثات عن المزرعة.",
+      "blocked": "الإشعارات محظورة",
+      "blockedDesc": "يرجى تفعيل الإشعارات من إعدادات المتصفح لتلقي التنبيهات.",
+      "disabled": "تفعيل الإشعارات الفورية",
+      "disabledDesc": "اسمح لـ Cropoctor بإرسال تنبيهات حول صحة المحاصيل، وتغيرات الطقس، وتوصيات الذكاء الاصطناعي.",
+      "enableBtn": "السماح بالإشعارات"
+    }
   },
   "states": {
     "loading": "جاري التحميل...",
@@ -475,7 +671,8 @@
     "offlineHint": "معلومات مزرعتك المحفوظة ما زالت متاحة.",
     "empty": "لا يوجد شيء هنا بعد.",
     "lastUpdated": "آخر تحديث",
-    "reload": "إعادة تحميل التطبيق"
+    "reload": "إعادة تحميل التطبيق",
+    "unavailable": "غير متوفر"
   },
   "toast": {
     "farmSaved": "تم حفظ المزرعة بنجاح.",
@@ -542,5 +739,358 @@
     "rainy": "ممطر",
     "stormy": "عاصف",
     "Partly Cloudy": "غائم جزئياً"
+  },
+  "common": {
+    "retry": "إعادة المحاولة",
+    "image": "صورة",
+    "unknown": "غير معروف",
+    "delete": "حذف",
+    "cancel": "إلغاء",
+    "refresh": "تحديث"
+  },
+  "diagnosis": {
+    "result": {
+      "title": "تقرير تشخيص المزرعة",
+      "possibleIssue": "الحالة المكتشفة",
+      "symptoms": "الأعراض والأدلة",
+      "actions": "الإجراءات الموصى بها",
+      "disclaimer": "تم الإنشاء بواسطة منصة Cropoctor للذكاء الاصطناعي الزراعي. يعتمد هذا التقرير على البيانات المتاحة وتحليل الذكاء الاصطناعي. استشر دائمًا مهندسًا زراعيًا لاتخاذ القرارات المهمة.",
+      "translating": "جاري ترجمة السجل إلى لغتك...",
+      "completed": "اكتمل تحليل المحصول",
+      "analyzedAt": "تم التحليل",
+      "preparingPdf": "جاري تجهيز ملف PDF...",
+      "downloadReport": "تحميل التقرير",
+      "nonPlant": "تم اكتشاف صورة ليست لنبات",
+      "nonPlantDesc": "الصورة المرفوعة لا تظهر نباتاً أو محصولاً أو ورقة بوضوح. يرجى التقاط صورة واضحة ومضاءة جيداً لأوراق النبات المصابة.",
+      "unreliableTitle": "سجل قديم غير موثوق",
+      "unreliableDesc": "تم إنشاؤهذا السجل بواسطة إصدار أقدم من التطبيق يمكنه إعطاء نتيجة دون تحليل صورتك. نصيحة العلاج مخفية. يرجى تشخيص النبات مرة أخرى وحذف هذا السجل من السجل.",
+      "legacyNote": "سجل قديم — تم إنشاؤه قبل التحقق من النتائج. تعامل معه بحذر وأعد التشخيص إذا كنت في شك.",
+      "expertReview": "موصى به: اطلب من المرشد الزراعي المحلي تأكيد هذا التشخيص.",
+      "expertBadge": "مراجعة خبير",
+      "photoAlt": "صورة المحصول المشخص",
+      "noPhoto": "الصورة غير محفوظة",
+      "aiBadge": "تحليل الصور بالذكاء الاصطناعي",
+      "certainty": "درجة اليقين",
+      "uncalibrated": "تقدير بالذكاء الاصطناعي، غير معاير",
+      "analysis": "التحليل",
+      "contradicting": "أدلة معارضة",
+      "limitations": "القيود",
+      "askAI": "اسأل مستشار الذاء الاصطناعي عن هذا",
+      "confidence": "نسبة الثقة",
+      "translationFailed": "الترجمة غير متاحة حاليًا، لذلك تُعرض هذه النتيجة بلغتها الأصلية (الإنجليزية).",
+      "voiceUnsupported": "جهازك لا يحتوي على صوت مثبت لهذه اللغة.",
+      "stopAudio": "إيقاف الصوت"
+    },
+    "demo": "صورة توضيحية",
+    "possibleIssue": "الحالة المحددة",
+    "positiveSigns": "علامات إيجابية",
+    "symptoms": "الأدلة الداعمة",
+    "possibleIssues": "تشخيصات بديلة ومخاطر",
+    "immediateActions": "إجراءات فورية",
+    "recommendedActions": "العلاج الموصى به",
+    "longTermPrevention": "ممارسات الوقاية طويلة الأمد",
+    "whenToRecheck": "متى تتم إعادة الفحص",
+    "listen": "استماع للعلاجات",
+    "disclaimer": "تشخيص الذكاء الاصطناعي هو للإرشاد فقط ولا ينبغي أن يحل محل المشورة الزراعية المهنية. استشر مرشدك الزراعي المحلي للحصول على علاج ميداني مؤكد.",
+    "certainty": {
+      "legacyPercent": "{{value}}% (سجل قديم)",
+      "unknown": "مستوى التأكد غير مسجل",
+      "high": "تأكد عالي",
+      "moderate": "تأكد متوسط",
+      "low": "تأكد منخفض",
+      "insufficient_evidence": "الأدلة غير كافية"
+    },
+    "severity": {
+      "healthy": "سليم",
+      "mild": "خفيف",
+      "moderate": "متوسط",
+      "severe": "شديد",
+      "unknown": "الشدة غير معروفة"
+    }
+  },
+  "cropRec": {
+    "subtitle": "اختيارات الذكاء الاصطناعي لتربتك ومناخك",
+    "description": "اقتراحات المحاصيل المدعومة بالذكاء الاصطناعي بناءً على نوع تربتك وموقعك والمناخ المحلي.",
+    "aiAnalyzed": "تم تحليله بواسطة الذكاء الاصطناعي",
+    "allSeasons": "كل الفصول",
+    "match": "تطابق",
+    "profitPotential": "إمكانية الربح",
+    "waterNeed": "الحاجة للماء",
+    "saveToPlan": "حفظ في الخطة",
+    "askAiMore": "اسأل الذكاء الاصطناعي للمزيد",
+    "disclaimer": "توصيات الذكاء الاصطناعي مبنية على نوع تربتك، ومناخ موقعك، وسجل المحاصيل. استشر دائمًا المرشدين الزراعيين المحليين قبل تغيير المحاصيل.",
+    "askCustom": "اطلب نصيحة مخصصة من الذكاء الاصطناعي"
+  },
+  "help": {
+    "subtitle": "اعثر على إجابات سريعة وتعرف على كيفية استخدام CROPOCTOR.",
+    "gettingStarted": "البدء",
+    "faq": "الأسئلة الشائعة",
+    "contactSupport": "اتصل بالدعم",
+    "emailSupport": "الدعم عبر البريد الإلكتروني",
+    "sendEmail": "إرسال بريد إلكتروني",
+    "appFeedback": "رأيك في التطبيق",
+    "reportBug": "الإبلاغ عن مشكلة",
+    "reportBugDesc": "أرسل المشاكل أو تقارير الأخطاء إلى support@cropdoctor.ai"
+  },
+  "irrigation": {
+    "skip": "تخطي الري",
+    "skipReason": "متوقع هطول أمطار (35-50 مم). رطوبة التربة كافية.",
+    "monitor": "راقب بعد المطر",
+    "monitorReason": "تحقق من تصريف التربة وحالة الحقل بعد المطر.",
+    "conditional": "ري خفيف عند الحاجة",
+    "conditionalReason": "إذا كان المطر أقل من 20 مم، أضف 25 مم من الري التكميلي.",
+    "tip1": {
+      "title": "مرحلة التزهير",
+      "text": "محصولك في مرحلة التزهير. تجنب الإجهاد المائي - ولكن تجنب أيضاً تشبع التربة بالمياه مما يتسبب في تساقط الأزهار."
+    },
+    "tip2": {
+      "title": "أفضل وقت للري",
+      "text": "إذا كان الري مطلوباً، قم به في الصباح الباكر (6-8 صباحاً) تقليلاً لفقد الماء بالتبخر."
+    },
+    "tip3": {
+      "title": "الكمية الموصى بها",
+      "text": "يحتاج الفول السوداني في مرحلة التزهير إلى 25-35 مم أسبوعياً. التربة الحالية بها رطوبة كافية من الأمطار الأخيرة."
+    },
+    "tip4": {
+      "title": "فحص رطوبة التربة",
+      "text": "أدخل إصبعك عمق 6 بوصات في التربة قرب منطقة الجذور. إذا كانت لا تزال رطبة، تخطَّ الري اليوم."
+    },
+    "subtitle": "جدولة ري ذكية مدعومة بالذكاء الاصطناعي بناءً على بيانات الطقس والتربة.",
+    "scheduleTitle": "جدول الري بالذكاء الاصطناعي",
+    "status": {
+      "skip": "تخطي",
+      "monitor": "مراقبة",
+      "conditional": "مشروط"
+    },
+    "tipsTitle": "نصائح الري الذكي"
+  },
+  "nba": {
+    "subtitle": "ماذا يجب أن تفعل بعد ذلك؟",
+    "description": "توصيات مخصصة لمزرعتك اليوم.",
+    "priority": "الأولوية",
+    "why": "لماذا؟",
+    "benefit": "الفائدة",
+    "save": "حفظ",
+    "remind": "تذكيري",
+    "askAi": "اسأل الذكاء الاصطناعي"
+  },
+  "ui": {
+    "errorBoundary": {
+      "somethingWentWrong": "حدث خطأ ما.",
+      "weReSorryForThe": "نعتذر عن الإزعاج. يرجى محاولة إعادة تحميل التطبيق.",
+      "reloadApp": "إعادة تحميل التطبيق"
+    },
+    "searchableSelect": {
+      "noResults": "لا توجد نتائج"
+    },
+    "cameraModal": {
+      "takePhoto": "التقاط صورة",
+      "retry": "إعادة المحاولة"
+    },
+    "button": {
+      "loading": "جاري التحميل…"
+    },
+    "toast": {
+      "notifications": "الإشعارات"
+    },
+    "appShell": {
+      "goBack": "رجوع"
+    },
+    "navigation": {
+      "mainNavigation": "التنقل الرئيسي",
+      "sidebarNavigation": "القائمة الجانبية للتنقل",
+      "tabletNavigation": "تنقل الجهاز اللوحي"
+    },
+    "diagnosisReportPDF": {
+      "severity": "الشدة:",
+      "certainty": "مستوى التأكد:",
+      "nutrientDataUnavailableNoSoil": "بيانات العناصر الغذائية غير متوفرة (لم يتم العثور على تحليل للتربة)",
+      "forecast": "التوقعات:",
+      "predictionUnavailableDueToInsufficient": "التنبؤ غير متوفر لعدم كفاية البيانات التاريخية."
+    },
+    "insightsPage": {
+      "satelliteFarmView": "عرض المزرعة عبر الأقمار الصناعية"
+    },
+    "diagnosisResultPage": {
+      "readingDiagnosisRemediesAloud": "جاري قراءة التشخيص والعلاج بصوت عالٍ...",
+      "audioReadoutUnavailableOnThis": "القراءة الصوتية غير متوفرة على هذا المتصفح."
+    },
+    "voiceSettingsPage": {
+      "voiceSettings": "إعدادات الصوت",
+      "outputLanguage": "لغة الإخراج",
+      "speechRate": "سرعة الكلام",
+      "aiVoiceType": "نوع صوت الذكاء الاصطناعي",
+      "testVoiceSample": "تجربة عينة الصوت",
+      "voiceOutputUsesYourDevice": "يستخدم الإخراج الصوتي محرك النطق المدمج في جهازك. تعتمد الجودة على حزم اللغات المثبتة.",
+      "voiceLanguageUpdated": "تم تحديث لغة الصوت.",
+      "voiceNotSupportedOnThis": "الصوت غير مدعوم على هذا الجهاز.",
+      "playingVoiceSample": "جاري تشغيل عينة الصوت…",
+      "speechRateV0": "سرعة الكلام: {{v0}}",
+      "voiceV0": "الصوت: {{v0}}"
+    },
+    "profilePage": {
+      "manageYourFarmerProfilePreferences": "إدارة ملف المزارع، والتفضيلات، والحساب الخاص بك"
+    },
+    "aboutPage": {
+      "smarterDecisionsForEveryFarm": "قرارات أذكى لكل مزرعة",
+      "cropoctorIsAnAiPowered": "CROPOCTOR هو مساعد زراعي مدعوم بالذكاء الاصطناعي مصمم لمساعدة المزارعين على اتخاذ قرارات أسرع وأكثر وعياً بشأن صحة المحاصيل، وإدارة المزرعة، والطقس، والأسئلة الزراعية اليومية.",
+      "whatCropoctorHelpsWith": "ما الذي يساعدك فيه CROPOCTOR",
+      "howItWorks": "كيف يعمل",
+      "importantNotice": "ملاحظة هامة",
+      "aiAssistedGuidance": "إرشادات مدعومة بالذكاء الاصطناعي",
+      "cropoctorUsesArtificialIntelligenceTo": "يستخدم CROPOCTOR الذكاء الاصطناعي لتقديم إرشادات زراعية وتقييمات لصحة المحاصيل. قد تكون نتائج الذكاء الاصطناعي غير دقيقة، خاصةً عندما تكون الصور غير واضحة، أو الأعراض غير معتادة، أو عندما تتشابه حالات متعددة.",
+      "forSeriousCropDamageUncertain": "في حالة تلف المحاصيل الخطير، أو التشخيصات غير المؤكدة، أو القرارات الزراعية عالية المخاطر، يجب على المزارعين استشارة خبير زراعي مؤهل أو الجهة الزراعية المحلية.",
+      "privacyDataHandling": "الخصوصية ومعالجة البيانات",
+      "yourFarmDataIsProcessed": "يتم معالجة بيانات مزرعتك لتقديم رؤى زراعية مخصصة. تتم معالجة صور التشخيص مؤقتاً في الذاكرة لتحليل صحة المحاصيل ولا يتم الاحتفاظ بها كملفات عالية الدقة.",
+      "version100": "الإصدار 1.0.0"
+    },
+    "myFarmsPage": {
+      "thisWillPermanentlyRemoveThis": "سيؤدي هذا إلى إزالة هذه المزرعة والبيانات المرتبطة بها نهائياً. لا يمكن التراجع عن هذا الإجراء.",
+      "typeDeleteToConfirm": "اكتب DELETE للتأكيد",
+      "cancel": "إلغاء"
+    },
+    "cropRecommendationPage": {
+      "kharif": "الخريف",
+      "rabi": "الربيع",
+      "v0SavedToYourCrop": "تم حفظ {{v0}} في خطة محاصيلك."
+    },
+    "farmDetailPage": {
+      "refreshAllData": "تحديث كل البيانات"
+    },
+    "imageAnalysisPage": {
+      "cropBeingDiagnosed": "المحصول جاري تشخيصه"
+    },
+    "helpPage": {
+      "supportEmailSupportCropdoctorAi": "بريد الدعم: support@cropdoctor.ai",
+      "reportBugsToSupportCropdoctor": "الإبلاغ عن الأخطاء إلى: support@cropdoctor.ai"
+    },
+    "voicePage": {
+      "cropoctorVoiceAi": "Cropoctor Voice AI",
+      "googleCloudSpeechGeminiAi": "Google Cloud Speech & Gemini AI",
+      "activeSelectedFarm": "المزرعة المحددة النشطة",
+      "switchFarm": "تبديل المزرعة",
+      "transcribingAudio": "جاري تحويل الصوت إلى نص",
+      "sendingAudioToGoogleCloud": "جاري إرسال الصوت إلى خدمة Google Cloud Speech-to-Text…",
+      "analyzingWithGeminiAi": "جاري التحليل باستخدام Gemini AI",
+      "voiceTranscript": "النص الصوتي",
+      "geminiAiAgronomicAdvisory": "استشارة Gemini الزراعية بالذكاء الاصطناعي",
+      "stopSpeaking": "إيقاف التحدث",
+      "speakAnswer": "نطق الإجابة",
+      "askAnother": "طرح سؤال آخر",
+      "openInAdvisor": "فتح في المستشار",
+      "askInEnglishEnIn": "اسأل بالإنجليزية (en-IN)، الهندية (hi-IN)، أو الغوجاراتية (gu-IN)",
+      "voiceAssistantError": "خطأ في المساعد الصوتي",
+      "retryRecording": "إعادة محاولة التسجيل",
+      "closeVoiceAssistant": "إغلاق المساعد الصوتي",
+      "sendTypedQuestion": "إرسال السؤال المكتوب"
+    },
+    "irrigationPage": {
+      "updated": "تم التحديث!"
+    },
+    "aIAdvisorPage": {
+      "playingAdviceAudio": "جاري تشغيل صوت النصيحة...",
+      "uploadImage": "رفع صورة",
+      "send": "إرسال",
+      "voiceInput": "إدخال صوتي"
+    },
+    "cropDoctorPage": {
+      "photoAcquiredOptimizedV0V1": "تم التقاط الصورة! تم التحسين ({{v0}} → {{v1}})",
+      "sampleLeafImageSelected": "تم اختيار صورة نموذج ورقة النبات.",
+      "pleaseSelectAnImageOr": "الرجاء اختيار صورة أو التقاط صورة أولاً.",
+      "acquiredLeaf": "الورقة الملتقطة",
+      "cropLeaf": "قص ورقة النبات"
+    },
+    "homePage": {
+      "farmSunrise": "شروق الشمس في المزرعة"
+    },
+    "nextBestActionPage": {
+      "actionSavedToFarmLog": "تم حفظ الإجراء في سجل المزرعة.",
+      "reminderSet": "تم تعيين التذكير."
+    },
+    "loginPage": {
+      "cropoctorPlatform": "منصة Cropoctor",
+      "growingABertterTomorrow": "نزرع غداً أفضل",
+      "empowerYourAgriculturalDecisionsWith": "عزز قراراتك الزراعية باستخدام تشخيصات الذكاء الاصطناعي الدقيقة ورؤى الحقول في الوقت الفعلي.",
+      "smartFarming": "الزراعة الذكية",
+      "aiPrecision": "دقة الذكاء الاصطناعي",
+      "cropHealth": "صحة المحاصيل",
+      "earlyDetection": "الاكتشاف المبكر",
+      "betterYield": "إنتاجية أفضل",
+      "optimizedRoi": "عائد استثمار محسّن",
+      "farmIntelligencePlatform": "منصة ذكاء المزارع",
+      "sendOtp": "إرسال رمز التحقق",
+      "verifySignIn": "تحقق وتسجيل الدخول",
+      "resetPassword": "إعادة تعيين كلمة المرور",
+      "passwordResetEmailSentTo": "تم إرسال بريد إلكتروني لإعادة تعيين كلمة المرور إلى",
+      "backToSignIn": "العودة لتسجيل الدخول",
+      "sendResetEmail": "إرسال بريد إعادة التعيين",
+      "successfullyLoggedIn": "تم تسجيل الدخول بنجاح!",
+      "loggedInWithGoogle": "تم تسجيل الدخول باستخدام Google!",
+      "pleaseEnterAPhoneNumber": "الرجاء إدخال رقم الهاتف.",
+      "recaptchaFailedToInitializePlease": "فشل تهيئة reCAPTCHA. الرجاء التحديث والمحاولة مرة أخرى.",
+      "otpSentToYourPhone": "تم إرسال رمز التحقق إلى هاتفك!",
+      "pleaseEnterTheOtp": "الرجاء إدخال رمز التحقق.",
+      "loggedInWithPhone": "تم تسجيل الدخول باستخدام الهاتف!",
+      "pleaseEnterYourEmailAddress": "الرجاء إدخال عنوان بريدك الإلكتروني.",
+      "modernCropFieldWithTractor": "حقل محاصيل حديث مع جرار يعمل عند شروق الشمس",
+      "youExampleCom": "you@example.com",
+      "togglePassword": "إظهار/إخفاء كلمة المرور",
+      "growingABetterTomorrow": "نزرع غدًا أفضل"
+    },
+    "farmerProfilePage": {
+      "step1Of3": "الخطوة 1 من 3",
+      "eGRahulPatel": "مثل: Rahul Patel"
+    },
+    "welcomePage": {
+      "lushAgriculturalFarmFieldAt": "حقل مزرعة زراعي خصب عند شروق الشمس"
+    },
+    "countryPage": {
+      "back": "رجوع",
+      "failedToSyncCountryOnline": "فشل مزامنة الدولة عبر الإنترنت. تم الحفظ محلياً.",
+      "countryUpdatedToV0V1": "تم تحديث الدولة إلى {{v0}} {{v1}}",
+      "countrySetToV0V1": "تم تعيين الدولة إلى {{v0}} {{v1}}",
+      "unableToSaveCountrySelection": "تعذر حفظ اختيار الدولة."
+    },
+    "signUpPage": {
+      "joinCropoctor": "انضم إلى Cropoctor.",
+      "transformYourFarmWithIntelligent": "طور مزرعتك بإدارة ذكية للمحاصيل بالذكاء الاصطناعي.",
+      "joinCropoctorToGetPersonalized": "انضم إلى Cropoctor لتصلك استشارات مخصصة لمزرعتك.",
+      "verifyYourEmail": "تحقق من بريدك الإلكتروني",
+      "weVeSentAVerification": "أرسلنا رابط التحقق إلى بريدك الإلكتروني. اضغط على الرابط، ثم ارجع إلى هنا واضغط على متابعة.",
+      "iVeVerifiedMyEmail": "لقد تحققت من بريدي الإلكتروني — متابعة",
+      "goBack": "رجوع",
+      "sendVerificationCode": "إرسال رمز التحقق",
+      "verifyCode": "تحقق من الرمز",
+      "signUpWithEmailInstead": "التسجيل بالبريد الإلكتروني بدلاً من ذلك",
+      "completeSetup": "إكمال الإعداد",
+      "byCreatingAnAccountYou": "بإنشاء حساب، فإنك توافق على شروط الخدمة وسياسة الخصوصية الخاصة بنا.",
+      "pleaseEnterAPhoneNumber": "الرجاء إدخال رقم الهاتف.",
+      "recaptchaFailedToInitializePlease": "فشل بدء تشغيل reCAPTCHA. الرجاء تحديث الصفحة والمحاولة مرة أخرى.",
+      "otpSent": "تم إرسال رمز التحقق!",
+      "pleaseEnterTheOtp": "الرجاء إدخال رمز التحقق.",
+      "phoneVerifiedEnterYourName": "تم التحقق من الهاتف! أدخل اسمك لإكمال الإعداد.",
+      "pleaseEnterYourName": "الرجاء إدخال اسمك.",
+      "accountCreatedSuccessfully": "تم إنشاء الحساب بنجاح!",
+      "noUserSessionFoundPlease": "لم يتم العثور على جلسة مستخدم. الرجاء تسجيل الدخول مرة أخرى.",
+      "emailNotVerifiedYetPlease": "لم يتم التحقق من البريد الإلكتروني بعد. الرجاء الضغط على الرابط في بريدك الإلكتروني أولاً.",
+      "emailVerifiedWelcomeToCropoctor": "تم التحقق من البريد الإلكتروني! أهلاً بك في Cropoctor.",
+      "noUserSessionFound": "لم يتم العثور على جلسة مستخدم.",
+      "verificationEmailResent": "تم إعادة إرسال بريد التحقق!",
+      "farmAtSunrise": "المزرعة عند شروق الشمس",
+      "rahulPatel": "Rahul Patel",
+      "youExampleCom": "you@example.com"
+    },
+    "farmBoundaryPage": {
+      "finishDrawing": "إنهاء الرسم",
+      "redraw": "إعادة الرسم",
+      "acres": "فدان"
+    },
+    "farmDetailsPage": {
+      "eGRajkotGroundnutFarm": "مثل: مزرعة الفول السوداني في راجكوت"
+    },
+    "farmLocationPage": {
+      "orTapAnywhereOnThe": "أو اضغط في أي مكان على الخريطة لتحديد الموقع",
+      "searchVillageTalukDistrict": "ابحث عن القرية، المركز، أو المديرية..."
+    }
   }
 }

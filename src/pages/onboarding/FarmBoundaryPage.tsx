@@ -205,7 +205,7 @@ function MapContent({ mapCenter, boundaryState, boundaryRef, setBoundaryState, s
             }}
             className="shadow-xl px-6 py-2"
           >
-            Finish Drawing
+            {t("ui.farmBoundaryPage.finishDrawing", "Finish Drawing")}
           </Button>
         </div>
       )}
@@ -287,7 +287,7 @@ function MapContent({ mapCenter, boundaryState, boundaryRef, setBoundaryState, s
         </div>
         {!isDrawing && boundaryState.length > 0 && (
           <Button variant="outline" size="sm" onClick={handleClear} className="shrink-0 bg-white">
-            Redraw
+            {t("ui.farmBoundaryPage.redraw", "Redraw")}
           </Button>
         )}
       </div>
@@ -314,7 +314,7 @@ function MapContent({ mapCenter, boundaryState, boundaryRef, setBoundaryState, s
                   unit === 'acres' ? 'bg-white text-green-forest shadow-sm' : 'text-gray-500 hover:bg-gray-200'
                 }`}
               >
-                Acres
+                {t("ui.farmBoundaryPage.acres", "Acres")}
               </button>
               <button
                 onClick={() => handleUnitToggle('hectares')}

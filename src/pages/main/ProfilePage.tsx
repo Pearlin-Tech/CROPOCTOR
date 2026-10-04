@@ -60,7 +60,7 @@ const ProfilePage: React.FC = () => {
         {/* Desktop Header */}
         <div className="hidden lg:block mb-2">
           <h1 className="text-2xl font-bold text-green-forest tracking-tight">{t('profile.title', 'Profile')}</h1>
-          <p className="text-sm text-brown-earth/80 font-medium">Manage your farmer profile, preferences, and account</p>
+          <p className="text-sm text-brown-earth/80 font-medium">{t("ui.profilePage.manageYourFarmerProfilePreferences", "Manage your farmer profile, preferences, and account")}</p>
         </div>
 
         {/* Profile Header Card */}

@@ -28,7 +28,7 @@ const NotificationSettingsPage: React.FC = () => {
 
   const handleRequestPermission = async () => {
     if (!('Notification' in window)) {
-      alert(t('settings.notifications.unsupported', 'Your browser does not support notifications.'))
+      alert(t('settings.notificationsPage.unsupported', 'Your browser does not support notifications.'))
       return
     }
 
@@ -52,11 +52,11 @@ const NotificationSettingsPage: React.FC = () => {
 
   return (
     <motion.div variants={pageVariants} initial="initial" animate="animate" className="min-h-screen bg-background">
-      <MobileHeader title={t('settings.notifications.title', 'Notification Settings')} onBack={() => navigate(-1)} />
+      <MobileHeader title={t('settings.notificationsPage.title', 'Notification Settings')} onBack={() => navigate(-1)} />
       
       <PageLayout className="pt-4 pb-8 space-y-4">
         <div className="hidden lg:block mb-4">
-          <h1 className="text-2xl font-bold text-green-forest tracking-tight">{t('settings.notifications.title', 'Notification Settings')}</h1>
+          <h1 className="text-2xl font-bold text-green-forest tracking-tight">{t('settings.notificationsPage.title', 'Notification Settings')}</h1>
         </div>
 
         <Card padding="md" className="bg-white border border-brown-pastel/30">
@@ -67,10 +67,10 @@ const NotificationSettingsPage: React.FC = () => {
                   <Bell className="w-8 h-8" />
                 </div>
                 <h2 className="text-xl font-bold text-text-main mb-2">
-                  {t('settings.notifications.enabled', 'Notifications are Enabled')}
+                  {t('settings.notificationsPage.enabled', 'Notifications are Enabled')}
                 </h2>
                 <p className="text-sm text-text-secondary">
-                  {t('settings.notifications.enabledDesc', 'You will receive important alerts and farm updates.')}
+                  {t('settings.notificationsPage.enabledDesc', 'You will receive important alerts and farm updates.')}
                 </p>
               </>
             ) : permissionState === 'denied' ? (
@@ -79,10 +79,10 @@ const NotificationSettingsPage: React.FC = () => {
                   <ShieldAlert className="w-8 h-8" />
                 </div>
                 <h2 className="text-xl font-bold text-text-main mb-2">
-                  {t('settings.notifications.blocked', 'Notifications Blocked')}
+                  {t('settings.notificationsPage.blocked', 'Notifications Blocked')}
                 </h2>
                 <p className="text-sm text-text-secondary">
-                  {t('settings.notifications.blockedDesc', 'Please enable notifications in your browser settings to receive alerts.')}
+                  {t('settings.notificationsPage.blockedDesc', 'Please enable notifications in your browser settings to receive alerts.')}
                 </p>
               </>
             ) : (
@@ -91,17 +91,17 @@ const NotificationSettingsPage: React.FC = () => {
                   <BellOff className="w-8 h-8" />
                 </div>
                 <h2 className="text-xl font-bold text-text-main mb-2">
-                  {t('settings.notifications.disabled', 'Enable Push Notifications')}
+                  {t('settings.notificationsPage.disabled', 'Enable Push Notifications')}
                 </h2>
                 <p className="text-sm text-text-secondary mb-6">
-                  {t('settings.notifications.disabledDesc', 'Allow Cropoctor to send you alerts about crop health, weather changes, and AI recommendations.')}
+                  {t('settings.notificationsPage.disabledDesc', 'Allow Cropoctor to send you alerts about crop health, weather changes, and AI recommendations.')}
                 </p>
                 <Button 
                   onClick={handleRequestPermission}
                   loading={loading}
                   className="w-full sm:w-auto"
                 >
-                  {t('settings.notifications.enableBtn', 'Allow Notifications')}
+                  {t('settings.notificationsPage.enableBtn', 'Allow Notifications')}
                 </Button>
               </>
             )}

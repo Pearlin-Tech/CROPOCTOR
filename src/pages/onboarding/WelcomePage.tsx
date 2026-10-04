@@ -21,7 +21,7 @@ const WelcomePage: React.FC = () => {
       {/* Full-Screen High-Resolution Realistic Farm Background */}
       <img
         src={IMAGES.backgrounds.welcome}
-        alt="Lush agricultural farm field at sunrise"
+        alt={t("ui.welcomePage.lushAgriculturalFarmFieldAt", "Lush agricultural farm field at sunrise")}
         className="absolute inset-0 w-full h-full object-cover object-center"
         loading="eager"
       />

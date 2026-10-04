@@ -16,6 +16,8 @@ import { compressImageWithFallback } from '@/utils/imageCompressor'
 import { formatDiagnosisTimestamp } from '@/utils/format'
 import type { DiagnosisResult } from '@/types'
 import { CameraModal } from '@/components/ui/CameraModal'
+import { DiagnosisOutcomePanel, DiagnosisProgress, type DiagnosisPhase } from '@/components/diagnosis/DiagnosisOutcomePanel'
+import { certaintyLabel } from '@/utils/diagnosis'
 
 export type ImageSource = 'camera' | 'upload' | 'sample'
 
@@ -47,9 +49,9 @@ const CropDoctorPage: React.FC = () => {
   const [permissionError, setPermissionError] = useState<string | null>(null)
   const [isCameraModalOpen, setIsCameraModalOpen] = useState(false)
 
-  // API Analysis State
-  const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false)
-  const [analysisError, setAnalysisError] = useState<string | null>(null)
+  // Diagnosis state machine (never defaults to a diagnosis object)
+  const [phase, setPhase] = useState<DiagnosisPhase>({ kind: 'IDLE' })
+  const isAnalyzing = phase.kind === 'PREPARING' || phase.kind === 'ANALYZING'
 
   // History State
   const [recentDiagnoses, setRecentDiagnoses] = useState<DiagnosisResult[]>([])
@@ -61,8 +63,6 @@ const CropDoctorPage: React.FC = () => {
   useEffect(() => {
     if (location.state?.reset) {
       clearAcquiredImage()
-      setIsAnalyzing(false)
-      setAnalysisError(null)
     }
   }, [location.state])
 
@@ -72,7 +72,7 @@ const CropDoctorPage: React.FC = () => {
     setIsLoadingHistory(true)
     setHistoryError(null)
 
-    cropDoctorService.getRecentDiagnoses(5, activeFarm?.id).then(list => {
+    cropDoctorService.getRecentDiagnoses(5).then(list => {
       if (!isMounted) return
       setRecentDiagnoses(list)
       setIsLoadingHistory(false)
@@ -87,7 +87,7 @@ const CropDoctorPage: React.FC = () => {
     })
 
     return () => { isMounted = false }
-  }, [authUser?.uid, activeFarm?.id, diagnosisRefreshKey])
+  }, [authUser?.uid, diagnosisRefreshKey])
 
   /**
    * Resets current image selection in memory
@@ -98,8 +98,7 @@ const CropDoctorPage: React.FC = () => {
     }
     setAcquiredImage(null)
     setPermissionError(null)
-    setAnalysisError(null)
-    setIsAnalyzing(false)
+    setPhase({ kind: 'IDLE' })
     if (fileInputRef.current) fileInputRef.current.value = ''
     if (cameraInputRef.current) cameraInputRef.current.value = ''
   }
@@ -109,7 +108,7 @@ const CropDoctorPage: React.FC = () => {
    */
   const handleTriggerCamera = () => {
     setPermissionError(null)
-    setAnalysisError(null)
+    setPhase({ kind: 'IDLE' })
     setIsCameraModalOpen(true)
   }
 
@@ -124,8 +123,7 @@ const CropDoctorPage: React.FC = () => {
     if (acquiredImage?.previewUrl && acquiredImage.previewUrl.startsWith('blob:')) {
       URL.revokeObjectURL(acquiredImage.previewUrl)
     }
-    setAnalysisError(null)
-    setIsAnalyzing(false)
+    setPhase({ kind: 'IDLE' })
     setIsProcessingImage(true)
     setPermissionError(null)
 
@@ -146,7 +144,7 @@ const CropDoctorPage: React.FC = () => {
         compressedSizeBytes: compResult.compressedSizeBytes
       })
 
-      toast.success(`Photo acquired! Optimized (${origSizeKb} → ${compSizeKb})`)
+      toast.success(t("ui.cropDoctorPage.photoAcquiredOptimizedV0V1", { defaultValue: "Photo acquired! Optimized ({{v0}} → {{v1}})", v0: origSizeKb, v1: compSizeKb }))
     } catch (err) {
       console.warn('[CropDoctorPage] Canvas compression fallback:', err)
       setAcquiredImage({
@@ -180,8 +178,7 @@ const CropDoctorPage: React.FC = () => {
     if (acquiredImage?.previewUrl && acquiredImage.previewUrl.startsWith('blob:')) {
       URL.revokeObjectURL(acquiredImage.previewUrl)
     }
-    setAnalysisError(null)
-    setIsAnalyzing(false)
+    setPhase({ kind: 'IDLE' })
 
     setIsProcessingImage(true)
     setPermissionError(null)
@@ -204,7 +201,7 @@ const CropDoctorPage: React.FC = () => {
         compressedSizeBytes: compResult.compressedSizeBytes
       })
 
-      toast.success(`Photo acquired! Optimized (${origSizeKb} → ${compSizeKb})`)
+      toast.success(t("ui.cropDoctorPage.photoAcquiredOptimizedV0V1", { defaultValue: "Photo acquired! Optimized ({{v0}} → {{v1}})", v0: origSizeKb, v1: compSizeKb }))
     } catch (err) {
       console.warn('[CropDoctorPage] Canvas compression fallback:', err)
       setAcquiredImage({
@@ -235,7 +232,7 @@ const CropDoctorPage: React.FC = () => {
       compressedSizeBytes: 120400
     })
 
-    toast.info('Sample leaf image selected.')
+    toast.info(t("ui.cropDoctorPage.sampleLeafImageSelected", "Sample leaf image selected."))
   }
 
   /**
@@ -243,66 +240,50 @@ const CropDoctorPage: React.FC = () => {
    */
   const handleDiagnoseCrop = async () => {
     if (!acquiredImage) {
-      toast.warning('Please select an image or take a photo first.')
+      toast.warning(t("ui.cropDoctorPage.pleaseSelectAnImageOr", "Please select an image or take a photo first."))
       return
     }
 
     if (isAnalyzing) return // Prevent duplicate requests
 
-    setIsAnalyzing(true)
-    setAnalysisError(null)
+    setPhase({ kind: 'PREPARING' })
 
-    const farmContext = {
-      farmId: activeFarm?.id || 'farm-001',
-      crop: activeFarm?.primaryCrop || 'Groundnut',
-      cropStage: activeFarm?.cropStage || 'Vegetative',
-      soilType: activeFarm?.soilType || 'Loam',
-      location: activeFarm?.location?.displayName || 'Farm'
-    }
+    // Only real farm context is sent. Without an active farm the crop is left unspecified
+    // so the model identifies it from the photo instead of being told a default crop.
+    const farmContext = activeFarm ? {
+      farmId: activeFarm.id,
+      crop: activeFarm.primaryCrop || undefined,
+      cropStage: activeFarm.cropStage || undefined,
+      soilType: activeFarm.soilType || undefined,
+      location: activeFarm.location?.displayName || undefined
+    } : undefined
 
-    try {
-      // Send CURRENT selected image (compressed base64 or sample URL) to serverless backend
-      const result = await cropDoctorService.analyzeImage({
-        file: acquiredImage.file,
-        imageBase64: acquiredImage.compressedBase64,
-        imageUrl: acquiredImage.previewUrl,
-        isSample: acquiredImage.source === 'sample',
-        source: acquiredImage.source,
-        farmContext
-      })
+    // The service compresses first; switch to ANALYZING once the request is in flight.
+    const analyzingTimer = setTimeout(() => setPhase({ kind: 'ANALYZING', startedAt: Date.now() }), 300)
+    const result = await cropDoctorService.analyzeImage({
+      file: acquiredImage.file,
+      imageBase64: acquiredImage.compressedBase64,
+      imageUrl: acquiredImage.source === 'sample' ? acquiredImage.previewUrl : undefined,
+      isSample: acquiredImage.source === 'sample',
+      source: acquiredImage.source,
+      farmContext
+    })
+    clearTimeout(analyzingTimer)
 
-      if (!result.success || !result.diagnosis) {
-        const errorMsg = result.error || 'Failed to process crop diagnosis. Please check network and retry.'
-        setAnalysisError(errorMsg)
-        toast.error(errorMsg)
-        setIsAnalyzing(false)
-        return
-      }
-
-      if (result.diagnosis.isPlantImage === false) {
-        const errorMsg = 'Please upload a clear photo of a plant leaf or crop. The uploaded image does not appear to contain a plant.'
-        setAnalysisError(errorMsg)
-        toast.error(errorMsg)
-        setIsAnalyzing(false)
-        return
-      }
-
-      // On Success: Trigger history refresh then navigate to result page
+    if (result.status === 'SUCCESS') {
+      setPhase({ kind: 'IDLE' })
+      if (!result.saved) toast.warning(t('diagnose.notSaved', 'The diagnosis could not be saved to your history.'))
       setDiagnosisRefreshKey(k => k + 1)
       navigate('/diagnosis-result', {
-        state: {
-          diagnosis: result.diagnosis,
-          imageUrl: acquiredImage.previewUrl
-        }
+        state: { diagnosis: result.diagnosis, imageUrl: acquiredImage.previewUrl }
       })
-    } catch (err: any) {
-      console.error('[CropDoctorPage Diagnosis Exception]:', err)
-      const errText = err?.message || 'An unexpected error occurred during diagnosis. Please try again.'
-      setAnalysisError(errText)
-      toast.error(errText)
-    } finally {
-      setIsAnalyzing(false)
+      return
     }
+    if (result.status === 'INSUFFICIENT_EVIDENCE') {
+      setPhase({ kind: 'INSUFFICIENT_EVIDENCE', outcome: result.insufficient })
+      return
+    }
+    setPhase({ kind: 'FAILED', status: result.status, message: result.error, reason: result.reason, retryAfterSeconds: result.retryAfterSeconds })
   }
 
   return (
@@ -349,7 +330,7 @@ const CropDoctorPage: React.FC = () => {
             >
               {acquiredImage ? (
                 <>
-                  <img src={acquiredImage.previewUrl} alt="Acquired leaf" className="absolute inset-0 w-full h-full object-cover" />
+                  <img src={acquiredImage.previewUrl} alt={t("ui.cropDoctorPage.acquiredLeaf", "Acquired leaf")} className="absolute inset-0 w-full h-full object-cover" />
                   
                   {/* Source Badge */}
                   <div className="absolute top-3 left-3 bg-black/75 backdrop-blur-md text-white text-xs font-semibold px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-md">
@@ -361,17 +342,16 @@ const CropDoctorPage: React.FC = () => {
 
                   {/* Loading State Overlay */}
                   {isAnalyzing && (
-                    <div className="absolute inset-0 bg-black/75 backdrop-blur-sm flex flex-col items-center justify-center text-white p-6 z-20">
-                      <RefreshCw className="w-10 h-10 text-green-400 animate-spin mb-3" />
-                      <p className="font-bold text-lg text-center animate-pulse">{t('diagnose.analyzing', 'Analyzing your crop...')}</p>
-                      <p className="text-xs text-gray-300 mt-1 font-mono">{t('diagnose.processing', 'Gemini Multimodal AI processing')}</p>
+                    <div className="absolute inset-0 bg-black/75 backdrop-blur-sm flex flex-col items-center justify-center text-white p-6 z-20 gap-4">
+                      <p className="font-bold text-lg text-center">{t('diagnose.analyzing', 'Analyzing your crop...')}</p>
+                      <DiagnosisProgress phase={phase} />
                     </div>
                   )}
                 </>
               ) : (
                 <>
                   <div className="absolute inset-4 border border-brown-pastel/30 rounded-2xl pointer-events-none" />
-                  <img src={IMAGES.diagnosis.uploadPlaceholder} alt="Crop leaf" className="absolute inset-0 w-full h-full object-cover opacity-[0.03] mix-blend-multiply" />
+                  <img src={IMAGES.diagnosis.uploadPlaceholder} alt={t("ui.cropDoctorPage.cropLeaf", "Crop leaf")} className="absolute inset-0 w-full h-full object-cover opacity-[0.03] mix-blend-multiply" />
                   <div className="relative text-center p-6 z-10">
                     <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-button group-hover:scale-105 transition-transform border border-brown-pastel/30">
                       <Camera className="w-8 h-8 text-green-forest" />
@@ -391,17 +371,12 @@ const CropDoctorPage: React.FC = () => {
               </div>
             )}
 
-            {/* Analysis Error Banner (Preserves selected image & allows retry) */}
-            {analysisError && (
-              <div className="p-3.5 bg-amber-50 border border-amber-300 rounded-2xl text-xs text-amber-900 space-y-1.5 shadow-sm">
-                <div className="flex items-center gap-1.5 font-bold text-amber-800">
-                  <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
-                  <span>{t('diagnose.error', 'Diagnosis Error')}</span>
-                </div>
-                <p className="leading-relaxed">{analysisError}</p>
-                <p className="text-[11px] font-semibold text-amber-700">{t('diagnose.errorDesc', 'Your selected image is preserved. Tap "Diagnose Crop" below to retry.')}</p>
-              </div>
-            )}
+            {/* Outcome panel: insufficient evidence, non-plant, invalid image or service failure */}
+            <DiagnosisOutcomePanel
+              phase={phase}
+              onRetry={handleDiagnoseCrop}
+              onChooseAnother={() => { clearAcquiredImage(); fileInputRef.current?.click() }}
+            />
 
             {/* Selected Image Information & Primary "Diagnose Crop" Button */}
             {acquiredImage && (
@@ -554,12 +529,11 @@ const CropDoctorPage: React.FC = () => {
                         className="w-full flex items-start gap-3 p-3.5 bg-white border border-brown-pastel/30 rounded-2xl shadow-sm hover:border-green-forest/40 hover:shadow-card-lg transition-all text-left group"
                       >
                         <div className="w-12 h-12 rounded-xl overflow-hidden bg-gray-100 shrink-0 border border-brown-pastel/20">
-                          <img
-                            src={d.imageUrl || '/images/disease_leaf_1787238259522.jpg'}
-                            alt={d.diseaseName || d.disease}
-                            className="w-full h-full object-cover"
-                            onError={(e) => { (e.target as HTMLImageElement).src = '/images/disease_leaf_1787238259522.jpg' }}
-                          />
+                          {d.imageUrl ? (
+                            <img src={d.imageUrl} alt={d.diseaseName || d.disease} className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-xl" aria-hidden>🌿</div>
+                          )}
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="font-bold text-text-main text-sm leading-tight">
@@ -573,7 +547,7 @@ const CropDoctorPage: React.FC = () => {
                               {d.severity ? d.severity.charAt(0).toUpperCase() + d.severity.slice(1) : t('common.unknown', 'Unknown')}
                             </span>
                             <span className="text-xs text-green-forest font-bold">
-                              {d.confidence}% {t('diagnosis.result.confidence', 'confidence')}
+                              {certaintyLabel(d, t)}
                             </span>
                           </div>
                           <p className="text-xs text-gray-400 mt-1">

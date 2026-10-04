@@ -155,11 +155,11 @@ const DiagnosisReportPDF: React.FC<Props> = ({ diagnosis, farm, weather, satelli
             <Text style={styles.value}>{diagnosis.diseaseName || diagnosis.disease}</Text>
           </View>
           <View style={styles.row}>
-            <Text style={styles.label}>Severity:</Text>
+            <Text style={styles.label}>{t("ui.diagnosisReportPDF.severity", "Severity:")}</Text>
             <Text style={styles.value}>{diagnosis.severity.toUpperCase()}</Text>
           </View>
           <View style={styles.row}>
-            <Text style={styles.label}>Certainty:</Text>
+            <Text style={styles.label}>{t("ui.diagnosisReportPDF.certainty", "Certainty:")}</Text>
             <Text style={styles.value}>{(diagnosis.certainty || 'moderate').toUpperCase()}</Text>
           </View>
           
@@ -203,7 +203,7 @@ const DiagnosisReportPDF: React.FC<Props> = ({ diagnosis, farm, weather, satelli
           
           <View style={styles.row}>
             <Text style={styles.label}>{t('insights.soilHealth', 'Soil Nutrients')}:</Text>
-            <Text style={styles.value}>Nutrient data unavailable (No soil test found)</Text>
+            <Text style={styles.value}>{t("ui.diagnosisReportPDF.nutrientDataUnavailableNoSoil", "Nutrient data unavailable (No soil test found)")}</Text>
           </View>
           
           <View style={styles.row}>
@@ -218,8 +218,8 @@ const DiagnosisReportPDF: React.FC<Props> = ({ diagnosis, farm, weather, satelli
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>{t('weather.diseaseRisk', 'Prediction & Risk')}</Text>
           <View style={styles.row}>
-            <Text style={styles.label}>Forecast:</Text>
-            <Text style={styles.value}>Prediction unavailable due to insufficient historical data.</Text>
+            <Text style={styles.label}>{t("ui.diagnosisReportPDF.forecast", "Forecast:")}</Text>
+            <Text style={styles.value}>{t("ui.diagnosisReportPDF.predictionUnavailableDueToInsufficient", "Prediction unavailable due to insufficient historical data.")}</Text>
           </View>
         </View>
         

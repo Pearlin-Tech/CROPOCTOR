@@ -197,10 +197,10 @@ const MyFarmsPage: React.FC = () => {
             </div>
             <h2 className="text-xl font-bold text-gray-800 mb-2">Delete {farmToDelete.name}?</h2>
             <p className="text-gray-600 mb-6 text-sm">
-              This will permanently remove this farm and its associated data. This action cannot be undone.
+              {t("ui.myFarmsPage.thisWillPermanentlyRemoveThis", "This will permanently remove this farm and its associated data. This action cannot be undone.")}
             </p>
             <div className="mb-6">
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Type DELETE to confirm</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">{t("ui.myFarmsPage.typeDeleteToConfirm", "Type DELETE to confirm")}</label>
               <input 
                 type="text" 
                 value={deleteConfirmText} 
@@ -211,7 +211,7 @@ const MyFarmsPage: React.FC = () => {
               {deleteError && <p className="text-red-500 text-sm mt-2 text-center">{deleteError}</p>}
             </div>
             <div className="flex gap-3">
-              <Button variant="secondary" fullWidth onClick={() => setFarmToDelete(null)} disabled={isDeleting}>Cancel</Button>
+              <Button variant="secondary" fullWidth onClick={() => setFarmToDelete(null)} disabled={isDeleting}>{t("ui.myFarmsPage.cancel", "Cancel")}</Button>
               <Button variant="danger" fullWidth onClick={handleDeleteFarm} disabled={isDeleting || deleteConfirmText !== 'DELETE'}>
                 {isDeleting ? 'Deleting...' : 'Delete Farm'}
               </Button>

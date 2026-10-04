@@ -1,4 +1,6 @@
 import React, { useState, useRef } from 'react'
+import { diagnosisContextString, isFallbackRecord } from '@/utils/diagnosis'
+import { useLocalizedLabels } from '@/services/translationClient'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Mic, Image, Send, ChevronRight } from 'lucide-react'
@@ -40,6 +42,8 @@ const AIAdvisorPage: React.FC = () => {
   const inputRef = useRef<HTMLInputElement>(null)
   
   const [activeDiagnosis, setActiveDiagnosis] = useState<DiagnosisResult | null>(null)
+  const localizedLabels = useLocalizedLabels(activeDiagnosis ? { disease: activeDiagnosis.diseaseName || activeDiagnosis.disease } : {}, i18n.language)
+  const localizedDiseaseName = localizedLabels.disease || activeDiagnosis?.diseaseName || activeDiagnosis?.disease || ''
   const [weatherData, setWeatherData] = useState<any>(null)
   const [satelliteData, setSatelliteData] = useState<any>(null)
   const location = useLocation()
@@ -155,14 +159,16 @@ const AIAdvisorPage: React.FC = () => {
 
         // Use the active diagnosis state if available, or fetch again as fallback
         if (activeDiagnosis) {
-          recentDiagnosisStr = `Condition: ${activeDiagnosis.disease} (${activeDiagnosis.confidence}% match). Severity: ${activeDiagnosis.severity}. Symptoms: ${activeDiagnosis.symptoms?.join(', ')}. Actions: ${activeDiagnosis.actions?.join(', ')}. Date: ${activeDiagnosis.timestamp?.slice(0, 10)}.`
+          if (!isFallbackRecord(activeDiagnosis)) recentDiagnosisStr = diagnosisContextString(activeDiagnosis)
         } else {
           try {
             const diagnoses = await cropDoctorService.getRecentDiagnoses(1, activeFarm.id)
             if (diagnoses && diagnoses.length > 0) {
               const d = diagnoses[0]
-              setActiveDiagnosis(d)
-              recentDiagnosisStr = `Condition: ${d.disease} (${d.confidence}% match). Severity: ${d.severity}. Symptoms: ${d.symptoms?.join(', ')}. Actions: ${d.actions?.join(', ')}. Date: ${d.timestamp?.slice(0, 10)}.`
+              if (!isFallbackRecord(d)) {
+                setActiveDiagnosis(d)
+                recentDiagnosisStr = diagnosisContextString(d)
+              }
             }
           } catch (e) {
             console.warn('Failed to fetch recent diagnosis for AI Advisor context', e)
@@ -262,12 +268,12 @@ const AIAdvisorPage: React.FC = () => {
                 </div>
                 <div className="flex-1">
                   <p className="text-[10px] font-bold text-green-forest uppercase tracking-widest mb-0.5">{t('advisor.activeContext', 'Active Context')}</p>
-                  <p className="text-sm font-bold text-text-main leading-tight">{activeDiagnosis.disease}</p>
+                  <p className="text-sm font-bold text-text-main leading-tight">{localizedDiseaseName}</p>
                   <p className="text-xs text-text-secondary mt-0.5">{t('advisor.activeContextDesc', 'I have analyzed your recent diagnosis. Ask me how to treat it!')}</p>
                 </div>
                 {messages.length === 0 && (
                   <button 
-                    onClick={() => askQuestion(`What is the recommended treatment for ${activeDiagnosis.disease}?`)}
+                    onClick={() => askQuestion(t('advisor.askTreatmentQuestion', { defaultValue: 'What is the recommended treatment for {{disease}}?', disease: localizedDiseaseName }))}
                     className="shrink-0 bg-green-forest text-white text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-green-dark transition-colors shadow-sm mt-1"
                   >
                     {t('advisor.askTreatment', 'Ask Treatment')}
@@ -387,7 +393,7 @@ const AIAdvisorPage: React.FC = () => {
                             </div>
                             {/* Actions */}
                             <div className="flex flex-wrap gap-2 pt-3 mt-1 border-t border-brown-pastel/20">
-                              <button onClick={() => toast.info('Playing advice audio…')} className="flex items-center gap-1.5 text-xs font-semibold text-green-forest bg-green-pastel/30 px-3 py-1.5 rounded-xl hover:bg-green-pastel/50 transition-colors">
+                              <button onClick={() => toast.info(t("ui.aIAdvisorPage.playingAdviceAudio", "Playing advice audio…"))} className="flex items-center gap-1.5 text-xs font-semibold text-green-forest bg-green-pastel/30 px-3 py-1.5 rounded-xl hover:bg-green-pastel/50 transition-colors">
                                 🔊 {t('advisor.listen', 'Listen')}
                               </button>
                               <button onClick={() => toast.success(t('advisor.saved', 'Advice saved.'))} className="flex items-center gap-1.5 text-xs font-semibold text-brown-earth bg-brown-pastel/30 px-3 py-1.5 rounded-xl hover:bg-brown-pastel/50 transition-colors">
@@ -417,7 +423,7 @@ const AIAdvisorPage: React.FC = () => {
 
           <div className="sticky bottom-[68px] md:bottom-0 bg-cream/95 backdrop-blur-md border-t border-brown-pastel/40 px-4 py-4 shadow-[0_-8px_30px_rgba(141,98,69,0.08)]">
             <div className="flex items-center gap-3 max-w-4xl mx-auto">
-              <button onClick={() => navigate('/diagnose')} className="w-12 h-12 rounded-2xl bg-off-white border border-brown-pastel/50 flex items-center justify-center text-brown-earth hover:bg-brown-pastel/20 transition-colors shadow-sm shrink-0" aria-label="Upload image">
+              <button onClick={() => navigate('/diagnose')} className="w-12 h-12 rounded-2xl bg-off-white border border-brown-pastel/50 flex items-center justify-center text-brown-earth hover:bg-brown-pastel/20 transition-colors shadow-sm shrink-0" aria-label={t("ui.aIAdvisorPage.uploadImage", "Upload image")}>
                 <Image className="w-5 h-5" />
               </button>
               
@@ -438,7 +444,7 @@ const AIAdvisorPage: React.FC = () => {
                   onClick={() => askQuestion(input)}
                   disabled={loading}
                   className="w-12 h-12 bg-brown-earth rounded-2xl flex items-center justify-center disabled:opacity-40 hover:bg-brown-deep transition-all shadow-button shrink-0"
-                  aria-label="Send"
+                  aria-label={t("ui.aIAdvisorPage.send", "Send")}
                 >
                   <Send className="w-5 h-5 text-white ml-0.5" />
                 </button>
@@ -446,7 +452,7 @@ const AIAdvisorPage: React.FC = () => {
                 <button 
                   onClick={() => navigate('/voice')} 
                   className="w-14 h-14 bg-gradient-to-br from-green-forest to-[#256427] rounded-full flex items-center justify-center shadow-card-lg text-white hover:scale-105 transition-all shrink-0 relative overflow-hidden"
-                  aria-label="Voice input"
+                  aria-label={t("ui.aIAdvisorPage.voiceInput", "Voice input")}
                 >
                   <div className="absolute inset-0 bg-white/20 blur-[10px] animate-pulse-soft" />
                   <Mic className="w-6 h-6 relative z-10" />
@@ -465,7 +471,7 @@ const AIAdvisorPage: React.FC = () => {
               { label: t('farm.context.soil', 'Soil'),     value: t(`soils.${activeFarm?.soilType || 'unknown'}`, activeFarm?.soilType || 'Unknown'),      icon: '🪨' },
               { label: t('farm.context.stage', 'Stage'),    value: t(`stages.${activeFarm?.cropStage || 'flowering'}`, activeFarm?.cropStage || 'flowering'),  icon: '🌸' },
               { label: t('farm.context.location', 'Location'), value: activeFarm?.location ? `${activeFarm.location.lat.toFixed(5)}, ${activeFarm.location.lng.toFixed(5)}` : 'Unknown', icon: '📍' },
-              { label: t('farm.context.weather', 'Weather'),  value: weatherData ? `${formatLocalizedNumber(weatherData.current?.temperature || 29, i18n.language)}°C · ${t('dashboard.weatherCard.rain', 'Rain')} ${formatLocalizedPercent(weatherData.current?.rainProbability || 60, i18n.language)}` : t('states.loading', 'Loading...'), icon: '🌦' },
+              { label: t('farm.context.weather', 'Weather'),  value: weatherData ? (weatherData.isDemo || typeof weatherData.temperature !== 'number' ? t('states.unavailable', 'Unavailable') : `${formatLocalizedNumber(weatherData.temperature, i18n.language)}°C · ${t('dashboard.weatherCard.rain', 'Rain')} ${formatLocalizedPercent(weatherData.rainChance, i18n.language)}`) : t('states.loading', 'Loading...'), icon: '🌦' },
               { label: t('farm.context.health', 'Health'),   value: (weatherData || satelliteData || activeDiagnosis) ? `${calculateFarmHealthScore(activeFarm, activeDiagnosis, satelliteData, weatherData).score}% (${calculateFarmHealthScore(activeFarm, activeDiagnosis, satelliteData, weatherData).status})` : t('states.loading', 'Loading...'), icon: '💚' },
             ].map(({ label, value, icon }) => (
               <div key={label} className="flex items-center gap-3">

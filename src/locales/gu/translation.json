@@ -24,7 +24,8 @@
     "headline": "સારા નિર્ણયો. સ્વસ્થ પાક.",
     "subheading": "તમારા ખેતર માટે AI આધારિત સલાહ.",
     "cta": "શરૂ કરો",
-    "signin": "પહેલેથી એકાઉન્ટ છે? સાઇન ઇન કરો"
+    "signin": "પહેલેથી એકાઉન્ટ છે? સાઇન ઇન કરો",
+    "subtitle": "દરેક ખેતર માટે વધુ સારા નિર્ણયો."
   },
   "auth": {
     "google": "Google સાથે ચાલુ રાખો",
@@ -46,8 +47,20 @@
       "required": "આ માહિતી જરૂરી છે.",
       "invalidEmail": "કૃપા કરીને માન્ય ઇમેઇલ દાખલ કરો.",
       "weakPassword": "પાસવર્ડ ઓછામાં ઓછો 6 અક્ષરોનો હોવો જોઈએ.",
-      "authFailed": "સાઇન ઇન નિષ્ફળ. ફરી પ્રયાસ કરો."
-    }
+      "authFailed": "સાઇન ઇન નિષ્ફળ. ફરી પ્રયાસ કરો.",
+      "noSession": "કોઈ યુઝર સેશન નથી. કૃપા કરીને ફરીથી સાઇન ઇન કરો.",
+      "notVerified": "ઇમેઇલ હજુ વેરિફાઈ થયો નથી. કૃપા કરીને પહેલા તમારા ઇમેઇલમાં આપેલી લિંક પર ક્લિક કરો."
+    },
+    "verified": "ઇમેઇલ વેરિફાઈ થઈ ગયો! Cropoctor માં સ્વાગત છે.",
+    "verificationResent": "વેરિફિકેશન ઇમેઇલ ફરીથી મોકલવામાં આવ્યો છે!",
+    "verifyEmailTitle": "તમારો ઇમેઇલ વેરિફાઈ કરો",
+    "verifyEmailDesc": "અમે વેરિફિકેશન લિંક મોકલી છે",
+    "verifyEmailInstructions": "ઇમેઇલમાં આપેલી લિંક પર ક્લિક કરો, પછી નીચેનું બટન દબાવો.",
+    "iHaveVerified": "મેં मेरा ઇમેઇલ વેરિફાઈ કરી લીધો છે — આગળ વધો",
+    "resendIn": "${resendCooldown} સેકન્ડમાં ફરી મોકલો",
+    "resendVerification": "વેરિફિકેશન ઇમેઇલ ફરી મોકલો",
+    "signOut": "સાઇન આઉટ",
+    "checkSpam": "ઇમેઇલ મળતો નથી? તમારો સ્પામ અથવા જંક ફોલ્ડર તપાસો."
   },
   "language": {
     "title": "ભાષા પસંદ કરો",
@@ -87,7 +100,10 @@
     "farmer": "ખેડૂત",
     "myFarms": "મારા ખેતરો",
     "farmsRegistered": "{{count}} ખેતર નોંધાયેલ",
-    "version": "આવૃત્તિ"
+    "version": "આવૃત્તિ",
+    "notificationsSettings": "પુશ નોટિફિકેશન",
+    "notificationsSection": "નોટિફિકેશન",
+    "fullName": "પૂરું નામ"
   },
   "farms": {
     "farm-001": {
@@ -123,7 +139,38 @@
       "pickOnMap": "નકશા પર પસંદ કરો",
       "useThisLocation": "આ લોકેશન પસંદ કરો",
       "locating": "લોકેશન શોધી રહ્યા છીએ...",
-      "locationError": "લોકેશન મળ્યું નથી. કૃપા કરીને શોધો."
+      "locationError": "લોકેશન મળ્યું નથી. કૃપા કરીને શોધો.",
+      "soilTitle": "જમીન",
+      "locationLabel": "સ્થળ",
+      "primaryCrop": "પાક",
+      "stageTitle": "તબક્કો",
+      "areaLabel": "વિસ્તાર",
+      "cropTitle": "તમારો પાક પસંદ કરો",
+      "cropSubtitle": "આ ખેતર માટે મુખ્ય પાક પસંદ કરો.",
+      "selectCrop": "પાક પસંદ કરો",
+      "searchCrops": "પાક શોધો...",
+      "selected": "પસંદ કરેલ",
+      "category": "વર્ગ",
+      "stageSubtitle": "તમારો પાક કઈ અવસ્થામાં છે?",
+      "selectStage": "પાકની અવસ્થા પસંદ કરો",
+      "searchStages": "અવસ્થા શોધો...",
+      "plantingDate": "તમે ક્યારે વાવેતર કર્યું? (વૈકલ્પિક)",
+      "plantingHint": "આનાથી અમને ખાતર અને સિંચાઈનો સમય ગણવામાં મદદ મળે છે.",
+      "almostDone": "લગભગ પૂરું થઈ ગયું",
+      "markArea": "ખેતરની હદ",
+      "tapMap": "તમારા ખેતરની હદ દોરો અથવા વિસ્તાર દાખલ કરો.",
+      "enterArea": "ખેતરનું કદ",
+      "confirmArea": "હદની ખાતરી કરો",
+      "detailsTitle": "ખેતરની વિગતો",
+      "detailsSubtitle": "તમારા ખેતરનું સેટઅપ પૂરું કરો.",
+      "farmName": "ખેતરનું નામ",
+      "setFromMap": "નકશા પરથી પસંદ કરો.",
+      "areaCalculated": "તમારા ખેતરની હદ પરથી વિસ્તાર ગણવામાં આવ્યો છે.",
+      "saveContinue": "સેવ કરો અને આગળ વધો",
+      "soilSubtitle": "તમારા ખેતરના માટીનો પ્રકાર પસંદ કરો.",
+      "soilHint": "ખાતરી નથી? \"ખબર નથી\" પસંદ કરો — AI છતાં પણ તમને મદદ કરી શકશે.",
+      "selectSoil": "જમીનનો પ્રકાર પસંદ કરો",
+      "searchSoils": "જમીનના પ્રકાર શોધો..."
     },
     "boundary": {
       "title": "ખેતરની સીમા નક્કી કરો",
@@ -144,7 +191,29 @@
       "cropStage": "પાકની અવસ્થા",
       "plantingDate": "વાવણી તારીખ (મરજિયાત)",
       "save": "સાચવો",
-      "setActive": "સક્રિય ખેતર"
+      "setActive": "સક્રિય ખેતર",
+      "howCalculated": "આ કેવી રીતે ગણવામાં આવે છે?",
+      "calculatedAt": "ગણતરી કરેલ",
+      "formula": "સૂત્ર",
+      "missingData": "ખોવાયેલ ડેટા બાકાત રાખવામાં આવ્યો છે — બાકીના વેઇટ્સ ફરીથી ગોઠવવામાં આવ્યા છે.",
+      "noFactorData": "હજી સુધી કોઈ ફેક્ટર ડેટા ઉપલબ્ધ નથી. સ્વાસ્થ્ય સ્કોર ડિફોલ્ટ બેઝલાઇન છે.",
+      "confidence": "આત્મવિશ્વાસ",
+      "dataSources": "સક્રિય ડેટા સ્ત્રોતો",
+      "satelliteData": "સેટેલાઇટ ડેટા",
+      "unavailable": "ઉપલબ્ધ નથી",
+      "live": "લાઇવ",
+      "ndvi": "NDVI (વનસ્પતિ સૂચક)",
+      "moistureIndex": "ભેજ સૂચક (NDMI)",
+      "imageDate": "છબીની તારીખ",
+      "cloudCover": "વાદળોનું પ્રમાણ",
+      "back": "મારા ખેતરો પર પાછા જાઓ",
+      "health": "ખેતરનું સ્વાસ્થ્ય",
+      "howCalculatedShort": "કેવી રીતે ગણતરી કરી?",
+      "calculating": "ગણતરી કરી રહ્યા છીએ…",
+      "factorsUsed": "વપરાયેલ પરિબળો",
+      "latestDiagnosis": "નવીનતમ નિદાન",
+      "currentWeather": " વર્તમાન હવામાન",
+      "activeFarm": "સક્રિય ખેતર"
     },
     "crop": {
       "title": "પાક પસંદ કરો",
@@ -186,7 +255,9 @@
       "weather": "હવામાન",
       "health": "સ્વાસ્થ્ય",
       "hint": "AI સચોટ સલાહ આપવા તમારા ખેતરની માહિતીનો ઉપયોગ કરે છે."
-    }
+    },
+    "notFound": "ખેતર મળ્યું નથી.",
+    "deleted": "ખેતર સફળતાપૂર્વક ડિલીટ થઈ ગયું"
   },
   "dashboard": {
     "title": "Cropoctor ડેશબોર્ડ",
@@ -210,7 +281,8 @@
     "weatherCard": {
       "rain": "વરસાદ",
       "humidity": "ભેજ",
-      "wind": "પવન"
+      "wind": "પવન",
+      "temp": "તાપમાન"
     },
     "nba": {
       "action": "પિયત આપતા પહેલા જમીનનો ભેજ ચકાસો."
@@ -219,6 +291,16 @@
       "title": "કાલે ભારે વરસાદની શક્યતા છે.",
       "desc": "પિયત રોકવા અને નિકાલની ચકાસણી કરવા વિચારો.",
       "why": "શા માટે?"
+    },
+    "actions": {
+      "diagnose": "પાકનું નિદાન કરો",
+      "recommendation": "પાકની ભલામણ",
+      "askAdvisor": "AI સલાહકારને પૂછੋ",
+      "irrigation": "પિયતનું આયોજન",
+      "nba": "આગળનું શ્રેષ્ઠ પગલું"
+    },
+    "overview": {
+      "acres": "એકર"
     }
   },
   "advisor": {
@@ -245,7 +327,19 @@
       "q4": "કયું ખાતર વાપરવું જોઈએ?",
       "q5": "શું યોગ્ય સમયે વરસાદની શક્યતા છે?",
       "q6": "પાકનું સ્વાસ્થ્ય કેવી રીતે સુધારવું?"
-    }
+    },
+    "newConversation": "નવી વાતચીત",
+    "activeContext": "સક્રિય સંદર્ભ",
+    "activeContextDesc": "મેં તમારા તાજેતરના નિદાનનું વિશ્લેષણ કર્યું છે. મને તેની સારવાર કેવી રીતે કરવી તે પૂછો!",
+    "askTreatment": "સારવાર વિશે પૂછો",
+    "result": {
+      "currentCondition": "વર્તમાન સ્થિતિ",
+      "potentialRisks": "સંભવિત જોખમો",
+      "whatToMonitor": "શું ધ્યાન રાખવું",
+      "whenToAct": "ક્યારે પગલાં લેવા",
+      "prosCons": "ફાયદા / ગેરફાયદા અને બાબતો"
+    },
+    "askTreatmentQuestion": "{{disease}} માટે ભલામણ કરેલ સારવાર શું છે?"
   },
   "voice": {
     "title": "વોઇસ આસિસ્ટન્ટ",
@@ -302,6 +396,55 @@
         "moderate": "મધ્યમ",
         "severe": "ગંભીર"
       }
+    },
+    "progress": {
+      "prepare": "ફોટો તૈયાર કરી રહ્યા છીએ",
+      "analyze": "ફોટો તપાસી રહ્યા છીએ અને લક્ષણો સમજી રહ્યા છીએ",
+      "elapsed": "{{s}} સેકન્ડ — AI વિશ્લેષણમાં સામાન્ય રીતે 5–20 સેકન્ડ લાગે છે"
+    },
+    "outcome": {
+      "insufficientTitle": "નિદાન માટે પૂરતો પુરાવો નથી",
+      "insufficientDesc": "AI આ ફોટોમાંથી રોગ ઓળખી શક્યું નથી, તેથી કોઈ રોગ કે સારવાર સૂચવવામાં આવી નથી. તમારા ઇતિહાસમાં કંઈપણ સેવ થયું નથી.",
+      "observed": "AI જે જોઈ શક્યું",
+      "whyNot": "તે શા માટે નક્કી ન કરી શક્યું",
+      "nextSteps": "ચોક્કસ પરિણામ કેવી રીતે મેળવવું",
+      "retake": "વધુ સ્પષ્ટ ફોટો લો",
+      "noDiagnosis": "કોઈ નિદાન થયું નથી અને કંઈપણ સેવ થયું નથી. તમારો ફોટો રાખવામાં આવ્યો છે જેથી તમે ફરી પ્રયાસ કરી શકો.",
+      "retryIn": "ફરી પ્રયાસ કરો ({{s}} સેકન્ડ રાહ જુઓ)",
+      "tryAnother": "બીજો ફોટો અજમાવો"
+    },
+    "guidance": {
+      "daylight": "પાંદડાથી 20–30 સેમી દૂર કેમેરા રાખીને, ફ્લેશ વગર, દિવસના અજવાળામાં ફરીથી ફોટો લો.",
+      "fill": "એક અસરગ્રસ્ત પાંદડાથી આખો ફ્રેમ ભરી દો અને તેને એકદમ સ્પષ્ટ ફોકસમાં રાખો.",
+      "bothSides": "પાંદડાની ઉપરની અને નીચેની બંને સપાટી દેખાય તેવો બીજો ફોટો લો.",
+      "expert": "જો લક્ષણો ઝડપથી ફેલાતા હોય, તો તમારા વિસ્તારના કૃષિ અધિકારીને છોડ બતાવો."
+    },
+    "notSaved": "નિદાન તમારા ઇતિહાસમાં સેવ થઈ શક્યું નથી.",
+    "changeImage": "ફોટો બદલો",
+    "noHistoryTitle": "હજી સુધી કોઈ નિદાન નથી",
+    "noHistoryDesc": "તમારું પહેલું નિદાન મેળવવા માટે ઉપર પાકનો ફોટો અપલોડ કરો",
+    "reason": {
+      "MISSING": "કોઈ ફોટો આપ્યો નથી.",
+      "TOO_SMALL": "વિશ્લેષણ કરવા માટે ફોટો ખૂબ નાનો છે.",
+      "TOO_LARGE": "આ ફોટો અપલોડ કરવા માટે ખૂબ મોટો છે. કૃપા કરીને નાનો ફોટો વાપરો.",
+      "UNSUPPORTED_FORMAT": "આ ફોટો ફોર્મેટ સપોર્ટ કરતું નથી. કૃપા કરીને JPEG, PNG, WebP અથવા HEIC ફોટો વાપરો.",
+      "CORRUPT": "ફોટો અધૂરો છે અથવા ખરાબ થઈ ગયો છે — કૃપા કરીને ફરીથી ફોટો પાડો.",
+      "LOW_RESOLUTION": "ફોટોનું રિઝોલ્યુશન ખૂબ નીચું છે. કૃપા કરીને નજીકથી અને સ્પષ્ટ ફોટો પાડો.",
+      "TOO_DARK": "આ ફોટો વિશ્લેષણ કરવા માટે ખૂબ અંધારાવાળો છે. કૃપા કરીને અજવાળામાં ફરીથી ફોટો પાડો.",
+      "OVEREXPOSED": "આ ફોટામાં ખૂબ વધારે પ્રકાશ છે. કૃપા કરીને સીધા પ્રકાશ કે ફ્લેશ વગર ફરીથી ફોટો પાડો.",
+      "BLURRY": "આ ફોટો ખૂબ ધૂંધળો છે. કેમેરા સ્થિર રાખો અને પાંદડા પર ટચ કરીને ફોકસ કરો.",
+      "UNREADABLE": "આ ફોટો વાંચી શકાતો નથી. તે ખરાબ થઈ ગયો હોઈ શકે છે — કૃપા કરીને બીજો ફોટો પસંદ કરો."
+    },
+    "errorMsg": {
+      "NOT_A_PLANT": "આ ફોટામાં છોડ દેખાતો નથી. કૃપા કરીને પાંદડાનો અથવા પાકનો જે ભાગ બગડ્યો હોય તેનો ફોટો પાડો.",
+      "RATE_LIMITED": "હવે AI સર્વિસ ખૂબ વ્યસ્ત છે. કૃપા કરીને એક મિનિટ પછી ફરી પ્રયાસ કરો.",
+      "AI_SERVICE_UNAVAILABLE": "AI ડાયગ્નોસિસ હાલમાં બંધ છે. કૃપા કરીને થોડીવાર પછી પ્રયાસ કરો.",
+      "AUTHENTICATION_ERROR": "કૃપા કરીને ફરીથી સાઇન ઇન કરો, અથવા થોડીવાર પછી પ્રયાસ કરો.",
+      "TIMEOUT": "AI નો જવાબ આપવામાં વધુ સમય લાગ્યો. કૃપા કરીને ફરી પ્રયાસ કરો.",
+      "NETWORK_ERROR": "ડાયગ્નોસિસ સર્વિસ સાથે જોડાઈ શકાયું નથી. તમારું ઇન્ટરનેટ કનેક્શન તપાસો અને ફરી પ્રયાસ કરો.",
+      "INVALID_AI_RESPONSE": "AI એ યોગ્ય જવાબ આપ્યો નથી, તેથી રોગ જાણી શકાયો નથી. કૃપા કરીને ફરી પ્રયાસ કરો.",
+      "INVALID_REQUEST": "વિનંતી સ્વીકારવામાં આવી નથી. કૃપા કરીને બીજો ફોટો અજમાવો.",
+      "GENERAL_ERROR": "તપાસ કરતી વખતે કંઈક ગડબડ થઈ ગઈ. કૃપા કરીને ફરી પ્રયાસ કરો."
     }
   },
   "weather": {
@@ -334,7 +477,9 @@
     "demo": "ડેમો હવામાન ડેટા",
     "updatedJustNow": "હમણાં જ અપડેટ થયું",
     "updatedMinAgo": "{{count}} મિનિટ પહેલા અપડેટ થયું",
-    "feelsLike": "અનુભવ {{temp}}°"
+    "feelsLike": "અનુભવ {{temp}}°",
+    "error": "{{farmName}} માટે હવામાનનો ડેટા હાલમાં ઉપલબ્ધ નથી.",
+    "farmLocation": "ખેતરનું સ્થાન"
   },
   "insights": {
     "title": "ખેતરનું વિશ્લેષણ",
@@ -362,6 +507,21 @@
       "Adequate nutrient levels": "પૂરતા પોષક તત્વો",
       "No confirmed disease": "કોઈ રોગ નથી",
       "Good canopy development": "પાંદડાનો સારો વિકાસ"
+    },
+    "score": "સ્કોર",
+    "soil": {
+      "moisture": "ભેજ",
+      "nutrientStatus": "પોષક તત્વોની સ્થિતિ"
+    },
+    "error": "કનેક્શન ભૂલ",
+    "range": "રેન્જ",
+    "eeError": "Earth Engine કનેક્શન ભૂલ",
+    "noData": "કોઈ સેટેલાઇટ ડેટા ઉપલબ્ધ નથી.",
+    "syntheticData": "દર્શાવેલ સેટેલાઇટ ડેટા કોઓર્ડિનેટ્સ પર આધારિત ડેમો ડેટા છે",
+    "livePending": "લાઇવ Earth Engine ઇન્ટિગ્રેશન બાકી છે.",
+    "rangeLabels": {
+      "poor": "નબળી",
+      "excellent": "उत्तम"
     }
   },
   "history": {
@@ -389,7 +549,27 @@
         "title": "ખાતર નાખવામાં આવ્યું",
         "summary": "એકર દીઠ 10 કિલો યુરિયા ખાતર નાખવામાં આવ્યું."
       }
-    }
+    },
+    "refresh": "રિફ્રેશ કરો",
+    "loading": "Firestore માંથી લોડ થઈ રહ્યું છે...",
+    "unavailable": "પરવાનગી નથી",
+    "deleted": "નિદાન ડિલીટ કરી દેવામાં આવ્યું છે.",
+    "deleteError": "આ નિદાન ડિલીટ કરી શકાયું નથી. તમારું ઇન્ટરનેટ કનેક્શન તપાસો અને ફરી પ્રયાસ કરો.",
+    "confirmClearAll": "શું તમે ખરેખર તમારો સમગ્ર ઇતિહાસ સંપૂર્ણપણે કાઢી નાખવા માંગો છો? આ ક્રિયા પાછી ખેંચી શકાતી નથી.",
+    "clearAllError": "બધો ઇતિહાસ સાફ કરવામાં નિષ્ફળ.",
+    "clearAll": "બધું સાફ કરો",
+    "retry": "다 다시 પ્રયraz કરો",
+    "emptyTitle": "હજી સુધી કોઈ ઇતિહાસ નથી",
+    "emptyDesc": "તમારો ઇતિહાસ શરૂ કરવા માટે પાકની તપાસ કરો અથવા AI સલાહકારને પૂછો.",
+    "unreliable": "જૂનો રેકોર્ડ અવિશ્વસનીય છે",
+    "deleteOne": "તપાસ ડિલીટ કરો: {{name}}",
+    "advisorSessions": "AI સલાહકાર સત્રો",
+    "synced": "Firestore સાથે સિંક થયેલ છે",
+    "records": "રેકોર્ડ્સ",
+    "record": "રેકોર્ડ",
+    "loaded": "લોડ થઈ ગયું",
+    "confirmDeleteTitle": "આ તપાસ ડિલીટ કરવી છે?",
+    "confirmDeleteDesc": "ફક્ત આ રેકોર્ડ હટાવવામાં આવશે. આ પાછું લાવી શકાશે નહીં."
   },
   "notifications": {
     "title": "સૂચનાઓ",
@@ -429,7 +609,8 @@
     },
     "emptyTitle": "હજુ સુધી કોઈ સૂચના નથી",
     "emptyDesc": "જ્યારે તમને તમારા ખેતર અથવા હવામાન વિશે ચેતવણીઓ મળશે, ત્યારે તે અહીં દેખાશે.",
-    "errorTitle": "કંઈક ખોટું થયું"
+    "errorTitle": "કંઈક ખોટું થયું",
+    "clearing": "સાફ થઈ રહ્યું છે..."
   },
   "settings": {
     "title": "સેટિંગ્સ",
@@ -465,7 +646,22 @@
     "notifications": "સૂચનાઓ",
     "privacy": "ગોપનીયતા નીતિ",
     "help": "મદદ અને સપોર્ટ",
-    "about": "Cropoctor વિશે"
+    "about": "Cropoctor વિશે",
+    "items": {
+      "about": "CROPOCTOR વિશે",
+      "help": "મદદ અને સપોર્ટ"
+    },
+    "notificationsPage": {
+      "unsupported": "તમારું બ્રાઉઝર નોટિફિકેશન સપોર્ટ કરતું નથી.",
+      "title": "નોટિફિકેશન સેટિંગ્સ",
+      "enabled": "નોટિફિકેશન ચાલુ છે",
+      "enabledDesc": "તમને મહત્વની ચેતવણીઓ અને ખેતરના અપડેટ્સ મળશે.",
+      "blocked": "નોટિફિકેશન બ્લોક કરેલ છે",
+      "blockedDesc": "ચેતવણીઓ મેળવવા માટે કૃપા કરીને તમારા બ્રાઉઝર સેટિંગ્સમાં નોટિફિકેશન ચાલુ કરો.",
+      "disabled": "પુશ નોટિફિકેશન ચાલુ કરો",
+      "disabledDesc": "Cropoctor ને પાકના સ્વાસ્થ્ય, હવામાન બદલાવ અને AI સલાહ વિશે ચેતવણીઓ મોકલવા દો.",
+      "enableBtn": "નોટિફિકેશનની મંજૂરી આપો"
+    }
   },
   "states": {
     "loading": "લોડ થઈ રહ્યું છે...",
@@ -475,7 +671,8 @@
     "offlineHint": "તમારી સાચવેલી માહિતી ઉપલબ્ધ છે.",
     "empty": "અહીં હજુ કશું નથી.",
     "lastUpdated": "છેલ્લું અપડેટ",
-    "reload": "એપ ફરી લોડ કરો"
+    "reload": "એપ ફરી લોડ કરો",
+    "unavailable": "ઉપલબ્ધ નથી"
   },
   "toast": {
     "farmSaved": "ખેતર સફળતાપૂર્વક સાચવાયું.",
@@ -542,5 +739,357 @@
     "rainy": "વરસાદી",
     "stormy": "વાવાઝોડું",
     "Partly Cloudy": "અંશતઃ વાદળછાયું"
+  },
+  "common": {
+    "retry": "ફરી પ્રયાસ કરો",
+    "image": "ફોટો",
+    "unknown": "અજાણ",
+    "delete": "ડિલીટ કરો",
+    "cancel": "રદ કરો",
+    "refresh": "ફ્રેશ કરો"
+  },
+  "diagnosis": {
+    "result": {
+      "title": "ખેતરના નિદાનનો રિપોર્ટ",
+      "possibleIssue": "શોધી કાઢેલ સમસ્યા",
+      "symptoms": "લક્ષણો અને પુરાવા",
+      "actions": "ભલામણ કરેલ પગલાં",
+      "disclaimer": "CROPOCTOR એગ્રીકલ્ચરલ ઇન્ટેલિજન્સ પ્લેટફોર્મ દ્વારા જનરેટ કરેલ. આ રિપોર્ટ ઉપલબ્ધ ડેટા અને AI વિશ્લેષણ પર આધારિત છે. મહત્વપૂર્ણ નિર્ણયો માટે હંમેશા કૃષિ નિષ્ણાતની સલાહ લો.",
+      "translating": "ઇતિહાસ તમારી ભાષામાં અનુવાદિત થઈ રહ્યો છે...",
+      "completed": "પાકનું વિશ્લેષણ પૂર્ણ થયું",
+      "analyzedAt": "વિશ્લેષણ કર્યું",
+      "preparingPdf": "PDF તૈયાર કરી રહ્યા છીએ...",
+      "downloadReport": "રિપોર્ટ ડાઉનલોડ કરો",
+      "nonPlant": "વનસ્પતિ ન હોય તેવી છબી મળી આવી",
+      "nonPlantDesc": "અપલોડ કરેલી છબીમાં છોડ, પાક કે પાંદડું સ્પષ્ટ દેખાતું નથી. કૃપા કરીને અસરગ્રસ્ત છોડના પાંદડાનો સ્પષ્ટ અને સારો પ્રકાશ હોય તેવો ફોટો પાડો.",
+      "unreliableTitle": "અવિશ્વસનીય જૂનો રેકોર્ડ",
+      "unreliableDesc": "આ રેકોર્ડ એપ્લિકેશનના જૂના સંસ્કરણ દ્વારા બનાવવામાં આવ્યો હતો જે તમારા ફોટોનું વિશ્લેષણ કર્યા વિના પરિણામ આપી શકતું હતું. સારવારની સલાહ છુપાયેલ છે. કૃપા કરીને છોડનું ફરીથી નિદાન કરો અને ઇતિહાસમાંથી આ રેકોર્ડ કાઢી નાખો.",
+      "legacyNote": "જૂનો રેકોર્ડ — પરિણામો ચકાસવામાં આવ્યા તે પહેલાં બનાવવામાં આવ્યો હતો. તેને કાળજીપૂર્વક જુઓ અને શંકા હોય તો ફરીથી નિદાન કરો.",
+      "expertReview": "ભલામણ કરેલ: સ્થાનિક કૃષિ અધિકારી પાસે આ નિદાનની ખાતરી કરાવો.",
+      "expertBadge": "નિષ્ણાત દ્વારા સમીક્ષા",
+      "photoAlt": "નિદાન કરેલ પાકનો ફોટો",
+      "noPhoto": "ફોટો સાચવેલો નથી",
+      "aiBadge": "AI છબી વિશ્લેષણ",
+      "certainty": "ચોકસાઈ",
+      "uncalibrated": "AI અંદાજ, ચકાસેલ નથી",
+      "analysis": "વિશ્લેષણ",
+      "contradicting": "વિરોધાભાસી પુરાવા",
+      "limitations": "મર્યાદાઓ",
+      "askAI": "આના વિશે AI સલાહકારને પૂછੋ",
+      "confidence": "ચોકસાઈ",
+      "translationFailed": "હાલમાં અનુવાદ ઉપલબ્ધ નથી, તેથી આ પરિણામ મૂળ ભાષા (અંગ્રેજી)માં બતાવવામાં આવ્યું છે.",
+      "voiceUnsupported": "તમારા ફોનમાં આ ભાષા માટે અવાજ ઉપલબ્ધ નથી.",
+      "stopAudio": "ઓડિયો બંધ કરો"
+    },
+    "demo": "નમૂનાની છબી",
+    "possibleIssue": "पहचाने गई समस्या",
+    "positiveSigns": "હકારાત્મક સંકેતો",
+    "symptoms": "સમર્થન આપતા પુરાવા",
+    "possibleIssues": "વૈકલ્પિક નિદાન અને જોખમો",
+    "immediateActions": "તરત કરવાનાં પગલાં",
+    "recommendedActions": "સૂચવેલ સારવાર",
+    "longTermPrevention": "લાંબા ગાળાની અટકાયત પદ્ધતિઓ",
+    "whenToRecheck": "ક્યારે ફરી તપાસવું",
+    "listen": "ઉપચાર સાંભળો",
+    "disclaimer": "AI નિદાન માત્ર માહિતી માટે છે અને તે વ્યાવસાયિક કૃષિ સલાહનું સ્થાન ન લેવું જોઈએ. ખેતરમાં ખાતરીપૂર્વકની સારવાર માટે તમારા સ્થાનિક કૃષિ અધિકારીની સલાહ લો.",
+    "certainty": {
+      "legacyPercent": "{{value}}% (જૂનો રેકોર્ડ)",
+      "unknown": "ચોકસાઈ નોંધાઈ નથી",
+      "high": "વધુ ચોકસાઈ",
+      "moderate": "મધ્યમ ચોકસાઈ",
+      "low": "ઓછી ચોકસાઈ",
+      "insufficient_evidence": "પૂરતા પુરાવા નથી"
+    },
+    "severity": {
+      "healthy": "તંદુરસ્ત",
+      "mild": "હળવું",
+      "moderate": "મધ્યમ",
+      "severe": "ગંભીર",
+      "unknown": "ગંભીરતા અજાણ છે"
+    }
+  },
+  "cropRec": {
+    "subtitle": "તમારી જમીન અને આબોહવા માટે AI ની પસંદગી",
+    "description": "તમારી જમીનનો પ્રકાર, સ્થાન અને સ્થાનિક આબોહવા પર આધારિત AI-સંચાલિત પાક સૂચનો.",
+    "aiAnalyzed": "AI વિશ્લેષિત",
+    "allSeasons": "બધી ઋતુઓ",
+    "match": "મેચ",
+    "profitPotential": "નફાની સંભાવના",
+    "waterNeed": "પાણીની જરૂરિયાત",
+    "saveToPlan": "પ્લાનમાં સેવ કરો",
+    "askAiMore": "AI ને વધુ પૂછો",
+    "disclaimer": "AI ની ભલામણો તમારી જમીનના પ્રકાર, સ્થાનની આબોહવા અને પાકના ઇતિહાસ પર આધારિત છે. પાક બદલતા પહેલા હંમેશા સ્થાનિક કૃષિ અધિકારીઓની સલાહ લો.",
+    "askCustom": "AI પાસે કસ્ટમ સલાહ માંગો"
+  },
+  "help": {
+    "subtitle": "ઝડપી જવાબો મેળવો અને CROPOCTOR નો ઉપયોગ કેવી રીતે કરવો તે શીખો.",
+    "gettingStarted": "શરૂઆત કેવી રીતે કરવી",
+    "faq": "વારંવાર પૂછાતા પ્રશ્નો",
+    "contactSupport": "સપોર્ટનો સંપર્ક કરો",
+    "emailSupport": "ઇમેઇલ સપોર્ટ",
+    "sendEmail": "ઇમેઇલ મોકલો",
+    "appFeedback": "એપ વિશે અભિપ્રાય",
+    "reportBug": "બગની જાણ કરો",
+    "reportBugDesc": "support@cropdoctor.ai પર સમસ્યાઓ અથવા ભૂલોની જાણ કરો"
+  },
+  "irrigation": {
+    "skip": "પિયત છોડો",
+    "skipReason": "સરસ વરસાદની અપેક્ષા છે (35–50mm). જમીનમાં પૂરતો ભેજ છે.",
+    "monitor": "વરસાદ પછી તપાસો",
+    "monitorReason": "વરસાદ પછી જમીનની ડ્રેનેજ અને ખેતરની સ્થિતિ તપાસો.",
+    "conditional": "જરૂર પડે તો ઓછું પિયત આપવું",
+    "conditionalReason": "જો વરસાદ < 20mm હોય, તો 25mm પિયત આપવું.",
+    "tip1": {
+      "title": "ફૂલ આવવાની અવસ્થા",
+      "text": "તમારો પાક ફૂલ આવવાની અવસ્થામાં છે. પાણીની અછત ન થવા દો — પરંતુ પાણી ભરાવા પણ ન દો જેનાથી ફૂલ ખરી જાય."
+    },
+    "tip2": {
+      "title": "પિયત આપવાનો શ્રેષ્ઠ સમય",
+      "text": "જો પિયત આપવાની જરૂર હોય, તો વહેલી સવારે (6–8 AM) આપવું જેથી પાણી ઉડી જવાથી થતું નુકસાન ઘટે."
+    },
+    "tip3": {
+      "title": "ભલામણ કરેલ જથ્થો",
+      "text": "ફૂલ આવતી વખતે મગફળીને દર અઠવાડિયે 25–35mm પાણીની જરૂર પડે છે. તાજેતરના વરસાદને કારણે વર્તમાન જમીનમાં પૂરતો ભેજ છે."
+    },
+    "tip4": {
+      "title": "જમીનનો ભેજ તપાસો",
+      "text": "મૂળ પાસેની જમીનમાં 6 ઇંચ ઊંડી આંગળી નાખો. જો તે હજુ પણ ભીની લાગે, તો આજે પિયત આપવાનું ટાળો."
+    },
+    "subtitle": "હવામાન અને જમીનના ડેટાના આધારે AI સંચાલિત સ્માર્ટ પિયતનું શેડ્યૂલ.",
+    "scheduleTitle": "AI પિયત શેડ્યૂલ",
+    "status": {
+      "skip": "છોડો",
+      "monitor": "તપાસો",
+      "conditional": "પરિસ્થિતિ મુજબ"
+    },
+    "tipsTitle": "સ્માર્ટ પિયત ટીપ્સ"
+  },
+  "nba": {
+    "subtitle": "આગળ તમારે શું કરવું જોઈએ?",
+    "description": "આજે તમારા ખેતર માટે ખાસ સલાહ.",
+    "priority": "પ્રાથમિકતા",
+    "why": "કેમ?",
+    "benefit": "ફાયદો",
+    "save": "સેવ કરો",
+    "remind": "યાદ અપાવો",
+    "askAi": "AI ને પૂછો"
+  },
+  "ui": {
+    "errorBoundary": {
+      "somethingWentWrong": "কিছু ভুল হয়েছে।",
+      "weReSorryForThe": "असुविधा के लिए खेद है। कृपया ऍप ફરી से चालू કરો.",
+      "reloadApp": "ऍप ફરીથી લોડ કરો"
+    },
+    "searchableSelect": {
+      "noResults": "કોઈ પરિણામ મળ્યું નથી"
+    },
+    "cameraModal": {
+      "takePhoto": "ફોટો લો",
+      "retry": "ફરી પ્રયાસ કરો"
+    },
+    "button": {
+      "loading": "લોડ થઈ રહ્યું છે…"
+    },
+    "toast": {
+      "notifications": "સૂચનાઓ"
+    },
+    "appShell": {
+      "goBack": "પાછા જાઓ"
+    },
+    "navigation": {
+      "mainNavigation": "મુખ્ય નેવિગેશન",
+      "sidebarNavigation": "સાઇડબાર નેવિગેશન",
+      "tabletNavigation": "ટેબ્લેટ નેવિગેશન"
+    },
+    "diagnosisReportPDF": {
+      "severity": "ગંભીરતા:",
+      "certainty": "ચોકસાઈ:",
+      "nutrientDataUnavailableNoSoil": "પોષક તત્વોનો ડેટા ઉપલબ્ધ નથી (કોઈ માટીનું પરીક્ષણ મળ્યું નથી)",
+      "forecast": "આગાહી:",
+      "predictionUnavailableDueToInsufficient": "અપૂરતા પાછલા ડેટાને કારણે આગાહી ઉપલબ્ધ નથી."
+    },
+    "insightsPage": {
+      "satelliteFarmView": "સેટેલાઇટ ખેતર દ્રશ્ય"
+    },
+    "diagnosisResultPage": {
+      "readingDiagnosisRemediesAloud": "નિદાન અને ઉપાયો મોટેથી વાંચી રહ્યા છીએ...",
+      "audioReadoutUnavailableOnThis": "આ બ્રાઉઝરમાં ઓડિયો રીડઆઉટ ઉપલબ્ધ નથી."
+    },
+    "voiceSettingsPage": {
+      "voiceSettings": "અવાજ સેટીંગ્સ",
+      "outputLanguage": "આઉટપુટ ભાષા",
+      "speechRate": "બોલવાનો દર",
+      "aiVoiceType": "AI અવાજનો પ્રકાર",
+      "testVoiceSample": "અવાજના નમૂનાની ચકાસણી કરો",
+      "voiceOutputUsesYourDevice": "અવાજ આઉટપુટ તમારા ઉપકરણની બિલ્ટ-ઇન સ્પીચ એન્જિનનો ઉપયોગ કરે છે. ગુણવત્તા ઇન્સ્ટોલ કરેલી ભાષા પેક પર આધારિત છે.",
+      "voiceLanguageUpdated": "અવાજની ભાષા અપડેટ થઈ ગઈ છે.",
+      "voiceNotSupportedOnThis": "આ ઉપકરણ પર અવાજ સપોર્ટેડ નથી.",
+      "playingVoiceSample": "અવાજનો નમૂનો વાગી રહ્યો છે…",
+      "speechRateV0": "બોલવાનો દર: {{v0}}",
+      "voiceV0": "અવાજ: {{v0}}"
+    },
+    "profilePage": {
+      "manageYourFarmerProfilePreferences": "તમારી ખેડૂત પ્રોફાઇલ, પસંદગીઓ અને ખાતું મેનેજ કરો"
+    },
+    "aboutPage": {
+      "smarterDecisionsForEveryFarm": "દરેક ખેતર માટે વધુ સ્માર્ટ નિર્ણયો",
+      "cropoctorIsAnAiPowered": "CROPOCTOR એ એક AI-સંચાલિત કૃષિ સહાયક છે જે ખેડૂતોને પાકના સ્વાસ્થ્ય, ખેતર સંચાલન, હવામાન અને રોજિંદા ખેતીના પ્રશ્નો વિશે ઝડપી અને વધુ સચોટ નિર્ણયો લેવામાં મદદ કરવા માટે બનાવવામાં આવ્યો છે.",
+      "whatCropoctorHelpsWith": "CROPOCTOR શેમાં મદદ કરે છે",
+      "howItWorks": "આ કેવી રીતે કામ કરે છે",
+      "importantNotice": "મહત્વપૂર્ણ સૂચના",
+      "aiAssistedGuidance": "AI-સહાયિત માર્ગદર્શન",
+      "cropoctorUsesArtificialIntelligenceTo": "CROPOCTOR કૃષિ માર્ગદર્શન અને પાક સ્વાસ્થ્ય મૂલ્યાંકન પ્રદાન કરવા માટે આર્ટિફિશિયલ ઇન્ટેલિજન્સનો ઉપયોગ કરે છે. AI પરિણામો ખોટા હોઈ શકે છે, ખાસ કરીને જ્યારે ફોટા અસ્પષ્ટ હોય, લક્ષણો અસામાન્ય હોય, અથવા બહુવિધ પરિસ્થિતિઓ સમાન દેખાતી હોય.",
+      "forSeriousCropDamageUncertain": "પાકને ગંભીર નુકસાન થાય, અનિશ્ચિત નિદાન હોય, અથવા ઉચ્ચ જોખમવાળા ખેતીના નિર્ણયો માટે, ખેડૂતોએ લાયક કૃષિ નિષ્ણાત અથવા સ્થાનિક કૃષિ અધિકારીની સલાહ લેવી જોઈએ.",
+      "privacyDataHandling": "ગોપનીયતા અને ડેટા હેન્ડલિંગ",
+      "yourFarmDataIsProcessed": "વ્યક્તિગત કૃષિ આંતરદૃષ્ટિ જનરેટ કરવા માટે તમારા ખેતરના ડેટા પર પ્રક્રિયા કરવામાં આવે છે. પાકના સ્વાસ્થ્યનું વિશ્લેષણ કરવા માટે ડાયગ્નોસ્ટિક છબીઓ મેમરીમાં કામચલાઉ રૂપે પ્રક્રિયા કરવામાં આવે છે અને ઉચ્ચ-રિઝોલ્યુશન ફાઇલો તરીકે રાખવામાં આવતી નથી.",
+      "version100": "સંસ્કરણ 1.0.0"
+    },
+    "myFarmsPage": {
+      "thisWillPermanentlyRemoveThis": "આ ખેતર અને તેનો સંબંધિત ડેટા કાયમ માટે દૂર થઈ જશે. આ ક્રિયા પાછી ખેંચી શકાતી નથી.",
+      "typeDeleteToConfirm": "કન્ફર્મ કરવા માટે DELETE લખો",
+      "cancel": "રદ કરો"
+    },
+    "cropRecommendationPage": {
+      "kharif": "ખરીફ",
+      "rabi": "રવિ",
+      "v0SavedToYourCrop": "{{v0}} તમારી પાક યોજનામાં સાચવવામાં આવ્યું છે."
+    },
+    "farmDetailPage": {
+      "refreshAllData": "બધા ડેટા તાજા કરો"
+    },
+    "imageAnalysisPage": {
+      "cropBeingDiagnosed": "પાકનું નિદાન થઈ રહ્યું છે"
+    },
+    "helpPage": {
+      "supportEmailSupportCropdoctorAi": "સપોર્ટ ઇમેઇલ: support@cropdoctor.ai",
+      "reportBugsToSupportCropdoctor": "બગ્સ અહીં રિપોર્ટ કરો: support@cropdoctor.ai"
+    },
+    "voicePage": {
+      "cropoctorVoiceAi": "Cropoctor Voice AI",
+      "googleCloudSpeechGeminiAi": "Google Cloud Speech & Gemini AI",
+      "activeSelectedFarm": "સક્રિય પસંદ કરેલ ખેતર",
+      "switchFarm": "ખેતર બદલો",
+      "transcribingAudio": "ઓડિયો ટ્રાન્સક્રાઇબ થઈ રહ્યો છે",
+      "sendingAudioToGoogleCloud": "Google Cloud Speech-to-Text સેવા પર ઓડિયો મોકલી રહ્યા છીએ…",
+      "analyzingWithGeminiAi": "Gemini AI સાથે વિશ્લેષણ કરી રહ્યા છીએ",
+      "voiceTranscript": "અવાજનું લખાણ",
+      "geminiAiAgronomicAdvisory": "Gemini AI ખેતીની સલાહ",
+      "stopSpeaking": "બોલવાનું બંધ કરો",
+      "speakAnswer": "જવાબ બોલો",
+      "askAnother": "બીજું પૂછો",
+      "openInAdvisor": "સલાહકારમાં ખોલો",
+      "askInEnglishEnIn": "અંગ્રેજી (en-IN), હિન્દી (hi-IN), અથવા ગુજરાતી (gu-IN) માં પૂછો",
+      "voiceAssistantError": "વોઈસ અસિસ્ટન્ટમાં ભૂલ",
+      "retryRecording": "ફરીથી રેકોર્ડ કરો",
+      "closeVoiceAssistant": "વોઈસ અસિસ્ટન્ટ બંધ કરો",
+      "sendTypedQuestion": "ટાઈપ કરેલો પ્રશ્ન મોકલો"
+    },
+    "irrigationPage": {
+      "updated": "અપડેટ થઈ ગયું!"
+    },
+    "aIAdvisorPage": {
+      "playingAdviceAudio": "સલાહનો ઓડિયો વાગી રહ્યો છે…",
+      "uploadImage": "ફોટો અપલોડ કરો",
+      "send": "મોકલો",
+      "voiceInput": "બોલીને માહિતી આપો"
+    },
+    "cropDoctorPage": {
+      "photoAcquiredOptimizedV0V1": "ફોટો મળી ગયો! ઓપ્ટિમાઇઝ કર્યો ({{v0}} → {{v1}})",
+      "sampleLeafImageSelected": "પાંદડાનો સેમ્પલ ફોટો પસંદ કર્યો છે.",
+      "pleaseSelectAnImageOr": "કૃપા કરીને પહેલા ફોટો પસંદ કરો અથવા પાડો.",
+      "acquiredLeaf": "મળેલું પાંદડું",
+      "cropLeaf": "પાંદડું ક્રોપ કરો"
+    },
+    "homePage": {
+      "farmSunrise": "ખેતરમાં સૂર્યોદય"
+    },
+    "nextBestActionPage": {
+      "actionSavedToFarmLog": "ક્રિયા ફાર્મ લૉગમાં સેવ થઈ ગઈ છે.",
+      "reminderSet": "રિમાઇન્ડર સેટ થઈ ગયું છે."
+    },
+    "loginPage": {
+      "cropoctorPlatform": "Cropoctor પ્લેટફોર્મ",
+      "growingABetterTomorrow": "એક સારા આવતીકાલનું નિર્માણ કરી રહ્યા છીએ",
+      "empowerYourAgriculturalDecisionsWith": "AI ની સચોટ તપાસ અને ખેતરની લાઇવ માહિતી સાથે તમારા ખેતીના નિર્ણયો મજબૂત બનાવો.",
+      "smartFarming": "સ્માર્ટ ખેતી",
+      "aiPrecision": "AI સચોટતા",
+      "cropHealth": "પાકનું સ્વાસ્થ્ય",
+      "earlyDetection": "વહેલી પકડ",
+      "betterYield": "વધુ સારું ઉત્પાદન",
+      "optimizedRoi": "વધુ નફો",
+      "farmIntelligencePlatform": "ફાર્મ ઇન્ટેલિજન્સ પ્લેટફોર્મ",
+      "sendOtp": "OTP મોકલો",
+      "verifySignIn": "ચકાસો અને સાઇન ઇન કરો",
+      "resetPassword": "પાસવર્ડ રીસેટ કરો",
+      "passwordResetEmailSentTo": "પાસવર્ડ રીસેટ કરવાની ઇમેઇલ મોકલી દીધી છે",
+      "backToSignIn": "સાઇન ઇન પર પાછા જાઓ",
+      "sendResetEmail": "રીસેટ ઇમેઇલ મોકલો",
+      "successfullyLoggedIn": "સફળતાપૂર્વક સાઇન ઇન થઈ ગયું!",
+      "loggedInWithGoogle": "Google દ્વારા સાઇન ઇન થયું!",
+      "pleaseEnterAPhoneNumber": "કૃપા કરીને ફોન નંબર દાખલ કરો.",
+      "recaptchaFailedToInitializePlease": "reCAPTCHA શરૂ થવામાં નિષ્ફળ. કૃપા કરીને રિફ્રેશ કરીને ફરી પ્રયાસ કરો.",
+      "otpSentToYourPhone": "તમારા ફોન પર OTP મોકલી દીધો છે!",
+      "pleaseEnterTheOtp": "કૃપા કરીને OTP દાખલ કરો.",
+      "loggedInWithPhone": "ફોન દ્વારા સાઇન ઇન થયું!",
+      "pleaseEnterYourEmailAddress": "કૃપા કરીને તમારું ઇમેઇલ સરનામું દાખલ કરો.",
+      "modernCropFieldWithTractor": "સૂર્યોદય સમયે ટ્રેક્ટર કામ કરી રહ્યું છે તેવું આધુનિક ખેતર",
+      "youExampleCom": "you@example.com",
+      "togglePassword": "પાસવર્ડ છુપાવો/બતાવો"
+    },
+    "farmerProfilePage": {
+      "step1Of3": "પગલું ૧ માંથી ૩",
+      "eGRahulPatel": "દા.ત. રાહુલ પટેલ"
+    },
+    "welcomePage": {
+      "lushAgriculturalFarmFieldAt": "સૂર્યોદય સમયે લીલુંછમ ખેતર"
+    },
+    "countryPage": {
+      "back": "પાછા જાઓ",
+      "failedToSyncCountryOnline": "દેશની માહિતી ઓનલાઇન સિન્ક થઈ શકી નથી. લોકલી સેવ કરી છે.",
+      "countryUpdatedToV0V1": "દેશ અપડેટ થઈને {{v0}} {{v1}} થયો",
+      "countrySetToV0V1": "દેશ {{v0}} {{v1}} સેટ કર્યો છે",
+      "unableToSaveCountrySelection": "દેશની પસંદગી સેવ કરી શકાઈ નથી."
+    },
+    "signUpPage": {
+      "joinCropoctor": "Cropoctor માં જોડაઓ.",
+      "transformYourFarmWithIntelligent": "હોશિયાર AI પાક વ્યવસ્થાપન સાથે તમારા ખેતરને બદલો.",
+      "joinCropoctorToGetPersonalized": "ખેતરની અંગત માહિતી મેળવવા માટે Cropoctor માં જોડაઓ.",
+      "verifyYourEmail": "તમારું ઇમેઇલ ચકાસો",
+      "weVeSentAVerification": "અમે તમારા ઇમેઇલ પર ચકાસણી લિંક મોકલી છે. લિંક પર ક્લિક કરો, પછી અહીં પાછા આવીને 'ચાલુ રાખો' દબાવો.",
+      "iVeVerifiedMyEmail": "મેં મારું ઇમેઇલ ચકાસી લીધું છે — ચાલુ રાખો",
+      "goBack": "પાછા જાઓ",
+      "sendVerificationCode": "ચકાસણી કોડ મોકલો",
+      "verifyCode": "કોડ ચકાસો",
+      "signUpWithEmailInstead": "તેના બદલે ઇમેઇલથી સાઇન અપ કરો",
+      "completeSetup": "સેટઅપ પૂરું કરો",
+      "byCreatingAnAccountYou": "એકાઉન્ટ બનાવીને, તમે અમારી સેવાની શરતો અને ગોપનીયતા નીતિથી સહમત થાઓ છો.",
+      "pleaseEnterAPhoneNumber": "કૃપા કરીને ફોન નંબર દાખલ કરો.",
+      "recaptchaFailedToInitializePlease": "reCAPTCHA શરૂ થવામાં નિષ્ફળ ગયું. કૃપા કરીને રિફ્રેશ કરીને ફરી પ્રયાસ કરો.",
+      "otpSent": "OTP મોકલી દેવાયો છે!",
+      "pleaseEnterTheOtp": "કૃપા કરીને OTP દાખલ કરો.",
+      "phoneVerifiedEnterYourName": "ફોન ચકાસાઈ ગયો! સેટઅપ પૂરું કરવા માટે તમારું નામ દાખલ કરો.",
+      "pleaseEnterYourName": "કૃપા કરીને તમારું નામ દાખલ કરો.",
+      "accountCreatedSuccessfully": "એકાઉન્ટ સફળતાપૂર્વક બની ગયું!",
+      "noUserSessionFoundPlease": "કોઈ યુઝર સેશન મળ્યું નથી. કૃપા કરીને ફરીથી સાઇન ઇન કરો.",
+      "emailNotVerifiedYetPlease": "ઇમેઇલ હજુ ચકાસાયો નથી. કૃપા કરીને પહેલા તમારા ઇમેઇલમાં આપેલી લિંક પર ક્લિક કરો.",
+      "emailVerifiedWelcomeToCropoctor": "ઇમેઇલ ચકાસાઈ ગયો! Cropoctor માં સ્વાગત છે.",
+      "noUserSessionFound": "કોઈ યુઝર સેશન મળ્યું નથી.",
+      "verificationEmailResent": "ચકાસણી ઇમેઇલ ફરીથી મોકલવામાં આવ્યો છે!",
+      "farmAtSunrise": "સૂર્યોદય સમયે ખેતર",
+      "rahulPatel": "રાહુલ પટેલ",
+      "youExampleCom": "you@example.com"
+    },
+    "farmBoundaryPage": {
+      "finishDrawing": "દોરવાનું પૂરું કરો",
+      "redraw": "ફરીથી દોરો",
+      "acres": "એકરમાં"
+    },
+    "farmDetailsPage": {
+      "eGRajkotGroundnutFarm": "દા.ત. રાજકોટ મગફળીનું ખેતર"
+    },
+    "farmLocationPage": {
+      "orTapAnywhereOnThe": "અથવા પિન મૂકવા માટે નકશા પર ગમે ત્યાં ટેપ કરો",
+      "searchVillageTalukDistrict": "ગામ, તાલુકો, જિલ્લો શોધો…"
+    }
   }
 }

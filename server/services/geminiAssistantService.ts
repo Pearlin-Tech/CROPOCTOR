@@ -1,5 +1,6 @@
-import { AssistantTools, ServerFarm } from './assistantTools.ts'
-import { AI_CONFIG } from '../config/aiConfig.ts'
+import { AssistantTools, type ServerFarm } from './assistantTools.js'
+import { AI_CONFIG, getLanguageName } from '../config/aiConfig.js'
+import { ensureLanguage } from './languageGuard.js'
 
 export type AssistantIntent =
   | 'GET_CURRENT_FARM'
@@ -154,7 +155,7 @@ Language Code: ${language || 'en-IN'}
 Retrieved Controlled Application Data:
 ${JSON.stringify(retrievedData, null, 2)}
 
-Provide a concise, clear, and practical 2-3 sentence answer suitable for a voice interface in language (${language || 'en-IN'}).
+Provide a concise, clear, and practical 2-3 sentence answer suitable for a voice interface. Write the answer ENTIRELY in ${getLanguageName(language || 'en')}.
 Directly address the farmer's question using the retrieved farm and weather data. Do not make up fake data.
 `
 
@@ -260,7 +261,10 @@ export async function processAssistantRequest(
     }
 
     // Step 3: Final Answer Synthesis
-    const answer = await synthesizeFinalAnswer(userQuery, intent, retrievedData, language || 'en-IN', apiKey)
+    const rawAnswer = await synthesizeFinalAnswer(userQuery, intent, retrievedData, language || 'en-IN', apiKey)
+    const answer = typeof rawAnswer === 'string' && rawAnswer.trim()
+      ? (await ensureLanguage({ answer: rawAnswer }, language || 'en')).content.answer as string
+      : rawAnswer
 
     return {
       success: true,

@@ -24,7 +24,7 @@ const FarmerProfilePage: React.FC = () => {
       <div className="flex gap-1.5 mb-8">
         {[1,2,3].map(s => <div key={s} className={`h-1.5 flex-1 rounded-full ${s <= 1 ? 'bg-green-forest' : 'bg-gray-200'}`} />)}
       </div>
-      <p className="text-xs text-gray-400 font-medium mb-2">Step 1 of 3</p>
+      <p className="text-xs text-gray-400 font-medium mb-2">{t("ui.farmerProfilePage.step1Of3", "Step 1 of 3")}</p>
 
       <h1 className="text-2xl font-bold text-gray-800 mb-1">{t('profile.title')}</h1>
       <p className="text-gray-500 text-sm mb-8">{t('profile.subtitle')}</p>
@@ -42,7 +42,7 @@ const FarmerProfilePage: React.FC = () => {
       <div className="space-y-6 flex-1">
         <Input
           label={t('profile.fullName')}
-          placeholder="e.g. Rahul Patel"
+          placeholder={t("ui.farmerProfilePage.eGRahulPatel", "e.g. Rahul Patel")}
           value={name}
           onChange={e => setName(e.target.value)}
           required

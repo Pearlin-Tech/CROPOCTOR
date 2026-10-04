@@ -1,3 +1,4 @@
+import i18n from '@/locales/i18n'
 import React from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import { BottomNav, Sidebar, TopNav } from './Navigation'
@@ -83,7 +84,7 @@ export const MobileHeader: React.FC<MobileHeaderProps> = ({ title, subtitle, onB
     {onBack && (
       <button
         onClick={onBack}
-        aria-label="Go back"
+        aria-label={i18n.t("ui.appShell.goBack", "Go back")}
         className="w-9 h-9 flex items-center justify-center rounded-xl bg-green-light text-green-forest shrink-0"
       >
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="w-4 h-4">

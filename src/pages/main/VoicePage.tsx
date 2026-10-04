@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -19,6 +20,7 @@ import {
 export type VoiceState = 'IDLE' | 'LISTENING' | 'TRANSCRIBING' | 'THINKING' | 'SPEAKING' | 'ERROR'
 
 const VoicePage: React.FC = () => {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const { activeFarm } = useFarm()
   const { language, toast } = useApp()
@@ -201,15 +203,15 @@ const VoicePage: React.FC = () => {
             <Sparkles className="w-5 h-5 text-green-pastel" />
           </div>
           <div>
-            <h2 className="text-sm font-bold tracking-wide uppercase text-green-pastel">Cropoctor Voice AI</h2>
-            <p className="text-[11px] text-white/70 font-medium">Google Cloud Speech & Gemini AI</p>
+            <h2 className="text-sm font-bold tracking-wide uppercase text-green-pastel">{t("ui.voicePage.cropoctorVoiceAi", "Cropoctor Voice AI")}</h2>
+            <p className="text-[11px] text-white/70 font-medium">{t("ui.voicePage.googleCloudSpeechGeminiAi", "Google Cloud Speech & Gemini AI")}</p>
           </div>
         </div>
 
         <button
           onClick={() => navigate(-1)}
           className="w-10 h-10 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition-colors backdrop-blur-md border border-white/10"
-          aria-label="Close voice assistant"
+          aria-label={t("ui.voicePage.closeVoiceAssistant", "Close voice assistant")}
         >
           <X className="w-5 h-5 text-white" />
         </button>
@@ -223,7 +225,7 @@ const VoicePage: React.FC = () => {
               <MapPin className="w-4 h-4 text-green-pastel" />
             </div>
             <div className="truncate">
-              <p className="text-[10px] text-green-pastel font-semibold uppercase tracking-wider">Active Selected Farm</p>
+              <p className="text-[10px] text-green-pastel font-semibold uppercase tracking-wider">{t("ui.voicePage.activeSelectedFarm", "Active Selected Farm")}</p>
               <p className="text-xs font-bold text-white truncate">
                 {activeFarm ? activeFarm.name : 'No Farm Selected'}
                 {activeFarm?.primaryCrop && <span className="text-white/80 font-normal"> ({activeFarm.primaryCrop})</span>}
@@ -235,7 +237,7 @@ const VoicePage: React.FC = () => {
             onClick={() => navigate('/farms')}
             className="text-[11px] font-semibold text-green-pastel hover:underline shrink-0 bg-white/10 px-2.5 py-1 rounded-full border border-white/10"
           >
-            Switch Farm
+            {t("ui.voicePage.switchFarm", "Switch Farm")}
           </button>
         </div>
       </div>
@@ -246,9 +248,9 @@ const VoicePage: React.FC = () => {
         {voiceState === 'TRANSCRIBING' && (
           <div className="flex flex-col items-center justify-center text-center py-10">
             <Loader2 className="w-12 h-12 text-green-pastel animate-spin mb-4" />
-            <h3 className="text-lg font-bold text-white mb-1">Transcribing Audio</h3>
+            <h3 className="text-lg font-bold text-white mb-1">{t("ui.voicePage.transcribingAudio", "Transcribing Audio")}</h3>
             <p className="text-xs text-white/70 max-w-xs">
-              Sending audio to Google Cloud Speech-to-Text service…
+              {t("ui.voicePage.sendingAudioToGoogleCloud", "Sending audio to Google Cloud Speech-to-Text service…")}
             </p>
           </div>
         )}
@@ -266,7 +268,7 @@ const VoicePage: React.FC = () => {
                 <Sparkles className="w-9 h-9 text-green-pastel animate-pulse" />
               </div>
             </div>
-            <h3 className="text-lg font-bold text-white mb-1">Analyzing with Gemini AI</h3>
+            <h3 className="text-lg font-bold text-white mb-1">{t("ui.voicePage.analyzingWithGeminiAi", "Analyzing with Gemini AI")}</h3>
             <p className="text-xs text-white/70 max-w-xs">
               Evaluating crop intent, soil, and weather for {activeFarm?.name || 'your farm'}…
             </p>
@@ -283,7 +285,7 @@ const VoicePage: React.FC = () => {
             {/* Transcript Display */}
             {transcript && (
               <div className="bg-black/20 rounded-2xl p-3.5 border border-white/10">
-                <p className="text-[10px] uppercase tracking-wider text-green-pastel font-bold mb-1">Voice Transcript</p>
+                <p className="text-[10px] uppercase tracking-wider text-green-pastel font-bold mb-1">{t("ui.voicePage.voiceTranscript", "Voice Transcript")}</p>
                 <p className="text-sm italic text-white/95">"{transcript}"</p>
               </div>
             )}
@@ -292,7 +294,7 @@ const VoicePage: React.FC = () => {
             <div className="bg-white/15 rounded-2xl p-4 border border-white/20 shadow-inner">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-[10px] uppercase tracking-wider text-green-pastel font-bold flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5 text-green-pastel" /> Gemini AI Agronomic Advisory
+                  <Sparkles className="w-3.5 h-3.5 text-green-pastel" /> {t("ui.voicePage.geminiAiAgronomicAdvisory", "Gemini AI Agronomic Advisory")}
                 </span>
                 
                 {voiceState === 'SPEAKING' ? (
@@ -300,14 +302,14 @@ const VoicePage: React.FC = () => {
                     onClick={handleStopAudio}
                     className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-red-500/30 text-red-200 text-[11px] font-medium border border-red-400/30 animate-pulse"
                   >
-                    <VolumeX className="w-3.5 h-3.5" /> Stop Speaking
+                    <VolumeX className="w-3.5 h-3.5" /> {t("ui.voicePage.stopSpeaking", "Stop Speaking")}
                   </button>
                 ) : (
                   <button
                     onClick={handleReplayAudio}
                     className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-green-pastel/20 text-green-pastel text-[11px] font-medium border border-green-pastel/30 hover:bg-green-pastel/30"
                   >
-                    <Volume2 className="w-3.5 h-3.5" /> Speak Answer
+                    <Volume2 className="w-3.5 h-3.5" /> {t("ui.voicePage.speakAnswer", "Speak Answer")}
                   </button>
                 )}
               </div>
@@ -323,13 +325,13 @@ const VoicePage: React.FC = () => {
                 onClick={handleReset}
                 className="flex-1 py-3 px-4 bg-white/10 hover:bg-white/20 rounded-2xl text-xs font-bold text-white border border-white/15 flex items-center justify-center gap-2 transition-all"
               >
-                <RotateCcw className="w-4 h-4 text-green-pastel" /> Ask Another
+                <RotateCcw className="w-4 h-4 text-green-pastel" /> {t("ui.voicePage.askAnother", "Ask Another")}
               </button>
               <button
                 onClick={() => navigate('/advisor')}
                 className="flex-1 py-3 px-4 bg-green-forest hover:bg-green-deep rounded-2xl text-xs font-bold text-white border border-green-pastel/30 flex items-center justify-center gap-2 transition-all shadow-md"
               >
-                Open in Advisor <ArrowRight className="w-4 h-4" />
+                {t("ui.voicePage.openInAdvisor", "Open in Advisor")} <ArrowRight className="w-4 h-4" />
               </button>
             </div>
           </motion.div>
@@ -387,7 +389,7 @@ const VoicePage: React.FC = () => {
               {voiceState === 'LISTENING' ? 'Listening… Tap microphone to stop' : 'Tap microphone to speak'}
             </p>
             <p className="text-xs text-white/60 max-w-xs">
-              Ask in English (en-IN), Hindi (hi-IN), or Gujarati (gu-IN)
+              {t("ui.voicePage.askInEnglishEnIn", "Ask in English (en-IN), Hindi (hi-IN), or Gujarati (gu-IN)")}
             </p>
           </div>
         )}
@@ -398,13 +400,13 @@ const VoicePage: React.FC = () => {
             <div className="w-12 h-12 rounded-2xl bg-red-500/30 flex items-center justify-center">
               <AlertCircle className="w-6 h-6 text-red-300" />
             </div>
-            <h3 className="text-sm font-bold text-red-200">Voice Assistant Error</h3>
+            <h3 className="text-sm font-bold text-red-200">{t("ui.voicePage.voiceAssistantError", "Voice Assistant Error")}</h3>
             <p className="text-xs text-red-100/90">{errorMsg || 'An error occurred during voice processing.'}</p>
             <button
               onClick={handleReset}
               className="mt-2 py-2.5 px-5 bg-white/10 hover:bg-white/20 rounded-full text-xs font-bold text-white border border-white/20 flex items-center gap-2"
             >
-              <RotateCcw className="w-3.5 h-3.5 text-green-pastel" /> Retry Recording
+              <RotateCcw className="w-3.5 h-3.5 text-green-pastel" /> {t("ui.voicePage.retryRecording", "Retry Recording")}
             </button>
           </div>
         )}
@@ -425,7 +427,7 @@ const VoicePage: React.FC = () => {
             type="submit"
             disabled={!textInput.trim() || voiceState === 'LISTENING' || voiceState === 'TRANSCRIBING' || voiceState === 'THINKING'}
             className="absolute right-1.5 w-9 h-9 bg-green-pastel text-green-forest rounded-full flex items-center justify-center disabled:opacity-40 transition-all hover:scale-105"
-            aria-label="Send typed question"
+            aria-label={t("ui.voicePage.sendTypedQuestion", "Send typed question")}
           >
             <Send className="w-4 h-4" />
           </button>

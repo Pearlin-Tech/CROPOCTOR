@@ -281,7 +281,7 @@ const FarmDetailPage: React.FC = () => {
             onClick={handleRefresh}
             disabled={refreshing}
             className="w-8 h-8 rounded-full bg-green-50 flex items-center justify-center border border-green-200 hover:bg-green-100 transition-colors disabled:opacity-50"
-            title="Refresh all data"
+            title={t("ui.farmDetailPage.refreshAllData", "Refresh all data")}
           >
             <RefreshCw className={`w-4 h-4 text-green-700 ${refreshing ? 'animate-spin' : ''}`} />
           </button>
@@ -410,7 +410,7 @@ const FarmDetailPage: React.FC = () => {
               </div>
               <div className="text-right">
                 <p className="text-2xl font-black text-gray-800">{weather.temperature}°C</p>
-                <p className="text-xs text-gray-500">{weather.description}</p>
+                <p className="text-xs text-gray-500">{t(`weatherDesc.${weather.icon}`, weather.description)}</p>
               </div>
             </div>
             <div className="grid grid-cols-3 gap-2">

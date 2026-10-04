@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { pageVariants, listVariants, cardVariants } from '@/animations/variants'
 import { PageLayout, MobileHeader } from '@/components/layout/AppShell'
 import { Card } from '@/components/ui/Card'
@@ -10,168 +10,15 @@ import { advisorService } from '@/services/advisorService'
 import { useUser } from '@/store/UserContext'
 import { useFarm } from '@/store/FarmContext'
 import type { DiagnosisResult, AdvisorConversation } from '@/types'
-import { RefreshCw, ChevronRight, MessageSquare, ShieldAlert, X, AlertCircle, Trash2 } from 'lucide-react'
+import { RefreshCw, ChevronRight, MessageSquare, ShieldAlert, Trash2, AlertTriangle } from 'lucide-react'
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
+import { useApp } from '@/store/AppContext'
+import { certaintyLabel, isFallbackRecord } from '@/utils/diagnosis'
 import { formatDiagnosisTimestamp, groupByDiagnosisDay } from '@/utils/format'
 
 type TimelineItem =
   | { type: 'diagnosis'; data: DiagnosisResult; timestamp: any }
   | { type: 'advisor'; data: AdvisorConversation; timestamp: any }
-
-// ── Diagnosis Detail Modal ────────────────────────────────────────────────────
-
-const DiagnosisDetailModal: React.FC<{ diagnosis: DiagnosisResult; onClose: () => void; onDelete: (id: string) => void }> = ({ diagnosis: d, onClose, onDelete }) => {
-  const { t } = useTranslation();
-  const severityColor =
-    d.severity === 'severe'
-      ? 'text-red-700 bg-red-100'
-      : d.severity === 'moderate'
-      ? 'text-amber-700 bg-amber-100'
-      : 'text-green-700 bg-green-100'
-
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
-      onClick={onClose}
-    >
-      <motion.div
-        initial={{ y: 60, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        exit={{ y: 60, opacity: 0 }}
-        transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-        className="w-full max-w-lg bg-white rounded-3xl shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto"
-        onClick={e => e.stopPropagation()}
-      >
-        {/* Header */}
-        <div className="relative bg-gradient-to-br from-green-forest to-green-dark p-6 pb-4">
-          <button
-            onClick={onClose}
-            className="absolute top-4 right-4 w-8 h-8 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-colors"
-          >
-            <X className="w-4 h-4 text-white" />
-          </button>
-          <p className="text-xs font-bold text-green-pastel/80 uppercase tracking-widest mb-1">{t('history.detail.title', 'Diagnosis Details')}</p>
-          <h2 className="text-xl font-bold text-white leading-tight">{d.diseaseName || d.disease || 'Diagnosed Issue'}</h2>
-          <p className="text-green-pastel/90 text-sm mt-1">🌿 {d.cropName || d.crop}</p>
-          <div className="flex items-center gap-2 mt-3 flex-wrap">
-            <span className={`text-xs font-bold px-3 py-1 rounded-full bg-white/20 text-white`}>
-              {d.severity ? d.severity.charAt(0).toUpperCase() + d.severity.slice(1) : 'Unknown'} {t('diagnosis.result.severity', 'severity')}
-            </span>
-            <span className="text-xs font-bold px-3 py-1 rounded-full bg-white/20 text-white">
-              {d.confidence}% {t('diagnosis.result.confidence', 'confidence')}
-            </span>
-          </div>
-        </div>
-
-        {/* Thumbnail */}
-        {d.imageUrl && (
-          <div className="mx-6 -mt-4 rounded-2xl overflow-hidden border-2 border-green-pastel/30 shadow-md h-40">
-            <img
-              src={d.imageUrl}
-              alt={d.diseaseName || d.disease}
-              className="w-full h-full object-cover"
-              onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
-            />
-          </div>
-        )}
-
-        {/* Body */}
-        <div className="p-6 space-y-5">
-          {/* Timestamp */}
-          <div className="flex items-center gap-2 text-xs text-gray-400">
-            <span>🗓</span>
-            <span>{formatDiagnosisTimestamp(d.timestamp)}</span>
-          </div>
-
-          {/* Analysis */}
-          {d.analysis && (
-            <section>
-              <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">{t('diagnosis.result.analysis', 'Analysis')}</h4>
-              <p className="text-sm text-gray-700 leading-relaxed">{d.analysis}</p>
-            </section>
-          )}
-
-          {/* Symptoms */}
-          {d.symptoms && d.symptoms.length > 0 && (
-            <section>
-              <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">{t('diagnosis.result.symptoms', 'Symptoms')}</h4>
-              <ul className="space-y-1.5">
-                {d.symptoms.map((s: string, i: number) => (
-                  <li key={i} className="flex gap-2 text-sm text-gray-700">
-                    <span className="text-amber-500 shrink-0">•</span>
-                    {s}
-                  </li>
-                ))}
-              </ul>
-            </section>
-          )}
-
-          {/* Treatment */}
-          {d.treatment && d.treatment.length > 0 && (
-            <section className="bg-green-50 rounded-2xl p-4">
-              <h4 className="text-xs font-bold text-green-800 uppercase tracking-wider mb-2">{t('diagnosis.result.actions', 'Recommended Treatment')}</h4>
-              <ul className="space-y-1.5">
-                {(Array.isArray(d.treatment) ? d.treatment : [d.treatment]).map((t: string, i: number) => (
-                  <li key={i} className="flex gap-2 text-sm text-green-900">
-                    <span className="text-green-600 shrink-0 font-bold">✓</span>
-                    {t}
-                  </li>
-                ))}
-              </ul>
-            </section>
-          )}
-
-          {/* Prevention */}
-          {d.prevention && d.prevention.length > 0 && (
-            <section>
-              <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">{t('diagnosis.result.prevention', 'Prevention')}</h4>
-              <ul className="space-y-1.5">
-                {d.prevention.map((p: string, i: number) => (
-                  <li key={i} className="flex gap-2 text-sm text-gray-700">
-                    <span className="text-blue-500 shrink-0">→</span>
-                    {p}
-                  </li>
-                ))}
-              </ul>
-            </section>
-          )}
-
-          {/* When to recheck */}
-          {d.whenToRecheck && (
-            <section className="flex items-start gap-3 bg-amber-50 rounded-2xl p-4">
-              <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-              <div>
-                <h4 className="text-xs font-bold text-amber-800 uppercase tracking-wider mb-0.5">{t('diagnosis.result.recheck', 'Recheck')}</h4>
-                <p className="text-sm text-amber-900">{d.whenToRecheck}</p>
-              </div>
-            </section>
-          )}
-
-          <div className="flex gap-3">
-            <button
-              onClick={() => {
-                if (window.confirm(t('history.detail.confirmDelete', 'Are you sure you want to delete this diagnosis?'))) {
-                  onDelete(d.id)
-                }
-              }}
-              className="px-6 py-3 rounded-2xl border-2 border-red-100 text-red-600 font-bold text-sm hover:bg-red-50 transition-colors shrink-0"
-            >
-              {t('common.delete', 'Delete')}
-            </button>
-            <button
-              onClick={onClose}
-              className="flex-1 py-3 rounded-2xl bg-green-forest text-white font-bold text-sm hover:bg-green-dark transition-colors"
-            >
-              {t('common.close', 'Close')}
-            </button>
-          </div>
-        </div>
-      </motion.div>
-    </motion.div>
-  )
-}
 
 // ── Main Page ─────────────────────────────────────────────────────────────────
 
@@ -180,11 +27,13 @@ const FarmHistoryPage: React.FC = () => {
   const { t } = useTranslation()
   const { authUser } = useUser()
   const { activeFarm } = useFarm()
+  const { toast } = useApp()
 
   const [timeline, setTimeline] = useState<TimelineItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [historyError, setHistoryError] = useState<string | null>(null)
-  const [selectedDiagnosis, setSelectedDiagnosis] = useState<DiagnosisResult | null>(null)
+  const [pendingDelete, setPendingDelete] = useState<DiagnosisResult | null>(null)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   const fetchHistory = useCallback(async () => {
     if (!authUser?.uid) {
@@ -197,7 +46,7 @@ const FarmHistoryPage: React.FC = () => {
     console.log(`[DiagnosisHistory] uid=${authUser.uid} query started`)
 
     const [diagnoses, conversations] = await Promise.all([
-      cropDoctorService.getRecentDiagnoses(30, activeFarm?.id).catch(err => {
+      cropDoctorService.getRecentDiagnoses(50).catch(err => {
         if (err?.message === 'FIRESTORE_PERMISSION_DENIED') {
           setHistoryError('Permission denied: cannot read diagnosis history. Firestore rules may not be deployed yet.')
           console.error(`[DiagnosisHistory] permission denied uid=${authUser.uid}`)
@@ -244,13 +93,18 @@ const FarmHistoryPage: React.FC = () => {
 
   const grouped = groupByDiagnosisDay(diagnosisItems)
 
-  const handleDeleteDiagnosis = async (diagnosisId: string) => {
+  const confirmDeleteDiagnosis = async () => {
+    if (!pendingDelete) return
+    const diagnosisId = pendingDelete.id
+    setIsDeleting(true)
     const success = await cropDoctorService.deleteDiagnosis(diagnosisId)
+    setIsDeleting(false)
     if (success) {
       setTimeline(prev => prev.filter(item => !(item.type === 'diagnosis' && item.data.id === diagnosisId)))
-      setSelectedDiagnosis(null)
+      setPendingDelete(null)
+      toast.success(t('history.deleted', 'Diagnosis deleted.'))
     } else {
-      alert(t('history.deleteError', 'Failed to delete diagnosis.'))
+      toast.error(t('history.deleteError', 'Could not delete this diagnosis. Check your connection and try again.'))
     }
   }
 
@@ -264,9 +118,8 @@ const FarmHistoryPage: React.FC = () => {
       
       if (diagSuccess && advSuccess) {
         setTimeline([])
-        setSelectedDiagnosis(null)
       } else {
-        alert(t('history.clearAllError', 'Failed to clear all history.'))
+        toast.error(t('history.clearAllError', 'Failed to clear all history.'))
       }
       setIsLoading(false)
     }
@@ -359,52 +212,59 @@ const FarmHistoryPage: React.FC = () => {
                         ? 'text-red-600 bg-red-50 border-red-100'
                         : d.severity === 'moderate'
                         ? 'text-amber-600 bg-amber-50 border-amber-100'
+                        : d.severity === 'unknown'
+                        ? 'text-gray-600 bg-gray-50 border-gray-200'
                         : 'text-green-700 bg-green-50 border-green-100'
 
+                    const unreliable = isFallbackRecord(d)
                     return (
-                      <motion.button
+                      <motion.div
                         key={d.id}
                         variants={cardVariants}
-                        onClick={() => setSelectedDiagnosis(d)}
-                        className="w-full flex items-start gap-3 p-4 bg-white border border-brown-pastel/30 rounded-2xl shadow-sm hover:border-green-forest/40 hover:shadow-card-lg transition-all text-left group"
+                        className={`flex items-stretch bg-white border rounded-2xl shadow-sm hover:shadow-card-lg transition-all ${unreliable ? 'border-red-200' : 'border-brown-pastel/30 hover:border-green-forest/40'}`}
                       >
-                        {/* Thumbnail */}
-                        <div className="w-14 h-14 rounded-xl overflow-hidden bg-gray-100 shrink-0 border border-brown-pastel/20">
-                          <img
-                            src={d.imageUrl || '/images/disease_leaf_1787238259522.jpg'}
-                            alt={d.diseaseName || d.disease}
-                            className="w-full h-full object-cover"
-                            onError={(e) => { (e.target as HTMLImageElement).src = '/images/disease_leaf_1787238259522.jpg' }}
-                          />
-                        </div>
-
-                        {/* Content */}
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-1.5 mb-0.5">
-                            <span className="text-xs font-bold text-green-forest uppercase tracking-wider">🔬 {t('nav.diagnose', 'Diagnosis')}</span>
+                        <button
+                          type="button"
+                          onClick={() => navigate('/diagnosis-result', { state: { diagnosis: d } })}
+                          className="flex-1 min-w-0 flex items-start gap-3 p-4 text-left group rounded-l-2xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-green-forest"
+                        >
+                          <div className="w-14 h-14 rounded-xl overflow-hidden bg-gray-100 shrink-0 border border-brown-pastel/20 flex items-center justify-center">
+                            {d.imageUrl
+                              ? <img src={d.imageUrl} alt="" className="w-full h-full object-cover" />
+                              : <span className="text-2xl" aria-hidden>🌿</span>}
                           </div>
-                          <p className="font-bold text-text-main text-sm leading-tight truncate">
-                            {d.diseaseName || d.disease || 'Issue Detected'}
-                          </p>
-                          <p className="text-xs text-text-secondary font-medium mt-0.5">
-                            🌿 {d.cropName || d.crop}
-                          </p>
-                          <div className="flex items-center gap-2 mt-1.5 flex-wrap">
-                            <span className={`text-xs font-semibold px-2 py-0.5 rounded-full border ${severityColor}`}>
-                              {d.severity ? d.severity.charAt(0).toUpperCase() + d.severity.slice(1) : 'Unknown'}
-                            </span>
-                            <span className="text-xs text-green-forest font-bold">{d.confidence}% confidence</span>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-bold text-text-main text-sm leading-tight truncate">{d.diseaseName || d.disease}</p>
+                            <p className="text-xs text-text-secondary font-medium mt-0.5">🌿 {d.cropName || d.crop}</p>
+                            <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                              {unreliable ? (
+                                <span className="text-xs font-semibold px-2 py-0.5 rounded-full border text-red-700 bg-red-50 border-red-200 inline-flex items-center gap-1">
+                                  <AlertTriangle className="w-3 h-3" aria-hidden /> {t('history.unreliable', 'Unreliable older record')}
+                                </span>
+                              ) : (
+                                <>
+                                  <span className={`text-xs font-semibold px-2 py-0.5 rounded-full border ${severityColor}`}>
+                                    {t(`diagnosis.severity.${d.severity}`, { defaultValue: { healthy: 'Healthy', mild: 'Mild', moderate: 'Moderate', severe: 'Severe', unknown: 'Severity unknown' }[d.severity] || d.severity })}
+                                  </span>
+                                  <span className="text-xs text-green-forest font-bold">{certaintyLabel(d, t)}</span>
+                                </>
+                              )}
+                            </div>
+                            {d.timestamp && (
+                              <p className="text-xs text-gray-500 mt-1.5">{formatDiagnosisTimestamp(d.timestamp, { time: true })}</p>
+                            )}
                           </div>
-                          <p className="text-xs text-gray-400 mt-1.5">
-                            {formatDiagnosisTimestamp(d.timestamp, { time: true })}
-                          </p>
-                        </div>
-
-                        {/* Arrow */}
-                        <div className="flex flex-col items-end gap-1 shrink-0 pt-1">
-                          <span className="text-xs font-semibold text-green-forest group-hover:underline">{t('weather.viewDetails', 'View')} →</span>
-                        </div>
-                      </motion.button>
+                          <ChevronRight className="w-4 h-4 text-green-forest shrink-0 mt-1 group-hover:translate-x-0.5 transition-transform" aria-hidden />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setPendingDelete(d)}
+                          aria-label={t('history.deleteOne', { defaultValue: 'Delete diagnosis: {{name}}', name: d.diseaseName || d.disease })}
+                          className="shrink-0 w-12 flex items-center justify-center border-l border-brown-pastel/20 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-r-2xl transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-600"
+                        >
+                          <Trash2 className="w-4 h-4" aria-hidden />
+                        </button>
+                      </motion.div>
                     )
                   })}
                 </div>
@@ -449,16 +309,24 @@ const FarmHistoryPage: React.FC = () => {
         </p>
       </PageLayout>
 
-      {/* Diagnosis Detail Modal */}
-      <AnimatePresence>
-        {selectedDiagnosis && (
-          <DiagnosisDetailModal
-            diagnosis={selectedDiagnosis}
-            onClose={() => setSelectedDiagnosis(null)}
-            onDelete={handleDeleteDiagnosis}
-          />
-        )}
-      </AnimatePresence>
+      <ConfirmDialog
+        open={!!pendingDelete}
+        title={t('history.confirmDeleteTitle', 'Delete this diagnosis?')}
+        description={
+          <>
+            <span className="font-semibold text-text-main">{pendingDelete?.diseaseName || pendingDelete?.disease}</span>
+            {pendingDelete?.timestamp ? ` · ${formatDiagnosisTimestamp(pendingDelete.timestamp)}` : ''}
+            <br />
+            {t('history.confirmDeleteDesc', 'Only this record is removed. This cannot be undone.')}
+          </>
+        }
+        confirmLabel={t('common.delete', 'Delete')}
+        cancelLabel={t('common.cancel', 'Cancel')}
+        destructive
+        busy={isDeleting}
+        onConfirm={confirmDeleteDiagnosis}
+        onCancel={() => setPendingDelete(null)}
+      />
     </motion.div>
   )
 }

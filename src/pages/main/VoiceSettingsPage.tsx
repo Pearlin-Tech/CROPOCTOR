@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
@@ -10,6 +11,7 @@ import { useApp } from '@/store/AppContext'
 import i18n from '@/locales/i18n'
 
 const VoiceSettingsPage: React.FC = () => {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const { language, setLanguage, toast } = useApp()
   const [speechRate, setSpeechRate]   = useState<'slow' | 'normal' | 'fast'>('normal')
@@ -20,7 +22,7 @@ const VoiceSettingsPage: React.FC = () => {
     setOutputLang(code)
     setLanguage(code)
     i18n.changeLanguage(code)
-    toast.success('Voice language updated.')
+    toast.success(t("ui.voiceSettingsPage.voiceLanguageUpdated", "Voice language updated."))
   }
 
   const testVoice = () => {
@@ -31,7 +33,7 @@ const VoiceSettingsPage: React.FC = () => {
     }
     const text = texts[outputLang] || texts['en']
     const rates: Record<string, number> = { slow: 0.7, normal: 1.0, fast: 1.4 }
-    if (!window.speechSynthesis) { toast.error('Voice not supported on this device.'); return }
+    if (!window.speechSynthesis) { toast.error(t("ui.voiceSettingsPage.voiceNotSupportedOnThis", "Voice not supported on this device.")); return }
     window.speechSynthesis.cancel()
     const utter = new SpeechSynthesisUtterance(text)
     utter.lang = outputLang === 'hi' ? 'hi-IN' : outputLang === 'gu' ? 'gu-IN' : 'en-IN'
@@ -40,21 +42,21 @@ const VoiceSettingsPage: React.FC = () => {
     const preferred = voices.find(v => voiceGender === 'female' ? v.name.toLowerCase().includes('female') || v.name.includes('Raveena') : v.name.toLowerCase().includes('male'))
     if (preferred) utter.voice = preferred
     window.speechSynthesis.speak(utter)
-    toast.info('Playing voice sample…')
+    toast.info(t("ui.voiceSettingsPage.playingVoiceSample", "Playing voice sample…"))
   }
 
   return (
     <motion.div variants={pageVariants} initial="initial" animate="animate" className="min-h-screen bg-background">
-      <MobileHeader title="Voice Settings" onBack={() => navigate(-1)} />
+      <MobileHeader title={t("ui.voiceSettingsPage.voiceSettings", "Voice Settings")} onBack={() => navigate(-1)} />
 
       <PageLayout className="pt-4 pb-8 space-y-6">
-        <h1 className="hidden lg:block text-2xl font-bold text-gray-800 mb-2">Voice Settings</h1>
+        <h1 className="hidden lg:block text-2xl font-bold text-gray-800 mb-2">{t("ui.voiceSettingsPage.voiceSettings", "Voice Settings")}</h1>
 
         {/* Voice Language */}
         <div>
           <div className="flex items-center gap-2 mb-3">
             <Globe2 className="w-4 h-4 text-green-forest" />
-            <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Output Language</p>
+            <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">{t("ui.voiceSettingsPage.outputLanguage", "Output Language")}</p>
           </div>
           <Card padding="md">
             <div className="grid grid-cols-1 gap-2">
@@ -90,7 +92,7 @@ const VoiceSettingsPage: React.FC = () => {
         <div>
           <div className="flex items-center gap-2 mb-3">
             <Gauge className="w-4 h-4 text-green-forest" />
-            <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Speech Rate</p>
+            <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">{t("ui.voiceSettingsPage.speechRate", "Speech Rate")}</p>
           </div>
           <Card padding="md">
             <div className="flex gap-2">
@@ -98,7 +100,7 @@ const VoiceSettingsPage: React.FC = () => {
                 <Chip
                   key={rate}
                   selected={speechRate === rate}
-                  onClick={() => { setSpeechRate(rate); toast.info(`Speech rate: ${rate}`) }}
+                  onClick={() => { setSpeechRate(rate); toast.info(t("ui.voiceSettingsPage.speechRateV0", { defaultValue: "Speech rate: {{v0}}", v0: rate })) }}
                   className="flex-1 justify-center"
                 >
                   {rate === 'slow' ? '🐢 Slow' : rate === 'normal' ? '▶️ Normal' : '⚡ Fast'}
@@ -112,7 +114,7 @@ const VoiceSettingsPage: React.FC = () => {
         <div>
           <div className="flex items-center gap-2 mb-3">
             <Mic className="w-4 h-4 text-green-forest" />
-            <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">AI Voice Type</p>
+            <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">{t("ui.voiceSettingsPage.aiVoiceType", "AI Voice Type")}</p>
           </div>
           <Card padding="md">
             <div className="flex gap-2">
@@ -120,7 +122,7 @@ const VoiceSettingsPage: React.FC = () => {
                 <Chip
                   key={g}
                   selected={voiceGender === g}
-                  onClick={() => { setVoiceGender(g); toast.info(`Voice: ${g}`) }}
+                  onClick={() => { setVoiceGender(g); toast.info(t("ui.voiceSettingsPage.voiceV0", { defaultValue: "Voice: {{v0}}", v0: g })) }}
                   className="flex-1 justify-center"
                 >
                   {g === 'female' ? '👩 Female' : '👨 Male'}
@@ -136,11 +138,11 @@ const VoiceSettingsPage: React.FC = () => {
           className="w-full flex items-center justify-center gap-2 py-4 bg-gradient-to-r from-green-forest to-green-soft text-white rounded-2xl font-semibold hover:opacity-90 transition-opacity shadow-button"
         >
           <Volume2 className="w-5 h-5" />
-          Test Voice Sample
+          {t("ui.voiceSettingsPage.testVoiceSample", "Test Voice Sample")}
         </button>
 
         <p className="text-xs text-center text-gray-400 px-4">
-          Voice output uses your device's built-in speech engine. Quality depends on installed language packs.
+          {t("ui.voiceSettingsPage.voiceOutputUsesYourDevice", "Voice output uses your device's built-in speech engine. Quality depends on installed language packs.")}
         </p>
       </PageLayout>
     </motion.div>

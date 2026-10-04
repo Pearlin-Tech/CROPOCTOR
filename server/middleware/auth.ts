@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express'
+import type { Request, Response, NextFunction } from 'express'
 
 export interface AuthenticatedRequest extends Request {
   user?: {
@@ -23,7 +23,7 @@ export async function verifyFirebaseAuth(
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return res.status(401).json({
         success: false,
-        error: 'Authentication required. Please log in to use voice services.'
+        error: 'Authentication required. Please sign in.'
       })
     }
 
@@ -81,15 +81,16 @@ export async function verifyFirebaseAuth(
       return next()
     }
 
-    // In development mode if no Firebase API key is configured on server, inspect token basic structure safely
-    if (idToken.length > 20) {
+    // No Firebase API key on the server: tokens cannot be verified. Fail closed outside local dev.
+    if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL && idToken.length > 20) {
       req.user = { uid: 'dev-user' }
       return next()
     }
 
-    return res.status(401).json({
+    console.error('[Auth Middleware] Cannot verify ID tokens: VITE_FIREBASE_API_KEY / FIREBASE_API_KEY is not set on the server')
+    return res.status(503).json({
       success: false,
-      error: 'Authentication token verification failed.'
+      error: 'Authentication service is not configured.'
     })
   } catch (err: any) {
     console.error('[Auth Middleware Exception]:', err?.message || err)

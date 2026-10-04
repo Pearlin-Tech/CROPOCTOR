@@ -14,6 +14,9 @@ import type { DiagnosisResult } from '@/types'
 import { ChevronLeft, RotateCcw, Volume2, VolumeX, ShieldCheck, MessageSquare, AlertTriangle, UserCheck, Stethoscope, Download } from 'lucide-react'
 import { PDFDownloadLink } from '@react-pdf/renderer'
 import DiagnosisReportPDF from '@/components/pdf/DiagnosisReportPDF'
+import { useLocalizedDiagnosis } from '@/services/translationClient'
+import { certaintyLabel, isFallbackRecord } from '@/utils/diagnosis'
+import { formatDiagnosisTimestamp } from '@/utils/format'
 
 const severityColor = {
   healthy: 'green',
@@ -33,50 +36,22 @@ const DiagnosisResultPage: React.FC = () => {
 
   // Read diagnosis object passed via navigation state
   const locationState = (location.state as any) || {}
-  const [d, setD] = useState<DiagnosisResult | null>(locationState.diagnosis || null)
-  const [isTranslating, setIsTranslating] = useState(false)
+  // The stored record (English original) is never modified; `d` is a display copy in the UI language.
+  const [record] = useState<DiagnosisResult | null>(locationState.diagnosis || null)
+  const { display: d, isTranslating, failed: translationFailed } = useLocalizedDiagnosis(record, language)
 
   React.useEffect(() => {
-    if (!d && !locationState.diagnosis) {
-      navigate('/diagnose', { replace: true })
-    }
-  }, [d, navigate, locationState.diagnosis])
-
-  const didTranslateRef = React.useRef(false)
-
-  // Translate the diagnosis if the stored language doesn't match the current app language.
-  // Runs on initial load AND when language changes.
-  React.useEffect(() => {
-    if (!d) return
-    const diagLang = (d as any).language || 'en'
-    if (diagLang === language) {
-      didTranslateRef.current = false
-      return
-    }
-    setIsTranslating(true)
-    didTranslateRef.current = true
-    fetch('/api/translate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text: d, targetLanguage: language })
-    })
-    .then(res => res.json())
-    .then(data => {
-      if (data.success && data.translatedData) {
-        setD((prev: any) => ({ ...data.translatedData, language, id: prev?.id }))
-      }
-    })
-    .catch(err => console.error('[DiagnosisResultPage] Translation failed:', err))
-    .finally(() => setIsTranslating(false))
-  // Run on initial mount (when d loads) and when language changes
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [language, d?.id])
+    if (!record) navigate('/diagnose', { replace: true })
+  }, [record, navigate])
 
   if (!d) return null // Wait for redirect
 
-  const displayImage = locationState.imageUrl || d.imageUrl || '/images/disease_leaf_1787238259522.jpg'
-
-  const actionsList = d.recommendations || d.actions || []
+  const displayImage = locationState.imageUrl || d.imageUrl || ''
+  // Legacy records from the old pipeline may be fabricated fallbacks — never show their treatment.
+  const unreliable = isFallbackRecord(d)
+  const treatmentList = unreliable ? [] : (d.treatment || [])
+  const immediateList = unreliable ? [] : (d.immediateActions || [])
+  const actionsList = [...immediateList, ...treatmentList]
 
   const handleListenAudio = () => {
     if ('speechSynthesis' in window) {
@@ -86,17 +61,25 @@ const DiagnosisResultPage: React.FC = () => {
         return
       }
 
-      const textToSpeak = `${d.crop} condition detected: ${d.disease}. Severity is ${d.severity}. Recommended steps: ${actionsList.join('. ')}`
+      const textToSpeak = [`${d.cropName || d.crop}: ${d.diseaseName || d.disease}.`, ...actionsList].join(' ')
       const utterance = new SpeechSynthesisUtterance(textToSpeak)
+      const speechLang = ({ hi: 'hi-IN', gu: 'gu-IN', ar: 'ar-SA', en: 'en-IN' } as Record<string, string>)[language.split('-')[0]] || language
+      utterance.lang = speechLang
+      const voices = window.speechSynthesis.getVoices()
+      if (voices.length && !voices.some(v => v.lang.toLowerCase().startsWith(speechLang.split('-')[0]))) {
+        toast.info(t('diagnosis.result.voiceUnsupported', 'Your device has no voice installed for this language.'))
+        return
+      }
+      window.speechSynthesis.cancel() // never overlap speech
 
       utterance.onend = () => setIsPlayingAudio(false)
       utterance.onerror = () => setIsPlayingAudio(false)
 
       setIsPlayingAudio(true)
       window.speechSynthesis.speak(utterance)
-      toast.info('Reading diagnosis remedies aloud...')
+      toast.info(t("ui.diagnosisResultPage.readingDiagnosisRemediesAloud", "Reading diagnosis remedies aloud..."))
     } else {
-      toast.info('Audio readout unavailable on this browser.')
+      toast.info(t("ui.diagnosisResultPage.audioReadoutUnavailableOnThis", "Audio readout unavailable on this browser."))
     }
   }
 
@@ -119,6 +102,11 @@ const DiagnosisResultPage: React.FC = () => {
             <span className="font-medium text-sm">{t('diagnosis.result.translating', 'Translating history to your language...')}</span>
           </div>
         )}
+        {translationFailed && (
+          <div role="status" className="bg-gray-50 border border-gray-200 text-gray-700 p-3 rounded-xl text-xs">
+            {t('diagnosis.result.translationFailed', 'Translation is unavailable right now, so this result is shown in its original language (English).')}
+          </div>
+        )}
         
         {/* Prominent "Diagnose Another Crop" CTA Header Banner */}
         <div className="bg-cream border border-brown-pastel/40 p-4 rounded-3xl flex items-center justify-between gap-4 shadow-sm">
@@ -127,9 +115,11 @@ const DiagnosisResultPage: React.FC = () => {
               <Stethoscope className="w-5 h-5 text-green-forest" />
               <span>{t('diagnosis.result.completed', 'Crop Analysis Completed')}</span>
             </h2>
-            <p className="text-xs text-brown-earth/80 mt-0.5 font-medium">
-              {t('diagnosis.result.saved', 'Result saved to your farm history. You can scan another plant anytime.')}
-            </p>
+            {d.timestamp && (
+              <p className="text-xs text-brown-earth/80 mt-0.5 font-medium">
+                {t('diagnosis.result.analyzedAt', 'Analysed')}: {formatDiagnosisTimestamp(d.timestamp)}
+              </p>
+            )}
           </div>
           <div className="flex flex-col sm:flex-row gap-2 shrink-0">
             {activeFarm && d && (
@@ -171,6 +161,24 @@ const DiagnosisResultPage: React.FC = () => {
           </div>
         )}
 
+        {/* Legacy / fabricated record warning */}
+        {unreliable && (
+          <div role="alert" className="p-4 bg-red-50 border-2 border-red-300 rounded-3xl flex items-start gap-3 shadow-sm">
+            <AlertTriangle className="w-6 h-6 text-red-600 shrink-0 mt-0.5" />
+            <div>
+              <h3 className="font-bold text-red-900 text-sm">{t('diagnosis.result.unreliableTitle', 'Unreliable older record')}</h3>
+              <p className="text-xs text-red-800 mt-0.5">
+                {t('diagnosis.result.unreliableDesc', 'This record was created by an earlier version of the app that could produce a result without analysing your photo. Treatment advice is hidden. Please diagnose the plant again and delete this record from History.')}
+              </p>
+            </div>
+          </div>
+        )}
+        {!unreliable && d.isLegacy && (
+          <div className="p-3 bg-gray-50 border border-gray-200 rounded-2xl text-xs text-gray-700">
+            {t('diagnosis.result.legacyNote', 'Older record — created before results were validated. Treat it with caution and re-diagnose if in doubt.')}
+          </div>
+        )}
+
         {/* Expert Review Recommended Banner */}
         {d.needsExpertReview && d.isPlantImage !== false && (
           <div className="p-3.5 bg-blue-50 border border-blue-200 rounded-2xl flex items-center justify-between gap-3 text-xs text-blue-900 shadow-sm">
@@ -187,15 +195,20 @@ const DiagnosisResultPage: React.FC = () => {
           {/* Left: image + confidence */}
           <div className="space-y-4">
             <div className="relative rounded-3xl overflow-hidden aspect-[4/3] bg-gray-100 shadow-md border border-brown-pastel/30">
-              <img src={displayImage} alt="Diagnosed crop leaf" className="w-full h-full object-cover" />
+              {displayImage ? (
+                <img src={displayImage} alt={t('diagnosis.result.photoAlt', 'Diagnosed crop photo')} className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-sm text-gray-500">{t('diagnosis.result.noPhoto', 'Photo not stored')}</div>
+              )}
               <div className="absolute top-3 left-3 flex gap-2">
                 <Badge variant={d.isDemo || d.isSample ? 'demo' : 'green'} size="md">
-                  {d.isDemo || d.isSample ? `🧪 ${t('diagnosis.demo', 'Sample Demo')}` : '🔬 Gemini AI Diagnosis'}
+                  {d.isDemo || d.isSample ? `🧪 ${t('diagnosis.demo', 'Sample image')}` : `🔬 ${t('diagnosis.result.aiBadge', 'AI image analysis')}`}
                 </Badge>
               </div>
               <div className="absolute bottom-3 right-3 bg-white/90 backdrop-blur-sm rounded-2xl px-3 py-2 shadow-sm">
                 <p className="text-xs text-gray-500 font-medium">{t('diagnosis.result.certainty', 'Certainty')}</p>
-                <p className="text-xl font-bold text-green-forest capitalize">{d.certainty || 'Moderate'}</p>
+                <p className="text-base font-bold text-green-forest">{certaintyLabel(d, t)}</p>
+                {d.certainty && <p className="text-[10px] text-gray-500">{t('diagnosis.result.uncalibrated', 'AI estimate, not calibrated')}</p>}
               </div>
             </div>
 
@@ -210,8 +223,8 @@ const DiagnosisResultPage: React.FC = () => {
                   <h2 className="text-2xl font-bold text-green-forest tracking-tight">{d.diseaseName || d.disease}</h2>
                   <div className="flex flex-wrap gap-2 mt-2">
                     <Badge variant="earth" size="sm">{d.cropName || d.crop}</Badge>
-                    <Badge variant={severityColor[d.severity] || 'warning'} size="sm" dot>
-                      {d.severity.charAt(0).toUpperCase() + d.severity.slice(1)} Severity
+                    <Badge variant={severityColor[d.severity] || 'earth'} size="sm" dot>
+                      {t(`diagnosis.severity.${d.severity}`, { defaultValue: { healthy: 'Healthy', mild: 'Mild', moderate: 'Moderate', severe: 'Severe', unknown: 'Severity unknown' }[d.severity] || d.severity })}
                     </Badge>
                   </div>
                 </div>
@@ -317,13 +330,13 @@ const DiagnosisResultPage: React.FC = () => {
             )}
 
             {/* Immediate Actions */}
-            {d.immediateActions && d.immediateActions.length > 0 && (
+            {immediateList.length > 0 && (
               <Card padding="md" className="border-orange-200 bg-orange-50 shadow-sm">
                 <h3 className="font-bold text-orange-900 mb-3 flex items-center gap-2 text-sm">
                   <span className="text-lg">⚡</span> {t('diagnosis.immediateActions', 'Immediate Actions')}
                 </h3>
                 <ol className="space-y-2">
-                  {d.immediateActions.map((a, i) => (
+                  {immediateList.map((a, i) => (
                     <li key={a} className="flex gap-2 text-xs text-orange-900 font-medium">
                       <span className="w-4 h-4 rounded-full bg-orange-200 text-orange-800 text-[10px] font-bold flex items-center justify-center shrink-0">{i + 1}</span>
                       <span className="mt-0.5 leading-relaxed">{a}</span>
@@ -334,7 +347,7 @@ const DiagnosisResultPage: React.FC = () => {
             )}
 
             {/* Recommended Treatment Actions */}
-            {((d.treatment && d.treatment.length > 0) || (actionsList && actionsList.length > 0)) && (
+            {treatmentList.length > 0 && (
               <Card padding="md" className="border-green-pastel/40 bg-green-pastel/10 shadow-sm relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-green-pastel/20 rounded-full blur-[30px]" />
                 <div className="relative z-10">
@@ -342,7 +355,7 @@ const DiagnosisResultPage: React.FC = () => {
                     <span className="text-lg">✅</span> {t('diagnosis.recommendedActions', 'Recommended Treatment')}
                   </h3>
                   <ol className="space-y-3">
-                    {(d.treatment && d.treatment.length > 0 ? d.treatment : actionsList).map((a, i) => (
+                    {treatmentList.map((a, i) => (
                       <li key={a} className="flex gap-3 text-sm text-text-main font-medium">
                         <span className="w-6 h-6 rounded-full bg-green-pastel/40 text-green-forest text-xs font-bold flex items-center justify-center shrink-0">{i + 1}</span>
                         <span className="mt-0.5 leading-relaxed">{a}</span>
@@ -398,7 +411,7 @@ const DiagnosisResultPage: React.FC = () => {
                 className="flex items-center gap-2 text-sm font-bold text-green-forest bg-white border border-green-pastel/50 px-4 py-2.5 rounded-xl hover:bg-green-pastel/20 transition-colors shadow-sm"
               >
                 {isPlayingAudio ? <VolumeX className="w-4 h-4 text-amber-600 animate-pulse" /> : <Volume2 className="w-4 h-4 text-green-forest" />}
-                <span>{isPlayingAudio ? 'Stop Audio' : t('diagnosis.listen', 'Listen Remedies')}</span>
+                <span>{isPlayingAudio ? t('diagnosis.result.stopAudio', 'Stop audio') : t('diagnosis.listen', 'Listen Remedies')}</span>
               </button>
               
               <button

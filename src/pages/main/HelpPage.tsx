@@ -83,7 +83,7 @@ const HelpPage: React.FC = () => {
     try {
       window.location.href = mailtoUrl
     } catch {
-      toast.info('Support email: support@cropdoctor.ai')
+      toast.info(t("ui.helpPage.supportEmailSupportCropdoctorAi", "Support email: support@cropdoctor.ai"))
     }
   }
 
@@ -92,7 +92,7 @@ const HelpPage: React.FC = () => {
     try {
       window.location.href = mailtoUrl
     } catch {
-      toast.info('Report bugs to: support@cropdoctor.ai')
+      toast.info(t("ui.helpPage.reportBugsToSupportCropdoctor", "Report bugs to: support@cropdoctor.ai"))
     }
   }
 

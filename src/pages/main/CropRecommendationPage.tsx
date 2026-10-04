@@ -124,8 +124,8 @@ const CropRecommendationPage: React.FC = () => {
         {/* Season filter */}
         <div className="flex gap-2">
           <Chip selected={filter === 'all'}    onClick={() => setFilter('all')}>{t('cropRec.allSeasons', 'All Seasons')}</Chip>
-          <Chip selected={filter === 'kharif'} onClick={() => setFilter('kharif')}>Kharif</Chip>
-          <Chip selected={filter === 'rabi'}   onClick={() => setFilter('rabi')}>Rabi</Chip>
+          <Chip selected={filter === 'kharif'} onClick={() => setFilter('kharif')}>{t("ui.cropRecommendationPage.kharif", "Kharif")}</Chip>
+          <Chip selected={filter === 'rabi'}   onClick={() => setFilter('rabi')}>{t("ui.cropRecommendationPage.rabi", "Rabi")}</Chip>
         </div>
 
         {/* Recommendations list */}
@@ -194,7 +194,7 @@ const CropRecommendationPage: React.FC = () => {
                     </div>
                     <div className="flex gap-2">
                       <button
-                        onClick={e => { e.stopPropagation(); toast.success(`${rec.name} saved to your crop plan.`) }}
+                        onClick={e => { e.stopPropagation(); toast.success(t("ui.cropRecommendationPage.v0SavedToYourCrop", { defaultValue: "{{v0}} saved to your crop plan.", v0: rec.name })) }}
                         className="flex-1 py-2 bg-green-light text-green-forest text-sm font-semibold rounded-xl hover:bg-green-pastel/50 transition-colors flex items-center justify-center gap-1"
                       >
                         <CheckCircle2 className="w-3.5 h-3.5" /> {t('cropRec.saveToPlan', 'Save to Plan')}

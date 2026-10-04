@@ -7,6 +7,18 @@
       "runtimeArgs": ["run", "dev"],
       "port": 5173,
       "autoPort": true
+    },
+    {
+      "name": "verify-api",
+      "runtimeExecutable": "sh",
+      "runtimeArgs": ["-c", "PORT=3002 npx tsx api/index.ts"],
+      "port": 3002
+    },
+    {
+      "name": "verify-web",
+      "runtimeExecutable": "sh",
+      "runtimeArgs": ["-c", "API_PROXY_TARGET=http://localhost:3002 npx vite --port 5174 --strictPort"],
+      "port": 5174
     }
   ]
 }

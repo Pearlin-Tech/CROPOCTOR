@@ -1,4 +1,4 @@
-import { AI_CONFIG } from '../config/aiConfig.ts'
+import { AI_CONFIG } from '../config/aiConfig.js'
 
 export interface STTRequestParams {
   audio: string // base64 encoded audio

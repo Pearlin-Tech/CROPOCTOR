@@ -162,9 +162,9 @@ const WeatherPage: React.FC = () => {
             ) : (
               <Card padding="md" className="border-brown-pastel/30 bg-off-white shadow-sm">
                 <div className="space-y-2">
-                  {weather.forecast.map(day => (
+                  {weather.forecast.map((day, i) => (
                     <div key={day.date} className="flex items-center gap-3 py-2 border-b last:border-b-0 border-brown-pastel/20">
-                      <span className="w-16 text-sm font-semibold text-text-secondary">{day.dayLabel}</span>
+                      <span className="w-16 text-sm font-semibold text-text-secondary">{i === 0 ? t('weather.today', 'Today') : i === 1 ? t('weather.tomorrow', 'Tomorrow') : (day.date ? new Intl.DateTimeFormat(i18n.language, { weekday: 'short' }).format(new Date(day.date)) : day.dayLabel)}</span>
                       <span className="text-2xl">{WEATHER_ICONS[day.icon] || '🌤️'}</span>
                       <span className="flex-1 text-xs text-text-secondary font-medium">{t(`weatherDesc.${day.icon}`, day.description)}</span>
                       <span className="text-xs text-green-forest font-bold">{formatLocalizedPercent(day.rainChance, i18n.language)}</span>
@@ -197,7 +197,7 @@ const WeatherPage: React.FC = () => {
                             {t(`weather.status.${item.status}`, item.status.charAt(0).toUpperCase() + item.status.slice(1))}
                           </Badge>
                         </div>
-                        <p className="text-xs text-text-secondary font-medium">{t(`weather.reasons.${item.reason}`, item.reason)}</p>
+                        <p className="text-xs text-text-secondary font-medium">{item.reason}</p>
                       </div>
                     </div>
                   ))}

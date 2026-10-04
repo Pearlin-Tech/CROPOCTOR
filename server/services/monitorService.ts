@@ -15,6 +15,7 @@
  */
 
 import { getRulesForCrop, type AlertThreshold } from '../config/alertRules.js'
+import { getAdminFirestore, getAdminMessaging } from '../lib/firebaseAdmin.js'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -67,19 +68,8 @@ let _adminDb: any = null
 async function getAdminDb() {
   if (_adminDb) return _adminDb
 
-  const adminKeyB64 = process.env.FIREBASE_ADMIN_KEY_BASE64
-  if (!adminKeyB64) {
-    throw new Error('FIREBASE_ADMIN_KEY_BASE64 is not set — cannot access Firestore as admin')
-  }
-
   try {
-    // Dynamic import so the module doesn't hard-fail at startup when key is absent
-    const { default: admin } = await import('firebase-admin')
-    if (!admin.apps.length) {
-      const serviceAccount = JSON.parse(Buffer.from(adminKeyB64, 'base64').toString('utf-8'))
-      admin.initializeApp({ credential: admin.credential.cert(serviceAccount) })
-    }
-    _adminDb = admin.firestore()
+    _adminDb = await getAdminFirestore()
     return _adminDb
   } catch (err: any) {
     throw new Error(`Firebase Admin init failed: ${err.message}`)
@@ -207,7 +197,7 @@ async function writeAlertNotification(db: any, userId: string, alert: AlertResul
 
   // 2. Send FCM Push Notification
   try {
-    const admin = await import('firebase-admin')
+    const messaging = await getAdminMessaging()
     const tokensSnap = await db.collection('users').doc(userId).collection('fcmTokens').get()
     const tokens = tokensSnap.docs.map((d: any) => d.id)
     
@@ -224,7 +214,7 @@ async function writeAlertNotification(db: any, userId: string, alert: AlertResul
         tokens
       }
       
-      const response = await admin.messaging().sendMulticast(payload)
+      const response = await messaging.sendEachForMulticast(payload)
       
       // Cleanup stale tokens
       const staleTokens: string[] = []

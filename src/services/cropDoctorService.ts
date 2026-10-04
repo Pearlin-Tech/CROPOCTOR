@@ -1,7 +1,8 @@
 import { doc, setDoc, collection, query, orderBy, limit, getDocs, getDoc, serverTimestamp, deleteDoc } from 'firebase/firestore'
 import { auth, db } from './firebase'
-import { compressImageWithFallback } from '@/utils/imageCompressor'
-import type { DiagnosisResult } from '@/types'
+import { compressImageWithFallback, describeQualityProblem } from '@/utils/imageCompressor'
+import type { DiagnosisResult, DiagnosisRequestStatus, InsufficientEvidenceOutcome } from '@/types'
+import { mapDiagnosisDoc, DIAGNOSIS_PIPELINE_VERSION } from '@/utils/diagnosis'
 import { notificationService } from '@/services/index'
 
 export interface AnalyzeImageParams {
@@ -19,11 +20,13 @@ export interface AnalyzeImageParams {
   }
 }
 
-export interface AnalyzeImageResult {
-  success: boolean
-  diagnosis?: DiagnosisResult
-  error?: string
-}
+export type AnalyzeImageResult =
+  | { success: true; status: 'SUCCESS'; diagnosis: DiagnosisResult; saved: boolean; error?: undefined }
+  | { success: true; status: 'INSUFFICIENT_EVIDENCE'; insufficient: InsufficientEvidenceOutcome; diagnosis?: undefined; error?: undefined }
+  | { success: false; status: Exclude<DiagnosisRequestStatus, 'SUCCESS' | 'INSUFFICIENT_EVIDENCE'>; error: string; reason?: string; retryAfterSeconds?: number; diagnosis?: undefined }
+
+/** Vercel rejects request bodies over 4.5 MB; keep the base64 payload well below it. */
+const MAX_UPLOAD_BASE64_CHARS = 4_000_000
 
 /**
  * Client-side image validation (size < 10MB, MIME type check)
@@ -42,417 +45,242 @@ export function validateCropImage(file: File | Blob): { valid: boolean; error: s
   return { valid: true, error: null }
 }
 
-
-/**
- * Fast deterministic hash for base64 images to prevent duplicate Gemini calls
- */
+/** SHA-256 of the full image payload — identical photos reuse their saved result instead of a new AI call. */
 async function generateImageHash(base64: string): Promise<string> {
-  const data = new TextEncoder().encode(base64.substring(0, 50000)) // Hash first 50k chars
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data)
-  const hashArray = Array.from(new Uint8Array(hashBuffer))
-  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('').substring(0, 16)
+  const hashBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(base64))
+  return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('').substring(0, 24)
 }
+
+/** Firestore rejects `undefined` field values. */
+function withoutUndefined<T extends Record<string, any>>(obj: T): T {
+  return Object.fromEntries(Object.entries(obj).filter(([, v]) => v !== undefined)) as T
+}
+
+const NETWORK_MESSAGE = 'Could not reach the diagnosis server. Check your internet connection and try again.'
 
 export const cropDoctorService = {
   /**
-   * Main diagnosis pipeline (Firebase Free Spark Plan Compliant — Zero Cloud Storage):
-   * 1. Validates and compresses image in browser memory using HTML5 Canvas.
-   * 2. Sends compressed base64 to serverless API POST /api/analyze-crop.
-   * 3. On network interruption/offline dev server, gracefully falls back to client agronomic engine.
-   * 4. Saves metadata & structured result to Firestore `users/{userId}/diagnoses/{diagnosisId}`.
+   * Diagnosis pipeline:
+   * 1. Validates and compresses the image in the browser (canvas).
+   * 2. POST /api/analyze-crop (authenticated). The server validates the image, calls the
+   *    vision model and returns SUCCESS, INSUFFICIENT_EVIDENCE or a typed failure.
+   * 3. Only SUCCESS results are saved, to `users/{uid}/diagnoses/{diagnosisId}`.
+   * No failure path ever produces a diagnosis.
    */
   analyzeImage: async (params: AnalyzeImageParams): Promise<AnalyzeImageResult> => {
-    let thumbnailDataUrl: string | undefined = undefined
+    const { file, isSample, source = 'upload', farmContext } = params
+    let imageBase64: string | undefined = params.imageBase64
+    let thumbnailDataUrl: string | undefined
 
     try {
-      const { file, isSample, source = 'upload', farmContext } = params
-      let imageBase64: string | undefined = params.imageBase64
-
-      // 1. In-browser canvas image compression (if raw File/Blob passed)
       if (file) {
         const validation = validateCropImage(file)
         if (!validation.valid) {
-          return { success: false, error: validation.error || 'Invalid image file' }
+          return { success: false, status: 'INVALID_REQUEST', error: validation.error || 'Invalid image file' }
         }
-
-        try {
-          const compression = await compressImageWithFallback(file)
-          imageBase64 = compression.compressedBase64
-          thumbnailDataUrl = compression.thumbnailBase64
-        } catch (compErr) {
-          console.warn('[cropDoctorService] Canvas compression fallback:', compErr)
-        }
-      }
-
-      if (!imageBase64 && !params.imageUrl && !isSample) {
-        return { success: false, error: 'No image provided for diagnosis.' }
-      }
-
-      const currentUser = auth.currentUser
-      console.log(`[Diagnosis] authenticated UID: ${currentUser?.uid || 'null — user not signed in'}`)
-      const userId = currentUser?.uid || null
-
-      // 2. Deterministic Image Hashing & Caching
-      const imageStringForHash = imageBase64 || params.imageUrl || 'sample'
-      const imageHash = await generateImageHash(imageStringForHash)
-      const diagnosisId = `diag_v2_${imageHash}`
-      const displayImageUrl = thumbnailDataUrl || params.imageUrl || '/images/disease_leaf_1787238259522.jpg'
-
-      if (currentUser && db && db.app) {
-        try {
-          const cachedDoc = await getDoc(doc(db, 'users', currentUser.uid, 'diagnoses', diagnosisId))
-          if (cachedDoc.exists()) {
-            console.log(`[cropDoctorService] Cache hit! Returning saved diagnosis ${diagnosisId}`)
-            const data = cachedDoc.data()
-            return {
-              success: true,
-              diagnosis: {
-                id: diagnosisId,
-                userId: data.userId || userId || currentUser.uid,
-                farmId: data.farmId,
-                imageUrl: data.imageUrl,
-                crop: data.crop,
-                cropName: data.cropName,
-                disease: data.disease,
-                diseaseName: data.diseaseName,
-                confidence: data.confidence,
-                severity: data.severity,
-                symptoms: data.symptoms,
-                observedSymptoms: data.observedSymptoms,
-                positiveSigns: data.positiveSigns,
-                possibleIssues: data.possibleIssues,
-                analysis: data.analysis,
-                actions: data.recommendations,
-                immediateActions: data.immediateActions,
-                recommendations: data.recommendations,
-                treatment: data.treatment,
-                prevention: data.prevention,
-                longTermPrevention: data.longTermPrevention,
-                whenToRecheck: data.whenToRecheck,
-                explanation: data.explanation,
-                isPlantImage: data.isPlantImage,
-                needsExpertReview: data.needsExpertReview,
-                isDemo: data.isSample,
-                isSample: data.isSample,
-                timestamp: data.createdAt?.toDate().toISOString() || new Date().toISOString()
-              }
-            }
-          }
-        } catch (e) {
-          console.warn('[cropDoctorService] Cache lookup failed:', e)
-        }
-      }
-
-      // 3. Retrieve Firebase Auth ID token if authenticated
-      let idToken = ''
-      if (currentUser) {
-        try {
-          idToken = await currentUser.getIdToken(false)
-        } catch (e) {
-          console.warn('[cropDoctorService] Could not retrieve ID token:', e)
-        }
-      }
-
-      const headers: Record<string, string> = {
-        'Content-Type': 'application/json'
-      }
-      if (idToken) {
-        headers['Authorization'] = `Bearer ${idToken}`
-      }
-
-      // 4. Call serverless backend endpoint POST /api/analyze-crop
-      let response: Response
-      try {
-        response = await fetch('/api/analyze-crop', {
-          method: 'POST',
-          headers,
-          body: JSON.stringify({
-            imageBase64,
-            mimeType: file?.type || 'image/jpeg',
-            imageUrl: params.imageUrl,
-            isSample: Boolean(isSample),
-            farmContext,
-            language: localStorage.getItem('agri_ai_language') || 'en'
-          })
+        const compression = await compressImageWithFallback(file)
+        const problem = compression.quality && describeQualityProblem(compression.quality)
+        if (problem) return { success: false, status: 'INVALID_REQUEST', error: problem.message, reason: problem.reason }
+        imageBase64 = compression.compressedBase64
+        // Never store a full-size image as the thumbnail (Firestore documents are capped at 1 MB)
+        thumbnailDataUrl = compression.isFallback ? undefined : compression.thumbnailBase64
+      } else if (!imageBase64 && params.imageUrl?.startsWith('/')) {
+        // Bundled sample image: load it in the browser and send its pixels like any other photo
+        const blob = await fetch(params.imageUrl).then(r => {
+          if (!r.ok) throw new Error(`Sample image HTTP ${r.status}`)
+          return r.blob()
         })
-      } catch (fetchErr: any) {
-        console.error('[cropDoctorService] Network fetch to backend failed:', fetchErr)
-        throw new Error('Network error. Unable to reach diagnostic server.')
+        const compression = await compressImageWithFallback(blob)
+        imageBase64 = compression.compressedBase64
+        thumbnailDataUrl = compression.isFallback ? undefined : compression.thumbnailBase64
       }
+    } catch (err) {
+      console.warn('[cropDoctorService] Could not prepare image:', err)
+      return { success: false, status: 'INVALID_REQUEST', error: 'This image could not be read. It may be corrupted — please choose another photo.', reason: 'UNREADABLE' }
+    }
 
-      if (!response.ok) {
-        // Read body ONCE as text to avoid "body is disturbed or locked"
-        const errText = await response.text()
-        let errMessage = `Diagnostic server error: HTTP ${response.status}`
-        let errCode = 'SERVER_ERROR'
-        try {
-          const errJson = JSON.parse(errText)
-          if (errJson.code === 'NO_PLANT_DETECTED') {
-            return {
-              success: false,
-              error: errJson.message
-            }
-          }
-          errMessage = errJson.error?.message || errJson.message || errMessage
-          errCode = errJson.error?.code || errJson.code || errCode
-        } catch {
-          if (errText) errMessage = errText
-        }
-        
-        console.error(`[cropDoctorService] Backend API returned ${response.status}:`, errMessage)
-        if (response.status === 429 || errCode === 'RATE_LIMIT') {
-          throw new Error('AI Quota Exceeded. The diagnosis service is temporarily unavailable due to high demand. Please try again later.')
-        }
-        throw new Error(errMessage)
+    if (!imageBase64) {
+      return { success: false, status: 'INVALID_REQUEST', error: 'No image provided for diagnosis.' }
+    }
+    if (imageBase64.length > MAX_UPLOAD_BASE64_CHARS) {
+      return { success: false, status: 'INVALID_REQUEST', error: 'This image is too large to upload. Please take a new photo or use a JPEG image.', reason: 'TOO_LARGE' }
+    }
+
+    const currentUser = auth.currentUser
+    if (!currentUser) {
+      return { success: false, status: 'AUTHENTICATION_ERROR', error: 'Please sign in again to diagnose crops.' }
+    }
+
+    const imageHash = await generateImageHash(imageBase64)
+    const diagnosisId = `diag_v${DIAGNOSIS_PIPELINE_VERSION}_${imageHash}`
+
+    // Same photo already diagnosed by this pipeline version → reuse the saved record
+    try {
+      const cached = await getDoc(doc(db, 'users', currentUser.uid, 'diagnoses', diagnosisId))
+      if (cached.exists()) {
+        console.log(`[Diagnosis] cache hit users/${currentUser.uid}/diagnoses/${diagnosisId}`)
+        return { success: true, status: 'SUCCESS', diagnosis: mapDiagnosisDoc(cached.id, cached.data(), currentUser.uid), saved: true }
       }
+    } catch (e) {
+      console.warn('[cropDoctorService] Cache lookup failed:', e)
+    }
 
-      const apiResult = await response.json()
-      if (!apiResult.success || !apiResult.data) {
-        throw new Error(apiResult.error?.message || apiResult.error || 'Diagnostic server returned invalid data format.')
+    let idToken: string
+    try {
+      idToken = await currentUser.getIdToken()
+    } catch {
+      return { success: false, status: 'AUTHENTICATION_ERROR', error: 'Your session has expired. Please sign in again.' }
+    }
+
+    let response: Response
+    try {
+      response = await fetch('/api/analyze-crop', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${idToken}` },
+        body: JSON.stringify({ imageBase64, farmContext })
+      })
+    } catch (fetchErr) {
+      console.error('[cropDoctorService] Network error calling /api/analyze-crop:', fetchErr)
+      return { success: false, status: 'NETWORK_ERROR', error: NETWORK_MESSAGE }
+    }
+
+    const bodyText = await response.text()
+    let body: any = null
+    try { body = JSON.parse(bodyText) } catch { /* non-JSON (proxy/gateway error page) */ }
+
+    if (!response.ok || !body?.success) {
+      if (response.status === 413) {
+        return { success: false, status: 'INVALID_REQUEST', error: 'This image is too large to upload. Please use a smaller photo.', reason: 'TOO_LARGE' }
       }
-
-      const diagnosisData = apiResult.data
-      const timestampIso = new Date().toISOString()
-      
-      const isPlantImage = typeof diagnosisData.isPlantImage === 'boolean' ? diagnosisData.isPlantImage : true
-
-      const cropName = diagnosisData.cropName || diagnosisData.crop || farmContext?.crop || 'Groundnut'
-      const diseaseName = diagnosisData.diseaseName || diagnosisData.disease || 'Unclear Leaf Condition'
-      const confidence = typeof diagnosisData.confidence === 'number' ? diagnosisData.confidence : 85
-      const severity = diagnosisData.severity || 'moderate'
-      const symptoms = diagnosisData.symptoms || []
-      const recommendations = diagnosisData.recommendations || diagnosisData.actions || []
-      const prevention = diagnosisData.prevention || []
-      const explanation = diagnosisData.explanation || ''
-      // isPlantImage already declared and validated above
-      const needsExpertReview = Boolean(diagnosisData.needsExpertReview)
-
-      const observedSymptoms = diagnosisData.observedSymptoms || diagnosisData.symptoms || []
-      const positiveSigns = diagnosisData.positiveSigns || []
-      const possibleIssues = diagnosisData.possibleIssues || []
-      const analysis = diagnosisData.analysis || diagnosisData.explanation || ''
-      const immediateActions = diagnosisData.immediateActions || diagnosisData.actions || diagnosisData.recommendations || []
-      const treatment = diagnosisData.treatment || diagnosisData.recommendations || []
-      const longTermPrevention = diagnosisData.longTermPrevention || diagnosisData.prevention || []
-      const whenToRecheck = diagnosisData.whenToRecheck || 'Within 3-5 days'
-
-      const diagnosisRecord: DiagnosisResult = {
-        id: diagnosisId,
-        userId: userId || 'guest-user',
-        farmId: farmContext?.farmId || 'farm-001',
-        imageUrl: displayImageUrl,
-        crop: cropName,
-        cropName,
-        disease: diseaseName,
-        diseaseName,
-        confidence,
-        severity,
-        symptoms,
-        observedSymptoms,
-        positiveSigns,
-        possibleIssues,
-        analysis,
-        actions: recommendations,
-        immediateActions,
-        recommendations,
-        treatment,
-        prevention,
-        longTermPrevention,
-        whenToRecheck,
-        explanation,
-        isPlantImage,
-        needsExpertReview,
-        isDemo: Boolean(isSample),
-        isSample: Boolean(isSample),
-        timestamp: timestampIso
+      if (response.status === 401) {
+        return { success: false, status: 'AUTHENTICATION_ERROR', error: 'Your session has expired. Please sign in again.' }
       }
-
-      // 5. Persist metadata & structured result to Firestore or LocalStorage
-      if (currentUser && userId && db && db.app) {
-        try {
-          if (isPlantImage && diseaseName.toLowerCase() !== 'non-plant image detected') {
-            console.log(`[Diagnosis] writing document: users/${userId}/diagnoses/${diagnosisId}`)
-            const docRef = doc(db, 'users', userId, 'diagnoses', diagnosisId)
-            await setDoc(docRef, {
-              userId,
-              cropName,
-              diseaseName,
-              crop: cropName,
-              disease: diseaseName,
-              confidence,
-              severity,
-              symptoms,
-              observedSymptoms,
-              positiveSigns,
-              possibleIssues,
-              analysis,
-              explanation,
-              recommendations,
-              immediateActions,
-              treatment,
-              prevention,
-              longTermPrevention,
-              whenToRecheck,
-              needsExpertReview,
-              isPlantImage,
-              source,
-              imageUrl: displayImageUrl,
-              farmId: farmContext?.farmId || 'farm-001',
-              isSample: Boolean(isSample),
-              imageHash,
-              language: localStorage.getItem('agri_ai_language') || 'en',
-              createdAt: serverTimestamp()
-            })
-            console.log(
-              `[Diagnosis] Firestore write successful: users/${userId}/diagnoses/${diagnosisId}`
-            )
-
-            if (diseaseName.toLowerCase() !== 'healthy plant' && diseaseName.toLowerCase() !== 'non-plant image detected') {
-              await notificationService.createNotification({
-                title: `New Diagnosis: ${cropName}`,
-                body: `${diseaseName} detected with ${severity} severity. Click to view treatment plan.`,
-                type: 'disease',
-                priority: severity === 'severe' ? 'high' : 'medium',
-                read: false,
-                actionRoute: `/farms/${farmContext?.farmId || 'farm-001'}`,
-              })
-            }
-          }
-        } catch (firestoreErr: any) {
-          console.error(
-            `[Diagnosis] FIRESTORE WRITE FAILED: users/${userId}/diagnoses/${diagnosisId}` +
-            ` error=${firestoreErr?.code || firestoreErr?.message}`
-          )
-          // Do not throw — UI must still show the result even if persistence fails
-        }
-      } else {
-        // Fallback for guest users
-        try {
-          const stored = localStorage.getItem('guest_diagnoses')
-          const diagnoses = stored ? JSON.parse(stored) : []
-          // Check if already exists to prevent duplicates
-          if (!diagnoses.find((d: any) => d.id === diagnosisId)) {
-            diagnoses.unshift(diagnosisRecord)
-            localStorage.setItem('guest_diagnoses', JSON.stringify(diagnoses.slice(0, 50)))
-          }
-        } catch (e) {
-          console.warn('[cropDoctorService] Failed to save guest diagnosis to localStorage:', e)
-        }
-      }
-
-      return {
-        success: true,
-        diagnosis: diagnosisRecord
-      }
-    } catch (err: any) {
-      console.error('[cropDoctorService Exception]:', err?.message || err)
+      const status = (body?.status as DiagnosisRequestStatus) ||
+        (response.status === 429 ? 'RATE_LIMITED' : response.status === 504 ? 'TIMEOUT' : response.status >= 500 ? 'AI_SERVICE_UNAVAILABLE' : 'GENERAL_ERROR')
+      const message = body?.error?.message || body?.message || (status === 'AI_SERVICE_UNAVAILABLE'
+        ? 'AI diagnosis is temporarily unavailable. Please try again shortly.'
+        : 'Something went wrong during diagnosis. Please try again.')
+      console.warn(`[cropDoctorService] /api/analyze-crop → HTTP ${response.status} ${status}`)
       return {
         success: false,
-        error: err?.message || 'Failed to analyze crop image.'
+        status: (status === 'SUCCESS' || status === 'INSUFFICIENT_EVIDENCE' ? 'GENERAL_ERROR' : status),
+        error: message,
+        reason: body?.reason,
+        retryAfterSeconds: body?.retryAfterSeconds
       }
     }
+
+    if (body.status === 'INSUFFICIENT_EVIDENCE') {
+      const d = body.data || {}
+      return {
+        success: true,
+        status: 'INSUFFICIENT_EVIDENCE',
+        insufficient: {
+          cropName: d.cropName ?? null,
+          observations: Array.isArray(d.observations) ? d.observations : [],
+          limitations: Array.isArray(d.limitations) ? d.limitations : [],
+          imageQualityIssues: Array.isArray(d.imageQualityIssues) ? d.imageQualityIssues : [],
+          guidance: Array.isArray(d.guidance) ? d.guidance : []
+        }
+      }
+    }
+
+    if (body.status !== 'SUCCESS' || !body.data || body.data.isPlantImage !== true) {
+      console.error('[cropDoctorService] Unexpected success payload shape', body?.status)
+      return { success: false, status: 'INVALID_AI_RESPONSE', error: 'The diagnosis service returned an unexpected response. No diagnosis was made.' }
+    }
+
+    // ── Persist the validated SUCCESS result ──────────────────────────────────
+    const data = body.data
+    const language = localStorage.getItem('agri_ai_language') || 'en'
+    const record = withoutUndefined({
+      pipelineVersion: DIAGNOSIS_PIPELINE_VERSION,
+      status: 'SUCCESS',
+      userId: currentUser.uid,
+      farmId: farmContext?.farmId || null,
+      source,
+      isSample: Boolean(isSample),
+      imageHash,
+      imageUrl: thumbnailDataUrl || null,
+      // Original AI output is stored in English; presentation translation never overwrites it
+      language: 'en',
+      uiLanguageAtCapture: language,
+      cropName: data.cropName,
+      crop: data.cropName,
+      cropCode: data.cropCode,
+      reportedCrop: data.reportedCrop ?? null,
+      cropMatchesReported: data.cropMatchesReported,
+      diagnosisCode: data.diagnosisCode,
+      diseaseName: data.diseaseName,
+      disease: data.diseaseName,
+      certainty: data.certainty,
+      severity: data.severity,
+      imageQuality: data.imageQuality,
+      symptoms: data.symptoms || [],
+      supportingEvidence: data.supportingEvidence || [],
+      contradictingEvidence: data.contradictingEvidence || [],
+      alternativeDiagnoses: data.alternativeDiagnoses || [],
+      limitations: data.limitations || [],
+      explanation: data.explanation || '',
+      analysis: data.analysis || '',
+      immediateActions: data.immediateActions || [],
+      treatment: data.treatment || [],
+      recommendations: data.recommendations || [],
+      prevention: data.prevention || [],
+      longTermPrevention: data.longTermPrevention || [],
+      whenToRecheck: data.whenToRecheck || '',
+      needsExpertReview: Boolean(data.needsExpertReview),
+      isPlantImage: true,
+      provenance: data.provenance || null
+    })
+
+    let saved = false
+    try {
+      await setDoc(doc(db, 'users', currentUser.uid, 'diagnoses', diagnosisId), { ...record, createdAt: serverTimestamp() })
+      saved = true
+      console.log(`[Diagnosis] saved users/${currentUser.uid}/diagnoses/${diagnosisId}`)
+    } catch (firestoreErr: any) {
+      console.error(`[Diagnosis] FIRESTORE WRITE FAILED users/${currentUser.uid}/diagnoses/${diagnosisId}: ${firestoreErr?.code || firestoreErr?.message}`)
+    }
+
+    if (saved && data.diagnosisCode !== 'healthy') {
+      notificationService.createNotification({
+        title: `New Diagnosis: ${data.cropName}`,
+        body: `${data.diseaseName} — review the result and recommended steps.`,
+        type: 'disease',
+        priority: data.severity === 'severe' ? 'high' : 'medium',
+        read: false,
+        actionRoute: '/history',
+      }).catch(e => console.warn('[Diagnosis] notification failed:', e))
+    }
+
+    const diagnosis = mapDiagnosisDoc(diagnosisId, { ...record, timestamp: data.provenance?.analyzedAt }, currentUser.uid)
+    // Show the full-resolution preview on the result page even when only a thumbnail is stored
+    return { success: true, status: 'SUCCESS', diagnosis, saved }
   },
 
-
   /**
-   * Fetches recent diagnoses for current authenticated user from Firestore: `users/{uid}/diagnoses`
-   * Sorted newest first (`orderBy('createdAt', 'desc')`).
-   * Waits for Firebase Auth to be ready before querying.
+   * Fetches recent diagnoses for the authenticated user from `users/{uid}/diagnoses`,
+   * newest first. Waits for Firebase Auth to resolve before querying.
    */
   getRecentDiagnoses: async (limitCount = 10, farmId?: string): Promise<DiagnosisResult[]> => {
-    // Ensure auth is resolved — auth.currentUser may be null on first render
     const currentUser: any = await new Promise(resolve => {
       const u = auth.currentUser
       if (u !== null) return resolve(u)
-      // Auth hasn't fired yet — wait for one state change event
       const unsub = auth.onAuthStateChanged(user => {
         unsub()
         resolve(user)
       })
     })
-
-    console.log(`[Diagnosis] loading recent diagnoses: uid=${currentUser?.uid || 'null'}`)
-
-    if (!currentUser || !db || !db.app) {
-      console.log('[Diagnosis] no authenticated user — reading from localStorage')
-      // Guest: read from localStorage
-      try {
-        const stored = localStorage.getItem('guest_diagnoses')
-        if (stored) {
-          const parsed = JSON.parse(stored)
-          const filtered = farmId ? parsed.filter((d: any) => d.farmId === farmId) : parsed
-          return filtered.slice(0, limitCount)
-        }
-      } catch (e) {
-        console.warn('[cropDoctorService] Failed to read guest diagnoses from localStorage', e)
-      }
-      return []
-    }
+    if (!currentUser) return []
 
     try {
       const uid = currentUser.uid
-      console.log(`[Diagnosis] history query path: users/${uid}/diagnoses (orderBy createdAt desc limit ${limitCount})`)
-      const diagnosesCol = collection(db, 'users', uid, 'diagnoses')
-      const q = query(diagnosesCol, orderBy('createdAt', 'desc'), limit(farmId ? limitCount * 5 : limitCount))
-
+      const q = query(collection(db, 'users', uid, 'diagnoses'), orderBy('createdAt', 'desc'), limit(farmId ? limitCount * 5 : limitCount))
       const snap = await getDocs(q)
-      console.log(`[Diagnosis] history documents: ${snap.size} returned from Firestore`)
-
-      const results: DiagnosisResult[] = []
-      snap.forEach(docSnap => {
-        const data = docSnap.data()
-        const cropName = data.cropName || data.crop || 'Groundnut'
-        const diseaseName = data.diseaseName || data.disease || 'Diagnosed Issue'
-
-        // Safe timestamp conversion — serverTimestamp() may still be null during pending writes
-        let timestamp: string
-        if (data.createdAt && typeof data.createdAt.toDate === 'function') {
-          timestamp = data.createdAt.toDate().toISOString()
-        } else if (data.createdAt && typeof data.createdAt.seconds === 'number') {
-          timestamp = new Date(data.createdAt.seconds * 1000).toISOString()
-        } else if (data.timestamp) {
-          timestamp = data.timestamp
-        } else {
-          timestamp = new Date().toISOString()
-        }
-
-        results.push({
-          id: docSnap.id,
-          userId: data.userId || uid,
-          farmId: data.farmId || 'farm-001',
-          imageUrl: data.imageUrl || '/images/disease_leaf_1787238259522.jpg',
-          crop: cropName,
-          cropName,
-          disease: diseaseName,
-          diseaseName,
-          confidence: typeof data.confidence === 'number' ? data.confidence : 85,
-          severity: data.severity || 'moderate',
-          symptoms: data.symptoms || [],
-          observedSymptoms: data.observedSymptoms || data.symptoms || [],
-          positiveSigns: data.positiveSigns || [],
-          possibleIssues: data.possibleIssues || [],
-          analysis: data.analysis || data.explanation || '',
-          actions: data.recommendations || data.actions || [],
-          immediateActions: data.immediateActions || data.actions || data.recommendations || [],
-          recommendations: data.recommendations || data.actions || [],
-          treatment: data.treatment || data.recommendations || [],
-          prevention: data.prevention || [],
-          longTermPrevention: data.longTermPrevention || data.prevention || [],
-          whenToRecheck: data.whenToRecheck || 'Within 3-5 days',
-          explanation: data.explanation || '',
-          isPlantImage: typeof data.isPlantImage === 'boolean' ? data.isPlantImage : true,
-          needsExpertReview: Boolean(data.needsExpertReview),
-          isDemo: Boolean(data.isSample),
-          isSample: Boolean(data.isSample),
-          timestamp
-        })
-      })
-
-      const filtered = farmId ? results.filter(d => d.farmId === farmId).slice(0, limitCount) : results
-      console.log(`[Diagnosis] loading history: ${filtered.length} records after farmId filter`)
-      return filtered
+      const results = snap.docs.map(docSnap => mapDiagnosisDoc(docSnap.id, docSnap.data(), uid))
+      return farmId ? results.filter(d => d.farmId === farmId).slice(0, limitCount) : results
     } catch (err: any) {
-      // Distinguish permission-denied from network/empty errors
       if (err?.code === 'permission-denied') {
         console.error(`[Diagnosis] PERMISSION DENIED reading users/${currentUser.uid}/diagnoses — check deployed Firestore rules`)
         throw new Error('FIRESTORE_PERMISSION_DENIED')
@@ -463,64 +291,14 @@ export const cropDoctorService = {
   },
 
   /**
-   * Retrieves a single diagnosis record by ID from Firestore: `users/{uid}/diagnoses/{diagnosisId}`
+   * Retrieves a single diagnosis record by ID from `users/{uid}/diagnoses/{diagnosisId}`
    */
   getDiagnosisById: async (diagnosisId: string): Promise<DiagnosisResult | null> => {
+    const currentUser = auth.currentUser
+    if (!currentUser) return null
     try {
-      const currentUser = auth.currentUser
-      if (!currentUser || !db || !db.app) {
-        try {
-          const stored = localStorage.getItem('guest_diagnoses')
-          if (stored) {
-            const parsed = JSON.parse(stored)
-            return parsed.find((d: any) => d.id === diagnosisId) || null
-          }
-        } catch (e) {}
-        return null
-      }
-
-      const docRef = doc(db, 'users', currentUser.uid, 'diagnoses', diagnosisId)
-      const snap = await getDoc(docRef)
-
-      if (snap.exists()) {
-        const data = snap.data()
-        const cropName = data.cropName || data.crop || 'Groundnut'
-        const diseaseName = data.diseaseName || data.disease || 'Diagnosed Issue'
-
-        return {
-          id: snap.id,
-          userId: currentUser.uid,
-          farmId: data.farmId,
-          imageUrl: data.imageUrl,
-          crop: cropName,
-          cropName,
-          disease: diseaseName,
-          diseaseName,
-          confidence: data.confidence,
-          severity: data.severity,
-          symptoms: data.symptoms || [],
-          observedSymptoms: data.observedSymptoms || data.symptoms || [],
-          positiveSigns: data.positiveSigns || [],
-          possibleIssues: data.possibleIssues || [],
-          analysis: data.analysis || data.explanation || '',
-          actions: data.recommendations || data.actions || [],
-          immediateActions: data.immediateActions || data.actions || data.recommendations || [],
-          recommendations: data.recommendations || data.actions || [],
-          treatment: data.treatment || data.recommendations || [],
-          prevention: data.prevention || [],
-          longTermPrevention: data.longTermPrevention || data.prevention || [],
-          whenToRecheck: data.whenToRecheck || 'Within 3-5 days',
-          explanation: data.explanation || '',
-          isPlantImage: typeof data.isPlantImage === 'boolean' ? data.isPlantImage : true,
-          needsExpertReview: Boolean(data.needsExpertReview),
-          isDemo: Boolean(data.isSample),
-          isSample: Boolean(data.isSample),
-          timestamp: data.createdAt?.toDate
-            ? data.createdAt.toDate().toISOString()
-            : data.timestamp || new Date().toISOString()
-        }
-      }
-      return null
+      const snap = await getDoc(doc(db, 'users', currentUser.uid, 'diagnoses', diagnosisId))
+      return snap.exists() ? mapDiagnosisDoc(snap.id, snap.data(), currentUser.uid) : null
     } catch (err) {
       console.warn('[cropDoctorService] Error retrieving diagnosis by ID from Firestore:', err)
       return null

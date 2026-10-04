@@ -219,7 +219,7 @@ const FarmLocationPage: React.FC = () => {
         <div className="px-6 mb-3 relative z-20">
           <AutocompleteInput
             onPlaceSelect={handlePlaceSelect}
-            placeholder="Search village, taluk, district…"
+            placeholder={t("ui.farmLocationPage.searchVillageTalukDistrict", "Search village, taluk, district…")}
           />
         </div>
 
@@ -268,7 +268,7 @@ const FarmLocationPage: React.FC = () => {
           </button>
 
           <p className="text-xs text-center text-gray-400 font-medium">
-            Or tap anywhere on the map to drop a pin
+            {t("ui.farmLocationPage.orTapAnywhereOnThe", "Or tap anywhere on the map to drop a pin")}
           </p>
         </div>
 

@@ -32,7 +32,7 @@ export const BottomNav: React.FC = () => {
   return (
     <nav
       className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-sm border-t border-gray-100 shadow-nav md:hidden"
-      aria-label="Main navigation"
+      aria-label={t("ui.navigation.mainNavigation", "Main navigation")}
     >
       <div className="flex items-center justify-around h-[68px] px-1 safe-area-inset-bottom">
         {MOBILE_NAV.map(({ to, icon: Icon, labelKey }) => {
@@ -83,7 +83,7 @@ export const Sidebar: React.FC = () => {
   return (
     <aside
       className="hidden lg:flex flex-col w-64 min-h-screen bg-off-white border-r border-green-pastel/20 fixed left-0 top-0 bottom-0 z-40"
-      aria-label="Sidebar navigation"
+      aria-label={t("ui.navigation.sidebarNavigation", "Sidebar navigation")}
     >
       {/* Logo */}
       <div className="px-6 py-6 border-b border-brown-pastel/40">
@@ -155,7 +155,7 @@ export const TopNav: React.FC = () => {
   return (
     <nav
       className="hidden md:flex lg:hidden items-center justify-between px-4 py-3 bg-off-white border-b border-brown-pastel/40 sticky top-0 z-40 shadow-sm"
-      aria-label="Tablet navigation"
+      aria-label={t("ui.navigation.tabletNavigation", "Tablet navigation")}
     >
       <div className="flex items-center gap-3">
         <img src="/images/logo.jpg" alt="Cropoctor Logo" className="w-8 h-8 rounded-lg object-cover border border-brown-pastel/30" />

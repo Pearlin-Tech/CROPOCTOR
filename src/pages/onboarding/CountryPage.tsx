@@ -46,12 +46,12 @@ const CountryPage: React.FC = () => {
         const { error } = await userService.saveUserCountry(authUser.uid, countryObj.name)
         if (error) {
           console.warn('[CountryPage] Error saving country to Firestore:', error)
-          toast.error('Failed to sync country online. Saved locally.')
+          toast.error(t("ui.countryPage.failedToSyncCountryOnline", "Failed to sync country online. Saved locally."))
         } else {
-          toast.success(`Country updated to ${countryObj.name} ${countryObj.flag}`)
+          toast.success(t("ui.countryPage.countryUpdatedToV0V1", { defaultValue: "Country updated to {{v0}} {{v1}}", v0: countryObj.name, v1: countryObj.flag }))
         }
       } else {
-        toast.success(`Country set to ${countryObj.name} ${countryObj.flag}`)
+        toast.success(t("ui.countryPage.countrySetToV0V1", { defaultValue: "Country set to {{v0}} {{v1}}", v0: countryObj.name, v1: countryObj.flag }))
       }
 
       // 3. Navigate appropriately: return to Profile/previous page if authenticated, else go to login
@@ -62,7 +62,7 @@ const CountryPage: React.FC = () => {
       }
     } catch (err: any) {
       console.error('[CountryPage] Exception saving country selection:', err)
-      toast.error('Unable to save country selection.')
+      toast.error(t("ui.countryPage.unableToSaveCountrySelection", "Unable to save country selection."))
     } finally {
       setSaving(false)
     }
@@ -77,7 +77,7 @@ const CountryPage: React.FC = () => {
             className="flex items-center gap-2 text-sm text-brown-earth/80 font-semibold mb-4 hover:text-green-forest transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
-            <span>Back</span>
+            <span>{t("ui.countryPage.back", "Back")}</span>
           </button>
         )}
         <div className="flex items-center gap-2 mb-4">

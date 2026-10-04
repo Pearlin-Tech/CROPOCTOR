@@ -24,7 +24,8 @@
     "headline": "Better decisions. Healthier crops.",
     "subheading": "AI-powered agricultural intelligence built around your farm.",
     "cta": "Get Started",
-    "signin": "Already have an account? Sign in"
+    "signin": "Already have an account? Sign in",
+    "subtitle": "Smarter decisions for every farm."
   },
   "auth": {
     "google": "Continue with Google",
@@ -46,8 +47,20 @@
       "required": "This field is required.",
       "invalidEmail": "Please enter a valid email address.",
       "weakPassword": "Password must be at least 6 characters.",
-      "authFailed": "Sign in failed. Please try again."
-    }
+      "authFailed": "Sign in failed. Please try again.",
+      "noSession": "No user session. Please sign in again.",
+      "notVerified": "Email not verified yet. Please click the link in your email first."
+    },
+    "verified": "Email verified! Welcome to Cropoctor.",
+    "verificationResent": "Verification email resent!",
+    "verifyEmailTitle": "Verify your email",
+    "verifyEmailDesc": "We sent a verification link to",
+    "verifyEmailInstructions": "Click the link in the email, then press the button below.",
+    "iHaveVerified": "I've verified my email — Continue",
+    "resendIn": "Resend in ${resendCooldown}s",
+    "resendVerification": "Resend verification email",
+    "signOut": "Sign out",
+    "checkSpam": "Can't find the email? Check your spam or junk folder."
   },
   "language": {
     "title": "Choose Language",
@@ -87,7 +100,10 @@
     "farmer": "farmer",
     "myFarms": "My Farms",
     "farmsRegistered": "{{count}} farm(s) registered",
-    "version": "Version"
+    "version": "Version",
+    "notificationsSettings": "Push Notifications",
+    "notificationsSection": "Notifications",
+    "fullName": "Full name"
   },
   "farms": {
     "farm-001": {
@@ -123,7 +139,38 @@
       "pickOnMap": "Pick on Map",
       "useThisLocation": "Use This Location",
       "locating": "Finding your location...",
-      "locationError": "Could not find your location. Please try searching."
+      "locationError": "Could not find your location. Please try searching.",
+      "soilTitle": "soil",
+      "locationLabel": "Location",
+      "primaryCrop": "Crop",
+      "stageTitle": "Stage",
+      "areaLabel": "Area",
+      "cropTitle": "Select Your Crop",
+      "cropSubtitle": "Choose the primary crop for this farm.",
+      "selectCrop": "Select Crop",
+      "searchCrops": "Search crops...",
+      "selected": "selected",
+      "category": "Category",
+      "stageSubtitle": "What stage is your crop at?",
+      "selectStage": "Select Crop Stage",
+      "searchStages": "Search stages...",
+      "plantingDate": "When did you plant? (optional)",
+      "plantingHint": "This helps us calculate fertilizer and irrigation timing.",
+      "almostDone": "Almost Done",
+      "markArea": "Farm Boundary",
+      "tapMap": "Draw your farm boundary or enter the area.",
+      "enterArea": "Farm Size",
+      "confirmArea": "Confirm Boundary",
+      "detailsTitle": "Farm Details",
+      "detailsSubtitle": "Complete your farm setup.",
+      "farmName": "Farm name",
+      "setFromMap": "Set from map selection.",
+      "areaCalculated": "Area calculated from your farm boundary.",
+      "saveContinue": "Save & Continue",
+      "soilSubtitle": "Select your farm's soil type.",
+      "soilHint": "Not sure? Select \"Unknown\" — the AI can still help you.",
+      "selectSoil": "Select Soil Type",
+      "searchSoils": "Search soil types..."
     },
     "boundary": {
       "title": "Mark Your Farm Area",
@@ -144,7 +191,29 @@
       "cropStage": "Crop stage",
       "plantingDate": "Planting date (optional)",
       "save": "Save Farm",
-      "setActive": "Active Farm"
+      "setActive": "Active Farm",
+      "howCalculated": "How is this calculated?",
+      "calculatedAt": "Calculated",
+      "formula": "Formula",
+      "missingData": "Missing data is excluded — remaining weights are renormalized.",
+      "noFactorData": "No factor data available yet. Health score is the default baseline.",
+      "confidence": "Confidence",
+      "dataSources": "Data sources active",
+      "satelliteData": "Satellite Data",
+      "unavailable": "Unavailable",
+      "live": "Live",
+      "ndvi": "NDVI (Vegetation Index)",
+      "moistureIndex": "Moisture Index (NDMI)",
+      "imageDate": "Image Date",
+      "cloudCover": "Cloud Cover",
+      "back": "Back to My Farms",
+      "health": "Farm Health",
+      "howCalculatedShort": "How calculated?",
+      "calculating": "Calculating…",
+      "factorsUsed": "Factors Used",
+      "latestDiagnosis": "Latest Diagnosis",
+      "currentWeather": "Current Weather",
+      "activeFarm": "Active Farm"
     },
     "crop": {
       "title": "Select Your Crop",
@@ -186,7 +255,9 @@
       "weather": "Weather",
       "health": "Health",
       "hint": "The AI uses your farm context when generating recommendations."
-    }
+    },
+    "notFound": "Farm not found.",
+    "deleted": "Farm deleted successfully"
   },
   "dashboard": {
     "title": "Cropoctor Dashboard",
@@ -210,7 +281,8 @@
     "weatherCard": {
       "rain": "Rain",
       "humidity": "Humidity",
-      "wind": "Wind"
+      "wind": "Wind",
+      "temp": "Temp"
     },
     "nba": {
       "action": "Check soil moisture before irrigation."
@@ -219,6 +291,16 @@
       "title": "Heavy rain expected tomorrow.",
       "desc": "Consider delaying irrigation and checking drainage channels.",
       "why": "Why?"
+    },
+    "actions": {
+      "diagnose": "Diagnose Crop",
+      "recommendation": "Crop Recommendation",
+      "askAdvisor": "Ask AI Advisor",
+      "irrigation": "Irrigation Intelligence",
+      "nba": "Next Best Action"
+    },
+    "overview": {
+      "acres": "acres"
     }
   },
   "advisor": {
@@ -245,7 +327,19 @@
       "q4": "Which fertilizer should I use?",
       "q5": "Is rain expected at the right time?",
       "q6": "How can I improve crop health?"
-    }
+    },
+    "newConversation": "New Conversation",
+    "activeContext": "Active Context",
+    "activeContextDesc": "I have analyzed your recent diagnosis. Ask me how to treat it!",
+    "askTreatment": "Ask Treatment",
+    "result": {
+      "currentCondition": "Current Condition",
+      "potentialRisks": "Potential Risks",
+      "whatToMonitor": "What to Monitor",
+      "whenToAct": "When to Act",
+      "prosCons": "Pros / Cons & Trade-offs"
+    },
+    "askTreatmentQuestion": "What is the recommended treatment for {{disease}}?"
   },
   "voice": {
     "title": "Voice Assistant",
@@ -302,6 +396,55 @@
         "moderate": "Moderate",
         "severe": "Severe"
       }
+    },
+    "progress": {
+      "prepare": "Preparing image",
+      "analyze": "Checking image and analysing symptoms",
+      "elapsed": "{{s}} s — AI analysis usually takes 5–20 s"
+    },
+    "outcome": {
+      "insufficientTitle": "Not enough evidence for a diagnosis",
+      "insufficientDesc": "The AI could not identify a condition from this photo, so no disease or treatment is suggested. Nothing was saved to your history.",
+      "observed": "What the AI could see",
+      "whyNot": "Why it could not decide",
+      "nextSteps": "How to get a reliable result",
+      "retake": "Take a clearer photo",
+      "noDiagnosis": "No diagnosis was made and nothing was saved. Your photo is kept so you can retry.",
+      "retryIn": "Retry (wait {{s}} s)",
+      "tryAnother": "Try another image"
+    },
+    "guidance": {
+      "daylight": "Retake the photo in daylight, without flash, holding the camera 20–30 cm from the leaf.",
+      "fill": "Fill the frame with one affected leaf and keep it in sharp focus.",
+      "bothSides": "Take a second photo showing both the upper and lower leaf surface.",
+      "expert": "If symptoms are spreading quickly, show the plant to your local agricultural extension officer."
+    },
+    "notSaved": "The diagnosis could not be saved to your history.",
+    "changeImage": "Change Image",
+    "noHistoryTitle": "No diagnoses yet",
+    "noHistoryDesc": "Upload a crop photo above to get your first diagnosis",
+    "reason": {
+      "MISSING": "No image was provided.",
+      "TOO_SMALL": "The image file is too small to analyse.",
+      "TOO_LARGE": "This image is too large to upload. Please use a smaller photo.",
+      "UNSUPPORTED_FORMAT": "Unsupported image format. Please use a JPEG, PNG, WebP or HEIC photo.",
+      "CORRUPT": "The image file is incomplete or corrupted — please retake the photo.",
+      "LOW_RESOLUTION": "The image resolution is too low. Please take a closer, sharper photo.",
+      "TOO_DARK": "This photo is too dark to analyse. Please retake it in daylight.",
+      "OVEREXPOSED": "This photo is overexposed. Please retake it without direct glare or flash.",
+      "BLURRY": "This photo is too blurry to analyse. Hold the camera steady and tap the leaf to focus.",
+      "UNREADABLE": "This image could not be read. It may be corrupted — please choose another photo."
+    },
+    "errorMsg": {
+      "NOT_A_PLANT": "This photo does not appear to show a plant. Please photograph a leaf or the affected part of the crop.",
+      "RATE_LIMITED": "The AI diagnosis service is busy right now. Please try again in a minute.",
+      "AI_SERVICE_UNAVAILABLE": "AI diagnosis is temporarily unavailable. Please try again shortly.",
+      "AUTHENTICATION_ERROR": "Please sign in again, or try again later.",
+      "TIMEOUT": "The AI diagnosis took too long to respond. Please try again.",
+      "NETWORK_ERROR": "Could not reach the diagnosis service. Check your internet connection and try again.",
+      "INVALID_AI_RESPONSE": "The AI returned an unusable response, so no diagnosis was made. Please try again.",
+      "INVALID_REQUEST": "The diagnosis request was rejected. Please try a different photo.",
+      "GENERAL_ERROR": "Something went wrong during diagnosis. Please try again."
     }
   },
   "weather": {
@@ -334,7 +477,9 @@
     "demo": "Demo Weather Data",
     "updatedJustNow": "Updated just now",
     "updatedMinAgo": "Updated {{count}} min ago",
-    "feelsLike": "Feels like {{temp}}°"
+    "feelsLike": "Feels like {{temp}}°",
+    "error": "Weather data temporarily unavailable for {{farmName}}.",
+    "farmLocation": "Farm Location"
   },
   "insights": {
     "title": "Farm Insights",
@@ -362,6 +507,21 @@
       "Adequate nutrient levels": "Adequate nutrient levels",
       "No confirmed disease": "No confirmed disease",
       "Good canopy development": "Good canopy development"
+    },
+    "score": "Score",
+    "soil": {
+      "moisture": "Moisture",
+      "nutrientStatus": "Nutrient Status"
+    },
+    "error": "Connection Error",
+    "range": "Range",
+    "eeError": "Earth Engine Connection Error",
+    "noData": "No satellite data available.",
+    "syntheticData": "Satellite data shown is synthetic demo data based on coordinates",
+    "livePending": "Live Earth Engine integration pending.",
+    "rangeLabels": {
+      "poor": "Poor",
+      "excellent": "Excellent"
     }
   },
   "history": {
@@ -389,7 +549,27 @@
         "title": "Fertiliser Applied",
         "summary": "10kg Urea applied per acre as top dressing."
       }
-    }
+    },
+    "refresh": "Refresh",
+    "loading": "Loading from Firestore...",
+    "unavailable": "Permission Denied",
+    "deleted": "Diagnosis deleted.",
+    "deleteError": "Could not delete this diagnosis. Check your connection and try again.",
+    "confirmClearAll": "Are you sure you want to completely delete your entire history? This action cannot be undone.",
+    "clearAllError": "Failed to clear all history.",
+    "clearAll": "Clear All",
+    "retry": "Retry",
+    "emptyTitle": "No History Yet",
+    "emptyDesc": "Run a crop diagnosis or ask the AI Advisor to start building your history.",
+    "unreliable": "Unreliable older record",
+    "deleteOne": "Delete diagnosis: {{name}}",
+    "advisorSessions": "AI Advisor Sessions",
+    "synced": "Synced with Firestore",
+    "records": "records",
+    "record": "record",
+    "loaded": "loaded",
+    "confirmDeleteTitle": "Delete this diagnosis?",
+    "confirmDeleteDesc": "Only this record is removed. This cannot be undone."
   },
   "notifications": {
     "title": "Notifications",
@@ -429,7 +609,8 @@
     },
     "emptyTitle": "No notifications yet",
     "emptyDesc": "When you get alerts about your farm or weather, they will show up here.",
-    "errorTitle": "Something went wrong"
+    "errorTitle": "Something went wrong",
+    "clearing": "Clearing..."
   },
   "settings": {
     "title": "Settings",
@@ -465,7 +646,22 @@
     "notifications": "Notifications",
     "privacy": "Privacy Policy",
     "help": "Help & Support",
-    "about": "About Cropoctor"
+    "about": "About Cropoctor",
+    "items": {
+      "about": "About CROPOCTOR",
+      "help": "Help & Support"
+    },
+    "notificationsPage": {
+      "unsupported": "Your browser does not support notifications.",
+      "title": "Notification Settings",
+      "enabled": "Notifications are Enabled",
+      "enabledDesc": "You will receive important alerts and farm updates.",
+      "blocked": "Notifications Blocked",
+      "blockedDesc": "Please enable notifications in your browser settings to receive alerts.",
+      "disabled": "Enable Push Notifications",
+      "disabledDesc": "Allow Cropoctor to send you alerts about crop health, weather changes, and AI recommendations.",
+      "enableBtn": "Allow Notifications"
+    }
   },
   "states": {
     "loading": "Loading...",
@@ -475,7 +671,8 @@
     "offlineHint": "Your saved farm information is still available.",
     "empty": "Nothing here yet.",
     "lastUpdated": "Last updated",
-    "reload": "Reload App"
+    "reload": "Reload App",
+    "unavailable": "Unavailable"
   },
   "toast": {
     "farmSaved": "Farm saved successfully.",
@@ -546,5 +743,357 @@
     "rainy": "Rainy",
     "stormy": "Stormy",
     "Partly Cloudy": "Partly Cloudy"
+  },
+  "common": {
+    "retry": "Retry",
+    "image": "Image",
+    "unknown": "Unknown",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "refresh": "Refresh"
+  },
+  "diagnosis": {
+    "result": {
+      "title": "Farm Diagnosis Report",
+      "possibleIssue": "Detected Condition",
+      "symptoms": "Symptoms & Evidence",
+      "actions": "Recommended Actions",
+      "disclaimer": "Generated by CROPOCTOR Agricultural Intelligence Platform. This report is based on available data and AI analysis. Always consult an agronomist for critical decisions.",
+      "translating": "Translating history to your language...",
+      "completed": "Crop Analysis Completed",
+      "analyzedAt": "Analysed",
+      "preparingPdf": "Preparing PDF...",
+      "downloadReport": "Download Report",
+      "nonPlant": "Non-Plant Image Detected",
+      "nonPlantDesc": "The image uploaded does not clearly show a plant, crop, or leaf. Please capture a clear, well-lit photo of affected plant foliage.",
+      "unreliableTitle": "Unreliable older record",
+      "unreliableDesc": "This record was created by an earlier version of the app that could produce a result without analysing your photo. Treatment advice is hidden. Please diagnose the plant again and delete this record from History.",
+      "legacyNote": "Older record — created before results were validated. Treat it with caution and re-diagnose if in doubt.",
+      "expertReview": "Recommended: Have a local agricultural extension officer confirm this diagnosis.",
+      "expertBadge": "Expert Review",
+      "photoAlt": "Diagnosed crop photo",
+      "noPhoto": "Photo not stored",
+      "aiBadge": "AI image analysis",
+      "certainty": "Certainty",
+      "uncalibrated": "AI estimate, not calibrated",
+      "analysis": "Analysis",
+      "contradicting": "Contradicting Evidence",
+      "limitations": "Limitations",
+      "askAI": "Ask AI Advisor about this",
+      "confidence": "confidence",
+      "translationFailed": "Translation is unavailable right now, so this result is shown in its original language (English).",
+      "voiceUnsupported": "Your device has no voice installed for this language.",
+      "stopAudio": "Stop audio"
+    },
+    "demo": "Sample image",
+    "possibleIssue": "Identified Condition",
+    "positiveSigns": "Positive Signs",
+    "symptoms": "Supporting Evidence",
+    "possibleIssues": "Alternative Diagnoses & Risks",
+    "immediateActions": "Immediate Actions",
+    "recommendedActions": "Recommended Treatment",
+    "longTermPrevention": "Long-term Prevention Practices",
+    "whenToRecheck": "When to Recheck",
+    "listen": "Listen Remedies",
+    "disclaimer": "AI diagnosis is informational and should not replace professional agricultural advice. Consult your local agricultural extension officer for confirmed field treatment.",
+    "certainty": {
+      "legacyPercent": "{{value}}% (older record)",
+      "unknown": "Certainty not recorded",
+      "high": "High certainty",
+      "moderate": "Moderate certainty",
+      "low": "Low certainty",
+      "insufficient_evidence": "Insufficient evidence"
+    },
+    "severity": {
+      "healthy": "Healthy",
+      "mild": "Mild",
+      "moderate": "Moderate",
+      "severe": "Severe",
+      "unknown": "Severity unknown"
+    }
+  },
+  "cropRec": {
+    "subtitle": "AI picks for your soil & climate",
+    "description": "AI-powered crop suggestions based on your soil type, location, and local climate.",
+    "aiAnalyzed": "AI Analyzed",
+    "allSeasons": "All Seasons",
+    "match": "match",
+    "profitPotential": "Profit Potential",
+    "waterNeed": "Water Need",
+    "saveToPlan": "Save to Plan",
+    "askAiMore": "Ask AI More",
+    "disclaimer": "AI recommendations are based on your soil type, location climate, and crop history. Always consult local agricultural extension officers before switching crops.",
+    "askCustom": "Ask AI for Custom Advice"
+  },
+  "help": {
+    "subtitle": "Find quick answers and learn how to use CROPOCTOR.",
+    "gettingStarted": "Getting Started",
+    "faq": "Frequently Asked Questions",
+    "contactSupport": "Contact Support",
+    "emailSupport": "Email Support",
+    "sendEmail": "Send Email",
+    "appFeedback": "App Feedback",
+    "reportBug": "Report a Bug",
+    "reportBugDesc": "Submit issues or error reports to support@cropdoctor.ai"
+  },
+  "irrigation": {
+    "skip": "Skip Irrigation",
+    "skipReason": "Rain expected (35–50mm). Soil moisture is adequate.",
+    "monitor": "Monitor after rain",
+    "monitorReason": "Check soil drainage and field conditions post-rain.",
+    "conditional": "Light irrigation if needed",
+    "conditionalReason": "If rain < 20mm, apply 25mm of supplemental irrigation.",
+    "tip1": {
+      "title": "Flowering Stage",
+      "text": "Your crop is in flowering. Avoid water stress — but also avoid waterlogging which causes flower drop."
+    },
+    "tip2": {
+      "title": "Best Time to Irrigate",
+      "text": "If irrigation is needed, do it in the early morning (6–8 AM) to minimize evaporation losses."
+    },
+    "tip3": {
+      "title": "Recommended Amount",
+      "text": "Groundnut at flowering needs 25–35mm per week. Current soil has adequate moisture from recent rain."
+    },
+    "tip4": {
+      "title": "Soil Moisture Check",
+      "text": "Insert a finger 6 inches into soil near root zone. If it still feels moist, skip irrigation today."
+    },
+    "subtitle": "AI-powered smart irrigation scheduling based on weather & soil data.",
+    "scheduleTitle": "AI Irrigation Schedule",
+    "status": {
+      "skip": "Skip",
+      "monitor": "Monitor",
+      "conditional": "Conditional"
+    },
+    "tipsTitle": "Smart Irrigation Tips"
+  },
+  "nba": {
+    "subtitle": "What should you do next?",
+    "description": "Personalized recommendations for your farm today.",
+    "priority": "Priority",
+    "why": "Why?",
+    "benefit": "Benefit",
+    "save": "Save",
+    "remind": "Remind me",
+    "askAi": "Ask AI"
+  },
+  "ui": {
+    "errorBoundary": {
+      "somethingWentWrong": "Something went wrong.",
+      "weReSorryForThe": "We're sorry for the inconvenience. Please try reloading the app.",
+      "reloadApp": "Reload App"
+    },
+    "searchableSelect": {
+      "noResults": "No results"
+    },
+    "cameraModal": {
+      "takePhoto": "Take Photo",
+      "retry": "Retry"
+    },
+    "button": {
+      "loading": "Loading…"
+    },
+    "toast": {
+      "notifications": "Notifications"
+    },
+    "appShell": {
+      "goBack": "Go back"
+    },
+    "navigation": {
+      "mainNavigation": "Main navigation",
+      "sidebarNavigation": "Sidebar navigation",
+      "tabletNavigation": "Tablet navigation"
+    },
+    "diagnosisReportPDF": {
+      "severity": "Severity:",
+      "certainty": "Certainty:",
+      "nutrientDataUnavailableNoSoil": "Nutrient data unavailable (No soil test found)",
+      "forecast": "Forecast:",
+      "predictionUnavailableDueToInsufficient": "Prediction unavailable due to insufficient historical data."
+    },
+    "insightsPage": {
+      "satelliteFarmView": "Satellite farm view"
+    },
+    "diagnosisResultPage": {
+      "readingDiagnosisRemediesAloud": "Reading diagnosis remedies aloud...",
+      "audioReadoutUnavailableOnThis": "Audio readout unavailable on this browser."
+    },
+    "voiceSettingsPage": {
+      "voiceSettings": "Voice Settings",
+      "outputLanguage": "Output Language",
+      "speechRate": "Speech Rate",
+      "aiVoiceType": "AI Voice Type",
+      "testVoiceSample": "Test Voice Sample",
+      "voiceOutputUsesYourDevice": "Voice output uses your device's built-in speech engine. Quality depends on installed language packs.",
+      "voiceLanguageUpdated": "Voice language updated.",
+      "voiceNotSupportedOnThis": "Voice not supported on this device.",
+      "playingVoiceSample": "Playing voice sample…",
+      "speechRateV0": "Speech rate: {{v0}}",
+      "voiceV0": "Voice: {{v0}}"
+    },
+    "profilePage": {
+      "manageYourFarmerProfilePreferences": "Manage your farmer profile, preferences, and account"
+    },
+    "aboutPage": {
+      "smarterDecisionsForEveryFarm": "Smarter decisions for every farm",
+      "cropoctorIsAnAiPowered": "CROPOCTOR is an AI-powered agricultural assistant designed to help farmers make faster and more informed decisions about crop health, farm management, weather, and everyday farming questions.",
+      "whatCropoctorHelpsWith": "What CROPOCTOR Helps With",
+      "howItWorks": "How It Works",
+      "importantNotice": "Important Notice",
+      "aiAssistedGuidance": "AI-assisted guidance",
+      "cropoctorUsesArtificialIntelligenceTo": "CROPOCTOR uses artificial intelligence to provide agricultural guidance and crop-health assessments. AI results may be incorrect, especially when images are unclear, symptoms are unusual, or multiple conditions look similar.",
+      "forSeriousCropDamageUncertain": "For serious crop damage, uncertain diagnoses, or high-risk agricultural decisions, farmers should consult a qualified agricultural expert or local agricultural authority.",
+      "privacyDataHandling": "Privacy & Data Handling",
+      "yourFarmDataIsProcessed": "Your farm data is processed to generate personalized agronomic insights. Diagnostic images are processed temporarily in memory to analyze crop health and are not retained as high-resolution files.",
+      "version100": "Version 1.0.0"
+    },
+    "myFarmsPage": {
+      "thisWillPermanentlyRemoveThis": "This will permanently remove this farm and its associated data. This action cannot be undone.",
+      "typeDeleteToConfirm": "Type DELETE to confirm",
+      "cancel": "Cancel"
+    },
+    "cropRecommendationPage": {
+      "kharif": "Kharif",
+      "rabi": "Rabi",
+      "v0SavedToYourCrop": "{{v0}} saved to your crop plan."
+    },
+    "farmDetailPage": {
+      "refreshAllData": "Refresh all data"
+    },
+    "imageAnalysisPage": {
+      "cropBeingDiagnosed": "Crop being diagnosed"
+    },
+    "helpPage": {
+      "supportEmailSupportCropdoctorAi": "Support email: support@cropdoctor.ai",
+      "reportBugsToSupportCropdoctor": "Report bugs to: support@cropdoctor.ai"
+    },
+    "voicePage": {
+      "cropoctorVoiceAi": "Cropoctor Voice AI",
+      "googleCloudSpeechGeminiAi": "Google Cloud Speech & Gemini AI",
+      "activeSelectedFarm": "Active Selected Farm",
+      "switchFarm": "Switch Farm",
+      "transcribingAudio": "Transcribing Audio",
+      "sendingAudioToGoogleCloud": "Sending audio to Google Cloud Speech-to-Text service…",
+      "analyzingWithGeminiAi": "Analyzing with Gemini AI",
+      "voiceTranscript": "Voice Transcript",
+      "geminiAiAgronomicAdvisory": "Gemini AI Agronomic Advisory",
+      "stopSpeaking": "Stop Speaking",
+      "speakAnswer": "Speak Answer",
+      "askAnother": "Ask Another",
+      "openInAdvisor": "Open in Advisor",
+      "askInEnglishEnIn": "Ask in English (en-IN), Hindi (hi-IN), or Gujarati (gu-IN)",
+      "voiceAssistantError": "Voice Assistant Error",
+      "retryRecording": "Retry Recording",
+      "closeVoiceAssistant": "Close voice assistant",
+      "sendTypedQuestion": "Send typed question"
+    },
+    "irrigationPage": {
+      "updated": "Updated!"
+    },
+    "aIAdvisorPage": {
+      "playingAdviceAudio": "Playing advice audio…",
+      "uploadImage": "Upload image",
+      "send": "Send",
+      "voiceInput": "Voice input"
+    },
+    "cropDoctorPage": {
+      "photoAcquiredOptimizedV0V1": "Photo acquired! Optimized ({{v0}} → {{v1}})",
+      "sampleLeafImageSelected": "Sample leaf image selected.",
+      "pleaseSelectAnImageOr": "Please select an image or take a photo first.",
+      "acquiredLeaf": "Acquired leaf",
+      "cropLeaf": "Crop leaf"
+    },
+    "homePage": {
+      "farmSunrise": "Farm Sunrise"
+    },
+    "nextBestActionPage": {
+      "actionSavedToFarmLog": "Action saved to farm log.",
+      "reminderSet": "Reminder set."
+    },
+    "loginPage": {
+      "cropoctorPlatform": "Cropoctor Platform",
+      "growingABetterTomorrow": "Growing a better tomorrow",
+      "empowerYourAgriculturalDecisionsWith": "Empower your agricultural decisions with AI precision diagnostics and real-time field insights.",
+      "smartFarming": "Smart Farming",
+      "aiPrecision": "AI Precision",
+      "cropHealth": "Crop Health",
+      "earlyDetection": "Early Detection",
+      "betterYield": "Better Yield",
+      "optimizedRoi": "Optimized ROI",
+      "farmIntelligencePlatform": "Farm Intelligence Platform",
+      "sendOtp": "Send OTP",
+      "verifySignIn": "Verify & Sign In",
+      "resetPassword": "Reset Password",
+      "passwordResetEmailSentTo": "Password reset email sent to",
+      "backToSignIn": "Back to Sign In",
+      "sendResetEmail": "Send Reset Email",
+      "successfullyLoggedIn": "Successfully logged in!",
+      "loggedInWithGoogle": "Logged in with Google!",
+      "pleaseEnterAPhoneNumber": "Please enter a phone number.",
+      "recaptchaFailedToInitializePlease": "reCAPTCHA failed to initialize. Please refresh and try again.",
+      "otpSentToYourPhone": "OTP sent to your phone!",
+      "pleaseEnterTheOtp": "Please enter the OTP.",
+      "loggedInWithPhone": "Logged in with Phone!",
+      "pleaseEnterYourEmailAddress": "Please enter your email address.",
+      "modernCropFieldWithTractor": "Modern crop field with tractor working at sunrise",
+      "youExampleCom": "you@example.com",
+      "togglePassword": "Toggle password"
+    },
+    "farmerProfilePage": {
+      "step1Of3": "Step 1 of 3",
+      "eGRahulPatel": "e.g. Rahul Patel"
+    },
+    "welcomePage": {
+      "lushAgriculturalFarmFieldAt": "Lush agricultural farm field at sunrise"
+    },
+    "countryPage": {
+      "back": "Back",
+      "failedToSyncCountryOnline": "Failed to sync country online. Saved locally.",
+      "countryUpdatedToV0V1": "Country updated to {{v0}} {{v1}}",
+      "countrySetToV0V1": "Country set to {{v0}} {{v1}}",
+      "unableToSaveCountrySelection": "Unable to save country selection."
+    },
+    "signUpPage": {
+      "joinCropoctor": "Join Cropoctor.",
+      "transformYourFarmWithIntelligent": "Transform your farm with intelligent AI crop management.",
+      "joinCropoctorToGetPersonalized": "Join Cropoctor to get personalized farm insights.",
+      "verifyYourEmail": "Verify your email",
+      "weVeSentAVerification": "We've sent a verification link to your email. Click the link, then return here and press Continue.",
+      "iVeVerifiedMyEmail": "I've verified my email — Continue",
+      "goBack": "Go back",
+      "sendVerificationCode": "Send Verification Code",
+      "verifyCode": "Verify Code",
+      "signUpWithEmailInstead": "Sign up with Email instead",
+      "completeSetup": "Complete Setup",
+      "byCreatingAnAccountYou": "By creating an account, you agree to our Terms of Service and Privacy Policy.",
+      "pleaseEnterAPhoneNumber": "Please enter a phone number.",
+      "recaptchaFailedToInitializePlease": "reCAPTCHA failed to initialize. Please refresh and try again.",
+      "otpSent": "OTP sent!",
+      "pleaseEnterTheOtp": "Please enter the OTP.",
+      "phoneVerifiedEnterYourName": "Phone verified! Enter your name to complete setup.",
+      "pleaseEnterYourName": "Please enter your name.",
+      "accountCreatedSuccessfully": "Account created successfully!",
+      "noUserSessionFoundPlease": "No user session found. Please sign in again.",
+      "emailNotVerifiedYetPlease": "Email not verified yet. Please click the link in your email first.",
+      "emailVerifiedWelcomeToCropoctor": "Email verified! Welcome to Cropoctor.",
+      "noUserSessionFound": "No user session found.",
+      "verificationEmailResent": "Verification email resent!",
+      "farmAtSunrise": "Farm at sunrise",
+      "rahulPatel": "Rahul Patel",
+      "youExampleCom": "you@example.com"
+    },
+    "farmBoundaryPage": {
+      "finishDrawing": "Finish Drawing",
+      "redraw": "Redraw",
+      "acres": "Acres"
+    },
+    "farmDetailsPage": {
+      "eGRajkotGroundnutFarm": "e.g. Rajkot Groundnut Farm"
+    },
+    "farmLocationPage": {
+      "orTapAnywhereOnThe": "Or tap anywhere on the map to drop a pin",
+      "searchVillageTalukDistrict": "Search village, taluk, district…"
+    }
   }
 }

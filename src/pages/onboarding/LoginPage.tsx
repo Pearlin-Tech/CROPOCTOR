@@ -82,7 +82,7 @@ const LoginPage: React.FC = () => {
     login(farmerData)
     // ProtectedRoute will redirect to verify-email if unverified
     navigate('/home')
-    toast.success('Successfully logged in!')
+    toast.success(t("ui.loginPage.successfullyLoggedIn", "Successfully logged in!"))
   }
 
   const handleGoogleAuth = async () => {
@@ -110,11 +110,11 @@ const LoginPage: React.FC = () => {
     setLoading(false)
     login(farmerData)
     navigate('/home')
-    toast.success('Logged in with Google!')
+    toast.success(t("ui.loginPage.loggedInWithGoogle", "Logged in with Google!"))
   }
 
   const handleSendOtp = async () => {
-    if (!phone) { toast.error('Please enter a phone number.'); return }
+    if (!phone) { toast.error(t("ui.loginPage.pleaseEnterAPhoneNumber", "Please enter a phone number.")); return }
     setLoading(true)
     // Initialize reCAPTCHA here — div is guaranteed in DOM at this point
     let appVerifier = (window as any).recaptchaVerifier
@@ -123,7 +123,7 @@ const LoginPage: React.FC = () => {
     }
     if (!appVerifier) {
       setLoading(false)
-      toast.error('reCAPTCHA failed to initialize. Please refresh and try again.')
+      toast.error(t("ui.loginPage.recaptchaFailedToInitializePlease", "reCAPTCHA failed to initialize. Please refresh and try again."))
       return
     }
     const { confirmationResult: res, error } = await authService.signInWithPhone(phone, appVerifier)
@@ -138,11 +138,11 @@ const LoginPage: React.FC = () => {
       return
     }
     setConfirmationResult(res)
-    toast.success('OTP sent to your phone!')
+    toast.success(t("ui.loginPage.otpSentToYourPhone", "OTP sent to your phone!"))
   }
 
   const handleVerifyOtp = async () => {
-    if (!otp) { toast.error('Please enter the OTP.'); return }
+    if (!otp) { toast.error(t("ui.loginPage.pleaseEnterTheOtp", "Please enter the OTP.")); return }
     setLoading(true)
     const { user, error } = await authService.verifyPhoneOtp(confirmationResult, otp)
     if (error || !user) {
@@ -166,11 +166,11 @@ const LoginPage: React.FC = () => {
     setLoading(false)
     login(farmerData)
     navigate('/home')
-    toast.success('Logged in with Phone!')
+    toast.success(t("ui.loginPage.loggedInWithPhone", "Logged in with Phone!"))
   }
 
   const handleForgotPassword = async () => {
-    if (!forgotEmail) { toast.error('Please enter your email address.'); return }
+    if (!forgotEmail) { toast.error(t("ui.loginPage.pleaseEnterYourEmailAddress", "Please enter your email address.")); return }
     setLoading(true)
     const { error } = await authService.sendPasswordReset(forgotEmail)
     setLoading(false)
@@ -184,7 +184,7 @@ const LoginPage: React.FC = () => {
       <div className="hidden lg:flex lg:w-1/2 relative flex-col justify-between p-12 overflow-hidden bg-gray-900">
         <img
           src={IMAGES.backgrounds.login}
-          alt="Modern crop field with tractor working at sunrise"
+          alt={t("ui.loginPage.modernCropFieldWithTractor", "Modern crop field with tractor working at sunrise")}
           className="absolute inset-0 w-full h-full object-cover object-center"
         />
         {/* Dark Gradient Overlay covering the bottom portion */}
@@ -194,7 +194,7 @@ const LoginPage: React.FC = () => {
         <div className="relative z-10 flex items-center gap-2">
           <div className="bg-black/30 backdrop-blur-md px-4 py-1.5 rounded-full border border-white/20 flex items-center gap-2">
             <span className="text-xl">🌿</span>
-            <span className="text-sm font-semibold text-white tracking-wide">Cropoctor Platform</span>
+            <span className="text-sm font-semibold text-white tracking-wide">{t("ui.loginPage.cropoctorPlatform", "Cropoctor Platform")}</span>
           </div>
         </div>
 
@@ -202,10 +202,10 @@ const LoginPage: React.FC = () => {
         <div className="relative z-10 space-y-6">
           <div>
             <h2 className="text-4xl font-extrabold text-white tracking-tight drop-shadow-md">
-              Growing a better tomorrow
+              {t("ui.loginPage.growingABetterTomorrow", "Growing a better tomorrow")}
             </h2>
             <p className="text-gray-200 text-base font-normal mt-2 max-w-lg drop-shadow-sm leading-relaxed">
-              Empower your agricultural decisions with AI precision diagnostics and real-time field insights.
+              {t("ui.loginPage.empowerYourAgriculturalDecisionsWith", "Empower your agricultural decisions with AI precision diagnostics and real-time field insights.")}
             </p>
           </div>
 
@@ -216,8 +216,8 @@ const LoginPage: React.FC = () => {
                 <Sprout className="w-4 h-4 text-emerald-300" />
               </div>
               <div>
-                <p className="text-xs font-semibold text-white">Smart Farming</p>
-                <p className="text-[11px] text-gray-300">AI Precision</p>
+                <p className="text-xs font-semibold text-white">{t("ui.loginPage.smartFarming", "Smart Farming")}</p>
+                <p className="text-[11px] text-gray-300">{t("ui.loginPage.aiPrecision", "AI Precision")}</p>
               </div>
             </div>
 
@@ -226,8 +226,8 @@ const LoginPage: React.FC = () => {
                 <ShieldCheck className="w-4 h-4 text-emerald-300" />
               </div>
               <div>
-                <p className="text-xs font-semibold text-white">Crop Health</p>
-                <p className="text-[11px] text-gray-300">Early Detection</p>
+                <p className="text-xs font-semibold text-white">{t("ui.loginPage.cropHealth", "Crop Health")}</p>
+                <p className="text-[11px] text-gray-300">{t("ui.loginPage.earlyDetection", "Early Detection")}</p>
               </div>
             </div>
 
@@ -236,8 +236,8 @@ const LoginPage: React.FC = () => {
                 <TrendingUp className="w-4 h-4 text-emerald-300" />
               </div>
               <div>
-                <p className="text-xs font-semibold text-white">Better Yield</p>
-                <p className="text-[11px] text-gray-300">Optimized ROI</p>
+                <p className="text-xs font-semibold text-white">{t("ui.loginPage.betterYield", "Better Yield")}</p>
+                <p className="text-[11px] text-gray-300">{t("ui.loginPage.optimizedRoi", "Optimized ROI")}</p>
               </div>
             </div>
           </div>
@@ -253,7 +253,7 @@ const LoginPage: React.FC = () => {
               <span className="text-2xl">🌿</span>
             </div>
             <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Cropoctor</h1>
-            <p className="text-xs text-gray-500 font-medium">Farm Intelligence Platform</p>
+            <p className="text-xs text-gray-500 font-medium">{t("ui.loginPage.farmIntelligencePlatform", "Farm Intelligence Platform")}</p>
           </div>
 
           <div className="text-center mb-8">
@@ -295,14 +295,14 @@ const LoginPage: React.FC = () => {
                 <>
                   <PhoneInput label="Phone Number" value={phone} onChange={setPhone} />
                   <Button onClick={handleSendOtp} variant="primary" size="lg" fullWidth loading={loading} className="bg-[#2E7D32] hover:bg-[#256629] text-white py-3.5 rounded-xl font-semibold text-base shadow-md transition-colors">
-                    Send OTP
+                    {t("ui.loginPage.sendOtp", "Send OTP")}
                   </Button>
                 </>
               ) : (
                 <>
                   <Input label="Verification Code" placeholder="123456" value={otp} onChange={(e) => setOtp(e.target.value)} />
                   <Button onClick={handleVerifyOtp} variant="primary" size="lg" fullWidth loading={loading} className="bg-[#2E7D32] hover:bg-[#256629] text-white py-3.5 rounded-xl font-semibold text-base shadow-md transition-colors">
-                    Verify & Sign In
+                    {t("ui.loginPage.verifySignIn", "Verify & Sign In")}
                   </Button>
                 </>
               )}
@@ -315,21 +315,21 @@ const LoginPage: React.FC = () => {
                 <button type="button" onClick={() => { setForgotMode(false); setForgotSent(false); setForgotEmail('') }} className="text-gray-500 hover:text-gray-700">
                   <ArrowLeft className="w-4 h-4" />
                 </button>
-                <span className="text-sm font-semibold text-gray-700">Reset Password</span>
+                <span className="text-sm font-semibold text-gray-700">{t("ui.loginPage.resetPassword", "Reset Password")}</span>
               </div>
               {forgotSent ? (
                 <div className="text-center py-4 space-y-3">
                   <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto">
                     <Mail className="w-6 h-6 text-[#2E7D32]" />
                   </div>
-                  <p className="text-sm text-gray-600">Password reset email sent to <strong>{forgotEmail}</strong>. Check your inbox.</p>
-                  <button type="button" onClick={() => { setForgotMode(false); setForgotSent(false) }} className="text-sm text-[#2E7D32] font-semibold hover:underline">Back to Sign In</button>
+                  <p className="text-sm text-gray-600">{t("ui.loginPage.passwordResetEmailSentTo", "Password reset email sent to")} <strong>{forgotEmail}</strong>. Check your inbox.</p>
+                  <button type="button" onClick={() => { setForgotMode(false); setForgotSent(false) }} className="text-sm text-[#2E7D32] font-semibold hover:underline">{t("ui.loginPage.backToSignIn", "Back to Sign In")}</button>
                 </div>
               ) : (
                 <>
-                  <Input label="Email Address" type="email" placeholder="you@example.com" icon={<Mail className="w-4 h-4" />} value={forgotEmail} onChange={(e) => setForgotEmail(e.target.value)} />
+                  <Input label="Email Address" type="email" placeholder={t("ui.loginPage.youExampleCom", "you@example.com")} icon={<Mail className="w-4 h-4" />} value={forgotEmail} onChange={(e) => setForgotEmail(e.target.value)} />
                   <Button onClick={handleForgotPassword} variant="primary" size="lg" fullWidth loading={loading} className="bg-[#2E7D32] hover:bg-[#256629] text-white py-3.5 rounded-xl font-semibold text-base shadow-md transition-colors">
-                    Send Reset Email
+                    {t("ui.loginPage.sendResetEmail", "Send Reset Email")}
                   </Button>
                 </>
               )}
@@ -340,7 +340,7 @@ const LoginPage: React.FC = () => {
               <Input
                 label={t('auth.emailLabel')}
                 type="email"
-                placeholder="you@example.com"
+                placeholder={t("ui.loginPage.youExampleCom", "you@example.com")}
                 icon={<Mail className="w-4 h-4" />}
                 error={errors.email?.message}
                 {...register('email')}
@@ -351,7 +351,7 @@ const LoginPage: React.FC = () => {
                 placeholder="••••••••"
                 icon={<Lock className="w-4 h-4" />}
                 iconRight={
-                  <button type="button" onClick={() => setShowPw(v => !v)} aria-label="Toggle password" className="text-gray-400 hover:text-gray-600">
+                  <button type="button" onClick={() => setShowPw(v => !v)} aria-label={t("ui.loginPage.togglePassword", "Toggle password")} className="text-gray-400 hover:text-gray-600">
                     {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 }

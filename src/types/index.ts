@@ -182,7 +182,42 @@ export interface DiagnosisResult {
   isDemo: boolean
   isSample?: boolean
   timestamp: string
+  cropMatchesReported?: 'yes' | 'no' | 'unsure'
+  imageQuality?: 'good' | 'acceptable' | 'poor'
+  provenance?: {
+    source: string
+    model: string
+    promptVersion: string
+    knowledgeVersion: string
+    knowledgeReviewed: boolean
+    analyzedAt: string
+  }
+  language?: string
+  /** true for records written before the validated pipeline (pipelineVersion 3) */
+  isLegacy?: boolean
 }
+
+/** Outcome of a diagnosis request that did not produce a diagnosis but is not an error. */
+export interface InsufficientEvidenceOutcome {
+  cropName: string | null
+  observations: string[]
+  limitations: string[]
+  imageQualityIssues: string[]
+  guidance: string[]
+}
+
+export type DiagnosisRequestStatus =
+  | 'SUCCESS'
+  | 'NOT_A_PLANT'
+  | 'INSUFFICIENT_EVIDENCE'
+  | 'AI_SERVICE_UNAVAILABLE'
+  | 'RATE_LIMITED'
+  | 'AUTHENTICATION_ERROR'
+  | 'INVALID_REQUEST'
+  | 'INVALID_AI_RESPONSE'
+  | 'TIMEOUT'
+  | 'NETWORK_ERROR'
+  | 'GENERAL_ERROR'
 
 
 // ─── Notifications ────────────────────────────────────────────────────────────
