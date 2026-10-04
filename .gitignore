@@ -27,4 +27,5 @@ dist-ssr
 *.sw?
 
 .gee-key.json
+ee-service-account.json
 .env.example

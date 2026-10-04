@@ -34,7 +34,7 @@ try {
   if (!adminKeyBase64) {
     // Try loading from local file
     const fs = await import('fs')
-    const keyPath = process.env.EE_KEY_PATH || '.gee-key.json'
+    const keyPath = process.env.EE_KEY_PATH || 'ee-service-account.json'
     if (fs.existsSync(keyPath)) {
       const serviceAccount = JSON.parse(fs.readFileSync(keyPath, 'utf8'))
       app = initializeApp({ credential: cert(serviceAccount) })
@@ -47,7 +47,7 @@ try {
   }
 } catch (err) {
   console.error('❌ Failed to initialize Firebase Admin:', err.message)
-  console.error('   Set FIREBASE_ADMIN_KEY_BASE64 env var or ensure .gee-key.json exists.')
+  console.error('   Set FIREBASE_ADMIN_KEY_BASE64 env var or ensure ee-service-account.json exists.')
   process.exit(1)
 }
 
