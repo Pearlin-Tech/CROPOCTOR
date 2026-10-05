@@ -7,14 +7,15 @@ import { SearchableSelect } from '@/components/ui/SearchableSelect'
 import { CROP_STAGES } from '@/config/soils'
 import { Input } from '@/components/ui/Input'
 import { useTranslation } from 'react-i18next'
-import { useFarmSetup } from '@/store/FarmSetupContext'
+import { useFarmSetup, useRequireSetupLocation } from '@/store/FarmSetupContext'
 
 const CropStagePage: React.FC = () => {
+  useRequireSetupLocation()
   const navigate = useNavigate()
   const { t } = useTranslation()
-  const { setCropStage } = useFarmSetup()
-  const [stage, setStage] = useState('flowering')
-  const [date, setDate]   = useState('')
+  const { setup, setCropStage } = useFarmSetup()
+  const [stage, setStage] = useState(setup.cropStage || '')
+  const [date, setDate]   = useState(setup.plantingDate || '')
   const stageOptions = CROP_STAGES.map(s => ({ id: s.id, name: s.name }))
 
   return (
@@ -37,6 +38,7 @@ const CropStagePage: React.FC = () => {
         <Input
           label={t('farm.location.plantingDate', 'When did you plant? (optional)')}
           type="date"
+          max={new Date().toISOString().slice(0, 10)}
           value={date}
           onChange={e => setDate(e.target.value)}
           hint={t('farm.location.plantingHint', 'This helps us calculate fertilizer and irrigation timing.')}
@@ -47,7 +49,7 @@ const CropStagePage: React.FC = () => {
         <Button variant="primary" size="xl" fullWidth onClick={() => {
           setCropStage(stage, date)
           navigate('/onboarding/complete')
-        }}>
+        }} disabled={!stage}>
           {t('farm.location.almostDone', 'Almost Done')} →
         </Button>
       </div>

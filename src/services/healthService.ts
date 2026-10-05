@@ -10,7 +10,8 @@ export interface HealthFactor {
 }
 
 export interface FarmHealth {
-  score: number
+  /** null when no real signal is available — never an invented default */
+  score: number | null
   status: string
   factors: HealthFactor[]
   calculatedAt: string
@@ -29,8 +30,10 @@ export function calculateFarmHealthScore(
 ): FarmHealth {
   const factors: HealthFactor[] = []
   
-  // 1. Diagnosis (Max 40%)
-  if (diagnosis) {
+  // 1. Diagnosis (Max 40%) — only a real diagnosis with a known severity counts
+  const usableDiagnosis = diagnosis && diagnosis.severity && diagnosis.severity !== 'unknown' &&
+    !(diagnosis.isLegacy && /fallback|insufficient evidence/i.test(diagnosis.disease || ''))
+  if (diagnosis && usableDiagnosis) {
     let diagScore = 100
     let explanation = 'Healthy crop condition.'
     
@@ -39,11 +42,10 @@ export function calculateFarmHealthScore(
       'healthy': 100,
       'mild': 75,
       'moderate': 50,
-      'severe': 25,
-      'unknown': 80
+      'severe': 25
     }
-    
-    diagScore = severityMap[diagnosis.severity?.toLowerCase() || 'unknown'] ?? 80
+
+    diagScore = severityMap[diagnosis.severity.toLowerCase()] ?? 50
     
     if (diagnosis.severity !== 'healthy') {
       explanation = `Condition: ${diagnosis.diseaseName || diagnosis.disease} (${diagnosis.severity} severity).`
@@ -59,7 +61,7 @@ export function calculateFarmHealthScore(
   
   // 2. Satellite / NDVI (Max 30%)
   // Don't use satellite if it's explicitly "Data Unavailable" or error
-  if (satellite && satellite.ndvi && satellite.ndvi.label !== 'Data Unavailable' && satellite.source !== 'error') {
+  if (satellite && satellite.ndvi && satellite.source === 'earth-engine' && typeof satellite.ndvi.value === 'number' && satellite.ndvi.label !== 'Data Unavailable') {
     let satScore = 100
     let explanation = `Excellent vegetation index (NDVI: ${satellite.ndvi.value.toFixed(2)}).`
     const ndviVal = satellite.ndvi.value
@@ -85,8 +87,8 @@ export function calculateFarmHealthScore(
     })
   }
   
-  // 3. Weather (Max 20%)
-  if (weather) {
+  // 3. Weather (Max 20%) — demo/placeholder weather is never scored
+  if (weather && !weather.isDemo && typeof weather.temperature === 'number') {
     let weatherScore = 100
     let explanation = 'Favorable weather conditions.'
     
@@ -129,24 +131,13 @@ export function calculateFarmHealthScore(
     })
   }
   
-  // 4. Farm Context (Max 10%)
-  if (farm) {
-    // Just a baseline factor, assuming farm is managed if registered
-    let contextScore = 90
-    let explanation = `Registered farm (${farm.primaryCrop}, ${farm.cropStage}).`
-    
-    factors.push({
-      name: 'Farm Context',
-      score: contextScore,
-      weight: weights.farmContext,
-      explanation
-    })
-  }
-  
+  // (A registered farm is not evidence of crop health, so there is no "farm context" bonus.)
+  void farm
+
   // If we have literally no data, return a default safe score
   if (factors.length === 0) {
     return {
-      score: 82,
+      score: null,
       status: 'Unknown',
       factors: [],
       calculatedAt: new Date().toISOString()

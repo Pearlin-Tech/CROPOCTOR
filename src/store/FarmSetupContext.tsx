@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, type ReactNode } from 'react'
+import React, { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 // ─── Farm Setup State ───────────────────────────────────────────────────────
 // Accumulated across onboarding steps before the final Firestore write.
@@ -94,4 +95,17 @@ export const useFarmSetup = (): FarmSetupContextValue => {
   const ctx = useContext(FarmSetupContext)
   if (!ctx) throw new Error('useFarmSetup must be used inside FarmSetupProvider')
   return ctx
+}
+
+/**
+ * Setup state lives in memory only. If it was lost (page refresh, direct link) a later step
+ * sends the farmer back to the first step instead of letting them fill in the rest for nothing.
+ */
+export const useRequireSetupLocation = () => {
+  const { setup } = useFarmSetup()
+  const navigate = useNavigate()
+  useEffect(() => {
+    if (!setup.location) navigate('/onboarding/location', { replace: true })
+  }, [setup.location, navigate])
+  return !!setup.location
 }

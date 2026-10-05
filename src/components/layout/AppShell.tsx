@@ -25,7 +25,7 @@ export const AppShell: React.FC = () => {
       {!hideNav && <Sidebar />}
 
       {/* Main content area */}
-      <div className={cn('flex-1 flex flex-col min-h-screen', !hideNav && 'lg:ml-64')}>
+      <div className={cn('flex-1 flex flex-col min-h-screen', !hideNav && 'lg:ms-64')}>
         {/* Tablet top nav */}
         {!hideNav && <TopNav />}
 
@@ -33,7 +33,7 @@ export const AppShell: React.FC = () => {
         <main
           className={cn(
             'flex-1',
-            !hideNav && 'pb-[84px] md:pb-0' // space for mobile bottom nav
+            !hideNav && 'pb-[calc(84px+env(safe-area-inset-bottom))] md:pb-0' // space for mobile bottom nav
           )}
           id="main-content"
         >

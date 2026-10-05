@@ -136,7 +136,7 @@ const WeatherPage: React.FC = () => {
                     <span className="text-4xl">{WEATHER_ICONS[weather.icon] || '🌤️'}</span>
                   </div>
                 </div>
-                <div className="relative z-10 grid grid-cols-4 gap-3 mt-6 border-t border-brown-pastel/30 pt-6">
+                <div className="relative z-10 grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6 border-t border-brown-pastel/30 pt-6">
                   {[
                     { label: t('dashboard.weatherCard.rain', 'Rain'), value: formatLocalizedPercent(weather.rainChance, i18n.language), icon: '🌧' },
                     { label: t('dashboard.weatherCard.humidity', 'Humidity'), value: formatLocalizedPercent(weather.humidity, i18n.language), icon: '💧' },

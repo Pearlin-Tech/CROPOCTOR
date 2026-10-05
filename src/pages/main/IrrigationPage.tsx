@@ -102,7 +102,7 @@ const IrrigationPage: React.FC = () => {
         {loading ? <WeatherSkeleton /> : weather && (
           <Card className="bg-gradient-to-br from-[#1565C0] to-[#1976D2] text-white border-none" padding="md">
             <p className="text-blue-100 text-xs font-bold uppercase tracking-wider mb-3">{t('farm.details.currentWeather', 'Current Conditions')}</p>
-            <div className="grid grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {[
                 { icon: Thermometer, label: t('dashboard.weatherCard.temp', 'Temp'), value: `${weather.temperature}°C` },
                 { icon: Droplets,    label: t('dashboard.weatherCard.rain', 'Rain'), value: `${weather.rainChance}%` },

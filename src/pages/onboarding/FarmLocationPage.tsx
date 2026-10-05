@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import { MapPin, Navigation } from 'lucide-react'
 import { pageVariants } from '@/animations/variants'
 import { Button } from '@/components/ui/Button'
+import { useApp } from '@/store/AppContext'
 import { useTranslation } from 'react-i18next'
 import { useFarmSetup } from '@/store/FarmSetupContext'
 import {
@@ -133,6 +134,7 @@ function MapInteractor({ markerPos, onMapClick }: MapInteractorProps) {
 const FarmLocationPage: React.FC = () => {
   const navigate = useNavigate()
   const { t } = useTranslation()
+  const { toast } = useApp()
   const { setup, setLocation } = useFarmSetup()
 
   const [markerPos, setMarkerPos] = useState<{ lat: number; lng: number } | null>(
@@ -156,6 +158,10 @@ const FarmLocationPage: React.FC = () => {
   }, [])
 
   const handleUseMyLocation = () => {
+    if (!('geolocation' in navigator)) {
+      toast.error(t('farm.location.geoUnsupported', 'Location is not available in this browser. Search for your village or tap the map instead.'))
+      return
+    }
     setLocating(true)
     navigator.geolocation.getCurrentPosition(
       pos => {
@@ -175,8 +181,11 @@ const FarmLocationPage: React.FC = () => {
           .finally(() => setLocating(false))
       },
       err => {
-        console.warn('Geolocation error:', err)
+        console.warn('Geolocation error:', err?.code)
         setLocating(false)
+        toast.error(err?.code === 1
+          ? t('farm.location.geoDenied', 'Location permission was denied. Allow location access, or search / tap the map instead.')
+          : t('farm.location.geoFailed', 'Could not get your location. Search for your village or tap the map instead.'))
       },
       { enableHighAccuracy: true, timeout: 10000 }
     )
@@ -184,7 +193,7 @@ const FarmLocationPage: React.FC = () => {
 
   const handleConfirm = () => {
     if (!markerPos) return
-    setLocation({ name: address, lat: markerPos.lat, lng: markerPos.lng })
+    setLocation({ name: address.trim() || `${markerPos.lat.toFixed(5)}, ${markerPos.lng.toFixed(5)}`, lat: markerPos.lat, lng: markerPos.lng })
     navigate('/onboarding/boundary')
   }
 

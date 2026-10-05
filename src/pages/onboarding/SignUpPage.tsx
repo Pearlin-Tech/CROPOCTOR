@@ -278,7 +278,7 @@ const SignUpPage: React.FC = () => {
 
         <p className="text-center text-sm text-gray-500">
           {t('auth.alreadyHaveAccount')} {' '}
-          <button onClick={() => navigate('/login')} className="text-[#2E7D32] font-semibold hover:underline">{t('welcome.signin').split('?')[1]?.trim() || 'Sign In'}</button>
+          <button onClick={() => navigate('/login')} className="text-[#2E7D32] font-semibold hover:underline inline-block py-2.5 px-1">{t('auth.signInButton', 'Sign in')}</button>
         </p>
 
         <p className="text-center text-xs text-gray-400 mt-6 px-4">

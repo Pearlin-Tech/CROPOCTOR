@@ -79,8 +79,11 @@ const HomePage: React.FC = () => {
     : greeting === 'afternoon' ? t('dashboard.greetingAfternoon', { name })
     : t('dashboard.greetingEvening', { name })
 
-  const healthScoreVal = farmHealth?.score ?? (activeFarm?.healthScore ?? 82)
-  const healthStatus = farmHealth?.status ?? 'Unknown'
+  // Never show an invented score: fall back to the last stored real score, else "—"
+  const storedScore = typeof activeFarm?.healthScore === 'number' && activeFarm.healthScore > 0 ? activeFarm.healthScore : null
+  const healthScoreKnown: number | null = farmHealth ? farmHealth.score : storedScore
+  const healthScoreVal = healthScoreKnown ?? 0
+  const healthStatus = t(`health.status.${healthScoreKnown === null ? 'Unknown' : (farmHealth?.status ?? 'Unknown')}`, healthScoreKnown === null ? 'No data yet' : (farmHealth?.status ?? 'Unknown'))
 
   return (
     <motion.div variants={pageVariants} initial="initial" animate="animate" className="min-h-screen bg-background pb-8">
@@ -161,7 +164,7 @@ const HomePage: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="relative z-10 grid grid-cols-3 gap-2.5 mb-4 mt-2">
+                  <div className="relative z-10 grid grid-cols-1 min-[420px]:grid-cols-3 gap-2.5 mb-4 mt-2">
                     {[
                       { icon: Droplets, label: `${t('dashboard.weatherCard.rain', 'Rain')} ${formatLocalizedPercent(weather.rainChance, i18n.language)}` },
                       { icon: Droplets, label: `${t('dashboard.weatherCard.humidity', 'Humidity')} ${formatLocalizedPercent(weather.humidity, i18n.language)}` },
@@ -209,7 +212,7 @@ const HomePage: React.FC = () => {
                   <div className="flex items-center justify-between mb-4">
                     <div>
                       <p className="text-[10px] font-bold text-green-forest uppercase tracking-widest mb-1">{t('dashboard.farmHealth')}</p>
-                      <h2 className="text-4xl font-extrabold text-green-forest tracking-tight">{formatLocalizedNumber(healthScoreVal, i18n.language)}<span className="text-xl text-green-forest/60 font-medium">/{formatLocalizedNumber(100, i18n.language)}</span></h2>
+                      <h2 className="text-4xl font-extrabold text-green-forest tracking-tight">{healthScoreKnown === null ? '—' : formatLocalizedNumber(healthScoreVal, i18n.language)}<span className="text-xl text-green-forest/60 font-medium">/{formatLocalizedNumber(100, i18n.language)}</span></h2>
                       <Badge variant="green" dot className="mt-2">
                         {healthStatus}
                       </Badge>
@@ -221,7 +224,7 @@ const HomePage: React.FC = () => {
                         <circle cx="18" cy="18" r="15.5" fill="none" stroke="var(--color-green-forest)" strokeWidth="3.5"
                           strokeDasharray={`${healthScoreVal * 0.974} ${100 - healthScoreVal * 0.974}`} strokeLinecap="round" />
                       </svg>
-                      <span className="absolute inset-0 flex items-center justify-center text-xs font-black text-green-forest">{formatLocalizedPercent(healthScoreVal, i18n.language)}</span>
+                      <span className="absolute inset-0 flex items-center justify-center text-xs font-black text-green-forest">{healthScoreKnown === null ? '—' : formatLocalizedPercent(healthScoreVal, i18n.language)}</span>
                     </div>
                   </div>
                   <ProgressBar value={healthScoreVal} color="green" size="sm" />

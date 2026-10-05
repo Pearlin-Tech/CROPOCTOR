@@ -95,9 +95,9 @@ const humidHotWeather = {
 // ── Tests ─────────────────────────────────────────────────────────────────────
 
 describe('calculateFarmHealthScore', () => {
-  it('returns default score when no data is provided', () => {
+  it('returns no score (null) when no data is provided — never an invented default', () => {
     const result = calculateFarmHealthScore()
-    assert.equal(result.score, 82)
+    assert.equal(result.score, null)
     assert.equal(result.status, 'Unknown')
     assert.equal(result.factors.length, 0)
   })
@@ -107,21 +107,22 @@ describe('calculateFarmHealthScore', () => {
     assert.equal(result.factors.length, 1)
     assert.equal(result.factors[0].name, 'Crop Diagnosis')
     assert.equal(result.factors[0].score, 100)
-    assert.ok(result.score >= 90, `Expected score >= 90, got ${result.score}`)
+    assert.ok((result.score ?? 0) >= 90, `Expected score >= 90, got ${result.score}`)
     assert.equal(result.status, 'Excellent')
   })
 
   it('reduces score for mild diagnosis', () => {
     const result = calculateFarmHealthScore(null, mildDiagnosis)
     assert.equal(result.factors[0].score, 75)
-    assert.ok(result.score < 100)
+    assert.ok((result.score ?? 100) < 100)
   })
 
   it('reduces score significantly for severe diagnosis', () => {
     const result = calculateFarmHealthScore(null, severeDiagnosis)
     assert.equal(result.factors[0].score, 25)
-    assert.ok(result.score <= 40, `Expected score <= 40, got ${result.score}`)
-    assert.equal(result.status, 'At Risk')
+    assert.ok((result.score ?? 100) <= 40, `Expected score <= 40, got ${result.score}`)
+    // severe only → 25/100, which is in the Critical band (< 40)
+    assert.equal(result.status, 'Critical')
   })
 
   it('adds Satellite NDVI factor for good satellite data', () => {
@@ -140,7 +141,7 @@ describe('calculateFarmHealthScore', () => {
     const result = calculateFarmHealthScore(null, null, errorSatellite as any)
     // Error satellite should be excluded — no satellite factor
     assert.equal(result.factors.length, 0)
-    assert.equal(result.score, 82) // fallback default
+    assert.equal(result.score, null)
   })
 
   it('adds Weather factor with good weather', () => {
@@ -165,9 +166,22 @@ describe('calculateFarmHealthScore', () => {
 
   it('combines all factors and normalizes correctly', () => {
     const result = calculateFarmHealthScore(mockFarm, healthyDiagnosis, goodSatellite as any, coolWeather as any)
-    assert.equal(result.factors.length, 4)
-    // Total weights = 0.4 + 0.3 + 0.2 + 0.1 = 1.0, all scores high → score should be high
-    assert.ok(result.score >= 85, `Expected score >= 85, got ${result.score}`)
+    // Diagnosis + satellite + weather; a registered farm adds no bonus factor
+    assert.equal(result.factors.length, 3)
+    assert.ok((result.score ?? 0) >= 85, `Expected score >= 85, got ${result.score}`)
+  })
+
+  it('ignores demo/placeholder weather', () => {
+    const result = calculateFarmHealthScore(null, null, null, { ...(coolWeather as any), isDemo: true })
+    assert.equal(result.factors.length, 0)
+    assert.equal(result.score, null)
+  })
+
+  it('ignores diagnoses with unknown severity and legacy fabricated fallbacks', () => {
+    const unknown = calculateFarmHealthScore(null, { ...healthyDiagnosis, severity: 'unknown' } as any)
+    assert.equal(unknown.factors.length, 0)
+    const legacyFallback = calculateFarmHealthScore(null, { ...severeDiagnosis, isLegacy: true, disease: 'Insufficient Evidence (Fallback Diagnosis)' } as any)
+    assert.equal(legacyFallback.factors.length, 0)
   })
 
   it('renormalizes when some factors are missing', () => {

@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { pageVariants, listVariants, cardVariants } from '@/animations/variants'
 import { Button } from '@/components/ui/Button'
 import { useUser } from '@/store/UserContext'
 import { useFarmSetup } from '@/store/FarmSetupContext'
+import { useFarm } from '@/store/FarmContext'
 import { farmService } from '@/services'
 import { useTranslation } from 'react-i18next'
 
@@ -12,55 +13,56 @@ const SetupCompletePage: React.FC = () => {
   const navigate = useNavigate()
   const { setOnboarded } = useUser()
   const { setup, reset } = useFarmSetup()
+  const { addFarm } = useFarm()
   const { t } = useTranslation()
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
   const [saved, setSaved] = useState(false)
 
-  // Save the farm to Firestore as soon as this page mounts
-  useEffect(() => {
-    const save = async () => {
-      setSaving(true)
-      setSaveError(null)
+  // Snapshot the setup so the summary survives reset() after a successful save
+  const [summary] = useState(setup)
+  const isComplete = !!(summary.location && summary.farmName.trim() && (summary.cropName || summary.cropId))
+  // StrictMode runs mount effects twice in development; this guard makes the write happen once
+  const saveStarted = useRef(false)
 
-      const farmData = {
-        name: setup.farmName || '',
-        location: {
-          lat: setup.location?.lat || 0,
-          lng: setup.location?.lng || 0,
-          address: setup.location?.name || '',
-          displayName: setup.location?.name || '',
-          country: ''
-        },
-        area: setup.area || 0,
-        areaUnit: setup.areaUnit || 'acres' as const,
-        primaryCrop: setup.cropName || setup.cropId || '',
-        soilType: setup.soilName || setup.soilId || '',
-        cropStage: setup.cropStage || '',
-        plantingDate: setup.plantingDate || undefined,
-        healthScore: 100,
-        boundary: setup.boundary || [],
-      }
-
-      console.log('🌱 [SetupCompletePage] Calling saveFarm with data:', farmData)
-
-      try {
-        const saved = await farmService.saveFarm(farmData)
-        console.log('✅ [SetupCompletePage] Farm saved! Firestore doc ID:', saved.id)
-        setSaved(true)
-        reset() // clear setup state
-      } catch (err: any) {
-        console.error('❌ [SetupCompletePage] saveFarm FAILED')
-        console.error('❌ error.code:', err.code)
-        console.error('❌ error.message:', err.message)
-        setSaveError(err.message || 'Failed to save farm. Please try again.')
-      } finally {
-        setSaving(false)
-      }
+  const save = useCallback(async () => {
+    setSaving(true)
+    setSaveError(null)
+    const farmData = {
+      name: summary.farmName.trim(),
+      location: {
+        lat: summary.location!.lat,
+        lng: summary.location!.lng,
+        address: summary.location!.name || '',
+        displayName: summary.location!.name || '',
+        country: ''
+      },
+      area: summary.area || 0,
+      areaUnit: summary.areaUnit || ('acres' as const),
+      primaryCrop: summary.cropName || summary.cropId,
+      soilType: summary.soilName || summary.soilId || '',
+      cropStage: summary.cropStage || '',
+      plantingDate: summary.plantingDate || undefined,
+      boundary: summary.boundary || [],
     }
+    try {
+      const created = await farmService.saveFarm(farmData)
+      addFarm(created) // the new farm becomes the active farm
+      setSaved(true)
+      reset()
+    } catch (err: any) {
+      console.error('[SetupCompletePage] saveFarm failed:', err?.code || err?.message)
+      setSaveError(t('farm.complete.saveError', 'Could not save your farm. Check your connection and try again.'))
+    } finally {
+      setSaving(false)
+    }
+  }, [summary, reset, t, addFarm])
 
+  useEffect(() => {
+    if (!isComplete || saveStarted.current) return
+    saveStarted.current = true
     save()
-  }, [])
+  }, [isComplete, save])
 
   const handleGoToDashboard = () => {
     setOnboarded(true)
@@ -68,13 +70,29 @@ const SetupCompletePage: React.FC = () => {
   }
 
   const summaryItems = [
-    { icon: '🌾', label: 'Farm', value: setup.farmName || '' },
-    { icon: '📍', label: 'Location', value: setup.location?.name || '' },
-    { icon: '🌱', label: 'Crop', value: setup.cropName || setup.cropId || '' },
-    { icon: '🌍', label: 'Area', value: `${setup.area || 0} ${setup.areaUnit || 'acres'}` },
-    { icon: '🪨', label: 'Soil', value: setup.soilName || setup.soilId || '' },
-    { icon: '🌸', label: 'Stage', value: setup.cropStage || '' },
-  ]
+    { icon: '🌾', label: t('farm.complete.farm', 'Farm'), value: summary.farmName },
+    { icon: '📍', label: t('farm.complete.location', 'Location'), value: summary.location?.name || '' },
+    { icon: '🌱', label: t('farm.complete.crop', 'Crop'), value: summary.cropName || summary.cropId },
+    { icon: '🌍', label: t('farm.complete.area', 'Area'), value: summary.area ? `${summary.area} ${t(`farm.units.${summary.areaUnit}`, summary.areaUnit)}` : '' },
+    { icon: '🪨', label: t('farm.complete.soil', 'Soil'), value: summary.soilName || summary.soilId },
+    { icon: '🌸', label: t('farm.complete.stage', 'Stage'), value: summary.cropStage },
+  ].filter(i => i.value)
+
+  // Opened directly or after a page refresh: the in-memory setup is gone — never save an empty farm
+  if (!isComplete && !saved) {
+    return (
+      <div className="min-h-screen bg-cream flex flex-col items-center justify-center px-6 text-center gap-4">
+        <span className="text-6xl" aria-hidden>🗺️</span>
+        <h1 className="text-2xl font-bold text-green-forest">{t('farm.complete.incompleteTitle', 'Farm setup was interrupted')}</h1>
+        <p className="text-text-secondary max-w-sm">{t('farm.complete.incompleteDesc', 'Some farm details are missing, so nothing was saved. Please start adding the farm again.')}</p>
+        <div className="w-full max-w-sm">
+          <Button variant="primary" size="lg" fullWidth onClick={() => navigate('/onboarding/location', { replace: true })}>
+            {t('farm.complete.restart', 'Start again')}
+          </Button>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <motion.div variants={pageVariants} initial="initial" animate="animate"
@@ -93,13 +111,13 @@ const SetupCompletePage: React.FC = () => {
         initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}
         className="text-3xl font-bold text-white mb-3"
       >
-        {saving ? 'Saving your farm…' : saveError ? 'Could not save farm' : t('farm.complete.title')}
+        {saving ? t('farm.complete.saving', 'Saving your farm…') : saveError ? t('farm.complete.saveFailedTitle', 'Could not save farm') : t('farm.complete.title')}
       </motion.h1>
       <motion.p
         initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }}
         className="text-green-pastel text-base mb-10"
       >
-        {saving ? 'Creating your farm in Firestore…'
+        {saving ? t('farm.complete.savingDesc', 'This only takes a moment.')
           : saveError ? saveError
           : t('farm.complete.subtitle')}
       </motion.p>
@@ -113,7 +131,7 @@ const SetupCompletePage: React.FC = () => {
           <motion.div key={label} variants={cardVariants} className="flex items-center gap-3">
             <span className="text-xl w-7">{icon}</span>
             <span className="text-green-pastel text-sm flex-1">{label}</span>
-            <span className="text-white font-semibold text-sm">{value}</span>
+            <span className="text-white font-semibold text-sm text-right break-words min-w-0">{value}</span>
           </motion.div>
         ))}
       </motion.div>
@@ -125,18 +143,15 @@ const SetupCompletePage: React.FC = () => {
         <Button
           variant="secondary" size="xl" fullWidth
           onClick={handleGoToDashboard}
-          disabled={saving}
+          disabled={saving || !saved}
         >
-          {saving ? '⏳ Saving…' : '🏠 ' + t('farm.complete.goToDashboard')}
+          {saving ? `⏳ ${t('farm.complete.saving', 'Saving your farm…')}` : '🏠 ' + t('farm.complete.goToDashboard')}
         </Button>
 
         {saveError && (
-          <button
-            className="text-white/70 text-sm underline"
-            onClick={() => navigate(-1)}
-          >
-            ← Go back and try again
-          </button>
+          <Button variant="outline" size="lg" fullWidth onClick={save} className="bg-white/10 text-white border-white/40">
+            {t('common.retry', 'Retry')}
+          </Button>
         )}
       </motion.div>
     </motion.div>

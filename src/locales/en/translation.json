@@ -60,7 +60,8 @@
     "resendIn": "Resend in ${resendCooldown}s",
     "resendVerification": "Resend verification email",
     "signOut": "Sign out",
-    "checkSpam": "Can't find the email? Check your spam or junk folder."
+    "checkSpam": "Can't find the email? Check your spam or junk folder.",
+    "signInButton": "Sign in"
   },
   "language": {
     "title": "Choose Language",
@@ -170,7 +171,10 @@
       "soilSubtitle": "Select your farm's soil type.",
       "soilHint": "Not sure? Select \"Unknown\" — the AI can still help you.",
       "selectSoil": "Select Soil Type",
-      "searchSoils": "Search soil types..."
+      "searchSoils": "Search soil types...",
+      "geoUnsupported": "Location is not available in this browser. Search for your village or tap the map instead.",
+      "geoDenied": "Location permission was denied. Allow location access, or search / tap the map instead.",
+      "geoFailed": "Could not get your location. Search for your village or tap the map instead."
     },
     "boundary": {
       "title": "Mark Your Farm Area",
@@ -178,7 +182,12 @@
       "area": "Approx. {{value}} {{unit}}",
       "clear": "Clear",
       "edit": "Edit",
-      "confirm": "Confirm Area"
+      "confirm": "Confirm Area",
+      "selectedLocation": "Selected Location",
+      "drawHint": "Tap points on the map to draw your farm boundary, then press Finish Drawing. Or skip the map and type the area below.",
+      "editHint": "Drag the corners to adjust your boundary. The area will update automatically.",
+      "clearPoints": "Clear",
+      "hectaresShort": "Ha"
     },
     "details": {
       "title": "Farm Details",
@@ -239,7 +248,20 @@
     "complete": {
       "title": "Farm Ready! 🌱",
       "subtitle": "Your farm has been set up successfully.",
-      "goToDashboard": "Go to Dashboard"
+      "goToDashboard": "Go to Dashboard",
+      "saveError": "Could not save your farm. Check your connection and try again.",
+      "farm": "Farm",
+      "location": "Location",
+      "crop": "Crop",
+      "area": "Area",
+      "soil": "Soil",
+      "stage": "Stage",
+      "incompleteTitle": "Farm setup was interrupted",
+      "incompleteDesc": "Some farm details are missing, so nothing was saved. Please start adding the farm again.",
+      "restart": "Start again",
+      "saving": "Saving your farm…",
+      "saveFailedTitle": "Could not save farm",
+      "savingDesc": "This only takes a moment."
     },
     "health": "Farm Health",
     "addNew": "+ Add New Farm",
@@ -257,7 +279,11 @@
       "hint": "The AI uses your farm context when generating recommendations."
     },
     "notFound": "Farm not found.",
-    "deleted": "Farm deleted successfully"
+    "deleted": "Farm deleted successfully",
+    "units": {
+      "acres": "acres",
+      "hectares": "hectares"
+    }
   },
   "dashboard": {
     "title": "Cropoctor Dashboard",
@@ -511,7 +537,11 @@
     "score": "Score",
     "soil": {
       "moisture": "Moisture",
-      "nutrientStatus": "Nutrient Status"
+      "nutrientStatus": "Nutrient Status",
+      "volumetric": "volumetric (top 0–7 cm)",
+      "modelNote": "Weather-model estimate from Open-Meteo, not a sensor in your field.",
+      "noMoisture": "Soil moisture data is unavailable right now.",
+      "noSoilTest": "No soil test recorded. Nutrient levels can only be known from a laboratory soil test."
     },
     "error": "Connection Error",
     "range": "Range",
@@ -522,6 +552,33 @@
     "rangeLabels": {
       "poor": "Poor",
       "excellent": "Excellent"
+    },
+    "source": {
+      "measured": "Measured",
+      "estimated": "Estimated",
+      "diagnosis": "From your diagnosis",
+      "unavailable": "Unavailable"
+    },
+    "missing": {
+      "diagnosis": "No crop diagnosis for this farm yet — use Crop Doctor to add one.",
+      "satellite": "Satellite vegetation data is unavailable.",
+      "weather": "Live weather is unavailable."
+    },
+    "noFarm": "Add or select a farm to see insights.",
+    "notIncluded": "Not included in the score",
+    "ndviSource": "Sentinel-2 imagery via Google Earth Engine",
+    "satelliteUnavailable": "Satellite data is unavailable",
+    "satelliteError": "Earth Engine could not process this farm right now. Please try again later.",
+    "ndviLabel": {
+      "Poor Vegetation": "Poor vegetation",
+      "Fair Vegetation": "Fair vegetation",
+      "Good Vegetation": "Good vegetation",
+      "Excellent Vegetation": "Excellent vegetation"
+    },
+    "moisture": {
+      "LOW": "Low",
+      "ADEQUATE": "Adequate",
+      "HIGH": "High"
     }
   },
   "history": {
@@ -1094,6 +1151,21 @@
     "farmLocationPage": {
       "orTapAnywhereOnThe": "Or tap anywhere on the map to drop a pin",
       "searchVillageTalukDistrict": "Search village, taluk, district…"
+    }
+  },
+  "health": {
+    "status": {
+      "Unknown": "No data yet",
+      "Excellent": "Excellent",
+      "Good": "Good",
+      "Fair": "Fair",
+      "At Risk": "At Risk",
+      "Critical": "Critical"
+    },
+    "factor": {
+      "Crop Diagnosis": "Crop diagnosis",
+      "Satellite NDVI": "Satellite vegetation (NDVI)",
+      "Weather Stress": "Weather stress"
     }
   }
 }

@@ -49,8 +49,22 @@ export const authService = {
         return 'The verification code has expired. Please request a new one.';
       case 'auth/invalid-phone-number':
         return 'Please enter a valid phone number including country code.';
+      case 'auth/unauthorized-domain':
+        return `Sign-in is not enabled for this website (${window.location.hostname}). The site owner must add it under Firebase → Authentication → Settings → Authorized domains.`;
+      case 'auth/operation-not-allowed':
+        return 'This sign-in method is not enabled for this app. The site owner must enable it in Firebase → Authentication → Sign-in method.';
+      case 'auth/captcha-check-failed':
+      case 'auth/invalid-app-credential':
+      case 'auth/missing-app-credential':
+        return `Phone verification failed for this website (${window.location.hostname}). Make sure it is listed in Firebase authorized domains, then refresh and try again.`;
+      case 'auth/quota-exceeded':
+        return 'Too many verification codes have been sent. Please try again later or sign in with email.';
+      case 'auth/billing-not-enabled':
+        return 'Phone sign-in is not available for this project right now. Please sign in with email or Google.';
+      case 'auth/invalid-api-key':
+        return 'The app is misconfigured (invalid Firebase API key). Please contact support.';
       default:
-        return 'An unexpected authentication error occurred. Please try again.';
+        return `An unexpected authentication error occurred (${errorCode || 'unknown'}). Please try again.`;
     }
   },
 

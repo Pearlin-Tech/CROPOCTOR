@@ -11,7 +11,6 @@ import { MOCK_FARMS } from '@/mock/farms'
 import { getMockAIResponse } from '@/mock/aiResponses'
 import { FirebaseNotificationService } from './notificationService'
 import { FirebaseFarmService } from './farmService'
-import { FirebaseInsightsService } from './insightsService'
 
 const delay = (ms: number) => new Promise(r => setTimeout(r, ms))
 
@@ -130,6 +129,8 @@ class ApiWeatherService implements IWeatherService {
         icon: data.current.icon ?? 'partly-cloudy',
         uvIndex: data.current.uvIndex ?? 5,
         isDemo: false,
+        soilMoisture: typeof data.soil?.moisture === 'number' ? data.soil.moisture : null,
+        soilMoistureStatus: data.soil?.status || 'UNAVAILABLE',
         forecast: data.forecast || [],
         farmImpact: {
           irrigation: { status: data.farmImpact.irrigation.status, reason: data.farmImpact.irrigation.reason },
@@ -336,7 +337,6 @@ export const weatherService: IWeatherService     = new ApiWeatherService()
 export const farmService: IFarmService           = new FirebaseFarmService()
 export const diagnosisService: IDiagnosisService = new MockDiagnosisService()
 export const notificationService: INotificationService = new FirebaseNotificationService()
-export const insightsService: IInsightsService   = new FirebaseInsightsService()
 export const locationService: ILocationService   = new ApiLocationService()
 export const voiceService: IVoiceService         = new MockVoiceService()
 

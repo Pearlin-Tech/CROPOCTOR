@@ -15,6 +15,11 @@ interface FarmContextValue {
   removeFarm: (id: string) => void
 }
 
+const ACTIVE_FARM_KEY = 'cropoctor_active_farm_id'
+function readActiveFarmId(): string | null {
+  try { return localStorage.getItem(ACTIVE_FARM_KEY) } catch { return null }
+}
+
 const FarmContext = createContext<FarmContextValue | null>(null)
 
 export const FarmProvider = ({ children }: { children: ReactNode }) => {
@@ -38,10 +43,10 @@ export const FarmProvider = ({ children }: { children: ReactNode }) => {
             (fetchedFarms) => {
               console.log('🔐 [FarmContext] farms callback received. count:', fetchedFarms.length);
               setFarms(fetchedFarms);
+              // Resolve the active farm by id so it always reflects the latest Firestore data
               setActiveFarmState(prev => {
-                if (!prev && fetchedFarms.length > 0) return fetchedFarms[0];
-                if (prev && !fetchedFarms.find(f => f.id === prev.id)) return fetchedFarms[0] || null;
-                return prev;
+                const wantedId = prev?.id || readActiveFarmId();
+                return fetchedFarms.find(f => f.id === wantedId) || fetchedFarms[0] || null;
               });
               setLoading(false);
               setError(null);
@@ -55,7 +60,7 @@ export const FarmProvider = ({ children }: { children: ReactNode }) => {
         } else {
            farmService.getFarms(user.uid).then(f => {
              setFarms(f)
-             if (f.length > 0) setActiveFarmState(f[0])
+             setActiveFarmState(f.find(x => x.id === readActiveFarmId()) || f[0] || null)
              setLoading(false)
            }).catch(err => {
              setError(err.message)
@@ -78,8 +83,15 @@ export const FarmProvider = ({ children }: { children: ReactNode }) => {
 
   const setActiveFarm = (farm: Farm | null) => setActiveFarmState(farm)
 
+  // Remember the selected farm across reloads
+  useEffect(() => {
+    try {
+      if (activeFarm?.id) localStorage.setItem(ACTIVE_FARM_KEY, activeFarm.id)
+    } catch { /* storage unavailable */ }
+  }, [activeFarm?.id])
+
   const addFarm = (farm: Farm) => {
-    setFarms(prev => [...prev, farm])
+    setFarms(prev => (prev.some(f => f.id === farm.id) ? prev : [...prev, farm]))
     setActiveFarmState(farm)
   }
 

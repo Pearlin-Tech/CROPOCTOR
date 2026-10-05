@@ -5,7 +5,7 @@ import { MapPin, Info } from 'lucide-react'
 import { pageVariants } from '@/animations/variants'
 import { Button } from '@/components/ui/Button'
 import { useTranslation } from 'react-i18next'
-import { useFarmSetup } from '@/store/FarmSetupContext'
+import { useFarmSetup, useRequireSetupLocation } from '@/store/FarmSetupContext'
 import { APIProvider, Map, AdvancedMarker, useMap, useMapsLibrary } from '@vis.gl/react-google-maps'
 
 const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string
@@ -91,23 +91,6 @@ function EditablePolygon({ paths, editable = true, onEdit }: EditablePolygonProp
 
 
 
-// ─── Main Page ────────────────────────────────────────────────────────────────
-const FarmBoundaryPage: React.FC = () => {
-  const navigate = useNavigate()
-  const { t } = useTranslation()
-  const { setup, setArea } = useFarmSetup()
-  
-  const [unit, setUnit] = useState<'acres' | 'hectares'>(setup.areaUnit || 'acres')
-  const [areaInput, setAreaInput] = useState<string>(setup.area ? setup.area.toString() : '0.00')
-  
-  const mapCenter = setup.location
-    ? { lat: setup.location.lat, lng: setup.location.lng }
-    : { lat: 20.5937, lng: 78.9629 }
-
-  const [boundaryState, setBoundaryState] = useState<google.maps.LatLngLiteral[]>(setup.boundary || [])
-  const boundaryRef = useRef<google.maps.LatLngLiteral[]>(setup.boundary || [])
-  const [isDrawing, setIsDrawing] = useState(setup.boundary ? false : true)
-
 // ─── Map Content Component ──────────────────────────────────────────────────────
 interface MapContentProps {
   mapCenter: google.maps.LatLngLiteral
@@ -121,6 +104,7 @@ interface MapContentProps {
 }
 
 function MapContent({ mapCenter, boundaryState, boundaryRef, setBoundaryState, setAreaInput, unit, isDrawing, setIsDrawing }: MapContentProps) {
+  const { t } = useTranslation()
   const geometryLib = useMapsLibrary('geometry')
 
   const updateAreaFromPaths = useCallback((paths: google.maps.LatLngLiteral[], currentUnit: 'acres' | 'hectares') => {
@@ -192,26 +176,29 @@ function MapContent({ mapCenter, boundaryState, boundaryRef, setBoundaryState, s
         />
       )}
       
-      {/* Floating Complete Shape button */}
-      {isDrawing && boundaryState.length >= 3 && (
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10">
-          <Button 
-            variant="primary" 
-            size="sm" 
-            onClick={(e) => {
-               e.stopPropagation()
-               setIsDrawing(false)
-               updateAreaFromPaths(boundaryState, unit)
-            }}
-            className="shadow-xl px-6 py-2"
-          >
-            {t("ui.farmBoundaryPage.finishDrawing", "Finish Drawing")}
-          </Button>
-        </div>
-      )}
     </Map>
   )
 }
+
+
+// ─── Main Page ────────────────────────────────────────────────────────────────
+const FarmBoundaryPage: React.FC = () => {
+  useRequireSetupLocation()
+  const navigate = useNavigate()
+  const { t } = useTranslation()
+  const { setup, setArea } = useFarmSetup()
+  
+  const [unit, setUnit] = useState<'acres' | 'hectares'>(setup.areaUnit || 'acres')
+  const [areaInput, setAreaInput] = useState<string>(setup.area ? setup.area.toString() : '0.00')
+  
+  const mapCenter = setup.location
+    ? { lat: setup.location.lat, lng: setup.location.lng }
+    : { lat: 20.5937, lng: 78.9629 }
+
+  const [boundaryState, setBoundaryState] = useState<google.maps.LatLngLiteral[]>(setup.boundary || [])
+  const boundaryRef = useRef<google.maps.LatLngLiteral[]>(setup.boundary || [])
+  const [isDrawing, setIsDrawing] = useState(setup.boundary ? false : true)
+
 
   const handleClear = () => {
     setBoundaryState([])
@@ -222,10 +209,18 @@ function MapContent({ mapCenter, boundaryState, boundaryRef, setBoundaryState, s
 
   // Handle Unit Toggle
   const handleUnitToggle = (newUnit: 'acres' | 'hectares') => {
+    if (newUnit === unit) return
+    // A drawn boundary is recalculated by the map; a typed area is converted here
+    if (!(!isDrawing && boundaryState.length >= 3)) {
+      const v = parseFloat(areaInput)
+      if (v > 0) setAreaInput((newUnit === 'hectares' ? v * 0.404686 : v / 0.404686).toFixed(2))
+    }
     setUnit(newUnit)
   }
 
   const areaValue = parseFloat(areaInput) || 0
+  // A finished boundary (≥3 points) computes the area; without one the farmer may type it
+  const hasBoundary = !isDrawing && boundaryState.length >= 3
 
   return (
     <motion.div
@@ -270,7 +265,7 @@ function MapContent({ mapCenter, boundaryState, boundaryRef, setBoundaryState, s
           <div className="absolute top-3 left-3 right-3 bg-white/95 backdrop-blur-sm rounded-2xl px-4 py-2 shadow-sm border border-brown-pastel/20 z-10 flex items-center gap-2">
             <MapPin className="w-4 h-4 text-green-forest shrink-0" />
             <p className="text-xs font-bold text-brown-earth truncate">
-              {setup.location?.name || 'Selected Location'}
+              {setup.location?.name || t('farm.boundary.selectedLocation', 'Selected Location')}
             </p>
           </div>
         </div>
@@ -281,10 +276,21 @@ function MapContent({ mapCenter, boundaryState, boundaryRef, setBoundaryState, s
           <Info className="w-5 h-5 text-green-forest shrink-0 mt-0.5" />
           <p className="text-xs font-medium text-brown-earth/80 leading-relaxed">
             {isDrawing
-              ? 'Tap points on the map to draw your farm boundary, then click Finish Drawing.'
-              : 'Drag the corners to adjust your boundary. The area will update automatically.'}
+              ? t('farm.boundary.drawHint', 'Tap points on the map to draw your farm boundary, then press Finish Drawing. Or skip the map and type the area below.')
+              : t('farm.boundary.editHint', 'Drag the corners to adjust your boundary. The area will update automatically.')}
           </p>
         </div>
+        {/* Rendered outside <Map>: Google Maps captures pointer events of its children */}
+        {isDrawing && boundaryState.length >= 3 && (
+          <Button variant="primary" size="sm" onClick={() => setIsDrawing(false)} className="shrink-0">
+            {t("ui.farmBoundaryPage.finishDrawing", "Finish Drawing")}
+          </Button>
+        )}
+        {isDrawing && boundaryState.length > 0 && boundaryState.length < 3 && (
+          <Button variant="outline" size="sm" onClick={handleClear} className="shrink-0 bg-white">
+            {t('farm.boundary.clearPoints', 'Clear')}
+          </Button>
+        )}
         {!isDrawing && boundaryState.length > 0 && (
           <Button variant="outline" size="sm" onClick={handleClear} className="shrink-0 bg-white">
             {t("ui.farmBoundaryPage.redraw", "Redraw")}
@@ -301,11 +307,14 @@ function MapContent({ mapCenter, boundaryState, boundaryRef, setBoundaryState, s
           <div className="flex gap-3">
             <input
               type="text"
-              readOnly
-              disabled
+              inputMode="decimal"
+              aria-label={t('farm.location.enterArea', 'Farm Size')}
+              readOnly={hasBoundary}
               value={areaInput}
+              onChange={e => setAreaInput(e.target.value.replace(/[^0-9.]/g, ''))}
+              onFocus={e => { if (!hasBoundary && areaInput === '0.00') setAreaInput('') }}
               placeholder="0.00"
-              className="flex-1 bg-gray-100 border border-gray-200 rounded-2xl px-4 py-3.5 text-xl font-bold text-gray-500 outline-none transition-all cursor-not-allowed opacity-80"
+              className={`flex-1 min-w-0 w-full border rounded-2xl px-4 py-3.5 text-xl font-bold outline-none transition-all ${hasBoundary ? 'bg-gray-100 border-gray-200 text-gray-500 cursor-not-allowed' : 'bg-white border-brown-pastel/40 text-text-main focus:border-green-forest'}`}
             />
             <div className="flex bg-gray-100 rounded-2xl p-1 shrink-0">
               <button
@@ -322,7 +331,7 @@ function MapContent({ mapCenter, boundaryState, boundaryRef, setBoundaryState, s
                   unit === 'hectares' ? 'bg-white text-green-forest shadow-sm' : 'text-gray-500 hover:bg-gray-200'
                 }`}
               >
-                Ha
+                {t('farm.boundary.hectaresShort', 'Ha')}
               </button>
             </div>
           </div>
@@ -336,11 +345,11 @@ function MapContent({ mapCenter, boundaryState, boundaryRef, setBoundaryState, s
           fullWidth
           onClick={() => {
             if (areaValue > 0) {
-              setArea(areaValue, unit, boundaryRef.current)
+              setArea(areaValue, unit, hasBoundary ? boundaryRef.current : undefined)
               navigate('/onboarding/farm-details')
             }
           }}
-          disabled={areaValue <= 0 || boundaryRef.current.length < 3 || isDrawing}
+          disabled={areaValue <= 0 || (boundaryState.length > 0 && !hasBoundary)}
         >
           {t('farm.location.confirmArea', 'Confirm Boundary')} →
         </Button>

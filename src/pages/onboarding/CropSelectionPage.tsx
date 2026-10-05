@@ -6,13 +6,15 @@ import { Button } from '@/components/ui/Button'
 import { SearchableSelect } from '@/components/ui/SearchableSelect'
 import { CROPS } from '@/config/crops'
 import { useTranslation } from 'react-i18next'
-import { useFarmSetup } from '@/store/FarmSetupContext'
+import { useFarmSetup, useRequireSetupLocation } from '@/store/FarmSetupContext'
 
 const CropSelectionPage: React.FC = () => {
+  useRequireSetupLocation()
   const navigate = useNavigate()
   const { t } = useTranslation()
-  const { setCrop } = useFarmSetup()
-  const [cropId, setCropId] = useState('groundnut')
+  const { setup, setCrop } = useFarmSetup()
+  // No pre-selected crop: the farmer must choose explicitly
+  const [cropId, setCropId] = useState(setup.cropId || '')
 
   const cropOptions = CROPS.map(c => ({ id: c.id, name: c.name, category: c.category }))
 

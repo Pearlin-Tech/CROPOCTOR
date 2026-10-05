@@ -71,6 +71,9 @@ export interface WeatherData {
   forecast: WeatherDay[]
   farmImpact: FarmImpact
   isDemo: boolean
+  /** Open-Meteo modelled volumetric soil moisture, 0–7 cm (m³/m³); null when unavailable */
+  soilMoisture?: number | null
+  soilMoistureStatus?: 'LOW' | 'ADEQUATE' | 'HIGH' | 'UNAVAILABLE'
   source?: {
     weather: string
     soilMoisture: string

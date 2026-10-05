@@ -351,7 +351,7 @@ const LoginPage: React.FC = () => {
                 placeholder="••••••••"
                 icon={<Lock className="w-4 h-4" />}
                 iconRight={
-                  <button type="button" onClick={() => setShowPw(v => !v)} aria-label={t("ui.loginPage.togglePassword", "Toggle password")} className="text-gray-400 hover:text-gray-600">
+                  <button type="button" onClick={() => setShowPw(v => !v)} aria-label={t("ui.loginPage.togglePassword", "Toggle password")} aria-pressed={showPw} className="text-gray-400 hover:text-gray-600 -m-2.5 p-2.5 min-w-[40px] min-h-[40px] inline-flex items-center justify-center rounded-lg">
                     {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 }
@@ -359,7 +359,7 @@ const LoginPage: React.FC = () => {
                 {...register('password')}
               />
               <div className="text-right">
-                <button type="button" onClick={() => { setForgotMode(true); setForgotEmail(getValues('email') || '') }} className="text-xs font-semibold text-[#2E7D32] hover:underline">
+                <button type="button" onClick={() => { setForgotMode(true); setForgotEmail(getValues('email') || '') }} className="text-xs font-semibold text-[#2E7D32] hover:underline inline-block py-2.5 px-1">
                   {t('auth.forgotPassword')}
                 </button>
               </div>
@@ -371,14 +371,14 @@ const LoginPage: React.FC = () => {
                 loading={loading}
                 className="bg-[#2E7D32] hover:bg-[#256629] text-white py-3.5 rounded-xl font-semibold text-base shadow-md transition-colors"
               >
-                {loading ? t('auth.signingIn') : (t('welcome.signin').split('?')[1]?.trim() || 'Sign In')}
+                {loading ? t('auth.signingIn') : t('auth.signInButton', 'Sign in')}
               </Button>
             </form>
           )}
 
           <p className="text-center text-sm text-gray-500">
             {t('auth.noAccount')} {' '}
-            <button onClick={() => navigate('/signup')} className="text-[#2E7D32] font-semibold hover:underline">
+            <button onClick={() => navigate('/signup')} className="text-[#2E7D32] font-semibold hover:underline inline-block py-2.5 px-1">
               {t('auth.createAccount')}
             </button>
           </p>

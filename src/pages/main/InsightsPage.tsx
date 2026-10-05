@@ -1,61 +1,101 @@
 import React, { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { pageVariants } from '@/animations/variants'
 import { PageLayout, MobileHeader } from '@/components/layout/AppShell'
 import { Card } from '@/components/ui/Card'
-import { Badge } from '@/components/ui/index'
-import { ProgressBar } from '@/components/ui/index'
-import { Chip } from '@/components/ui/index'
+import { Badge, ProgressBar, Chip } from '@/components/ui/index'
 import { InsightSkeleton } from '@/components/skeletons'
-import { insightsService } from '@/services'
-import { satelliteService, NDVIResult } from '@/services/satelliteService'
+import { weatherService } from '@/services'
+import { satelliteService, type NDVIResult } from '@/services/satelliteService'
+import { cropDoctorService } from '@/services/cropDoctorService'
+import { calculateFarmHealthScore, type FarmHealth } from '@/services/healthService'
+import { useLocalizedLabels } from '@/services/translationClient'
+import { isFallbackRecord } from '@/utils/diagnosis'
 import { useFarm } from '@/store/FarmContext'
-import { IMAGES } from '@/config/images'
-import type { FarmInsights } from '@/types'
+import type { DiagnosisResult, WeatherData } from '@/types'
 import { useTranslation } from 'react-i18next'
+
+type Tab = 'crop' | 'soil' | 'satellite'
+
+interface InsightSources {
+  diagnosis: DiagnosisResult | null
+  weather: WeatherData | null
+  satellite: NDVIResult | null
+}
+
+/** Where a number comes from — shown next to every metric. */
+const SourceTag: React.FC<{ kind: 'measured' | 'estimated' | 'diagnosis' | 'unavailable' }> = ({ kind }) => {
+  const { t } = useTranslation()
+  const styles = {
+    measured: 'bg-green-50 text-green-800 border-green-200',
+    estimated: 'bg-sky-50 text-sky-800 border-sky-200',
+    diagnosis: 'bg-amber-50 text-amber-800 border-amber-200',
+    unavailable: 'bg-gray-50 text-gray-600 border-gray-200'
+  }[kind]
+  const label = {
+    measured: t('insights.source.measured', 'Measured'),
+    estimated: t('insights.source.estimated', 'Estimated'),
+    diagnosis: t('insights.source.diagnosis', 'From your diagnosis'),
+    unavailable: t('insights.source.unavailable', 'Unavailable')
+  }[kind]
+  return <span className={`text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full border ${styles}`}>{label}</span>
+}
+
+const FACTOR_KIND: Record<string, 'measured' | 'estimated' | 'diagnosis'> = {
+  'Crop Diagnosis': 'diagnosis',
+  'Satellite NDVI': 'measured',
+  'Weather Stress': 'estimated'
+}
 
 const InsightsPage: React.FC = () => {
   const { activeFarm } = useFarm()
-  const { t } = useTranslation()
-  const [insights, setInsights] = useState<FarmInsights | null>(null)
+  const { t, i18n } = useTranslation()
+  const [tab, setTab] = useState<Tab>('crop')
   const [loading, setLoading] = useState(true)
-  const [satelliteData, setSatelliteData] = useState<NDVIResult | null>(null)
-  const [satelliteLoading, setSatelliteLoading] = useState(false)
-  const [tab, setTab] = useState<'crop' | 'soil' | 'satellite'>('crop')
+  const [sources, setSources] = useState<InsightSources>({ diagnosis: null, weather: null, satellite: null })
 
   useEffect(() => {
-    let isMounted = true;
-    setLoading(true);
-    insightsService.getInsights(activeFarm?.id || '').then(d => { 
-      if (isMounted) { setInsights(d); setLoading(false); }
-    });
-    return () => { isMounted = false; }
-  }, [activeFarm])
+    if (!activeFarm) { setLoading(false); return }
+    let cancelled = false
+    setLoading(true)
+    const hasLocation = typeof activeFarm.location?.lat === 'number' && typeof activeFarm.location?.lng === 'number' &&
+      !(activeFarm.location.lat === 0 && activeFarm.location.lng === 0)
+    Promise.all([
+      cropDoctorService.getRecentDiagnoses(1, activeFarm.id).then(r => r?.[0] || null).catch(() => null),
+      weatherService.getWeather(activeFarm.id, activeFarm).catch(() => null),
+      hasLocation
+        ? satelliteService.getSatelliteData(activeFarm.id, activeFarm.location.lat, activeFarm.location.lng, activeFarm.boundary).catch(() => null)
+        : Promise.resolve(null)
+    ]).then(([diagnosis, weather, satellite]) => {
+      if (cancelled) return
+      setSources({
+        diagnosis: diagnosis && !isFallbackRecord(diagnosis) ? diagnosis : null,
+        weather: weather && !weather.isDemo ? weather : null,
+        satellite
+      })
+      setLoading(false)
+    })
+    return () => { cancelled = true }
+  }, [activeFarm?.id, activeFarm?.location?.lat, activeFarm?.location?.lng])
 
-  // Fetch satellite data when the tab is activated or farm changes
-  useEffect(() => {
-    if (tab === 'satellite' && activeFarm) {
-      let isMounted = true;
-      setSatelliteLoading(true);
-      satelliteService.getSatelliteData(activeFarm.id, activeFarm.location?.lat, activeFarm.location?.lng, activeFarm.boundary)
-        .then(data => {
-          if (isMounted) {
-            setSatelliteData(data);
-            setSatelliteLoading(false);
-            
-            // Save this observation to the farm state for dynamic insights
-            import('@/services').then(({ farmService }) => {
-              farmService.updateFarm(activeFarm.id, { lastNdviObservation: data }).catch(console.error);
-            });
-          }
-        })
-        .catch(err => {
-          if (isMounted) setSatelliteLoading(false);
-        });
-      return () => { isMounted = false; }
-    }
-  }, [tab, activeFarm])
+  const satelliteOk = sources.satellite?.source === 'earth-engine' && typeof sources.satellite.ndvi?.value === 'number'
+  const health: FarmHealth = calculateFarmHealthScore(activeFarm, sources.diagnosis, satelliteOk ? sources.satellite : null, sources.weather)
+
+  // Factor explanations are generated in English — translate them for display
+  const explanations = useLocalizedLabels(
+    Object.fromEntries(health.factors.map(f => [f.name, f.explanation])),
+    i18n.language
+  )
+
+  const missing: string[] = []
+  if (!sources.diagnosis) missing.push(t('insights.missing.diagnosis', 'No crop diagnosis for this farm yet — use Crop Doctor to add one.'))
+  if (!satelliteOk) missing.push(t('insights.missing.satellite', 'Satellite vegetation data is unavailable.'))
+  if (!sources.weather) missing.push(t('insights.missing.weather', 'Live weather is unavailable.'))
+
+  const soilMoisture = sources.weather?.soilMoisture
+  const moistureLabel = sources.weather?.soilMoistureStatus && sources.weather.soilMoistureStatus !== 'UNAVAILABLE'
+    ? t(`insights.moisture.${sources.weather.soilMoistureStatus}`, sources.weather.soilMoistureStatus)
+    : null
 
   return (
     <motion.div variants={pageVariants} initial="initial" animate="animate" className="min-h-screen bg-background">
@@ -66,115 +106,145 @@ const InsightsPage: React.FC = () => {
           <p className="text-sm text-brown-earth/80 font-medium">{t('insights.subtitle', 'Crop health, soil moisture, and satellite metrics.')}</p>
         </div>
 
-        <div className="flex gap-2">
-          <Chip selected={tab === 'crop'} onClick={() => setTab('crop')}>{t('insights.cropHealth', 'Crop Health')}</Chip>
-          <Chip selected={tab === 'soil'} onClick={() => setTab('soil')}>{t('insights.soilHealth', 'Soil Health')}</Chip>
-          <Chip selected={tab === 'satellite'} onClick={() => setTab('satellite')}>{t('insights.satellite', 'Satellite')}</Chip>
-        </div>
-
-        {loading ? <InsightSkeleton /> : insights && (
+        {!activeFarm ? (
+          <Card padding="md" className="text-center text-sm text-text-secondary">{t('insights.noFarm', 'Add or select a farm to see insights.')}</Card>
+        ) : (
           <>
-            {tab === 'crop' && (
-              <div className="space-y-4">
-                <Card padding="md" className="bg-cream border-brown-pastel/40 shadow-sm">
-                  <div className="flex items-center justify-between mb-4">
-                    <div>
-                      <p className="text-[11px] uppercase tracking-widest text-brown-earth/80 font-bold mb-0.5">{t('insights.cropHealth', 'Crop Health')} {t('insights.score', 'Score')}</p>
-                      <h2 className="text-4xl font-bold text-green-forest">{insights.cropHealth.score}<span className="text-xl text-brown-earth/60">/100</span></h2>
-                      <Badge variant="green" dot className="mt-1">
-                        {insights.cropHealth.trend === 'up' ? t('insights.trend.improving', '↑ Improving') : insights.cropHealth.trend === 'down' ? t('insights.trend.declining', '↓ Declining') : t('insights.trend.stable', '→ Stable')}
-                      </Badge>
-                    </div>
-                    <div className="text-5xl">💚</div>
-                  </div>
-                  <ProgressBar value={insights.cropHealth.score} color="green" size="md" />
-                  <div className="mt-4 pt-4 border-t border-brown-pastel/20">
-                    <p className="text-[10px] font-bold text-brown-earth uppercase tracking-widest mb-2">{t('insights.contributingFactors', 'Contributing Factors')}</p>
-                    <div className="space-y-2">
-                      {insights.cropHealth.factors.map((f: string) => (
-                        <div key={f} className="flex items-center gap-2.5 text-sm text-text-main font-medium">
-                          <span className="text-green-forest shrink-0">✓</span>{t(`insights.factors.${f}`, f)}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </Card>
-              </div>
-            )}
+            <div className="flex gap-2 overflow-x-auto -mx-1 px-1 pb-1" role="tablist">
+              <Chip selected={tab === 'crop'} onClick={() => setTab('crop')}>{t('insights.cropHealth', 'Crop Health')}</Chip>
+              <Chip selected={tab === 'soil'} onClick={() => setTab('soil')}>{t('insights.soilHealth', 'Soil Health')}</Chip>
+              <Chip selected={tab === 'satellite'} onClick={() => setTab('satellite')}>{t('insights.satellite', 'Satellite')}</Chip>
+            </div>
 
-            {tab === 'soil' && (
-              <div className="space-y-4">
-                <Card padding="md" className="bg-cream border-brown-pastel/40 shadow-sm">
-                  <div className="flex items-center justify-between mb-4">
-                    <div>
-                      <p className="text-[11px] uppercase tracking-widest text-brown-earth/80 font-bold mb-0.5">{t('insights.soilHealth', 'Soil Health')} {t('insights.score', 'Score')}</p>
-                      <h2 className="text-4xl font-bold text-brown-deep">{insights.soilHealth.score}<span className="text-xl text-brown-earth/60">/100</span></h2>
-                      <Badge variant="earth" className="mt-1">{t('insights.soil.moisture', 'Moisture')}: {insights.soilHealth.moisture}</Badge>
-                    </div>
-                    <div className="text-5xl">🪨</div>
-                  </div>
-                  <ProgressBar value={insights.soilHealth.score} color="earth" size="md" />
-                  <div className="mt-4 p-3 bg-white border border-brown-pastel/30 rounded-xl shadow-sm">
-                    <p className="text-[10px] font-bold text-brown-earth uppercase tracking-widest mb-1">{t('insights.soil.nutrientStatus', 'Nutrient Status')}</p>
-                    <p className="text-sm text-text-main font-medium">{insights.soilHealth.nutrients}</p>
-                  </div>
-                </Card>
-              </div>
-            )}
-
-            {tab === 'satellite' && (
-              <div className="space-y-4">
-                {satelliteLoading ? (
-                  <InsightSkeleton />
-                ) : satelliteData ? (
-                  <Card padding="none" className="overflow-hidden bg-cream border-brown-pastel/40 shadow-sm">
-                    <div className="relative">
-                      <img src={satelliteData.satelliteImageUrl} alt={t("ui.insightsPage.satelliteFarmView", "Satellite farm view")} className="w-full h-[30vh] sm:h-64 md:h-80 lg:h-[400px] object-cover" />
-                      <div className="absolute top-3 right-3 flex gap-2">
-                        {satelliteData.source === 'demo' && <Badge variant="demo">{t('insights.demo', 'Demo Synthetic Data')}</Badge>}
-                        {satelliteData.source === 'error' && <Badge variant="danger">{t('insights.error', 'Connection Error')}</Badge>}
+            {loading ? <InsightSkeleton /> : (
+              <>
+                {tab === 'crop' && (
+                  <Card padding="md" className="bg-cream border-brown-pastel/40 shadow-sm space-y-4">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="min-w-0">
+                        <p className="text-[11px] uppercase tracking-widest text-brown-earth/80 font-bold mb-0.5">{t('insights.cropHealth', 'Crop Health')} {t('insights.score', 'Score')}</p>
+                        {health.score === null ? (
+                          <h2 className="text-2xl font-bold text-gray-500">{t('health.status.Unknown', 'No data yet')}</h2>
+                        ) : (
+                          <>
+                            <h2 className="text-4xl font-bold text-green-forest">{health.score}<span className="text-xl text-brown-earth/60">/100</span></h2>
+                            <Badge variant={health.score >= 75 ? 'green' : health.score >= 40 ? 'warning' : 'danger'} dot className="mt-1">
+                              {t(`health.status.${health.status}`, health.status)}
+                            </Badge>
+                          </>
+                        )}
                       </div>
-                      {/* High-res satellite image is shown above without the blurry NDVI overlay */}
+                      <div className="text-5xl shrink-0" aria-hidden>💚</div>
                     </div>
-                    <div className="p-5">
-                      <div className="flex items-center justify-between">
+                    {health.score !== null && <ProgressBar value={health.score} color="green" size="md" />}
+
+                    {health.factors.length > 0 && (
+                      <div className="pt-4 border-t border-brown-pastel/20">
+                        <p className="text-[10px] font-bold text-brown-earth uppercase tracking-widest mb-2">{t('insights.contributingFactors', 'Contributing Factors')}</p>
+                        <ul className="space-y-3">
+                          {health.factors.map(f => (
+                            <li key={f.name} className="space-y-1">
+                              <div className="flex flex-wrap items-center gap-2">
+                                <span className="text-sm font-semibold text-text-main">{t(`health.factor.${f.name}`, f.name)}</span>
+                                <SourceTag kind={FACTOR_KIND[f.name] || 'estimated'} />
+                                <span className="ml-auto text-xs font-bold text-green-forest">{f.score}/100 · {Math.round(f.weight * 100)}%</span>
+                              </div>
+                              <p className="text-xs text-text-secondary">{explanations[f.name] || f.explanation}</p>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {missing.length > 0 && (
+                      <div className="p-3 rounded-xl bg-gray-50 border border-gray-200">
+                        <p className="text-[10px] font-bold text-gray-600 uppercase tracking-widest mb-1.5">{t('insights.notIncluded', 'Not included in the score')}</p>
+                        <ul className="space-y-1 text-xs text-gray-700 list-disc pl-4">{missing.map(m => <li key={m}>{m}</li>)}</ul>
+                      </div>
+                    )}
+                  </Card>
+                )}
+
+                {tab === 'soil' && (
+                  <Card padding="md" className="bg-cream border-brown-pastel/40 shadow-sm space-y-3">
+                    <div className="flex items-center justify-between gap-3">
+                      <div>
+                        <p className="text-[11px] uppercase tracking-widest text-brown-earth/80 font-bold">{t('farm.context.soil', 'Soil Type')}</p>
+                        <p className="text-xl font-bold text-brown-deep">
+                          {activeFarm.soilType && activeFarm.soilType !== 'Unknown' ? t(`soils.${activeFarm.soilType}`, activeFarm.soilType) : t('states.unavailable', 'Unavailable')}
+                        </p>
+                      </div>
+                      <div className="text-5xl" aria-hidden>🪨</div>
+                    </div>
+
+                    <div className="p-3 bg-white border border-brown-pastel/30 rounded-xl">
+                      <div className="flex flex-wrap items-center gap-2 mb-1">
+                        <p className="text-[10px] font-bold text-brown-earth uppercase tracking-widest">{t('insights.soil.moisture', 'Moisture')}</p>
+                        <SourceTag kind={typeof soilMoisture === 'number' ? 'estimated' : 'unavailable'} />
+                      </div>
+                      {typeof soilMoisture === 'number' ? (
+                        <>
+                          <p className="text-sm text-text-main font-semibold">
+                            {Math.round(soilMoisture * 100)}% {t('insights.soil.volumetric', 'volumetric (top 0–7 cm)')}{moistureLabel ? ` · ${moistureLabel}` : ''}
+                          </p>
+                          <p className="text-[11px] text-text-secondary mt-0.5">{t('insights.soil.modelNote', 'Weather-model estimate from Open-Meteo, not a sensor in your field.')}</p>
+                        </>
+                      ) : (
+                        <p className="text-sm text-text-secondary">{t('insights.soil.noMoisture', 'Soil moisture data is unavailable right now.')}</p>
+                      )}
+                    </div>
+
+                    <div className="p-3 bg-white border border-brown-pastel/30 rounded-xl">
+                      <div className="flex flex-wrap items-center gap-2 mb-1">
+                        <p className="text-[10px] font-bold text-brown-earth uppercase tracking-widest">{t('insights.soil.nutrientStatus', 'Nutrient Status')}</p>
+                        <SourceTag kind="unavailable" />
+                      </div>
+                      <p className="text-sm text-text-main">{t('insights.soil.noSoilTest', 'No soil test recorded. Nutrient levels can only be known from a laboratory soil test.')}</p>
+                    </div>
+                  </Card>
+                )}
+
+                {tab === 'satellite' && (
+                  satelliteOk && sources.satellite ? (
+                    <Card padding="none" className="overflow-hidden bg-cream border-brown-pastel/40 shadow-sm">
+                      {sources.satellite.satelliteImageUrl && (
+                        <img src={sources.satellite.satelliteImageUrl} alt={t('ui.insightsPage.satelliteFarmView', 'Satellite farm view')} className="w-full h-56 sm:h-64 md:h-80 lg:h-[400px] object-cover" />
+                      )}
+                      <div className="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <div>
-                          <p className="text-[11px] uppercase tracking-widest text-brown-earth/80 font-bold mb-0.5">{t('insights.ndvi', 'NDVI Index')}</p>
-                          <div className="flex items-baseline gap-2">
-                            <p className="text-3xl font-bold text-green-forest">{satelliteData.ndvi.value}</p>
-                            <Badge variant="green" dot>{satelliteData.ndvi.label}</Badge>
+                          <div className="flex items-center gap-2 mb-0.5">
+                            <p className="text-[11px] uppercase tracking-widest text-brown-earth/80 font-bold">{t('insights.ndvi', 'NDVI Index')}</p>
+                            <SourceTag kind="measured" />
                           </div>
+                          <div className="flex items-baseline gap-2">
+                            <p className="text-3xl font-bold text-green-forest">{sources.satellite.ndvi.value.toFixed(2)}</p>
+                            <Badge variant="green" dot>{t(`insights.ndviLabel.${sources.satellite.ndvi.label}`, sources.satellite.ndvi.label)}</Badge>
+                          </div>
+                          <p className="text-[11px] text-text-secondary mt-1">{t('insights.ndviSource', 'Sentinel-2 imagery via Google Earth Engine')}</p>
                         </div>
-                        <div className="text-right">
+                        <div>
                           <p className="text-[10px] font-bold text-brown-earth uppercase tracking-widest mb-1.5">{t('insights.range', 'Range')}</p>
-                          <div className="flex items-center gap-2 mt-1">
+                          <div className="flex items-center gap-2">
                             <span className="text-xs text-text-secondary font-medium">{t('insights.rangeLabels.poor', 'Poor')}</span>
-                            <div className="w-24 h-2 rounded-full" style={{background: 'linear-gradient(to right, #ff4444, #ffaa00, #44aa44, #006600)'}} />
+                            <div className="w-24 h-2 rounded-full" style={{ background: 'linear-gradient(to right, #ff4444, #ffaa00, #44aa44, #006600)' }} />
                             <span className="text-xs text-text-secondary font-medium">{t('insights.rangeLabels.excellent', 'Excellent')}</span>
                           </div>
                         </div>
                       </div>
-                    </div>
-                    {satelliteData.source === 'error' && satelliteData.errorDetails && (
-                      <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm p-6 text-center">
-                        <div className="bg-red-50 text-red-900 border border-red-200 rounded-xl p-4 max-w-md shadow-lg">
-                          <p className="font-bold mb-1">{t('insights.eeError', 'Earth Engine Connection Error')}</p>
-                          <p className="text-xs break-words">{satelliteData.errorDetails}</p>
-                        </div>
-                      </div>
-                    )}
-                  </Card>
-                ) : (
-                  <div className="p-8 text-center text-brown-earth/60">{t('insights.noData', 'No satellite data available.')}</div>
+                    </Card>
+                  ) : (
+                    <Card padding="md" className="border-gray-200 bg-gray-50 text-center space-y-1.5" role="status">
+                      <p className="text-3xl" aria-hidden>🛰️</p>
+                      <p className="font-bold text-gray-800">{t('insights.satelliteUnavailable', 'Satellite data is unavailable')}</p>
+                      <p className="text-sm text-gray-600">
+                        {sources.satellite?.source === 'error'
+                          ? t('insights.satelliteError', 'Earth Engine could not process this farm right now. Please try again later.')
+                          : t('insights.noData', 'No satellite data available.')}
+                      </p>
+                    </Card>
+                  )
                 )}
-                
-                {satelliteData?.source === 'demo' && (
-                  <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-xl p-3 shadow-sm">
-                    <span>🛰️</span>
-                    <p className="text-xs text-amber-700 font-medium">{t('insights.syntheticData', 'Satellite data shown is synthetic demo data based on coordinates')} ({satelliteData.latitude?.toFixed(4)}, {satelliteData.longitude?.toFixed(4)}). {t('insights.livePending', 'Live Earth Engine integration pending.')}</p>
-                  </div>
-                )}
-              </div>
+              </>
             )}
           </>
         )}

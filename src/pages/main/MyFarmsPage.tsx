@@ -20,7 +20,8 @@ import type { Farm } from '@/types'
 
 // Dynamic Health Indicator Component for the list view
 const FarmHealthIndicator = ({ farm, i18nLanguage, updateFarm }: { farm: Farm; i18nLanguage: string; updateFarm?: (id: string, updates: Partial<Farm>) => void }) => {
-  const [score, setScore] = React.useState<number>(farm.healthScore ?? 82)
+  // Last stored score until live signals load; null means no real data yet
+  const [score, setScore] = React.useState<number | null>(typeof farm.healthScore === 'number' && farm.healthScore > 0 ? farm.healthScore : null)
   
   React.useEffect(() => {
     let isSubscribed = true
@@ -29,18 +30,17 @@ const FarmHealthIndicator = ({ farm, i18nLanguage, updateFarm }: { farm: Farm; i
       weatherService.getWeather(farm.id, farm).catch(() => null),
       cropDoctorService.getRecentDiagnoses(1, farm.id).then(res => res?.[0] || null).catch(() => null),
       (farm.location?.lat && farm.location?.lng) 
-        ? satelliteService.getSatelliteData(farm.id, farm.location.lat, farm.location.lng).catch(() => null)
+        ? satelliteService.getSatelliteData(farm.id, farm.location.lat, farm.location.lng, farm.boundary).catch(() => null)
         : Promise.resolve(null)
     ]).then(([w, d, s]) => {
       if (isSubscribed) {
         const health = calculateFarmHealthScore(farm, d, s, w)
-        if (health.score !== score) {
-          setScore(health.score)
-        }
+        setScore(health.score)
         // Use updateFarm (setDoc merge) not saveFarm (addDoc) — prevents creating duplicate farms
-        if (updateFarm && health.score !== farm.healthScore) {
-          updateFarm(farm.id, { healthScore: health.score })
-          farmService.updateFarm(farm.id, { healthScore: health.score }).catch(console.error)
+        if (updateFarm && health.score !== null && health.score !== farm.healthScore) {
+          const value = health.score
+          updateFarm(farm.id, { healthScore: value })
+          farmService.updateFarm(farm.id, { healthScore: value }).catch(console.error)
         }
       }
     })
@@ -49,8 +49,8 @@ const FarmHealthIndicator = ({ farm, i18nLanguage, updateFarm }: { farm: Farm; i
 
   return (
     <div className="flex items-center gap-2">
-      <ProgressBar value={score} color="green" size="sm" />
-      <span className="text-xs font-bold text-green-forest shrink-0">{formatLocalizedPercent(score, i18nLanguage)}</span>
+      <ProgressBar value={score ?? 0} color="green" size="sm" />
+      <span className="text-xs font-bold text-green-forest shrink-0">{score === null ? '—' : formatLocalizedPercent(score, i18nLanguage)}</span>
     </div>
   )
 }

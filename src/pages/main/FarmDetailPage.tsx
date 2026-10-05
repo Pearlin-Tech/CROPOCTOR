@@ -251,8 +251,11 @@ const FarmDetailPage: React.FC = () => {
     setRefreshing(false)
   }
 
-  const healthScoreVal = farmHealth?.score ?? (farm?.healthScore ?? 82)
-  const healthStatus = farmHealth?.status ?? 'Unknown'
+  // Never show an invented score: fall back to the last stored real score, else "—"
+  const storedScore = typeof farm?.healthScore === 'number' && farm.healthScore > 0 ? farm.healthScore : null
+  const healthScoreKnown: number | null = farmHealth ? farmHealth.score : storedScore
+  const healthScoreVal = healthScoreKnown ?? 0
+  const healthStatus = t(`health.status.${healthScoreKnown === null ? 'Unknown' : (farmHealth?.status ?? 'Unknown')}`, healthScoreKnown === null ? 'No data yet' : (farmHealth?.status ?? 'Unknown'))
 
   const healthColor = (s: string) => {
     if (s === 'Excellent') return 'bg-green-100 text-green-800'
@@ -324,10 +327,10 @@ const FarmDetailPage: React.FC = () => {
                   <circle cx="18" cy="18" r="15.5" fill="none" stroke="#2E7D32" strokeWidth="3"
                     strokeDasharray={`${healthScoreVal * 0.974} ${100 - healthScoreVal * 0.974}`} strokeLinecap="round" />
                 </svg>
-                <span className="absolute inset-0 flex items-center justify-center text-xs font-bold text-green-forest">{healthScoreVal}%</span>
+                <span className="absolute inset-0 flex items-center justify-center text-xs font-bold text-green-forest">{healthScoreKnown === null ? '—' : `${healthScoreVal}%`}</span>
               </div>
               <div>
-                <p className="text-2xl font-bold text-gray-800">{healthScoreVal}<span className="text-lg text-gray-400">/100</span></p>
+                <p className="text-2xl font-bold text-gray-800">{healthScoreKnown === null ? '—' : healthScoreVal}<span className="text-lg text-gray-400">/100</span></p>
                 <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${healthColor(healthStatus)}`}>{healthStatus}</span>
                 {loadingData && <p className="text-[10px] text-gray-400 mt-1">{t('farm.details.calculating', 'Calculating…')}</p>}
               </div>
@@ -360,7 +363,7 @@ const FarmDetailPage: React.FC = () => {
               {[
                 { label: t('farm.location.locationLabel', 'Location'), value: farm.location.displayName || `${farm.location.lat?.toFixed(4)}, ${farm.location.lng?.toFixed(4)}`, icon: '📍' },
                 { label: t('farm.location.primaryCrop', 'Crop'), value: farm.primaryCrop, icon: '🌱' },
-                { label: t('farm.location.soilTitle', 'Soil'), value: farm.soilType, icon: '🪨' },
+                { label: t('farm.context.soil', 'Soil'), value: farm.soilType, icon: '🪨' },
                 { label: t('farm.location.stageTitle', 'Stage'), value: farm.cropStage, icon: '🌸' },
                 { label: t('farm.location.areaLabel', 'Area'), value: `${farm.area} ${t('dashboard.overview.acres', 'acres')}`, icon: '📐' },
               ].map(({ label, value, icon }) => (

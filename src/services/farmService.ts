@@ -27,6 +27,9 @@ export interface FirestoreFarm {
   };
   crop?: string;
   stage?: string;
+  soilType?: string;
+  plantingDate?: string;
+  boundary?: Array<{ lat: number; lng: number }>;
   healthPercentage?: number;
   createdAt: Timestamp;
   updatedAt: Timestamp;
@@ -57,9 +60,11 @@ export class FirebaseFarmService implements IFarmService {
       area: data.area?.value || 0,
       areaUnit: data.area?.unit || 'acres',
       primaryCrop: data.crop || 'Unknown Crop',
-      soilType: 'Unknown', // Not in stage 1 model, providing fallback
+      soilType: data.soilType || 'Unknown',
       cropStage: data.stage || 'Unknown Stage',
-      healthScore: data.healthPercentage || 0,
+      plantingDate: data.plantingDate || undefined,
+      boundary: Array.isArray(data.boundary) ? data.boundary : undefined,
+      healthScore: data.healthPercentage ?? 0,
       createdAt: data.createdAt?.toDate?.()?.toISOString() || new Date().toISOString(),
       updatedAt: data.updatedAt?.toDate?.()?.toISOString() || new Date().toISOString(),
       // Mock images since image upload is not in stage 1
@@ -94,12 +99,6 @@ export class FirebaseFarmService implements IFarmService {
   async saveFarm(farm: Partial<Farm>): Promise<Farm> {
     const user = auth.currentUser;
 
-    // ── Exact diagnostic logs as requested ──────────────────────────────────
-    console.log("[saveFarm] auth.currentUser.uid =", auth.currentUser?.uid);
-    console.log("[saveFarm] authenticated =", !!auth.currentUser);
-    console.log("[saveFarm] Firestore project =", firebaseConfig.projectId);
-    console.log("[saveFarm] writing to path = users/" + auth.currentUser?.uid + "/farms");
-
     if (!user) throw new Error('User is not authenticated');
 
     const farmsRef = collection(db, 'users', user.uid, 'farms');
@@ -117,10 +116,14 @@ export class FirebaseFarmService implements IFarmService {
       },
       crop: farm.primaryCrop || '',
       stage: farm.cropStage || '',
-      healthPercentage: farm.healthScore || 100,
+      soilType: farm.soilType || '',
+      boundary: (farm.boundary || []).map(p => ({ lat: p.lat, lng: p.lng })),
       createdAt: Timestamp.now(),
       updatedAt: Timestamp.now()
     };
+    // Health is calculated from real data later — never stored as an invented starting value
+    if (typeof farm.healthScore === 'number') firestoreFarm.healthPercentage = farm.healthScore;
+    if (farm.plantingDate) firestoreFarm.plantingDate = farm.plantingDate;
 
     try {
       const docRef = await addDoc(farmsRef, firestoreFarm);
@@ -163,6 +166,9 @@ export class FirebaseFarmService implements IFarmService {
     if (updates.healthScore !== undefined) firestoreUpdates.healthPercentage = updates.healthScore;
     if (updates.primaryCrop !== undefined) firestoreUpdates.crop = updates.primaryCrop;
     if (updates.cropStage !== undefined) firestoreUpdates.stage = updates.cropStage;
+    if (updates.soilType !== undefined) firestoreUpdates.soilType = updates.soilType;
+    if (updates.plantingDate !== undefined) firestoreUpdates.plantingDate = updates.plantingDate;
+    if (updates.boundary !== undefined) firestoreUpdates.boundary = updates.boundary;
     if (updates.area !== undefined) firestoreUpdates['area.value'] = updates.area;
     if (updates.areaUnit !== undefined) firestoreUpdates['area.unit'] = updates.areaUnit;
     if (updates.location !== undefined) {
@@ -224,15 +230,10 @@ export class FirebaseFarmService implements IFarmService {
     const ref = collection(db, 'users', userId, 'farms');
     const q = query(ref);
 
-    // Run a parallel direct getDocs for diagnostics
-    this.diagnosticDirectRead(userId);
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
       console.log('📡 [subscribeToUserFarms] onSnapshot CALLBACK FIRED. docs.size:', snapshot.size);
-      const farms = snapshot.docs.map(docSnap => {
-        console.log('📡 [subscribeToUserFarms] doc.id:', docSnap.id);
-        return this.mapToAppFarm(docSnap.id, docSnap.data() as FirestoreFarm);
-      });
+      const farms = snapshot.docs.map(docSnap => this.mapToAppFarm(docSnap.id, docSnap.data() as FirestoreFarm));
       console.log('📡 [subscribeToUserFarms] Calling UI callback with', farms.length, 'farms');
       callback(farms);
     }, (error: any) => {

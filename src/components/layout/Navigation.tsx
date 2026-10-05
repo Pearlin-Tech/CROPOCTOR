@@ -31,7 +31,7 @@ export const BottomNav: React.FC = () => {
   const { t } = useTranslation()
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-sm border-t border-gray-100 shadow-nav md:hidden"
+      className="fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur-sm border-t border-gray-100 shadow-nav md:hidden pb-[env(safe-area-inset-bottom)]"
       aria-label={t("ui.navigation.mainNavigation", "Main navigation")}
     >
       <div className="flex items-center justify-around h-[68px] px-1 safe-area-inset-bottom">
@@ -82,7 +82,7 @@ export const Sidebar: React.FC = () => {
   const { t } = useTranslation()
   return (
     <aside
-      className="hidden lg:flex flex-col w-64 min-h-screen bg-off-white border-r border-green-pastel/20 fixed left-0 top-0 bottom-0 z-40"
+      className="hidden lg:flex flex-col w-64 min-h-screen bg-off-white border-e border-green-pastel/20 fixed start-0 top-0 bottom-0 z-40"
       aria-label={t("ui.navigation.sidebarNavigation", "Sidebar navigation")}
     >
       {/* Logo */}

@@ -5,9 +5,10 @@ import { pageVariants } from '@/animations/variants'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { useTranslation } from 'react-i18next'
-import { useFarmSetup } from '@/store/FarmSetupContext'
+import { useFarmSetup, useRequireSetupLocation } from '@/store/FarmSetupContext'
 
 const FarmDetailsPage: React.FC = () => {
+  useRequireSetupLocation()
   const navigate = useNavigate()
   const { t } = useTranslation()
   const { setup, setFarmName } = useFarmSetup()

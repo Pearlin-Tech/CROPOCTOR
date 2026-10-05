@@ -46,6 +46,7 @@ const AIAdvisorPage: React.FC = () => {
   const localizedDiseaseName = localizedLabels.disease || activeDiagnosis?.diseaseName || activeDiagnosis?.disease || ''
   const [weatherData, setWeatherData] = useState<any>(null)
   const [satelliteData, setSatelliteData] = useState<any>(null)
+  const sidebarHealth = calculateFarmHealthScore(activeFarm, activeDiagnosis && !isFallbackRecord(activeDiagnosis) ? activeDiagnosis : null, satelliteData, weatherData)
   const location = useLocation()
   
   const { authUser } = useUser()
@@ -73,7 +74,7 @@ const AIAdvisorPage: React.FC = () => {
     }).catch(() => {})
 
     if (activeFarm.location?.lat && activeFarm.location?.lng) {
-      satelliteService.getSatelliteData(activeFarm.id, activeFarm.location.lat, activeFarm.location.lng).then(s => {
+      satelliteService.getSatelliteData(activeFarm.id, activeFarm.location.lat, activeFarm.location.lng, activeFarm.boundary).then(s => {
         if (isMounted) setSatelliteData(s)
       }).catch(() => {})
     }
@@ -139,25 +140,27 @@ const AIAdvisorPage: React.FC = () => {
       let satelliteStr = 'Data unavailable'
 
       if (activeFarm) {
-        // Fetch weather
-        try {
-          const weather = await weatherService.getWeather(activeFarm.id, activeFarm)
-          weatherStr = `${weather.temperature}°C, ${weather.description}, Humidity: ${weather.humidity}%, Rain Chance: ${weather.rainChance}%`
-        } catch (e) {
-          console.warn('Failed to fetch weather for AI Advisor context', e)
+        // Reuse the data already loaded for the context panel; fetch only what is missing
+        let weatherForContext = weatherData
+        if (!weatherForContext) {
+          weatherForContext = await weatherService.getWeather(activeFarm.id, activeFarm).catch(() => null)
+          if (weatherForContext) setWeatherData(weatherForContext)
+        }
+        if (weatherForContext && !weatherForContext.isDemo) {
+          weatherStr = `${weatherForContext.temperature}°C, ${weatherForContext.description}, Humidity: ${weatherForContext.humidity}%, Rain Chance: ${weatherForContext.rainChance}%`
         }
 
-        // Fetch satellite
-        try {
-          if (activeFarm.location?.lat && activeFarm.location?.lng) {
-            const satData = await satelliteService.getSatelliteData(activeFarm.id, activeFarm.location.lat, activeFarm.location.lng)
-            satelliteStr = `NDVI: ${satData.ndvi.value.toFixed(2)} (${satData.ndvi.label}), Source: ${satData.source}`
-          }
-        } catch (e) {
-          console.warn('Failed to fetch satellite data for AI Advisor context', e)
+        let satForContext = satelliteData
+        if (!satForContext && activeFarm.location?.lat && activeFarm.location?.lng) {
+          satForContext = await satelliteService.getSatelliteData(activeFarm.id, activeFarm.location.lat, activeFarm.location.lng, activeFarm.boundary).catch(() => null)
+          if (satForContext) setSatelliteData(satForContext)
+        }
+        if (satForContext?.source === 'earth-engine' && typeof satForContext.ndvi?.value === 'number') {
+          satelliteStr = `NDVI: ${satForContext.ndvi.value.toFixed(2)} (${satForContext.ndvi.label}), Source: Sentinel-2 via Earth Engine`
         }
 
         // Use the active diagnosis state if available, or fetch again as fallback
+        let diagnosisForContext: DiagnosisResult | null = activeDiagnosis && !isFallbackRecord(activeDiagnosis) ? activeDiagnosis : null
         if (activeDiagnosis) {
           if (!isFallbackRecord(activeDiagnosis)) recentDiagnosisStr = diagnosisContextString(activeDiagnosis)
         } else {
@@ -167,6 +170,7 @@ const AIAdvisorPage: React.FC = () => {
               const d = diagnoses[0]
               if (!isFallbackRecord(d)) {
                 setActiveDiagnosis(d)
+                diagnosisForContext = d
                 recentDiagnosisStr = diagnosisContextString(d)
               }
             }
@@ -175,20 +179,8 @@ const AIAdvisorPage: React.FC = () => {
           }
         }
 
-        // Calculate dynamic health score for context
-        // Try to fetch weather/satellite again if we didn't cache them, or just use what we fetched
-        let satResult = null
-        let weatherResult = null
-        try {
-          if (activeFarm.location?.lat && activeFarm.location?.lng) {
-            satResult = await satelliteService.getSatelliteData(activeFarm.id, activeFarm.location.lat, activeFarm.location.lng)
-          }
-        } catch(e) {}
-        try {
-          weatherResult = await weatherService.getWeather(activeFarm.id, activeFarm)
-        } catch(e) {}
-        
-        const healthResult = calculateFarmHealthScore(activeFarm, activeDiagnosis, satResult, weatherResult)
+        // Same inputs as the context panel, so the prompt and the sidebar show the same score
+        const healthResult = calculateFarmHealthScore(activeFarm, diagnosisForContext, satForContext, weatherForContext)
         
         const res = await aiService.getRecommendation(q, { 
           farmId: activeFarm?.id, 
@@ -200,7 +192,7 @@ const AIAdvisorPage: React.FC = () => {
           weather: weatherStr,
           recentDiagnosis: recentDiagnosisStr,
           satelliteData: satelliteStr,
-          healthScore: `${healthResult.score}/100`,
+          healthScore: healthResult.score === null ? 'Not available' : `${healthResult.score}/100`,
           healthStatus: healthResult.status
         })
         const finalMsgs = [...newMsgsWithUser, res]
@@ -467,12 +459,12 @@ const AIAdvisorPage: React.FC = () => {
           <h3 className="font-bold text-brown-earth text-[11px] uppercase tracking-widest">{t('farm.context.title', 'Farm Context')}</h3>
           <Card variant="flat" padding="sm" className="space-y-3 bg-white/60 border border-brown-pastel/30 shadow-sm">
             {[
-              { label: t('farm.context.crop', 'Crop'),     value: t(`crops.${activeFarm?.primaryCrop || 'groundnut'}`, activeFarm?.primaryCrop || 'groundnut'), icon: '🌱' },
+              { label: t('farm.context.crop', 'Crop'),     value: activeFarm?.primaryCrop ? t(`crops.${activeFarm.primaryCrop}`, activeFarm.primaryCrop) : t('states.unavailable', 'Unavailable'), icon: '🌱' },
               { label: t('farm.context.soil', 'Soil'),     value: t(`soils.${activeFarm?.soilType || 'unknown'}`, activeFarm?.soilType || 'Unknown'),      icon: '🪨' },
-              { label: t('farm.context.stage', 'Stage'),    value: t(`stages.${activeFarm?.cropStage || 'flowering'}`, activeFarm?.cropStage || 'flowering'),  icon: '🌸' },
+              { label: t('farm.context.stage', 'Stage'),    value: activeFarm?.cropStage ? t(`stages.${activeFarm.cropStage}`, activeFarm.cropStage) : t('states.unavailable', 'Unavailable'),  icon: '🌸' },
               { label: t('farm.context.location', 'Location'), value: activeFarm?.location ? `${activeFarm.location.lat.toFixed(5)}, ${activeFarm.location.lng.toFixed(5)}` : 'Unknown', icon: '📍' },
               { label: t('farm.context.weather', 'Weather'),  value: weatherData ? (weatherData.isDemo || typeof weatherData.temperature !== 'number' ? t('states.unavailable', 'Unavailable') : `${formatLocalizedNumber(weatherData.temperature, i18n.language)}°C · ${t('dashboard.weatherCard.rain', 'Rain')} ${formatLocalizedPercent(weatherData.rainChance, i18n.language)}`) : t('states.loading', 'Loading...'), icon: '🌦' },
-              { label: t('farm.context.health', 'Health'),   value: (weatherData || satelliteData || activeDiagnosis) ? `${calculateFarmHealthScore(activeFarm, activeDiagnosis, satelliteData, weatherData).score}% (${calculateFarmHealthScore(activeFarm, activeDiagnosis, satelliteData, weatherData).status})` : t('states.loading', 'Loading...'), icon: '💚' },
+              { label: t('farm.context.health', 'Health'),   value: (weatherData || satelliteData || activeDiagnosis) ? (sidebarHealth.score === null ? t('health.status.Unknown', 'No data yet') : `${sidebarHealth.score}% (${t(`health.status.${sidebarHealth.status}`, sidebarHealth.status)})`) : t('states.loading', 'Loading...'), icon: '💚' },
             ].map(({ label, value, icon }) => (
               <div key={label} className="flex items-center gap-3">
                 <span className="text-lg w-6 text-center">{icon}</span>
